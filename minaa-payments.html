@@ -810,7 +810,25 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
 <script>
+// ── Firebase ───────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyC-Nylul8l-RfYy1K-LurE17oPBqw2oLBs",
+  authDomain: "minaa-payments.firebaseapp.com",
+  projectId: "minaa-payments",
+  storageBucket: "minaa-payments.firebasestorage.app",
+  messagingSenderId: "469963012025",
+  appId: "1:469963012025:web:0b1130d7d0c2f2ec23a868",
+  measurementId: "G-83DBSLNEVJ"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
 // ── Exchange Rates ─────────────────────────────────────────────
 let rates = { USD: null, EUR: null };
 
