@@ -903,12 +903,18 @@ function updateConvertHint() {
 }
 
 // ── State ──────────────────────────────────────────────────────
-let payments = JSON.parse(localStorage.getItem('minaa_v2_payments') || '[]');
-let nextId   = parseInt(localStorage.getItem('minaa_v2_nextId')    || '1');
+let payments = [];
+let unsubscribePayments = null;
 
-function save() {
-  localStorage.setItem('minaa_v2_payments', JSON.stringify(payments));
-  localStorage.setItem('minaa_v2_nextId',   String(nextId));
+function subscribeToPayments() {
+  if (unsubscribePayments) unsubscribePayments();
+  unsubscribePayments = db.collection('payments').onSnapshot(snapshot => {
+    payments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    render();
+  }, err => {
+    console.error('Firestore sync error', err);
+    showToast('⚠️ تعذّر الاتصال بقاعدة البيانات');
+  });
 }
 
 // ── Format ─────────────────────────────────────────────────────
@@ -947,29 +953,27 @@ function addPayment() {
 
   const kwdValue = toKWD(rawValue, currency);
 
-  payments.push({
-    id: nextId++,
+  db.collection('payments').add({
     name,
     origValue: rawValue,
     origCurrency: currency,
     kwdValue,
     type,
     date: new Date().toISOString()
-  });
-  save();
-  render();
+  }).then(() => {
+    showToast('✅ تمت الإضافة: ' + fmtKWD(kwdValue));
+  }).catch(() => showToast('❌ تعذّرت الإضافة'));
 
   document.getElementById('inp-name').value  = '';
   document.getElementById('inp-value').value = '';
   document.getElementById('convert-hint').textContent = '';
-  showToast('✅ تمت الإضافة: ' + fmtKWD(kwdValue));
 }
 
 // ── Delete ─────────────────────────────────────────────────────
 function deletePayment(id) {
-  payments = payments.filter(p => p.id !== id);
-  save(); render();
-  showToast('🗑️ تم الحذف');
+  db.collection('payments').doc(id).delete()
+    .then(() => showToast('🗑️ تم الحذف'))
+    .catch(() => showToast('❌ تعذّر الحذف'));
 }
 
 // ── Render ─────────────────────────────────────────────────────
@@ -1026,8 +1030,8 @@ function renderList(listId, items, type) {
         ${isConverted ? `<div class="pay-orig-amt">محوّل من ${p.origCurrency}</div>` : ''}
       </div>
       <div class="pay-actions">
-        <button class="btn-edit" onclick="openEdit(${p.id})" title="تعديل">✏️</button>
-        <button class="btn-del"  onclick="deletePayment(${p.id})" title="حذف">✕</button>
+        <button class="btn-edit" onclick="openEdit('${p.id}')" title="تعديل">✏️</button>
+        <button class="btn-del"  onclick="deletePayment('${p.id}')" title="حذف">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -1067,22 +1071,17 @@ function saveEdit() {
   if (!name)             return showToast('⚠️ أدخل اسم الدفعة');
   if (!rawValue || rawValue <= 0) return showToast('⚠️ أدخل قيمة صحيحة');
 
-  const idx = payments.findIndex(x => x.id === editingId);
-  if (idx === -1) return;
-
-  payments[idx] = {
-    ...payments[idx],
+  db.collection('payments').doc(editingId).update({
     name,
     origValue: rawValue,
     origCurrency: currency,
     kwdValue: toKWD(rawValue, currency),
     type
-  };
+  }).then(() => showToast('✅ تم حفظ التعديل'))
+    .catch(() => showToast('❌ تعذّر حفظ التعديل'));
 
-  save(); render();
   document.getElementById('edit-modal').style.display = 'none';
   editingId = null;
-  showToast('✅ تم حفظ التعديل');
 }
 
 function updateEditCurrencyStyle() {
