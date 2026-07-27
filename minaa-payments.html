@@ -1118,6 +1118,11 @@ function showToast(msg) {
 
 // ── Keyboard shortcuts ─────────────────────────────────────────
 document.addEventListener('keydown', e => {
+  const loggedIn = document.getElementById('app-content').style.display !== 'none';
+  if (!loggedIn) {
+    if (e.key === 'Enter') login();
+    return;
+  }
   if (e.key === 'Escape') {
     // Close invoice if open
     const inv = document.getElementById('inv-overlay');
