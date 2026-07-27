@@ -1304,7 +1304,7 @@ function printInvoice() {
 // ── Export / Import / Clear ────────────────────────────────────
 function exportData() {
   if (!payments.length) return showToast('⚠️ لا توجد بيانات للتصدير');
-  const blob = new Blob([JSON.stringify({ payments, nextId }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ payments }, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'minaa-payments-backup.json';
@@ -1319,22 +1319,37 @@ function importData(e) {
   reader.onload = function(ev) {
     try {
       const data = JSON.parse(ev.target.result);
+      let list;
       if (Array.isArray(data.payments)) {
-        payments = data.payments;
-        nextId = data.nextId || (payments.length + 1);
-        save(); render();
-        showToast(`✅ تم استيراد ${payments.length} دفعة بنجاح`);
+        list = data.payments;
       } else if (Array.isArray(data)) {
-        // old format
-        payments = data.map((p,i) => ({
-          id: i+1, name: p.name, origValue: p.value,
+        list = data.map(p => ({
+          name: p.name, origValue: p.value,
           origCurrency: 'KWD', kwdValue: p.value,
           type: p.type, date: p.date || new Date().toISOString()
         }));
-        nextId = payments.length + 1;
-        save(); render();
-        showToast(`✅ تم استيراد ${payments.length} دفعة بنجاح`);
-      } else { showToast('❌ ملف غير صحيح'); }
+      } else {
+        showToast('❌ ملف غير صحيح');
+        return;
+      }
+      const batch = db.batch();
+      list.forEach(p => {
+        const ref = db.collection('payments').doc();
+        batch.set(ref, {
+          name: p.name,
+          origValue: p.origValue,
+          origCurrency: p.origCurrency || 'KWD',
+          kwdValue: p.kwdValue,
+          type: p.type,
+          date: p.date || new Date().toISOString()
+        });
+      });
+      batch.commit()
+        .then(() => showToast(`✅ تم استيراد ${list.length} دفعة بنجاح`))
+        .catch(err => {
+          console.error('Firestore write error', err);
+          showToast('❌ تعذّر الاستيراد');
+        });
     } catch { showToast('❌ تعذّر قراءة الملف'); }
   };
   reader.readAsText(file);
@@ -1343,41 +1358,15 @@ function importData(e) {
 
 function clearData() {
   if (!confirm('هل أنت متأكد من مسح جميع البيانات؟')) return;
-  payments = []; nextId = 1;
-  save(); render();
-  showToast('🗑️ تم مسح جميع البيانات');
-}
-
-// ── Migration: استرجاع بيانات النسخة القديمة ──────────────────
-function migrateOldData() {
-  // مفاتيح النسخ القديمة
-  const oldKeys = ['minaa_payments', 'minaa_v1_payments'];
-  for (const key of oldKeys) {
-    const old = localStorage.getItem(key);
-    if (!old) continue;
-    try {
-      const oldPayments = JSON.parse(old);
-      if (!Array.isArray(oldPayments) || oldPayments.length === 0) continue;
-
-      // تحويل البيانات القديمة للصيغة الجديدة
-      const migrated = oldPayments.map((p, i) => ({
-        id: nextId++,
-        name: p.name || 'دفعة محولة',
-        origValue: p.value || 0,
-        origCurrency: 'KWD',
-        kwdValue: p.value || 0,
-        type: p.type || 'monthly',
-        date: p.date || new Date().toISOString()
-      }));
-
-      payments = [...migrated, ...payments];
-      save();
-      localStorage.removeItem(key); // حذف المفتاح القديم بعد الترحيل
-      showToast(`✅ تم استرجاع ${migrated.length} دفعة من النسخة القديمة`);
-      return true;
-    } catch(e) {}
-  }
-  return false;
+  db.collection('payments').get().then(snapshot => {
+    const batch = db.batch();
+    snapshot.docs.forEach(doc => batch.delete(doc.ref));
+    return batch.commit();
+  }).then(() => showToast('🗑️ تم مسح جميع البيانات'))
+    .catch(err => {
+      console.error('Firestore write error', err);
+      showToast('❌ تعذّر المسح');
+    });
 }
 
 // ── Init ───────────────────────────────────────────────────────
@@ -1412,6 +1401,4 @@ auth.onAuthStateChanged(user => {
 });
 </script>
 </body>
-</html>
-/body>
 </html>
