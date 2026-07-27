@@ -368,7 +368,7 @@
     @media(max-width:700px){ .form-grid{ grid-template-columns: 1fr 1fr; } }
     @media(max-width:420px){ .form-grid{ grid-template-columns: 1fr; } }
 
-    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field { display: flex; flex-direction: column; gap: 5px; position: relative; }
     .field label { font-size: .78rem; font-weight: 700; color: var(--muted); }
 
     input, select {
@@ -401,6 +401,7 @@
 
     /* converted preview */
     .convert-hint {
+      position: absolute; top: 100%; right: 0; left: 0;
       font-size: .72rem; color: var(--muted);
       margin-top: 3px; height: 16px; transition: all .2s;
     }
@@ -471,8 +472,7 @@
     .pay-list { display: flex; flex-direction: column; gap: 9px; }
 
     .pay-item {
-      display: flex; align-items: center;
-      justify-content: space-between;
+      display: flex; flex-direction: column; gap: 6px;
       padding: 11px 13px;
       border-radius: 12px;
       transition: transform .15s;
@@ -487,10 +487,13 @@
     .quarterly-section .pay-item { background: var(--teal-light); }
     .onetime-section   .pay-item { background: var(--orange-light); }
 
+    .pay-item-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
     .pay-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
     .pay-name {
       font-weight: 700; font-size: .88rem;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      unicode-bidi: plaintext;
     }
     .monthly-section   .pay-name { color: var(--purple); }
     .quarterly-section .pay-name { color: var(--teal); }
@@ -1032,18 +1035,20 @@ function renderList(listId, items, type) {
     const flagMap = { KWD:'🇰🇼', USD:'🇺🇸', EUR:'🇪🇺' };
     return `
     <div class="pay-item">
-      <div class="pay-info">
-        <div class="pay-name" title="${p.name}">${p.name}</div>
-        <div class="pay-meta">${fmtDate(p.date)}</div>
-        ${isConverted ? `<div class="pay-orig">${flagMap[p.origCurrency]||''} ${fmtOrig(p.origValue, p.origCurrency)}</div>` : ''}
-      </div>
-      <div class="pay-amounts">
-        <div class="pay-amount">${fmtKWD(p.kwdValue)}</div>
-        ${isConverted ? `<div class="pay-orig-amt">محوّل من ${p.origCurrency}</div>` : ''}
-      </div>
-      <div class="pay-actions">
-        <button class="btn-edit" onclick="openEdit('${p.id}')" title="تعديل">✏️</button>
-        <button class="btn-del"  onclick="deletePayment('${p.id}')" title="حذف">✕</button>
+      <div class="pay-name" title="${p.name}">${p.name}</div>
+      <div class="pay-item-row">
+        <div class="pay-info">
+          <div class="pay-meta">${fmtDate(p.date)}</div>
+          ${isConverted ? `<div class="pay-orig">${flagMap[p.origCurrency]||''} ${fmtOrig(p.origValue, p.origCurrency)}</div>` : ''}
+        </div>
+        <div class="pay-amounts">
+          <div class="pay-amount">${fmtKWD(p.kwdValue)}</div>
+          ${isConverted ? `<div class="pay-orig-amt">محوّل من ${p.origCurrency}</div>` : ''}
+        </div>
+        <div class="pay-actions">
+          <button class="btn-edit" onclick="openEdit('${p.id}')" title="تعديل">✏️</button>
+          <button class="btn-del"  onclick="deletePayment('${p.id}')" title="حذف">✕</button>
+        </div>
       </div>
     </div>`;
   }).join('');
