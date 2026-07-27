@@ -1357,7 +1357,8 @@ function importData(e) {
 }
 
 function clearData() {
-  if (!confirm('هل أنت متأكد من مسح جميع البيانات؟')) return;
+  const typed = prompt('لتأكيد حذف جميع البيانات نهائيًا، اكتب كلمة "مسح":');
+  if (typed !== 'مسح') { showToast('❌ تم إلغاء المسح'); return; }
   db.collection('payments').get().then(snapshot => {
     const batch = db.batch();
     snapshot.docs.forEach(doc => batch.delete(doc.ref));
