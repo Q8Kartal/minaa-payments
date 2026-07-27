@@ -962,18 +962,23 @@ function addPayment() {
     date: new Date().toISOString()
   }).then(() => {
     showToast('✅ تمت الإضافة: ' + fmtKWD(kwdValue));
-  }).catch(() => showToast('❌ تعذّرت الإضافة'));
-
-  document.getElementById('inp-name').value  = '';
-  document.getElementById('inp-value').value = '';
-  document.getElementById('convert-hint').textContent = '';
+    document.getElementById('inp-name').value  = '';
+    document.getElementById('inp-value').value = '';
+    document.getElementById('convert-hint').textContent = '';
+  }).catch(err => {
+    console.error('Firestore write error', err);
+    showToast('❌ تعذّرت الإضافة');
+  });
 }
 
 // ── Delete ─────────────────────────────────────────────────────
 function deletePayment(id) {
   db.collection('payments').doc(id).delete()
     .then(() => showToast('🗑️ تم الحذف'))
-    .catch(() => showToast('❌ تعذّر الحذف'));
+    .catch(err => {
+      console.error('Firestore write error', err);
+      showToast('❌ تعذّر الحذف');
+    });
 }
 
 // ── Render ─────────────────────────────────────────────────────
@@ -1077,11 +1082,14 @@ function saveEdit() {
     origCurrency: currency,
     kwdValue: toKWD(rawValue, currency),
     type
-  }).then(() => showToast('✅ تم حفظ التعديل'))
-    .catch(() => showToast('❌ تعذّر حفظ التعديل'));
-
-  document.getElementById('edit-modal').style.display = 'none';
-  editingId = null;
+  }).then(() => {
+    showToast('✅ تم حفظ التعديل');
+    document.getElementById('edit-modal').style.display = 'none';
+    editingId = null;
+  }).catch(err => {
+    console.error('Firestore write error', err);
+    showToast('❌ تعذّر حفظ التعديل');
+  });
 }
 
 function updateEditCurrencyStyle() {
