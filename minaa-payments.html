@@ -608,6 +608,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-box p { font-size: .9rem; color: var(--muted); font-weight: 600; }
+    .lock-error { color:#BE123C; font-size:.78rem; margin-bottom:10px; min-height:16px; }
   </style>
 </head>
 <body>
@@ -619,6 +620,29 @@
     <p>جاري تحميل أسعار الصرف…</p>
   </div>
 </div>
+
+<!-- LOGIN LOCK SCREEN -->
+<div class="modal-overlay" id="lock-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title"><span class="dot"></span> تسجيل الدخول</div>
+    <div class="modal-grid" style="grid-template-columns:1fr">
+      <div class="field">
+        <label>البريد الإلكتروني</label>
+        <input id="lock-email" type="email" placeholder="you@example.com"/>
+      </div>
+      <div class="field">
+        <label>كلمة المرور</label>
+        <input id="lock-password" type="password" placeholder="••••••••"/>
+      </div>
+    </div>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="modal-footer">
+      <button class="btn-add" id="lock-submit" onclick="login()">دخول</button>
+    </div>
+  </div>
+</div>
+
+<div id="app-content" style="display:none">
 
 <!-- HEADER -->
 <header>
@@ -658,6 +682,7 @@
   <button class="btn-data btn-import" onclick="document.getElementById('import-file').click()">⬆ استيراد البيانات</button>
   <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
   <button class="btn-data btn-clear" onclick="clearData()">🗑 مسح الكل</button>
+  <button class="btn-data" style="background:#F3F4F6;color:var(--muted);border:1.5px solid var(--border)" onclick="logout()">🚪 خروج</button>
 </div>
 
 <!-- STATS -->
@@ -808,6 +833,7 @@
       <button class="btn-modal-save"   onclick="saveEdit()">💾 حفظ التعديل</button>
     </div>
   </div>
+</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -1350,9 +1376,33 @@ function migrateOldData() {
 // ── Init ───────────────────────────────────────────────────────
 updateCurrencyStyle();
 updateTypeStyle();
-migrateOldData();
-render();
 fetchRates();
+
+function login() {
+  const email    = document.getElementById('lock-email').value.trim();
+  const password = document.getElementById('lock-password').value;
+  const errEl    = document.getElementById('lock-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'أدخل البريد وكلمة المرور'; return; }
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(() => { errEl.textContent = 'بيانات الدخول غير صحيحة'; });
+}
+
+function logout() {
+  if (unsubscribePayments) { unsubscribePayments(); unsubscribePayments = null; }
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('lock-overlay').style.display = 'none';
+    document.getElementById('app-content').style.display  = '';
+    subscribeToPayments();
+  } else {
+    document.getElementById('app-content').style.display = 'none';
+    document.getElementById('lock-overlay').style.display = 'flex';
+  }
+});
 </script>
 </body>
 </html>
