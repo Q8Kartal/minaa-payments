@@ -1100,7 +1100,7 @@ function renderList(listId, items, type) {
     return `
     <div class="pay-item">
       <div class="pay-top-row">
-        ${selectionMode ? `<jelly-checkbox label="تحديد الدفعة" style="--jelly-on:var(--brand)" ${checked} onchange="togglePaymentSelection('${p.id}')"></jelly-checkbox>` : ''}
+        ${selectionMode ? `<jelly-checkbox label="تحديد ${p.name}" style="--jelly-on:var(--brand)" ${checked} onchange="togglePaymentSelection('${p.id}')"></jelly-checkbox>` : ''}
         <div class="pay-name" title="${p.name}">${p.name}</div>
       </div>
       <div class="pay-item-row">
@@ -1164,7 +1164,7 @@ function updateSelectionBar() {
   const total = selected.reduce((s, p) => s + p.kwdValue, 0);
   document.getElementById('selection-count').textContent = `تم تحديد ${selected.length} دفعات`;
   document.getElementById('selection-total').textContent = fmtKWD(total);
-  document.getElementById('btn-generate-receipt').disabled = selected.length === 0;
+  document.getElementById('btn-generate-receipt').toggleAttribute('disabled', selected.length === 0);
 }
 
 function openEdit(id) {
