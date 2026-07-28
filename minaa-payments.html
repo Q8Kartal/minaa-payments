@@ -1408,6 +1408,104 @@ function closeInvoice(e) {
   document.getElementById('inv-overlay').style.display = 'none';
   document.getElementById('inv-modal').innerHTML = '';
   document.body.style.overflow = '';
+  if (selectionReceiptOpen) {
+    selectionReceiptOpen = false;
+    cancelSelectionMode();
+  }
+}
+
+function openReceipt() {
+  const selected = payments.filter(p => selectedIds.has(p.id));
+  if (!selected.length) return showToast('⚠️ لم يتم تحديد أي دفعة');
+
+  const grandTotal = selected.reduce((s, p) => s + p.kwdValue, 0);
+
+  const now = new Date();
+  const recNum = 'REC-' + now.getFullYear().toString().slice(-2)
+    + String(now.getMonth()+1).padStart(2,'0')
+    + String(now.getDate()).padStart(2,'0')
+    + '-' + String(selected.length).padStart(3,'0');
+
+  const recDate = now.toLocaleDateString('ar-KW', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  const logoImgEl = document.querySelector('.logo-wrap img');
+  const logoSrc   = logoImgEl ? logoImgEl.src : '';
+
+  const typeDot   = { monthly: '🟣', quarterly: '🔵', onetime: '🟠' };
+  const typeColor = { monthly: 'var(--purple)', quarterly: 'var(--teal)', onetime: 'var(--brand)' };
+
+  function rowsHTML(list) {
+    return list.map(p => {
+      const isConv = p.origCurrency && p.origCurrency !== 'KWD';
+      const origStr = isConv
+        ? `<div class="td-orig">(${p.origCurrency} ${p.origValue.toFixed(3)})</div>` : '';
+      const color = typeColor[p.type] || 'inherit';
+      return `<tr>
+        <td class="td-name" style="color:${color}">${typeDot[p.type]||''} ${p.name}</td>
+        <td class="td-date">${fmtDate(p.date)}</td>
+        <td class="td-amount" style="color:${color}">${fmtKWD(p.kwdValue)}${origStr}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const html = `
+    <div class="inv-header">
+      <div class="inv-logo-area">
+        ${logoSrc
+          ? `<img src="${logoSrc}" style="width:110px;height:auto;filter:brightness(0) invert(1)" alt="Minaã"/>`
+          : `<span style="font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:.05em">Minaã</span>`}
+      </div>
+      <div class="inv-meta">
+        <div class="inv-num">${recNum}</div>
+        <div class="inv-date">${recDate}</div>
+      </div>
+    </div>
+
+    <div class="inv-body">
+
+      <div class="inv-summary" style="grid-template-columns:1fr">
+        <div class="inv-chip grand">
+          <div class="inv-chip-label">إيصال مُحدد — الإجمالي</div>
+          <div class="inv-chip-val">${fmtKWD(grandTotal)}</div>
+          <div class="inv-chip-count">${selected.length} دفعة محددة</div>
+        </div>
+      </div>
+
+      <div class="inv-section">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>اسم الدفعة</th>
+              <th>تاريخ الإضافة</th>
+              <th style="text-align:left">المبلغ (د.ك)</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHTML(selected)}</tbody>
+        </table>
+      </div>
+
+      <div class="inv-grand">
+        <div class="inv-grand-label">💰 إجمالي الدفعات المحددة</div>
+        <div class="inv-grand-val">${fmtKWD(grandTotal)}</div>
+      </div>
+
+    </div>
+
+    <div class="inv-footer-bar">
+      <div class="inv-note">Minaã • إيصال دفعات محددة • ${recDate}</div>
+      <div class="inv-actions">
+        <button class="btn-inv-close" onclick="closeInvoice()">✕ إغلاق</button>
+        <button class="btn-print" onclick="printInvoice()">🖨 طباعة / PDF</button>
+      </div>
+    </div>
+  `;
+
+  selectionReceiptOpen = true;
+  document.getElementById('inv-modal').innerHTML = html;
+  document.getElementById('inv-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
 function printInvoice() {
