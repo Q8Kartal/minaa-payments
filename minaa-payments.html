@@ -1495,6 +1495,7 @@ function login() {
 }
 
 function logout() {
+  if (selectionMode) cancelSelectionMode();
   if (unsubscribePayments) { unsubscribePayments(); unsubscribePayments = null; }
   auth.signOut();
 }
