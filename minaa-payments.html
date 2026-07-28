@@ -836,8 +836,8 @@
     <span id="selection-total">0.000 د.ك</span>
   </div>
   <div class="selection-actions">
-    <button class="btn-modal-cancel" onclick="cancelSelectionMode()">إلغاء</button>
-    <button class="btn-add" id="btn-generate-receipt" onclick="openReceipt()" disabled>🧾 إنشاء إيصال</button>
+    <jelly-button variant="platinum" onclick="cancelSelectionMode()">إلغاء</jelly-button>
+    <jelly-button id="btn-generate-receipt" onclick="openReceipt()" disabled><iconify-icon icon="lucide:receipt-text"></iconify-icon> إنشاء إيصال</jelly-button>
   </div>
 </div>
 
@@ -1100,7 +1100,7 @@ function renderList(listId, items, type) {
     return `
     <div class="pay-item">
       <div class="pay-top-row">
-        ${selectionMode ? `<input type="checkbox" class="pay-checkbox" ${checked} onchange="togglePaymentSelection('${p.id}')"/>` : ''}
+        ${selectionMode ? `<jelly-checkbox label="تحديد الدفعة" style="--jelly-on:var(--brand)" ${checked} onchange="togglePaymentSelection('${p.id}')"></jelly-checkbox>` : ''}
         <div class="pay-name" title="${p.name}">${p.name}</div>
       </div>
       <div class="pay-item-row">
@@ -1113,8 +1113,8 @@ function renderList(listId, items, type) {
           ${isConverted ? `<div class="pay-orig-amt">محوّل من ${p.origCurrency}</div>` : ''}
         </div>
         <div class="pay-actions">
-          <button class="btn-edit" onclick="openEdit('${p.id}')" title="تعديل">✏️</button>
-          <button class="btn-del"  onclick="deletePayment('${p.id}')" title="حذف">✕</button>
+          <jelly-icon-button label="تعديل" onclick="openEdit('${p.id}')"><iconify-icon icon="lucide:pencil"></iconify-icon></jelly-icon-button>
+          <jelly-icon-button label="حذف" onclick="deletePayment('${p.id}')"><iconify-icon icon="lucide:x"></iconify-icon></jelly-icon-button>
         </div>
       </div>
     </div>`;
