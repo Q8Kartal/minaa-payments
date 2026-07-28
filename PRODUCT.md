@@ -14,7 +14,7 @@ Give the Minaa team a single, always-current shared ledger of monthly, quarterly
 
 ## Brand Personality
 
-Warm and approachable. Friendly, human, Arabic-first in tone — not a cold corporate dashboard, not playful/toy-like either. The warmth comes from color and directness, not decoration: the orange seagull-on-bollard logo, plain-spoken Arabic labels, and a straightforward layout that respects the user's time.
+Warm, approachable, and now playfully tactile. Friendly, human, Arabic-first in tone — not a cold corporate dashboard. The app has embraced a soft, "squishy" interactive feel (via the Jelly UI component library) as part of its personality: buttons and controls respond with a tangible, tactile bounce. The warmth still comes from color and directness — the orange seagull-on-bollard logo, plain-spoken Arabic labels — but playful, tactile interaction is now a deliberate, embraced part of the brand, not something to minimize.
 
 ## Anti-references
 
