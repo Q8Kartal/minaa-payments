@@ -684,8 +684,8 @@
 <main class="main-col">
 
   <div class="greeting">
-    <h1>أهلاً بك 👋</h1>
-    <p>منصة ميناء — نظام إدارة المدفوعات</p>
+    <h1>إدارة المدفوعات</h1>
+    <p id="today-date">منصة ميناء</p>
   </div>
 
   <!-- STATS -->
@@ -1654,6 +1654,8 @@ function clearData() {
 }
 
 // ── Init ───────────────────────────────────────────────────────
+document.getElementById('today-date').textContent =
+  'منصة ميناء · ' + new Date().toLocaleDateString('ar', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 updateCurrencyStyle();
 updateTypeStyle();
 Promise.all([
