@@ -1235,9 +1235,7 @@ document.addEventListener('keydown', e => {
     // Close invoice if open
     const inv = document.getElementById('inv-overlay');
     if (inv && inv.style.display !== 'none') {
-      inv.style.display = 'none';
-      document.getElementById('inv-modal').innerHTML = '';
-      document.body.style.overflow = '';
+      closeInvoice();
       return;
     }
     document.getElementById('edit-modal').style.display = 'none';
@@ -1249,6 +1247,7 @@ document.addEventListener('keydown', e => {
 
 // ── Invoice ────────────────────────────────────────────────────
 function openInvoice() {
+  selectionReceiptOpen = false;
   if (!payments.length) return showToast('⚠️ لا توجد بيانات لإصدار فاتورة');
 
   const monthly   = payments.filter(p => p.type === 'monthly');
