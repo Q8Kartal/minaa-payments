@@ -30,7 +30,7 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 ## Currency Support
 - **Base currency:** Kuwaiti Dinar (KWD) — all values stored in KWD
 - **Input currencies:** KWD, USD, EUR
-- **Live exchange rates:** [Frankfurter API](https://api.frankfurter.app/latest?from=KWD&to=USD,EUR) — free, no API key
+- **Live exchange rates:** [open.er-api.com](https://open.er-api.com/v6/latest/USD) — free, no API key. (Frankfurter was used before but is ECB-based and 404s on KWD — every refresh silently fell back to fixed rates.)
 - **Fallback rates (offline):** USD = 0.3065 KWD, EUR = 0.2820 KWD
 - Conversion happens at input time; original amount + currency stored for display
 

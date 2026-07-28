@@ -43,14 +43,14 @@
       --onetime-tint:    #FEF5F3;   /* Red 50 */
       --onetime-mid:     #FA937D;   /* Red 400 */
 
-      /* ── BASE & SURFACES ── */
-      --ink:          #161616;
+      /* ── BASE & SURFACES — no black type: all copy is Minaã Blue, like the guide ── */
+      --ink:          #161616;             /* NOT for fonts — semantic-toast text on yellow only */
       --bg:           #FDF9F0;
       --card:         #FFFFFF;
-      --text:         #161616;
-      --muted:        rgba(22,22,22,.55);
-      --faint:        rgba(22,22,22,.38);
-      --border:       rgba(22,22,22,.08);
+      --text:         #0062AD;             /* Minaã Blue */
+      --muted:        rgba(0,98,173,.72);  /* blue at 72% */
+      --faint:        rgba(0,98,173,.5);   /* blue at 50% */
+      --border:       rgba(0,98,173,.14);
       --shadow-card:  0 2px 10px rgba(22,22,22,.05);
       --shadow-float: 0 30px 80px -20px rgba(0,67,123,.18), 0 10px 30px rgba(22,22,22,.06);
       --radius-card:  18px;
@@ -320,8 +320,9 @@
     }
     .rail-title {
       font-size: .95rem; font-weight: 800;
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex; align-items: center; gap: 8px;
     }
+    .rail-title iconify-icon { color: var(--primary); font-size: 1.05rem; }
     .rates-card {
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -329,15 +330,21 @@
       display: flex; flex-direction: column; gap: 4px;
     }
     .rate-row {
-      display: flex; align-items: center; gap: 8px;
+      display: flex; align-items: center; gap: 9px;
       padding: 8px 6px;
       border-radius: 10px;
       font-size: .78rem; font-weight: 600;
     }
     .rate-row:hover { background: var(--cream-50); }
-    .rate-flag { font-size: 1rem; flex: none; }
-    .rate-lbl { color: var(--muted); font-size: .72rem; }
-    .rate-val { font-weight: 800; color: var(--primary); direction: ltr; margin-inline-start: auto; }
+    .cur-chip {
+      flex: none; direction: ltr;
+      background: var(--primary-tint); color: var(--primary);
+      font-size: .6rem; font-weight: 800; letter-spacing: .05em;
+      padding: 3px 8px; border-radius: 7px;
+    }
+    .rate-name { color: var(--text); font-size: .76rem; font-weight: 700; }
+    .rate-note { color: var(--faint); font-size: .66rem; margin-inline-start: auto; }
+    .rate-val { font-weight: 800; color: var(--primary); direction: ltr; margin-inline-start: auto; white-space: nowrap; }
     .rates-foot {
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 4px; padding-top: 8px;
@@ -410,7 +417,7 @@
     #toast {
       position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%) translateY(80px);
-      background: var(--ink); color: var(--cream);
+      background: var(--primary); color: var(--cream);
       padding: 11px 22px; border-radius: 999px;
       font-size: .88rem; font-weight: 700;
       transition: transform .3s; z-index: 999; pointer-events: none;
@@ -418,9 +425,9 @@
       box-shadow: 0 10px 30px rgba(22,22,22,.25);
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.is-success { background: var(--success); color: var(--ink); }
-    #toast.is-warning { background: var(--warning); color: var(--ink); }
-    #toast.is-error   { background: var(--error);   color: var(--ink); }
+    #toast.is-success { background: var(--success); color: #fff; }
+    #toast.is-warning { background: var(--warning); color: var(--ink); } /* only ink text left — light text is unreadable on yellow */
+    #toast.is-error   { background: var(--error);   color: #fff; }
 
     /* ═══ LOADING ═══ */
     .loading-overlay {
@@ -815,22 +822,22 @@
 
 <!-- RAIL -->
 <aside class="rail">
-  <div class="rail-title">أسعار الصرف <iconify-icon icon="lucide:landmark" style="color:var(--primary)"></iconify-icon></div>
+  <div class="rail-title"><iconify-icon icon="lucide:landmark"></iconify-icon> أسعار الصرف</div>
   <div class="rates-card">
     <div class="rate-row">
-      <span class="rate-flag">🇰🇼</span>
-      <span class="rate-lbl">الدينار الكويتي</span>
-      <span class="rate-val">1 KWD</span>
+      <span class="cur-chip">KWD</span>
+      <span class="rate-name">دينار كويتي</span>
+      <span class="rate-note">العملة الأساسية</span>
     </div>
     <div class="rate-row">
-      <span class="rate-flag">🇺🇸</span>
-      <span class="rate-lbl">1 USD</span>
-      <span class="rate-val"><span id="r-usd">–</span> KWD</span>
+      <span class="cur-chip">USD</span>
+      <span class="rate-name">دولار أمريكي</span>
+      <span class="rate-val"><span id="r-usd">–</span> د.ك</span>
     </div>
     <div class="rate-row">
-      <span class="rate-flag">🇪🇺</span>
-      <span class="rate-lbl">1 EUR</span>
-      <span class="rate-val"><span id="r-eur">–</span> KWD</span>
+      <span class="cur-chip">EUR</span>
+      <span class="rate-name">يورو</span>
+      <span class="rate-val"><span id="r-eur">–</span> د.ك</span>
     </div>
     <div class="rates-foot">
       <button class="rates-refresh" onclick="fetchRates(true)"><iconify-icon icon="lucide:refresh-cw"></iconify-icon> تحديث</button>
@@ -930,12 +937,13 @@ let rates = { USD: null, EUR: null };
 
 async function fetchRates(manual = false) {
   try {
-    // Frankfurter API – free, no key needed
-    const res  = await fetch('https://api.frankfurter.app/latest?from=KWD&to=USD,EUR');
+    // open.er-api.com – free, no key, includes KWD (Frankfurter is ECB-based and 404s on KWD)
+    const res  = await fetch('https://open.er-api.com/v6/latest/USD');
     const data = await res.json();
-    // data.rates gives KWD→X, we need X→KWD
-    rates.USD = 1 / data.rates.USD;
-    rates.EUR = 1 / data.rates.EUR;
+    if (!data.rates || !data.rates.KWD || !data.rates.EUR) throw new Error('bad payload');
+    // rates are USD→X; we need USD→KWD and EUR→KWD
+    rates.USD = data.rates.KWD;
+    rates.EUR = data.rates.KWD / data.rates.EUR;
     document.getElementById('r-usd').textContent  = rates.USD.toFixed(4);
     document.getElementById('r-eur').textContent  = rates.EUR.toFixed(4);
     const now = new Date();
