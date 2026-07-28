@@ -856,34 +856,30 @@
     <div class="modal-title"><span class="dot"></span> تعديل الدفعة</div>
     <div class="modal-grid">
       <div class="field">
-        <label>اسم الدفعة</label>
-        <input id="edit-name" type="text" placeholder="اسم الدفعة"/>
+        <jelly-input id="edit-name" label="اسم الدفعة" type="text" placeholder="اسم الدفعة"></jelly-input>
       </div>
       <div class="field">
-        <label>القيمة</label>
-        <input id="edit-value" type="number" min="0" step="0.01" placeholder="0.00" oninput="updateEditHint()"/>
+        <jelly-input id="edit-value" label="القيمة" type="number" placeholder="0.00" oninput="updateEditHint()"></jelly-input>
         <div class="convert-hint" id="edit-hint"></div>
       </div>
       <div class="field">
-        <label>العملة</label>
-        <select id="edit-currency" onchange="updateEditCurrencyStyle(); updateEditHint()">
-          <option value="KWD">🇰🇼 دينار كويتي</option>
-          <option value="USD">🇺🇸 دولار أمريكي</option>
-          <option value="EUR">🇪🇺 يورو</option>
-        </select>
+        <jelly-select id="edit-currency" label="العملة" onchange="updateEditCurrencyStyle(); updateEditHint()">
+          <jelly-option value="KWD">🇰🇼 دينار كويتي</jelly-option>
+          <jelly-option value="USD">🇺🇸 دولار أمريكي</jelly-option>
+          <jelly-option value="EUR">🇪🇺 يورو</jelly-option>
+        </jelly-select>
       </div>
       <div class="field">
-        <label>نوع الدفعة</label>
-        <select id="edit-type">
-          <option value="monthly">🟣 شهري</option>
-          <option value="quarterly">🔵 اشتراك / 3 أشهر</option>
-          <option value="onetime">🟠 مرة واحدة</option>
-        </select>
+        <jelly-select id="edit-type" label="نوع الدفعة">
+          <jelly-option value="monthly">🟣 شهري</jelly-option>
+          <jelly-option value="quarterly">🔵 اشتراك / 3 أشهر</jelly-option>
+          <jelly-option value="onetime">🟠 مرة واحدة</jelly-option>
+        </jelly-select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-modal-cancel" onclick="closeModal()">إلغاء</button>
-      <button class="btn-modal-save"   onclick="saveEdit()">💾 حفظ التعديل</button>
+      <jelly-button variant="platinum" onclick="closeModal()">إلغاء</jelly-button>
+      <jelly-button style="--jelly-fill:var(--purple);--jelly-label:#fff" onclick="saveEdit()"><iconify-icon icon="lucide:save"></iconify-icon> حفظ التعديل</jelly-button>
     </div>
   </div>
 </div>
@@ -1222,7 +1218,15 @@ function saveEdit() {
 
 function updateEditCurrencyStyle() {
   const s = document.getElementById('edit-currency');
-  s.className = { KWD:'cur-kwd', USD:'cur-usd', EUR:'cur-eur' }[s.value] || '';
+  const styles = {
+    KWD: { fill: '#ECFDF5', label: '#065F46', accent: '#10B981' },
+    USD: { fill: '#EFF6FF', label: '#1E3A8A', accent: '#3B82F6' },
+    EUR: { fill: '#F5F3FF', label: '#4C1D95', accent: '#8B5CF6' }
+  };
+  const c = styles[s.value] || {};
+  s.style.setProperty('--jelly-fill', c.fill || '');
+  s.style.setProperty('--jelly-label', c.label || '');
+  s.style.setProperty('--jelly-accent', c.accent || '');
 }
 
 function updateEditHint() {
