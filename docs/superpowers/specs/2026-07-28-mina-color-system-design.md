@@ -50,6 +50,38 @@ Two places hardcode a brand hex directly instead of referencing `var(--brand)`, 
 
 No other hardcoded brand-family hex literals exist outside of `:root` — confirmed by grep across the file for all seven old hex values (`#7C3AED #0D9488 #E8471C #C23A16 #F47A5A #5EEAD4 #EDE9FE #F0FDFA #FFF1ED #0F766E #A78BFA #F5F5F5`); every match was either a `:root` definition or one of the two literals above.
 
+## Addendum — revision after live review (2026-07-28)
+After the initial implementation (commits `3a3a043`, `edd5efa`, `6c56325`) was reviewed live in the browser, the user flagged three problems the original decisions above didn't cover:
+1. **A leftover purple button** (`تحديد الدفعات` / select-toggle) — never part of the Mina system to begin with; it used a standalone hardcoded violet (`#F5F3FF`/`#6D28D9`), not one of the payment-type variables.
+2. **A leftover pink color** (`مسح الكل` / clear button, the delete icon-button, and the login screen's `.lock-error` text) — a standalone hardcoded rose (`#FFF1F2`/`#BE123C`), also never part of the Mina system.
+3. **Mina Green for quarterly reads wrong** in practice — the user wants the whole UI restricted to primary (Blue) and secondary (Red) wherever a brand color is shown, not a third hue.
+
+Two follow-up decisions, made via clarifying questions:
+- **Quarterly moves off green onto a *distinct shade* of secondary Red** — not the same shade one-time uses (that would make the two types visually identical). Quarterly becomes a darker, more muted red (Red 800/900/100/300) while one-time keeps its existing brighter red (Red 600/50/400).
+- **All non-payment-type toolbar action buttons are unified to primary/secondary/neutral**: `تحديد الدفعات`/`تصدير البيانات`/`استيراد البيانات` become neutral (Jelly's `platinum` variant, same as the existing `خروج` button), `مسح الكل` and the delete icon-button become secondary (reusing `var(--orange)`, the same red driving one-time), and the select-toggle's active-state highlight switches from an accidental `var(--purple)` reference to the correctly-named `var(--brand)` (same blue value, correct semantics). `.lock-error` also moves from the hardcoded pink to `var(--orange)`.
+
+### Updated quarterly mapping (supersedes row `--teal*` in the table above)
+| Variable | Value after Task 1 (green) | New value (this addendum) | New source |
+|---|---|---|---|
+| `--teal` | `#05AA00` | `#952A0F` | Mina Red 800 |
+| `--teal-dark` | `#158200` | `#7B220A` | Mina Red 900 |
+| `--teal-light` | `#E9FFE7` | `#FEEAE5` | Mina Red 100 |
+| `--teal-mid` | `#00E214` | `#FCBBAD` | Mina Red 300 |
+
+### New toolbar/utility literal changes
+| Element | Old | New |
+|---|---|---|
+| `تحديد الدفعات` resting style | `style="--jelly-fill:#F5F3FF;--jelly-label:#6D28D9"` | `variant="platinum"` (style attribute removed) |
+| `تحديد الدفعات` active state (JS) | `setProperty('--jelly-fill','var(--purple)')` | `setProperty('--jelly-fill','var(--brand)')` |
+| `تحديد الدفعات` cancel/reset (JS) | `setProperty('--jelly-fill','#F5F3FF')` / `setProperty('--jelly-label','#6D28D9')` | `removeProperty('--jelly-fill')` / `removeProperty('--jelly-label')` (lets the `platinum` variant show through again) |
+| `تصدير البيانات` | `style="--jelly-fill:#F0FDF4;--jelly-label:#15803D"` | `variant="platinum"` (style attribute removed) |
+| `استيراد البيانات` | `style="--jelly-fill:#EFF6FF;--jelly-label:#1D4ED8"` | `variant="platinum"` (style attribute removed) |
+| `مسح الكل` | `style="--jelly-fill:#FFF1F2;--jelly-label:#BE123C"` | `style="--jelly-fill:var(--orange-light);--jelly-label:var(--orange)"` |
+| Delete icon-button | `style="--jelly-fill:#FFF1F2;--jelly-label:#BE123C"` | `style="--jelly-fill:var(--orange-light);--jelly-label:var(--orange)"` |
+| `.lock-error` (login screen) | `color:#BE123C` | `color:var(--orange)` |
+
+Scoping note: this addendum only touches the four toolbar action buttons, the delete icon-button, the quarterly `--teal*` variables, and `.lock-error`. It does not revisit any other decision from the original spec (background, primary, one-time, currency-indicator colors remain as already implemented).
+
 ## Out of scope for this pass
 - Semantic success/warning/error color wiring (Mina Green/Yellow/Orange used for their guide-intended semantic purpose, e.g. toast states, form validation) — deferred per the scoping decision above.
 - Currency-indicator colors (KWD/USD/EUR green/blue/purple used in `updateCurrencyStyle()`/`updateEditCurrencyStyle()`) — these are arbitrary currency-distinguishing colors, not part of the brand system the PDF defines, and are left unchanged.
