@@ -18,7 +18,7 @@ This is Phase 1 of a larger, explicitly phased redesign. Later phases (not cover
 
 ## Foundation
 - Add `<script type="module" src="https://jelly-ui.com/package.js"></script>` alongside the existing Firebase compat `<script>` tags.
-- Add `<script src="https://code.iconify.design/iconify-icon/2.x/iconify-icon.min.js"></script>` for the Iconify Icon web component (`<iconify-icon icon="set:name">`) — same CDN-script, no-build-tools pattern, used to replace this app's emoji icons with real SVG icons from the **Lucide** icon set.
+- Add `<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>` for the Iconify Icon web component (`<iconify-icon icon="set:name">`) — same CDN-script, no-build-tools pattern, used to replace this app's emoji icons with real SVG icons from the **Lucide** icon set.
 - Wrap the entire visible app in `<jelly-theme mode="light" accent="#E8471C">`. Placement: wrap from the loader/lock-screen through the end of body content (i.e., it can wrap everything between `<body>` and the closing `<script>` tags — `jelly-theme` is layout-neutral so this is safe regardless of what's currently shown/hidden).
 - Because the default accent is now brand orange, any Jelly component that doesn't get an explicit override (e.g. the primary "+ إضافة" add button, focus rings generally) automatically uses the correct brand color for free.
 

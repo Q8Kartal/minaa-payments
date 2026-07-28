@@ -30,7 +30,7 @@ Insert two more lines right after them:
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script type="module" src="https://jelly-ui.com/package.js"></script>
-<script src="https://code.iconify.design/iconify-icon/2.x/iconify-icon.min.js"></script>
+<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
 ```
 
 - [ ] **Step 2: Wrap the whole visible app in `<jelly-theme>`**
