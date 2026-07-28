@@ -82,6 +82,20 @@ Two follow-up decisions, made via clarifying questions:
 
 Scoping note: this addendum only touches the four toolbar action buttons, the delete icon-button, the quarterly `--teal*` variables, and `.lock-error`. It does not revisit any other decision from the original spec (background, primary, one-time, currency-indicator colors remain as already implemented).
 
+## Addendum 2 — quarterly corrected to Neutral, not a second red (2026-07-28)
+Re-reading the guide's own text closely (`colorP.pdf`, full 24-page extraction confirmed to match the earlier excerpt — no additional rules text was missed) surfaced that Addendum 1's "darker shade of secondary" for quarterly wasn't actually grounded in anything the guide defines. The guide only names three general-purpose roles — Primary (Blue 700, "key actions... buttons, CTAs"), Secondary (Red 600, "secondary buttons... supporting states"), Neutral/Cream ("backgrounds, cards, containers... serene surface areas") — plus three semantic colors (Green/Yellow/Orange = success/warning/error) with an explicit warning not to swap them in for unapproved purposes. Inventing a second, darker step of the Secondary scale to encode an unrelated category (quarterly payments) wasn't something the guide describes either — it names one signature shade per role, not "pick a different step per category."
+
+Corrected mapping: **Quarterly → Neutral (Mina Cream)**, using values drawn directly from the guide's own Neutral scale (nothing invented):
+
+| Variable | Addendum 1 value (invented red) | Corrected value | Source |
+|---|---|---|---|
+| `--teal` | `#952A0F` | `#6B4423` | Mina Cream 800 |
+| `--teal-dark` | `#7B220A` | `#57361B` | Mina Cream 900 |
+| `--teal-light` | `#FEEAE5` | `#F7E0B6` | Mina Cream 200 |
+| `--teal-mid` | `#FCBBAD` | `#E0B05D` | Mina Cream 400 |
+
+This also better satisfies the follow-up creative direction the user gave (via the `frontend-design` skill): the app should read as predominantly Primary Blue with only a restrained, sparing touch of other color. With quarterly now neutral, Blue (primary, monthly + all main actions) dominates, Red (secondary) appears only as a deliberate, singular accent (one-time payments + destructive actions), and quarterly recedes into a quiet warm-neutral tone rather than competing for attention as a third brand hue. Contrast-checked: `#6B4423` on `#F7E0B6` = 6.58:1, comfortably passing WCAG AA.
+
 ## Out of scope for this pass
 - Semantic success/warning/error color wiring (Mina Green/Yellow/Orange used for their guide-intended semantic purpose, e.g. toast states, form validation) — deferred per the scoping decision above.
 - Currency-indicator colors (KWD/USD/EUR green/blue/purple used in `updateCurrencyStyle()`/`updateEditCurrencyStyle()`) — these are arbitrary currency-distinguishing colors, not part of the brand system the PDF defines, and are left unchanged.
