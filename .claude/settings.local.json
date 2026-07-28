@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp C:/Users/Asus/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/local-agent-mode-sessions/ef0cd7c5-ae88-4618-b434-a361f89201e9/b85f4ea6-6d6e-4760-922c-5aeb7d850fe6/local_11153c86-6880-428a-b033-0b1b70211fa4/outputs/CLAUDE.md 'D:/Claude Project'\\\\''s/Minaa payment mini payment S/CLAUDE.md')",
+      "Bash(cp C:/Users/Asus/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/local-agent-mode-sessions/ef0cd7c5-ae88-4618-b434-a361f89201e9/b85f4ea6-6d6e-4760-922c-5aeb7d850fe6/local_11153c86-6880-428a-b033-0b1b70211fa4/outputs/minaa-payments.html 'D:/Claude Project'\\\\''s/Minaa payment mini payment S/minaa-payments.html')"
+    ]
+  }
+}

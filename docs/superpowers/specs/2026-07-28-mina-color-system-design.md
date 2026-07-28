@@ -96,6 +96,37 @@ Corrected mapping: **Quarterly → Neutral (Mina Cream)**, using values drawn di
 
 This also better satisfies the follow-up creative direction the user gave (via the `frontend-design` skill): the app should read as predominantly Primary Blue with only a restrained, sparing touch of other color. With quarterly now neutral, Blue (primary, monthly + all main actions) dominates, Red (secondary) appears only as a deliberate, singular accent (one-time payments + destructive actions), and quarterly recedes into a quiet warm-neutral tone rather than competing for attention as a third brand hue. Contrast-checked: `#6B4423` on `#F7E0B6` = 6.58:1, comfortably passing WCAG AA.
 
+## Addendum 3 — the rules I had been missing (2026-07-29)
+The user supplied two further reference images: the **brand-guidelines board** (cover / logo / logomark) and the **Semantic Colors** page. Both contained rules the earlier passes violated.
+
+### Rule A — the semantic rule, quoted verbatim from the reference
+> "The Minaã Semantic Colours are Minaã Green (#05AA00), Yellow (#E5B11F), and Orange (#E56E1F). Use Green for success, Yellow for warnings, and Orange for errors. **Do not use these as primary brand colours or substitute them with unapproved ones.**"
+
+Both halves of that sentence had been broken: Green was used as a *category* colour (quarterly) in the first pass, and unapproved substitutes (Tailwind-ish `#10B981`, `#3B82F6`, `#8B5CF6`, `#BE123C`, `#6D28D9`) were scattered through the currency indicators, empty states and toolbar. Now: the three semantic colours are wired to their actual meanings (toast feedback keyed off the existing ✅/⚠️/❌ message prefixes) and appear **nowhere else**.
+
+### Rule B — how the board actually applies colour
+The board uses **large, confident solid fields of Blue and Red on cream paper, with cream (not white) text on the colour**. Earlier passes had used washed-out pale tints with coloured text — the opposite of the reference. Corrected: the grand-total card, invoice header, grand-total bar, selection bar and section-sum pills are now solid brand fields with cream text; buttons follow the reference's solid-vs-ghost hierarchy rather than pastel fills.
+
+### Variable rename — the root cause of the repeated mistakes
+The variables were still named `--purple`, `--teal`, `--orange`, `--brand` while holding blue, cream, red and blue values. That mismatch is what let one-time payments and the primary brand colour silently share `var(--brand)`. All variables are renamed to say what they are: `--primary*`, `--secondary*`, `--cream*`, `--success/--warning/--error`, `--monthly/--quarterly/--onetime`, `--ink`.
+
+Note `var(--brand)` was doing double duty — primary brand *and* one-time type. Those diverge now (blue vs red), so it was split by scope, not blanket-replaced.
+
+### Payment types — final mapping
+Blue-dominant with red as the single accent, per the user's "mostly blue, a little touch of other colours":
+| Type | Colour | Source |
+|---|---|---|
+| Monthly | `#0062AD` / tint `#F2F8FF` | Blue 700 / Blue 50 |
+| Quarterly | `#00437B` / tint `#E2F0FF` | Blue 900 / Blue 100 |
+| One-time | `#B93515` / tint `#FEF5F3` | Red 700 / Red 50 |
+
+Quarterly's earlier Cream/brown treatment is dropped — a third hue competed with the two brand colours and read as off-brand. Using a second *step* of Blue keeps the page overwhelmingly blue while staying strictly inside the approved palette.
+
+One-time uses **Red 700**, not the Red 600 signature: Red 600 as *text* fails WCAG AA nearly everywhere it appears (3.6–3.9:1). Red 700 is the same hue's accessible step — the 50–950 scale exists precisely so the right step can be chosen per context. Red 600 is retained as `--secondary` for solid/decorative fills.
+
+### Accessibility
+All 16 foreground/background pairs were contrast-checked programmatically against the live DOM; every one passes WCAG AA (4.5:1), lowest 5.19:1. Semantic toasts use `--ink` text (5.67–9.17:1) rather than white, which failed at ~3.1:1.
+
 ## Out of scope for this pass
 - Semantic success/warning/error color wiring (Mina Green/Yellow/Orange used for their guide-intended semantic purpose, e.g. toast states, form validation) — deferred per the scoping decision above.
 - Currency-indicator colors (KWD/USD/EUR green/blue/purple used in `updateCurrencyStyle()`/`updateEditCurrencyStyle()`) — these are arbitrary currency-distinguishing colors, not part of the brand system the PDF defines, and are left unchanged.

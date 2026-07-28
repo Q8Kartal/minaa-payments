@@ -8,24 +8,50 @@
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
 
     :root {
-      --brand:        #0062AD;
-      --brand-dark:   #005090;
-      --purple:       #0062AD;
-      --purple-light: #F2F8FF;
-      --purple-mid:   #68B4FF;
-      --orange:       #E8411D;
-      --orange-light: #FEF5F3;
-      --orange-mid:   #FA937D;
-      --teal:         #6B4423;
-      --teal-dark:    #57361B;
-      --teal-light:   #F7E0B6;
-      --teal-mid:     #E0B05D;
-      --bg:           #FDF9F0;
+      /* ── BRAND: Mina Blue (primary) ── */
+      --primary:         #0062AD;   /* Blue 700 — signature */
+      --primary-dark:    #00437B;   /* Blue 900 */
+      --primary-mid:     #68B4FF;   /* Blue 400 */
+      --primary-light:   #E2F0FF;   /* Blue 100 */
+      --primary-tint:    #F2F8FF;   /* Blue 50  */
+
+      /* ── BRAND: Mina Red (secondary) ── */
+      --secondary:       #E8411D;   /* Red 600 — signature, for solid/decorative fills */
+      --secondary-ink:   #B93515;   /* Red 700 — the accessible step: red used AS text,
+                                       or as a fill carrying cream text (AA-compliant) */
+      --secondary-dark:  #B93515;   /* Red 700 */
+      --secondary-mid:   #FA937D;   /* Red 400 */
+      --secondary-tint:  #FEF5F3;   /* Red 50  */
+
+      /* ── NEUTRAL: Mina Cream ── */
+      --cream-50:        #FDF9F0;
+      --cream:           #FBF0DC;   /* Cream 100 — cornerstone */
+      --cream-200:       #F7E0B6;
+
+      /* ── SEMANTIC — success/warning/error ONLY. Never brand, never decoration. ── */
+      --success:         #05AA00;   /* Mina Green  */
+      --warning:         #E5B11F;   /* Mina Yellow */
+      --error:           #E56E1F;   /* Mina Orange */
+
+      /* ── PAYMENT TYPES — blue-dominant, red as the single accent ── */
+      --monthly:         #0062AD;   /* Blue 700 */
+      --monthly-tint:    #F2F8FF;   /* Blue 50  */
+      --monthly-mid:     #68B4FF;   /* Blue 400 */
+      --quarterly:       #00437B;   /* Blue 900 */
+      --quarterly-tint:  #E2F0FF;   /* Blue 100 */
+      --quarterly-mid:   #A1CFFF;   /* Blue 300 */
+      --onetime:         #B93515;   /* Red 700 — accessible step of the secondary hue */
+      --onetime-tint:    #FEF5F3;   /* Red 50   */
+      --onetime-mid:     #FA937D;   /* Red 400  */
+
+      /* ── BASE & SURFACES ── */
+      --ink:          #161616;             /* Base black */
+      --bg:           #FDF9F0;             /* Cream 50 — the paper */
       --card:         #FFFFFF;
-      --text:         #1A1A1A;
-      --muted:        #6B7280;
-      --border:       #E5E7EB;
-      --shadow:       0 4px 24px rgba(0,0,0,.07);
+      --text:         #161616;
+      --muted:        rgba(22,22,22,.55);  /* alpha-black */
+      --border:       rgba(22,22,22,.10);  /* alpha-black 10 */
+      --shadow:       0 4px 24px rgba(22,22,22,.07);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,7 +83,7 @@
     .logo-sub {
       font-size: .73rem;
       font-weight: 700;
-      color: var(--brand);
+      color: var(--primary);
       letter-spacing: .12em;
       text-transform: uppercase;
       margin-top: 8px;
@@ -86,13 +112,13 @@
     .rate-lbl  { color: var(--muted); }
     .rates-refresh {
       background: none; border: none; cursor: pointer;
-      color: var(--brand); font-size: .8rem; font-weight: 700;
+      color: var(--primary); font-size: .8rem; font-weight: 700;
       font-family: 'Cairo', sans-serif;
       padding: 3px 8px; border-radius: 6px;
       transition: background .15s;
     }
-    .rates-refresh:hover { background: var(--orange-light); }
-    .rates-time { font-size: .72rem; color: #aaa; }
+    .rates-refresh:hover { background: var(--onetime-tint); }
+    .rates-time { font-size: .72rem; color: var(--muted); }
 
     /* ─── DATA TOOLBAR ─── */
     .data-toolbar {
@@ -131,19 +157,19 @@
     }
     /* Header band */
     .inv-header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: var(--primary);
       padding: 28px 32px 22px;
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 12px;
     }
     .inv-logo-area { display: flex; align-items: center; gap: 14px; }
     .inv-logo-area svg { width: 130px; height: auto; filter: brightness(0) invert(1); }
-    .inv-brand-text { color: #fff; }
+    .inv-brand-text { color: var(--cream); }
     .inv-brand-name { font-size: 1.15rem; font-weight: 800; letter-spacing: .03em; }
-    .inv-brand-sub  { font-size: .72rem; color: rgba(255,255,255,.6); letter-spacing: .12em; text-transform: uppercase; margin-top: 2px; }
-    .inv-meta { text-align: left; direction: ltr; color: rgba(255,255,255,.85); }
-    .inv-meta .inv-num  { font-size: 1rem; font-weight: 800; color: var(--brand); }
-    .inv-meta .inv-date { font-size: .78rem; color: rgba(255,255,255,.6); margin-top: 3px; }
+    .inv-brand-sub  { font-size: .72rem; color: rgba(251,240,220,.65); letter-spacing: .12em; text-transform: uppercase; margin-top: 2px; }
+    .inv-meta { text-align: left; direction: ltr; color: rgba(251,240,220,.85); }
+    .inv-meta .inv-num  { font-size: 1rem; font-weight: 800; color: var(--cream); }
+    .inv-meta .inv-date { font-size: .78rem; color: rgba(251,240,220,.65); margin-top: 3px; }
 
     /* Body */
     .inv-body { padding: 28px 32px; }
@@ -159,17 +185,17 @@
       border-radius: 14px; padding: 14px 16px;
       display: flex; flex-direction: column; gap: 4px;
     }
-    .inv-chip.monthly   { background: var(--purple-light); }
-    .inv-chip.quarterly { background: var(--teal-light); }
-    .inv-chip.onetime   { background: var(--orange-light); }
-    .inv-chip.grand     { background: linear-gradient(135deg,#f3f0ff,#fff1ed); }
+    .inv-chip.monthly   { background: var(--monthly-tint); }
+    .inv-chip.quarterly { background: var(--quarterly-tint); }
+    .inv-chip.onetime   { background: var(--onetime-tint); }
+    .inv-chip.grand     { background: var(--cream); }
     .inv-chip-label { font-size: .72rem; font-weight: 700; color: var(--muted); }
     .inv-chip-val   { font-size: 1.1rem; font-weight: 800; }
-    .inv-chip.monthly   .inv-chip-val { color: var(--purple); }
-    .inv-chip.quarterly .inv-chip-val { color: var(--teal); }
-    .inv-chip.onetime   .inv-chip-val { color: var(--brand); }
+    .inv-chip.monthly   .inv-chip-val { color: var(--monthly); }
+    .inv-chip.quarterly .inv-chip-val { color: var(--quarterly); }
+    .inv-chip.onetime   .inv-chip-val { color: var(--onetime); }
     .inv-chip.grand     .inv-chip-val {
-      background: linear-gradient(135deg,var(--purple),var(--brand));
+      background: linear-gradient(135deg,var(--monthly),var(--primary));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .inv-chip-count { font-size: .68rem; color: var(--muted); }
@@ -181,9 +207,9 @@
       padding: 6px 12px; border-radius: 8px;
       margin-bottom: 8px; display: inline-block;
     }
-    .inv-section.monthly   .inv-section-title { background: var(--purple-light); color: var(--purple); }
-    .inv-section.quarterly .inv-section-title { background: var(--teal-light);   color: var(--teal); }
-    .inv-section.onetime   .inv-section-title { background: var(--orange-light); color: var(--brand); }
+    .inv-section.monthly   .inv-section-title { background: var(--monthly-tint); color: var(--monthly); }
+    .inv-section.quarterly .inv-section-title { background: var(--quarterly-tint);   color: var(--quarterly); }
+    .inv-section.onetime   .inv-section-title { background: var(--onetime-tint); color: var(--onetime); }
 
     .inv-table { width: 100%; border-collapse: collapse; }
     .inv-table th {
@@ -193,16 +219,16 @@
     }
     .inv-table td {
       font-size: .84rem; padding: 9px 10px;
-      border-bottom: 1px solid #F3F4F6; vertical-align: middle;
+      border-bottom: 1px solid var(--border); vertical-align: middle;
     }
     .inv-table tr:last-child td { border-bottom: none; }
     .inv-table .td-name { font-weight: 700; }
     .inv-table .td-date { color: var(--muted); font-size: .75rem; }
-    .inv-table .td-orig { color: #aaa; font-size: .72rem; }
+    .inv-table .td-orig { color: var(--muted); font-size: .72rem; }
     .inv-table .td-amount { font-weight: 800; text-align: left; direction: ltr; white-space: nowrap; }
-    .inv-section.monthly   .inv-table .td-amount { color: var(--purple); }
-    .inv-section.quarterly .inv-table .td-amount { color: var(--teal); }
-    .inv-section.onetime   .inv-table .td-amount { color: var(--brand); }
+    .inv-section.monthly   .inv-table .td-amount { color: var(--monthly); }
+    .inv-section.quarterly .inv-table .td-amount { color: var(--quarterly); }
+    .inv-section.onetime   .inv-table .td-amount { color: var(--onetime); }
     .inv-section-foot {
       display: flex; justify-content: flex-end; align-items: center;
       gap: 8px; margin-top: 8px; padding-top: 8px;
@@ -210,24 +236,24 @@
       font-size: .82rem; font-weight: 700; color: var(--muted);
     }
     .inv-section-foot strong { font-size: .95rem; }
-    .inv-section.monthly   .inv-section-foot strong { color: var(--purple); }
-    .inv-section.quarterly .inv-section-foot strong { color: var(--teal); }
-    .inv-section.onetime   .inv-section-foot strong { color: var(--brand); }
+    .inv-section.monthly   .inv-section-foot strong { color: var(--monthly); }
+    .inv-section.quarterly .inv-section-foot strong { color: var(--quarterly); }
+    .inv-section.onetime   .inv-section-foot strong { color: var(--onetime); }
 
     /* Grand total bar */
     .inv-grand {
-      background: linear-gradient(135deg,#1a1a2e,#16213e);
+      background: var(--primary);
       border-radius: 14px;
       padding: 16px 20px;
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 8px;
     }
-    .inv-grand-label { color: rgba(255,255,255,.7); font-size: .85rem; font-weight: 700; }
-    .inv-grand-val   { font-size: 1.35rem; font-weight: 800; color: var(--brand); }
+    .inv-grand-label { color: rgba(251,240,220,.75); font-size: .85rem; font-weight: 700; }
+    .inv-grand-val   { font-size: 1.35rem; font-weight: 800; color: var(--cream); }
 
     /* Footer */
     .inv-footer-bar {
-      background: #F9FAFB;
+      background: var(--cream-50);
       padding: 16px 32px;
       display: flex; align-items: center; justify-content: space-between;
       gap: 10px; flex-wrap: wrap;
@@ -238,13 +264,13 @@
     .btn-print {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 9px 20px; border-radius: 10px; border: none;
-      background: linear-gradient(135deg,var(--brand),var(--brand-dark));
-      color: #fff; font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color: var(--cream); font-family: 'Cairo', sans-serif;
       font-size: .88rem; font-weight: 700;
       cursor: pointer; transition: all .15s;
-      box-shadow: 0 4px 14px rgba(232,71,28,.35);
+      box-shadow: 0 4px 14px rgba(0,98,173,.35);
     }
-    .btn-print:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,71,28,.4); }
+    .btn-print:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,98,173,.4); }
     .btn-inv-close {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 9px 16px; border-radius: 10px;
@@ -253,7 +279,7 @@
       font-family: 'Cairo', sans-serif; font-size: .88rem; font-weight: 700;
       cursor: pointer; transition: all .15s;
     }
-    .btn-inv-close:hover { background: #F9FAFB; }
+    .btn-inv-close:hover { background: var(--cream-50); }
 
     /* ─── PRINT STYLES ─── */
     @media print {
@@ -302,20 +328,21 @@
       width: 5px; height: 100%;
       border-radius: 0 16px 16px 0;
     }
-    .stat-card.monthly::before   { background: var(--purple); }
-    .stat-card.quarterly::before { background: var(--teal); }
-    .stat-card.onetime::before   { background: var(--brand); }
-    .stat-card.total::before     { background: linear-gradient(180deg,var(--purple),var(--brand)); }
+    .stat-card.monthly::before   { background: var(--monthly); }
+    .stat-card.quarterly::before { background: var(--quarterly); }
+    .stat-card.onetime::before   { background: var(--onetime); }
+    /* Grand total — the hero figure gets a solid primary field, cream on blue */
+    .stat-card.total             { background: var(--primary); }
+    .stat-card.total::before     { background: var(--secondary); }
+    .stat-card.total .stat-label,
+    .stat-card.total .stat-count { color: rgba(251,240,220,.75); }
 
     .stat-label { font-size: .78rem; color: var(--muted); font-weight: 600; }
     .stat-value { font-size: 1.45rem; font-weight: 800; line-height: 1.15; }
-    .stat-card.monthly   .stat-value { color: var(--purple); }
-    .stat-card.quarterly .stat-value { color: var(--teal); }
-    .stat-card.onetime   .stat-value { color: var(--brand); }
-    .stat-card.total     .stat-value {
-      background: linear-gradient(135deg,var(--purple),var(--brand));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+    .stat-card.monthly   .stat-value { color: var(--monthly); }
+    .stat-card.quarterly .stat-value { color: var(--quarterly); }
+    .stat-card.onetime   .stat-value { color: var(--onetime); }
+    .stat-card.total     .stat-value { color: var(--cream); }
     .stat-count { font-size: .76rem; color: var(--muted); }
 
     /* ─── FORM ─── */
@@ -334,7 +361,7 @@
     }
     .form-title .dot {
       width: 9px; height: 9px; border-radius: 50%;
-      background: linear-gradient(135deg,var(--purple),var(--brand));
+      background: linear-gradient(135deg,var(--monthly),var(--primary));
     }
 
     .form-grid {
@@ -355,7 +382,7 @@
       font-size: .72rem; color: var(--muted);
       margin-top: 3px; height: 16px; transition: all .2s;
     }
-    .convert-hint.active { color: #10B981; font-weight: 700; }
+    .convert-hint.active { color: var(--primary); font-weight: 700; }
 
     /* ─── PAYMENTS ─── */
     .payments-wrap {
@@ -387,22 +414,22 @@
     .badge {
       display: inline-flex; align-items: center; justify-content: center;
       width: 20px; height: 20px;
-      border-radius: 50%; font-size: .72rem; font-weight: 700; color: #fff;
+      border-radius: 50%; font-size: .72rem; font-weight: 700; color: var(--cream);
     }
-    .monthly-section   .badge { background: var(--purple); }
-    .quarterly-section .badge { background: var(--teal); }
-    .onetime-section   .badge { background: var(--brand); }
-    .monthly-section   .section-title { color: var(--purple); }
-    .quarterly-section .section-title { color: var(--teal); }
-    .onetime-section   .section-title { color: var(--brand); }
+    .monthly-section   .badge { background: var(--monthly); }
+    .quarterly-section .badge { background: var(--quarterly); }
+    .onetime-section   .badge { background: var(--onetime); }
+    .monthly-section   .section-title { color: var(--monthly); }
+    .quarterly-section .section-title { color: var(--quarterly); }
+    .onetime-section   .section-title { color: var(--onetime); }
 
     .section-sum {
       font-size: .8rem; font-weight: 700;
       padding: 3px 11px; border-radius: 20px;
     }
-    .monthly-section   .section-sum { background: var(--purple-light); color: var(--purple); }
-    .quarterly-section .section-sum { background: var(--teal-light);   color: var(--teal); }
-    .onetime-section   .section-sum { background: var(--orange-light); color: var(--brand); }
+    .monthly-section   .section-sum { background: var(--monthly);   color: var(--cream); }
+    .quarterly-section .section-sum { background: var(--quarterly); color: var(--cream); }
+    .onetime-section   .section-sum { background: var(--onetime);   color: var(--cream); }
 
     /* list */
     .pay-list { display: flex; flex-direction: column; gap: 9px; }
@@ -419,9 +446,9 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .pay-item:hover { transform: translateX(-2px); }
-    .monthly-section   .pay-item { background: var(--purple-light); }
-    .quarterly-section .pay-item { background: var(--teal-light); }
-    .onetime-section   .pay-item { background: var(--orange-light); }
+    .monthly-section   .pay-item { background: var(--monthly-tint); }
+    .quarterly-section .pay-item { background: var(--quarterly-tint); }
+    .onetime-section   .pay-item { background: var(--onetime-tint); }
 
     .pay-item-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
@@ -431,23 +458,23 @@
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
       unicode-bidi: plaintext;
     }
-    .monthly-section   .pay-name { color: var(--purple); }
-    .quarterly-section .pay-name { color: var(--teal); }
-    .onetime-section   .pay-name { color: var(--brand); }
+    .monthly-section   .pay-name { color: var(--monthly); }
+    .quarterly-section .pay-name { color: var(--quarterly); }
+    .onetime-section   .pay-name { color: var(--onetime); }
 
     .pay-top-row { display: flex; align-items: center; gap: 8px; }
 
     .pay-meta { font-size: .72rem; color: var(--muted); }
-    .pay-orig { font-size: .7rem; color: #aaa; font-style: italic; }
+    .pay-orig { font-size: .7rem; color: var(--muted); font-style: italic; }
 
     .pay-amounts { display: flex; flex-direction: column; align-items: flex-end; margin: 0 10px; }
     .pay-amount {
       font-size: .95rem; font-weight: 800; white-space: nowrap;
     }
-    .monthly-section   .pay-amount { color: var(--purple); }
-    .quarterly-section .pay-amount { color: var(--teal); }
-    .onetime-section   .pay-amount { color: var(--brand); }
-    .pay-orig-amt { font-size: .7rem; color: #aaa; }
+    .monthly-section   .pay-amount { color: var(--monthly); }
+    .quarterly-section .pay-amount { color: var(--quarterly); }
+    .onetime-section   .pay-amount { color: var(--onetime); }
+    .pay-orig-amt { font-size: .7rem; color: var(--muted); }
 
     .pay-actions { display: flex; gap: 4px; align-items: center; }
 
@@ -480,7 +507,7 @@
     }
     .modal-title .dot {
       width: 10px; height: 10px; border-radius: 50%;
-      background: linear-gradient(135deg,var(--purple),var(--brand));
+      background: linear-gradient(135deg,var(--monthly),var(--primary));
     }
     .modal-grid { display: grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
     .modal-grid .field:first-child { grid-column: 1 / -1; }
@@ -488,22 +515,26 @@
 
     /* empty */
     .empty { text-align: center; padding: 26px 0; font-size: .85rem; }
-    .monthly-section   .empty { color: #C4B5FD; }
-    .quarterly-section .empty { color: #99F6E4; }
-    .onetime-section   .empty { color: #F4A58A; }
+    .monthly-section   .empty { color: var(--monthly-mid); }
+    .quarterly-section .empty { color: var(--quarterly-mid); }
+    .onetime-section   .empty { color: var(--onetime-mid); }
     .empty-icon { font-size: 1.8rem; margin-bottom: 4px; }
 
     /* toast */
     #toast {
       position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%) translateY(80px);
-      background: #111; color: #fff;
+      background: var(--ink); color: var(--cream);
       padding: 11px 22px; border-radius: 12px;
       font-size: .88rem; font-weight: 600;
       transition: transform .3s; z-index: 999; pointer-events: none;
       white-space: nowrap;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
+    /* Semantic feedback — Green=success, Yellow=warning, Orange=error (brand rule) */
+    #toast.is-success { background: var(--success); color: var(--ink); }
+    #toast.is-warning { background: var(--warning); color: var(--ink); }
+    #toast.is-error   { background: var(--error);   color: var(--ink); }
 
     /* loading overlay */
     .loading-overlay {
@@ -519,18 +550,18 @@
     }
     .spinner {
       width: 36px; height: 36px;
-      border: 3px solid #eee;
-      border-top-color: var(--brand);
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin .8s linear infinite;
       margin: 0 auto 12px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-box p { font-size: .9rem; color: var(--muted); font-weight: 600; }
-    .lock-error { color:var(--orange); font-size:.78rem; margin-bottom:10px; min-height:16px; }
+    .lock-error { color:var(--error); font-size:.78rem; margin-bottom:10px; min-height:16px; }
     .selection-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
-      background: #1a1a2e; color: #fff;
+      background: var(--primary-dark); color: var(--cream);
       display: flex; align-items: center; justify-content: space-between;
       gap: 14px; padding: 14px 24px; z-index: 950;
       box-shadow: 0 -4px 24px rgba(0,0,0,.15);
@@ -608,13 +639,13 @@
 
 <!-- DATA TOOLBAR -->
 <div class="data-toolbar">
-  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--brand)" onclick="openInvoice()"><iconify-icon icon="lucide:receipt-text"></iconify-icon> فاتورة شاملة</jelly-button>
-  <jelly-button size="small" id="btn-select-toggle" style="--jelly-fill:transparent;--jelly-label:var(--brand)" onclick="toggleSelectionMode()"><iconify-icon icon="lucide:list-checks"></iconify-icon> تحديد الدفعات</jelly-button>
-  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--brand)" onclick="exportData()"><iconify-icon icon="lucide:download"></iconify-icon> تصدير البيانات</jelly-button>
-  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--brand)" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon> استيراد البيانات</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="openInvoice()"><iconify-icon icon="lucide:receipt-text"></iconify-icon> فاتورة شاملة</jelly-button>
+  <jelly-button size="small" id="btn-select-toggle" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="toggleSelectionMode()"><iconify-icon icon="lucide:list-checks"></iconify-icon> تحديد الدفعات</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="exportData()"><iconify-icon icon="lucide:download"></iconify-icon> تصدير البيانات</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon> استيراد البيانات</jelly-button>
   <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
-  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--orange)" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon> مسح الكل</jelly-button>
-  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--brand)" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon> خروج</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--secondary-ink)" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon> مسح الكل</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon> خروج</jelly-button>
 </div>
 
 <!-- STATS -->
@@ -724,7 +755,7 @@
     <span id="selection-total">0.000 د.ك</span>
   </div>
   <div class="selection-actions">
-    <jelly-button style="--jelly-fill:transparent;--jelly-label:#fff" onclick="cancelSelectionMode()">إلغاء</jelly-button>
+    <jelly-button style="--jelly-fill:transparent;--jelly-label:var(--cream)" onclick="cancelSelectionMode()">إلغاء</jelly-button>
     <jelly-button id="btn-generate-receipt" onclick="openReceipt()" disabled><iconify-icon icon="lucide:receipt-text"></iconify-icon> إنشاء إيصال</jelly-button>
   </div>
 </div>
@@ -764,8 +795,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <jelly-button style="--jelly-fill:transparent;--jelly-label:var(--brand)" onclick="closeModal()">إلغاء</jelly-button>
-      <jelly-button style="--jelly-fill:var(--brand);--jelly-label:#fff" onclick="saveEdit()"><iconify-icon icon="lucide:save"></iconify-icon> حفظ التعديل</jelly-button>
+      <jelly-button style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="closeModal()">إلغاء</jelly-button>
+      <jelly-button style="--jelly-fill:var(--primary);--jelly-label:var(--cream)" onclick="saveEdit()"><iconify-icon icon="lucide:save"></iconify-icon> حفظ التعديل</jelly-button>
     </div>
   </div>
 </div>
@@ -874,9 +905,9 @@ function fmtDate(iso) {
 function updateCurrencyStyle() {
   const s = document.getElementById('inp-currency');
   const styles = {
-    KWD: { fill: '#ECFDF5', label: '#065F46', accent: '#10B981' },
-    USD: { fill: '#EFF6FF', label: '#1E3A8A', accent: '#3B82F6' },
-    EUR: { fill: '#F5F3FF', label: '#4C1D95', accent: '#8B5CF6' }
+    KWD: { fill: 'var(--primary-tint)',   label: 'var(--primary)',      accent: 'var(--primary-mid)' },
+    USD: { fill: 'var(--primary-light)',  label: 'var(--primary-dark)', accent: 'var(--quarterly-mid)' },
+    EUR: { fill: 'var(--secondary-tint)', label: 'var(--secondary)',    accent: 'var(--secondary-mid)' }
   };
   const c = styles[s.value] || {};
   s.style.setProperty('--jelly-fill', c.fill || '');
@@ -886,9 +917,9 @@ function updateCurrencyStyle() {
 function updateTypeStyle() {
   const s = document.getElementById('inp-type');
   const styles = {
-    monthly:   { fill: 'var(--purple-light)', label: 'var(--purple)', accent: 'var(--purple-mid)' },
-    quarterly: { fill: 'var(--teal-light)',   label: 'var(--teal)',   accent: 'var(--teal-mid)' },
-    onetime:   { fill: 'var(--orange-light)', label: 'var(--brand)',  accent: 'var(--orange-mid)' }
+    monthly:   { fill: 'var(--monthly-tint)', label: 'var(--monthly)', accent: 'var(--monthly-mid)' },
+    quarterly: { fill: 'var(--quarterly-tint)',   label: 'var(--quarterly)',   accent: 'var(--quarterly-mid)' },
+    onetime:   { fill: 'var(--onetime-tint)', label: 'var(--onetime)',  accent: 'var(--onetime-mid)' }
   };
   const c = styles[s.value] || {};
   s.style.setProperty('--jelly-fill', c.fill || '');
@@ -988,7 +1019,7 @@ function renderList(listId, items, type) {
     return `
     <div class="pay-item">
       <div class="pay-top-row">
-        ${selectionMode ? `<jelly-checkbox label="تحديد ${p.name}" style="--jelly-on:var(--brand)" ${checked} onchange="togglePaymentSelection('${p.id}')"></jelly-checkbox>` : ''}
+        ${selectionMode ? `<jelly-checkbox label="تحديد ${p.name}" style="--jelly-on:var(--primary)" ${checked} onchange="togglePaymentSelection('${p.id}')"></jelly-checkbox>` : ''}
         <div class="pay-name" title="${p.name}">${p.name}</div>
       </div>
       <div class="pay-item-row">
@@ -1001,8 +1032,8 @@ function renderList(listId, items, type) {
           ${isConverted ? `<div class="pay-orig-amt">محوّل من ${p.origCurrency}</div>` : ''}
         </div>
         <div class="pay-actions">
-          <jelly-icon-button label="تعديل ${p.name}" style="--jelly-fill:transparent;--jelly-label:var(--brand)" onclick="openEdit('${p.id}')"><iconify-icon icon="lucide:pencil"></iconify-icon></jelly-icon-button>
-          <jelly-icon-button label="حذف ${p.name}" style="--jelly-fill:transparent;--jelly-label:var(--orange)" onclick="deletePayment('${p.id}')"><iconify-icon icon="lucide:x"></iconify-icon></jelly-icon-button>
+          <jelly-icon-button label="تعديل ${p.name}" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="openEdit('${p.id}')"><iconify-icon icon="lucide:pencil"></iconify-icon></jelly-icon-button>
+          <jelly-icon-button label="حذف ${p.name}" style="--jelly-fill:transparent;--jelly-label:var(--secondary-ink)" onclick="deletePayment('${p.id}')"><iconify-icon icon="lucide:x"></iconify-icon></jelly-icon-button>
         </div>
       </div>
     </div>`;
@@ -1022,8 +1053,8 @@ function toggleSelectionMode() {
   selectionMode = true;
   selectedIds.clear();
   document.getElementById('btn-select-toggle').innerHTML = '<iconify-icon icon="lucide:x"></iconify-icon> إلغاء التحديد';
-  document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', 'var(--brand)');
-  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', '#fff');
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', 'var(--primary)');
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', 'var(--cream)');
   document.getElementById('selection-bar').style.display = 'flex';
   document.body.classList.add('selecting');
   updateSelectionBar();
@@ -1035,7 +1066,7 @@ function cancelSelectionMode() {
   selectedIds.clear();
   document.getElementById('btn-select-toggle').innerHTML = '<iconify-icon icon="lucide:list-checks"></iconify-icon> تحديد الدفعات';
   document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', 'transparent');
-  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', 'var(--brand)');
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', 'var(--primary)');
   document.getElementById('selection-bar').style.display = 'none';
   document.body.classList.remove('selecting');
   render();
@@ -1105,9 +1136,9 @@ function saveEdit() {
 function updateEditCurrencyStyle() {
   const s = document.getElementById('edit-currency');
   const styles = {
-    KWD: { fill: '#ECFDF5', label: '#065F46', accent: '#10B981' },
-    USD: { fill: '#EFF6FF', label: '#1E3A8A', accent: '#3B82F6' },
-    EUR: { fill: '#F5F3FF', label: '#4C1D95', accent: '#8B5CF6' }
+    KWD: { fill: 'var(--primary-tint)',   label: 'var(--primary)',      accent: 'var(--primary-mid)' },
+    USD: { fill: 'var(--primary-light)',  label: 'var(--primary-dark)', accent: 'var(--quarterly-mid)' },
+    EUR: { fill: 'var(--secondary-tint)', label: 'var(--secondary)',    accent: 'var(--secondary-mid)' }
   };
   const c = styles[s.value] || {};
   s.style.setProperty('--jelly-fill', c.fill || '');
@@ -1129,6 +1160,11 @@ let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
+  // Semantic colour per the brand rule: Green=success, Yellow=warning, Orange=error.
+  t.classList.remove('is-success', 'is-warning', 'is-error');
+  if (msg.startsWith('✅') || msg.startsWith('🗑️')) t.classList.add('is-success');
+  else if (msg.startsWith('⚠️'))                    t.classList.add('is-warning');
+  else if (msg.startsWith('❌'))                    t.classList.add('is-error');
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
@@ -1185,7 +1221,7 @@ function openInvoice() {
   const logoSrc   = logoImgEl ? logoImgEl.src : '';
 
   function rowsHTML(list, cls) {
-    if (!list.length) return `<tr><td colspan="3" style="text-align:center;color:#aaa;font-size:.8rem;padding:14px">— لا يوجد —</td></tr>`;
+    if (!list.length) return `<tr><td colspan="3" style="text-align:center;color:var(--muted);font-size:.8rem;padding:14px">— لا يوجد —</td></tr>`;
     return list.map(p => {
       const isConv = p.origCurrency && p.origCurrency !== 'KWD';
       const origStr = isConv
@@ -1203,7 +1239,7 @@ function openInvoice() {
       <div class="inv-logo-area">
         ${logoSrc
           ? `<img src="${logoSrc}" style="width:110px;height:auto;filter:brightness(0) invert(1)" alt="Minaã"/>`
-          : `<span style="font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:.05em">Minaã</span>`}
+          : `<span style="font-size:1.6rem;font-weight:900;color:var(--cream);letter-spacing:.05em">Minaã</span>`}
       </div>
       <div class="inv-meta">
         <div class="inv-num">${invNum}</div>
@@ -1343,7 +1379,7 @@ function openReceipt() {
   const logoSrc   = logoImgEl ? logoImgEl.src : '';
 
   const typeDot   = { monthly: '🟣', quarterly: '🔵', onetime: '🟠' };
-  const typeColor = { monthly: 'var(--purple)', quarterly: 'var(--teal)', onetime: 'var(--brand)' };
+  const typeColor = { monthly: 'var(--monthly)', quarterly: 'var(--quarterly)', onetime: 'var(--onetime)' };
 
   function rowsHTML(list) {
     return list.map(p => {
@@ -1364,7 +1400,7 @@ function openReceipt() {
       <div class="inv-logo-area">
         ${logoSrc
           ? `<img src="${logoSrc}" style="width:110px;height:auto;filter:brightness(0) invert(1)" alt="Minaã"/>`
-          : `<span style="font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:.05em">Minaã</span>`}
+          : `<span style="font-size:1.6rem;font-weight:900;color:var(--cream);letter-spacing:.05em">Minaã</span>`}
       </div>
       <div class="inv-meta">
         <div class="inv-num">${recNum}</div>
