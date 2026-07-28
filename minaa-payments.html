@@ -714,6 +714,7 @@
 <!-- DATA TOOLBAR -->
 <div class="data-toolbar">
   <button class="btn-data btn-invoice" onclick="openInvoice()">🧾 فاتورة شاملة</button>
+  <button class="btn-data btn-select" id="btn-select-toggle" onclick="toggleSelectionMode()">☑️ تحديد الدفعات</button>
   <button class="btn-data btn-export" onclick="exportData()">⬇ تصدير البيانات</button>
   <button class="btn-data btn-import" onclick="document.getElementById('import-file').click()">⬆ استيراد البيانات</button>
   <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
@@ -825,6 +826,18 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- SELECTION BAR (shown while selecting payments for a receipt) -->
+<div class="selection-bar" id="selection-bar" style="display:none">
+  <div class="selection-info">
+    <span id="selection-count">تم تحديد 0 دفعات</span>
+    <span id="selection-total">0.000 د.ك</span>
+  </div>
+  <div class="selection-actions">
+    <button class="btn-data btn-clear" onclick="cancelSelectionMode()">إلغاء</button>
+    <button class="btn-add" id="btn-generate-receipt" onclick="openReceipt()" disabled>🧾 إنشاء إيصال</button>
+  </div>
+</div>
 
 <!-- INVOICE MODAL (populated via JS) -->
 <div class="inv-overlay" id="inv-overlay" style="display:none" onclick="closeInvoice(event)">
