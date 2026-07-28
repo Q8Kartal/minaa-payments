@@ -127,6 +127,16 @@ One-time uses **Red 700**, not the Red 600 signature: Red 600 as *text* fails WC
 ### Accessibility
 All 16 foreground/background pairs were contrast-checked programmatically against the live DOM; every one passes WCAG AA (4.5:1), lowest 5.19:1. Semantic toasts use `--ink` text (5.67–9.17:1) rather than white, which failed at ~3.1:1.
 
+## Addendum 4 — one blue, one red (2026-07-29)
+The user supplied the brand guide's Core Palette page (3.1), which states: *"The Minaã core colors are Minaã Blue (#0062AD), Minaã Red (#E8411D), and Minaã Cream (#FBF0DC). Make sure to stick with these colors as your main brand palette everywhere. Don't swap them out for any unapproved options!"* — and flagged two remaining violations:
+
+1. **Wrong red.** Addendum 3 substituted Red 700 `#B93515` for the signature Red 600 `#E8411D` on WCAG grounds. That was a self-made deviation from the brand's named core color; reverted. The signature red is used everywhere red appears (one-time payments, destructive actions). Known tradeoff, accepted by the brand owner: `#E8411D` as small text sits below WCAG AA (≈3.8:1 on white); all red text in the app is bold, which mitigates but does not close the gap.
+2. **Disorganized blues.** Monthly used Blue 700 and quarterly Blue 900, plus Blue 900 in the selection bar and hovers — mixed darker/lighter blues read as inconsistent. Now there is exactly ONE blue: `#0062AD`. Quarterly is distinguished from monthly by its icon, label, and a slightly deeper background tint (Blue 100 vs Blue 50), not by a different hue step. `--primary-dark`, `--secondary-ink`, and `--secondary-dark` were deleted so no future edit can quietly reintroduce off-signature steps.
+
+Verified in the live DOM: the set of distinct blues across `--primary/--monthly/--quarterly` is exactly `{#0062AD}` and distinct reds across `--secondary/--onetime` exactly `{#E8411D}`.
+
+Note on the guide itself: the Cream page (3.4) mislabels its swatches with the Blue scale's hex codes (`#F2F8FF`…`#00264B`) — a copy-paste slip in the guide document. The cream values used here come from the PDF extraction (`#FDF9F0`, `#FBF0DC`, `#F7E0B6`, …), which match the swatches as actually drawn.
+
 ## Out of scope for this pass
 - Semantic success/warning/error color wiring (Mina Green/Yellow/Orange used for their guide-intended semantic purpose, e.g. toast states, form validation) — deferred per the scoping decision above.
 - Currency-indicator colors (KWD/USD/EUR green/blue/purple used in `updateCurrencyStyle()`/`updateEditCurrencyStyle()`) — these are arbitrary currency-distinguishing colors, not part of the brand system the PDF defines, and are left unchanged.

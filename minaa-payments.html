@@ -8,19 +8,19 @@
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
     :root {
-      /* ── BRAND: Mina Blue (primary) ── */
-      --primary:         #0062AD;   /* Blue 700 — signature */
-      --primary-dark:    #00437B;   /* Blue 900 */
-      --primary-mid:     #68B4FF;   /* Blue 400 */
-      --primary-light:   #E2F0FF;   /* Blue 100 */
-      --primary-tint:    #F2F8FF;   /* Blue 50  */
+      /* ══ CORE PALETTE (brand guide 3.1) — ONE blue, ONE red, cream. ══
+         Minaã Blue #0062AD · Minaã Red #E8411D · Minaã Cream #FBF0DC.
+         The signature shades are used everywhere; scale steps 50/100/400
+         appear only as background tints and focus accents, never as
+         alternative main colors. */
+      --primary:         #0062AD;   /* Minaã Blue — THE blue */
+      --primary-mid:     #68B4FF;   /* Blue 400 — focus accents only */
+      --primary-light:   #E2F0FF;   /* Blue 100 — tint */
+      --primary-tint:    #F2F8FF;   /* Blue 50  — tint */
 
-      /* ── BRAND: Mina Red (secondary) ── */
-      --secondary:       #E8411D;   /* Red 600 — signature, solid/decorative fills */
-      --secondary-ink:   #B93515;   /* Red 700 — accessible step for red text / red+cream */
-      --secondary-dark:  #B93515;   /* Red 700 */
-      --secondary-mid:   #FA937D;   /* Red 400 */
-      --secondary-tint:  #FEF5F3;   /* Red 50  */
+      --secondary:       #E8411D;   /* Minaã Red — THE red */
+      --secondary-mid:   #FA937D;   /* Red 400 — focus accents only */
+      --secondary-tint:  #FEF5F3;   /* Red 50  — tint */
 
       /* ── NEUTRAL: Mina Cream ── */
       --cream-50:        #FDF9F0;
@@ -32,16 +32,16 @@
       --warning:         #E5B11F;   /* Mina Yellow */
       --error:           #E56E1F;   /* Mina Orange */
 
-      /* ── PAYMENT TYPES — blue-dominant, red as the single accent ── */
-      --monthly:         #0062AD;   /* Blue 700 */
-      --monthly-tint:    #F2F8FF;   /* Blue 50  */
+      /* ── PAYMENT TYPES — main blue for recurring, main red for one-time ── */
+      --monthly:         #0062AD;   /* Minaã Blue */
+      --monthly-tint:    #F2F8FF;   /* Blue 50 */
       --monthly-mid:     #68B4FF;   /* Blue 400 */
-      --quarterly:       #00437B;   /* Blue 900 */
-      --quarterly-tint:  #E2F0FF;   /* Blue 100 */
-      --quarterly-mid:   #A1CFFF;   /* Blue 300 */
-      --onetime:         #B93515;   /* Red 700 — accessible step of the secondary hue */
-      --onetime-tint:    #FEF5F3;   /* Red 50   */
-      --onetime-mid:     #FA937D;   /* Red 400  */
+      --quarterly:       #0062AD;   /* Minaã Blue — same blue, no darker variant */
+      --quarterly-tint:  #E2F0FF;   /* Blue 100 — slightly deeper tint tells the sections apart */
+      --quarterly-mid:   #68B4FF;   /* Blue 400 */
+      --onetime:         #E8411D;   /* Minaã Red */
+      --onetime-tint:    #FEF5F3;   /* Red 50 */
+      --onetime-mid:     #FA937D;   /* Red 400 */
 
       /* ── BASE & SURFACES ── */
       --ink:          #161616;
@@ -363,7 +363,7 @@
     /* ═══ SELECTION BAR ═══ */
     .selection-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--primary-dark); color: var(--cream);
+      background: var(--primary); color: var(--cream);
       display: flex; align-items: center; justify-content: space-between;
       gap: 14px; padding: 14px 24px; z-index: 950;
       box-shadow: 0 -10px 34px rgba(0,67,123,.35);
@@ -676,7 +676,7 @@
   <jelly-icon-button label="استيراد البيانات" title="استيراد البيانات" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon></jelly-icon-button>
   <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
   <div class="nav-gap"></div>
-  <jelly-icon-button label="مسح الكل" title="مسح الكل" style="--jelly-fill:transparent;--jelly-label:var(--secondary-ink)" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon></jelly-icon-button>
+  <jelly-icon-button label="مسح الكل" title="مسح الكل" style="--jelly-fill:transparent;--jelly-label:var(--secondary)" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon></jelly-icon-button>
   <jelly-icon-button label="خروج" title="خروج" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon></jelly-icon-button>
 </aside>
 
@@ -1006,7 +1006,7 @@ function updateCurrencyStyle() {
   const s = document.getElementById('inp-currency');
   const styles = {
     KWD: { fill: 'var(--primary-tint)',   label: 'var(--primary)',      accent: 'var(--primary-mid)' },
-    USD: { fill: 'var(--primary-light)',  label: 'var(--primary-dark)', accent: 'var(--quarterly-mid)' },
+    USD: { fill: 'var(--primary-light)',  label: 'var(--primary)',      accent: 'var(--primary-mid)' },
     EUR: { fill: 'var(--secondary-tint)', label: 'var(--secondary)',    accent: 'var(--secondary-mid)' }
   };
   const c = styles[s.value] || {};
@@ -1157,7 +1157,7 @@ function renderList(listId, items, type) {
         </div>
         <div class="pay-actions">
           <jelly-icon-button label="تعديل ${p.name}" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="openEdit('${p.id}')"><iconify-icon icon="lucide:pencil"></iconify-icon></jelly-icon-button>
-          <jelly-icon-button label="حذف ${p.name}" style="--jelly-fill:transparent;--jelly-label:var(--secondary-ink)" onclick="deletePayment('${p.id}')"><iconify-icon icon="lucide:x"></iconify-icon></jelly-icon-button>
+          <jelly-icon-button label="حذف ${p.name}" style="--jelly-fill:transparent;--jelly-label:var(--secondary)" onclick="deletePayment('${p.id}')"><iconify-icon icon="lucide:x"></iconify-icon></jelly-icon-button>
         </div>
       </div>
     </div>`;
@@ -1265,7 +1265,7 @@ function updateEditCurrencyStyle() {
   const s = document.getElementById('edit-currency');
   const styles = {
     KWD: { fill: 'var(--primary-tint)',   label: 'var(--primary)',      accent: 'var(--primary-mid)' },
-    USD: { fill: 'var(--primary-light)',  label: 'var(--primary-dark)', accent: 'var(--quarterly-mid)' },
+    USD: { fill: 'var(--primary-light)',  label: 'var(--primary)',      accent: 'var(--primary-mid)' },
     EUR: { fill: 'var(--secondary-tint)', label: 'var(--secondary)',    accent: 'var(--secondary-mid)' }
   };
   const c = styles[s.value] || {};
@@ -1506,7 +1506,6 @@ function openReceipt() {
   const logoImgEl = document.querySelector('.logo-wrap img');
   const logoSrc   = logoImgEl ? logoImgEl.src : '';
 
-  const typeDot   = { monthly: '🟣', quarterly: '🔵', onetime: '🟠' };
   const typeColor = { monthly: 'var(--monthly)', quarterly: 'var(--quarterly)', onetime: 'var(--onetime)' };
 
   function rowsHTML(list) {
@@ -1516,7 +1515,7 @@ function openReceipt() {
         ? `<div class="td-orig">(${p.origCurrency} ${p.origValue.toFixed(3)})</div>` : '';
       const color = typeColor[p.type] || 'inherit';
       return `<tr>
-        <td class="td-name" style="color:${color}">${typeDot[p.type]||''} ${p.name}</td>
+        <td class="td-name" style="color:${color}">${p.name}</td>
         <td class="td-date">${fmtDate(p.date)}</td>
         <td class="td-amount" style="color:${color}">${fmtKWD(p.kwdValue)}${origStr}</td>
       </tr>`;
