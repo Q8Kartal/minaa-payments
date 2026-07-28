@@ -722,13 +722,13 @@
 
 <!-- DATA TOOLBAR -->
 <div class="data-toolbar">
-  <button class="btn-data btn-invoice" onclick="openInvoice()">🧾 فاتورة شاملة</button>
-  <button class="btn-data btn-select" id="btn-select-toggle" onclick="toggleSelectionMode()">☑️ تحديد الدفعات</button>
-  <button class="btn-data btn-export" onclick="exportData()">⬇ تصدير البيانات</button>
-  <button class="btn-data btn-import" onclick="document.getElementById('import-file').click()">⬆ استيراد البيانات</button>
+  <jelly-button style="--jelly-fill:#FFF1ED;--jelly-label:var(--brand)" onclick="openInvoice()"><iconify-icon icon="lucide:receipt-text"></iconify-icon> فاتورة شاملة</jelly-button>
+  <jelly-button id="btn-select-toggle" style="--jelly-fill:#F5F3FF;--jelly-label:#6D28D9" onclick="toggleSelectionMode()"><iconify-icon icon="lucide:list-checks"></iconify-icon> تحديد الدفعات</jelly-button>
+  <jelly-button style="--jelly-fill:#F0FDF4;--jelly-label:#15803D" onclick="exportData()"><iconify-icon icon="lucide:download"></iconify-icon> تصدير البيانات</jelly-button>
+  <jelly-button style="--jelly-fill:#EFF6FF;--jelly-label:#1D4ED8" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon> استيراد البيانات</jelly-button>
   <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
-  <button class="btn-data btn-clear" onclick="clearData()">🗑 مسح الكل</button>
-  <button class="btn-data" style="background:#F3F4F6;color:var(--muted);border:1.5px solid var(--border)" onclick="logout()">🚪 خروج</button>
+  <jelly-button style="--jelly-fill:#FFF1F2;--jelly-label:#BE123C" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon> مسح الكل</jelly-button>
+  <jelly-button variant="platinum" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon> خروج</jelly-button>
 </div>
 
 <!-- STATS -->
@@ -1128,8 +1128,9 @@ function toggleSelectionMode() {
   if (selectionMode) { cancelSelectionMode(); return; }
   selectionMode = true;
   selectedIds.clear();
-  document.getElementById('btn-select-toggle').textContent = '✕ إلغاء التحديد';
-  document.getElementById('btn-select-toggle').classList.add('active');
+  document.getElementById('btn-select-toggle').innerHTML = '<iconify-icon icon="lucide:x"></iconify-icon> إلغاء التحديد';
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', 'var(--purple)');
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', '#fff');
   document.getElementById('selection-bar').style.display = 'flex';
   document.body.classList.add('selecting');
   updateSelectionBar();
@@ -1139,8 +1140,9 @@ function toggleSelectionMode() {
 function cancelSelectionMode() {
   selectionMode = false;
   selectedIds.clear();
-  document.getElementById('btn-select-toggle').textContent = '☑️ تحديد الدفعات';
-  document.getElementById('btn-select-toggle').classList.remove('active');
+  document.getElementById('btn-select-toggle').innerHTML = '<iconify-icon icon="lucide:list-checks"></iconify-icon> تحديد الدفعات';
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', '#F5F3FF');
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', '#6D28D9');
   document.getElementById('selection-bar').style.display = 'none';
   document.body.classList.remove('selecting');
   render();
