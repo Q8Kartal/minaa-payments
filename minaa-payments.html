@@ -104,42 +104,6 @@
       margin: 0 auto 18px;
       flex-wrap: wrap;
     }
-    .btn-data {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 10px; border: none;
-      font-family: 'Cairo', sans-serif; font-size: .82rem; font-weight: 700;
-      cursor: pointer; transition: all .15s;
-    }
-    .btn-export {
-      background: #F0FDF4; color: #15803D;
-      border: 1.5px solid #86EFAC;
-    }
-    .btn-export:hover { background: #DCFCE7; }
-    .btn-import {
-      background: #EFF6FF; color: #1D4ED8;
-      border: 1.5px solid #93C5FD;
-    }
-    .btn-import:hover { background: #DBEAFE; }
-    .btn-clear {
-      background: #FFF1F2; color: #BE123C;
-      border: 1.5px solid #FDA4AF;
-    }
-    .btn-clear:hover { background: #FFE4E6; }
-    .btn-select {
-      background: #F5F3FF; color: #6D28D9;
-      border: 1.5px solid #C4B5FD;
-    }
-    .btn-select:hover { background: #EDE9FE; }
-    .btn-select.active {
-      background: var(--purple); color: #fff; border-color: var(--purple);
-    }
-    .btn-invoice {
-      background: linear-gradient(135deg,#FFF7ED,#FFF1ED);
-      color: var(--brand);
-      border: 1.5px solid var(--orange-mid);
-      font-weight: 800;
-    }
-    .btn-invoice:hover { background: linear-gradient(135deg,#FFEDD5,#FFE4D6); box-shadow: 0 3px 12px rgba(232,71,28,.2); }
     #import-file { display: none; }
 
     /* ─── INVOICE MODAL ─── */
@@ -377,35 +341,6 @@
     @media(max-width:420px){ .form-grid{ grid-template-columns: 1fr; } }
 
     .field { display: flex; flex-direction: column; gap: 5px; position: relative; }
-    .field label { font-size: .78rem; font-weight: 700; color: var(--muted); }
-
-    input, select {
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 13px;
-      font-family: 'Cairo', sans-serif;
-      font-size: .92rem;
-      color: var(--text);
-      background: #FAFAFA;
-      outline: none;
-      transition: border .2s, box-shadow .2s;
-      width: 100%;
-    }
-    input:focus, select:focus {
-      border-color: var(--purple);
-      box-shadow: 0 0 0 3px rgba(124,58,237,.1);
-      background: #fff;
-    }
-    select { cursor: pointer; }
-
-    select.type-monthly   { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-light); }
-    select.type-quarterly { border-color: var(--teal-mid);   color: var(--teal);   background: var(--teal-light); }
-    select.type-onetime   { border-color: var(--orange-mid); color: var(--brand);  background: var(--orange-light); }
-
-    /* currency select */
-    .cur-kwd  { border-color: #10B981; color: #065F46; background: #ECFDF5; }
-    .cur-usd  { border-color: #3B82F6; color: #1E3A8A; background: #EFF6FF; }
-    .cur-eur  { border-color: #8B5CF6; color: #4C1D95; background: #F5F3FF; }
 
     /* converted preview */
     .convert-hint {
@@ -414,20 +349,6 @@
       margin-top: 3px; height: 16px; transition: all .2s;
     }
     .convert-hint.active { color: #10B981; font-weight: 700; }
-
-    .btn-add {
-      padding: 10px 22px;
-      border-radius: 10px; border: none;
-      background: linear-gradient(135deg,var(--brand),var(--brand-dark));
-      color: #fff;
-      font-family: 'Cairo', sans-serif;
-      font-size: .92rem; font-weight: 700;
-      cursor: pointer; white-space: nowrap;
-      transition: transform .15s, box-shadow .15s;
-      box-shadow: 0 4px 14px rgba(232,71,28,.35);
-    }
-    .btn-add:hover  { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,71,28,.4); }
-    .btn-add:active { transform: scale(.97); }
 
     /* ─── PAYMENTS ─── */
     .payments-wrap {
@@ -508,10 +429,6 @@
     .onetime-section   .pay-name { color: var(--brand); }
 
     .pay-top-row { display: flex; align-items: center; gap: 8px; }
-    .pay-checkbox {
-      width: 20px; height: 20px; flex-shrink: 0;
-      accent-color: var(--brand); cursor: pointer;
-    }
 
     .pay-meta { font-size: .72rem; color: var(--muted); }
     .pay-orig { font-size: .7rem; color: #aaa; font-style: italic; }
@@ -525,18 +442,6 @@
     .onetime-section   .pay-amount { color: var(--brand); }
     .pay-orig-amt { font-size: .7rem; color: #aaa; }
 
-    .btn-del, .btn-edit {
-      background: none; border: none; cursor: pointer;
-      font-size: .95rem;
-      padding: 0; border-radius: 8px;
-      min-width: 38px; min-height: 38px;
-      display: inline-flex; align-items: center; justify-content: center;
-      transition: color .15s, background .15s; line-height: 1;
-    }
-    .btn-del  { color: #D1D5DB; }
-    .btn-edit { color: #C4B5FD; }
-    .btn-del:hover  { color: #EF4444; background: #FEE2E2; }
-    .btn-edit:hover { color: #7C3AED; background: #EDE9FE; }
     .pay-actions { display: flex; gap: 4px; align-items: center; }
 
     /* ─── EDIT MODAL ─── */
@@ -573,23 +478,6 @@
     .modal-grid { display: grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
     .modal-grid .field:first-child { grid-column: 1 / -1; }
     .modal-footer { display:flex; gap:10px; justify-content:flex-end; }
-    .btn-modal-save {
-      padding: 10px 24px; border-radius: 10px; border: none;
-      background: linear-gradient(135deg,var(--purple),#9333EA);
-      color: #fff; font-family:'Cairo',sans-serif;
-      font-size:.92rem; font-weight:700; cursor:pointer;
-      box-shadow: 0 4px 12px rgba(124,58,237,.3);
-      transition: transform .15s;
-    }
-    .btn-modal-save:hover { transform:translateY(-1px); }
-    .btn-modal-cancel {
-      padding: 10px 20px; border-radius: 10px;
-      border: 1.5px solid var(--border);
-      background: transparent; color: var(--muted);
-      font-family:'Cairo',sans-serif; font-size:.92rem;
-      font-weight:600; cursor:pointer;
-    }
-    .btn-modal-cancel:hover { background: var(--bg); }
 
     /* empty */
     .empty { text-align: center; padding: 26px 0; font-size: .85rem; }
@@ -643,13 +531,6 @@
     }
     .selection-bar .selection-info { display: flex; align-items: center; gap: 14px; font-weight: 700; }
     .selection-actions { display: flex; gap: 10px; }
-    #btn-generate-receipt:disabled { opacity: .5; cursor: not-allowed; }
-    .selection-bar .btn-modal-cancel {
-      background: rgba(255,255,255,.08);
-      color: #fff;
-      border-color: rgba(255,255,255,.25);
-    }
-    .selection-bar .btn-modal-cancel:hover { background: rgba(255,255,255,.16); }
     body.selecting { padding-bottom: 90px; }
     jelly-theme:not(:defined) { display: contents; }
   </style>
