@@ -125,6 +125,14 @@
       border: 1.5px solid #FDA4AF;
     }
     .btn-clear:hover { background: #FFE4E6; }
+    .btn-select {
+      background: #F5F3FF; color: #6D28D9;
+      border: 1.5px solid #C4B5FD;
+    }
+    .btn-select:hover { background: #EDE9FE; }
+    .btn-select.active {
+      background: var(--purple); color: #fff; border-color: var(--purple);
+    }
     .btn-invoice {
       background: linear-gradient(135deg,#FFF7ED,#FFF1ED);
       color: var(--brand);
@@ -499,6 +507,12 @@
     .quarterly-section .pay-name { color: var(--teal); }
     .onetime-section   .pay-name { color: var(--brand); }
 
+    .pay-top-row { display: flex; align-items: center; gap: 8px; }
+    .pay-checkbox {
+      width: 20px; height: 20px; flex-shrink: 0;
+      accent-color: var(--brand); cursor: pointer;
+    }
+
     .pay-meta { font-size: .72rem; color: var(--muted); }
     .pay-orig { font-size: .7rem; color: #aaa; font-style: italic; }
 
@@ -619,6 +633,18 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-box p { font-size: .9rem; color: var(--muted); font-weight: 600; }
     .lock-error { color:#BE123C; font-size:.78rem; margin-bottom:10px; min-height:16px; }
+    .selection-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #1a1a2e; color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; padding: 14px 24px; z-index: 950;
+      box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+      flex-wrap: wrap;
+    }
+    .selection-bar .selection-info { display: flex; align-items: center; gap: 14px; font-weight: 700; }
+    .selection-actions { display: flex; gap: 10px; }
+    #btn-generate-receipt:disabled { opacity: .5; cursor: not-allowed; }
+    body.selecting { padding-bottom: 90px; }
   </style>
 </head>
 <body>
