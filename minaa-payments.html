@@ -340,7 +340,7 @@
     @media(max-width:700px){ .form-grid{ grid-template-columns: 1fr 1fr; } }
     @media(max-width:420px){ .form-grid{ grid-template-columns: 1fr; } }
 
-    .field { display: flex; flex-direction: column; gap: 5px; position: relative; }
+    .field { display: flex; flex-direction: column; gap: 5px; position: relative; min-width: 0; }
 
     /* converted preview */
     .convert-hint {
@@ -994,8 +994,8 @@ function renderList(listId, items, type) {
           ${isConverted ? `<div class="pay-orig-amt">محوّل من ${p.origCurrency}</div>` : ''}
         </div>
         <div class="pay-actions">
-          <jelly-icon-button label="تعديل" onclick="openEdit('${p.id}')"><iconify-icon icon="lucide:pencil"></iconify-icon></jelly-icon-button>
-          <jelly-icon-button label="حذف" onclick="deletePayment('${p.id}')"><iconify-icon icon="lucide:x"></iconify-icon></jelly-icon-button>
+          <jelly-icon-button label="تعديل ${p.name}" style="--jelly-fill:var(--purple-light);--jelly-label:var(--purple)" onclick="openEdit('${p.id}')"><iconify-icon icon="lucide:pencil"></iconify-icon></jelly-icon-button>
+          <jelly-icon-button label="حذف ${p.name}" style="--jelly-fill:#FFF1F2;--jelly-label:#BE123C" onclick="deletePayment('${p.id}')"><iconify-icon icon="lucide:x"></iconify-icon></jelly-icon-button>
         </div>
       </div>
     </div>`;
@@ -1486,6 +1486,13 @@ function clearData() {
 // ── Init ───────────────────────────────────────────────────────
 updateCurrencyStyle();
 updateTypeStyle();
+Promise.all([
+  customElements.whenDefined('jelly-select'),
+  customElements.whenDefined('jelly-input')
+]).then(() => {
+  updateCurrencyStyle();
+  updateTypeStyle();
+});
 fetchRates();
 
 function login() {
