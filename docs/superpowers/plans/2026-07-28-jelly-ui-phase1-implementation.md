@@ -486,7 +486,7 @@ Replace with:
     <jelly-button id="btn-generate-receipt" onclick="openReceipt()" disabled><iconify-icon icon="lucide:receipt-text"></iconify-icon> إنشاء إيصال</jelly-button>
   </div>
 ```
-(`jelly-button` supports the `disabled` attribute natively, and `updateSelectionBar()`'s existing `document.getElementById('btn-generate-receipt').disabled = selected.length === 0;` line needs no change — `disabled` is a normal reflected property on `jelly-button` same as a native button.)
+(**Correction after implementation:** `jelly-button` only observes `disabled` as an HTML *attribute* — it has no native `get/set disabled()` IDL property like `HTMLButtonElement`. `updateSelectionBar()`'s original line, `document.getElementById('btn-generate-receipt').disabled = selected.length === 0;`, silently no-ops on a custom element with no such accessor — it never touches the actual attribute, so the button would stay in whatever disabled state it loaded with, forever. This was caught in review and fixed in commit `7dfd5d2`: the line must be `document.getElementById('btn-generate-receipt').toggleAttribute('disabled', selected.length === 0);` instead.)
 
 - [ ] **Step 2: Replace the checkbox and the two icon buttons inside `renderList()`**
 
@@ -550,8 +550,10 @@ Every native control they styled has been replaced in Tasks 2-6, so these rules 
 - `.btn-del, .btn-edit { ... }`, `.btn-del { ... }`, `.btn-edit { ... }`, `.btn-del:hover`, `.btn-edit:hover`
 - `.btn-modal-save`, `.btn-modal-save:hover`, `.btn-modal-cancel`, `.btn-modal-cancel:hover`
 - `.selection-bar .btn-modal-cancel`, `.selection-bar .btn-modal-cancel:hover` (this override is now moot since the selection bar's cancel button is a `jelly-button`, not `.btn-modal-cancel`)
+- `.field label { ... }` (no `<label>` children remain inside any `.field` div after Tasks 3-5 — `jelly-input`/`jelly-select` carry their own `label=` attribute instead)
+- `#btn-generate-receipt:disabled { ... }` (targets the `:disabled` CSS pseudo-class, which cannot match `jelly-button` — confirmed it isn't a form-associated custom element, so this rule has been inert since Task 6 swapped the button's tag; **this item moved here from the original "Do NOT remove" list below after being caught in Task 6's review** — the original plan wrongly assumed this rule still applied)
 
-Do NOT remove: `.field`, `.form-grid` and its media queries, `.modal-grid`, `.modal-grid .field:first-child`, `.modal-footer`, `.data-toolbar`, `.selection-bar`, `.selection-bar .selection-info`, `.selection-actions`, `#btn-generate-receipt:disabled`, `body.selecting`, `.pay-top-row`, `.pay-actions`, `#import-file { display: none; }` — these are structural/layout rules or rules for elements untouched by this phase, still in use.
+Do NOT remove: `.field`, `.form-grid` and its media queries, `.modal-grid`, `.modal-grid .field:first-child`, `.modal-footer`, `.data-toolbar`, `.selection-bar`, `.selection-bar .selection-info`, `.selection-actions`, `body.selecting`, `.pay-top-row`, `.pay-actions`, `#import-file { display: none; }` — these are structural/layout rules or rules for elements untouched by this phase, still in use.
 
 - [ ] **Step 2: Verify in browser**
 
