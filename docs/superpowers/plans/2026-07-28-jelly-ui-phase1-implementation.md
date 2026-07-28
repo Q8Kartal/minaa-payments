@@ -4,7 +4,7 @@
 
 **Goal:** Replace this app's native buttons, inputs, selects, and checkboxes with Jelly UI web components and Iconify SVG icons, per `docs/superpowers/specs/2026-07-28-jelly-ui-phase1-design.md`, while preserving every existing brand color exactly and keeping the app fully functional (Firestore writes, currency conversion, selection/receipt feature, RTL layout).
 
-**Architecture:** Two new CDN `<script>` tags (Jelly UI, Iconify) alongside the existing Firebase ones. The whole app body is wrapped in `<jelly-theme mode="light" accent="#E8471C">`. Each native control is swapped 1:1 for its Jelly equivalent, with exact brand colors preserved via inline `style="--jelly-fill:...;--jelly-label:..."` (or `--jelly-accent`/`--jelly-on` where that's the documented token) rather than Jelly's built-in named variants. The two functions that dynamically recolor the currency/type selects based on the current selection (`updateCurrencyStyle`/`updateTypeStyle`/`updateEditCurrencyStyle`) are rewritten to set the `--jelly-accent` CSS custom property instead of swapping a CSS class. Once every control is migrated, the now-dead CSS for the old native controls is removed.
+**Architecture:** Two new CDN `<script>` tags (Jelly UI, Iconify) alongside the existing Firebase ones. The whole app body is wrapped in `<jelly-theme mode="light" accent="#E8471C">`. Each native control is swapped 1:1 for its Jelly equivalent, with exact brand colors preserved via inline `style="--jelly-fill:...;--jelly-label:..."` (or `--jelly-accent`/`--jelly-on` where that's the documented token) rather than Jelly's built-in named variants. The two functions that dynamically recolor the currency/type selects based on the current selection (`updateCurrencyStyle`/`updateTypeStyle`/`updateEditCurrencyStyle`) are rewritten to set `--jelly-fill`/`--jelly-label`/`--jelly-accent` together (matching the original background/text/border trio) instead of swapping a CSS class — `--jelly-accent` alone only affects the focus ring/active row, not resting appearance. Once every control is migrated, the now-dead CSS for the old native controls is removed.
 
 **Tech Stack:** Vanilla JS/HTML, two new CDN dependencies (jelly-ui.com, code.iconify.design), no build tools. No test framework in this project — verification is manual browser checks.
 
@@ -258,15 +258,30 @@ Replace with:
 ```js
 function updateCurrencyStyle() {
   const s = document.getElementById('inp-currency');
-  const colors = { KWD:'#10B981', USD:'#3B82F6', EUR:'#8B5CF6' };
-  s.style.setProperty('--jelly-accent', colors[s.value] || '');
+  const styles = {
+    KWD: { fill: '#ECFDF5', label: '#065F46', accent: '#10B981' },
+    USD: { fill: '#EFF6FF', label: '#1E3A8A', accent: '#3B82F6' },
+    EUR: { fill: '#F5F3FF', label: '#4C1D95', accent: '#8B5CF6' }
+  };
+  const c = styles[s.value] || {};
+  s.style.setProperty('--jelly-fill', c.fill || '');
+  s.style.setProperty('--jelly-label', c.label || '');
+  s.style.setProperty('--jelly-accent', c.accent || '');
 }
 function updateTypeStyle() {
   const s = document.getElementById('inp-type');
-  const colors = { monthly:'var(--purple)', quarterly:'var(--teal)', onetime:'var(--brand)' };
-  s.style.setProperty('--jelly-accent', colors[s.value] || '');
+  const styles = {
+    monthly:   { fill: 'var(--purple-light)', label: 'var(--purple)', accent: 'var(--purple-mid)' },
+    quarterly: { fill: 'var(--teal-light)',   label: 'var(--teal)',   accent: 'var(--teal-mid)' },
+    onetime:   { fill: 'var(--orange-light)', label: 'var(--brand)',  accent: 'var(--orange-mid)' }
+  };
+  const c = styles[s.value] || {};
+  s.style.setProperty('--jelly-fill', c.fill || '');
+  s.style.setProperty('--jelly-label', c.label || '');
+  s.style.setProperty('--jelly-accent', c.accent || '');
 }
 ```
+(Note: `--jelly-accent` alone only affects `jelly-select`'s focus-ring/active-row/tick, not its resting appearance — `--jelly-fill`/`--jelly-label` must also be set to preserve the original always-tinted look. This corrects an earlier version of this plan that used `--jelly-accent` alone, which shipped as a real regression and was fixed in commit `9d8ee3e` — reflected here so this doc matches what was actually built.)
 
 - [ ] **Step 3: Call both style functions once on load so the fields show their correct initial color**
 
@@ -371,10 +386,18 @@ Replace with:
 ```js
 function updateEditCurrencyStyle() {
   const s = document.getElementById('edit-currency');
-  const colors = { KWD:'#10B981', USD:'#3B82F6', EUR:'#8B5CF6' };
-  s.style.setProperty('--jelly-accent', colors[s.value] || '');
+  const styles = {
+    KWD: { fill: '#ECFDF5', label: '#065F46', accent: '#10B981' },
+    USD: { fill: '#EFF6FF', label: '#1E3A8A', accent: '#3B82F6' },
+    EUR: { fill: '#F5F3FF', label: '#4C1D95', accent: '#8B5CF6' }
+  };
+  const c = styles[s.value] || {};
+  s.style.setProperty('--jelly-fill', c.fill || '');
+  s.style.setProperty('--jelly-label', c.label || '');
+  s.style.setProperty('--jelly-accent', c.accent || '');
 }
 ```
+(Note: setting `--jelly-accent` alone only affects `jelly-select`'s focus-ring/active-row/tick, NOT its resting appearance — `--jelly-fill`/`--jelly-label` must also be set to reproduce the original always-tinted look. This exact fix was already applied to `updateCurrencyStyle()`/`updateTypeStyle()` in Task 3, commit `9d8ee3e` — this task must follow the same corrected 3-property pattern from the start, not the plan's original 1-property mistake.)
 
 - [ ] **Step 3: Verify in browser**
 
