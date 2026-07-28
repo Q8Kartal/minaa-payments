@@ -18,6 +18,7 @@ This is Phase 1 of a larger, explicitly phased redesign. Later phases (not cover
 
 ## Foundation
 - Add `<script type="module" src="https://jelly-ui.com/package.js"></script>` alongside the existing Firebase compat `<script>` tags.
+- Add `<script src="https://code.iconify.design/iconify-icon/2.x/iconify-icon.min.js"></script>` for the Iconify Icon web component (`<iconify-icon icon="set:name">`) — same CDN-script, no-build-tools pattern, used to replace this app's emoji icons with real SVG icons from the **Lucide** icon set.
 - Wrap the entire visible app in `<jelly-theme mode="light" accent="#E8471C">`. Placement: wrap from the loader/lock-screen through the end of body content (i.e., it can wrap everything between `<body>` and the closing `<script>` tags — `jelly-theme` is layout-neutral so this is safe regardless of what's currently shown/hidden).
 - Because the default accent is now brand orange, any Jelly component that doesn't get an explicit override (e.g. the primary "+ إضافة" add button, focus rings generally) automatically uses the correct brand color for free.
 
@@ -58,6 +59,25 @@ Same four field types as the add-payment form (`jelly-input` ×2, `jelly-select`
 ### Selection bar buttons
 إلغاء → `<jelly-button variant="platinum">`; إنشاء إيصال → `<jelly-button>` (default accent), keeping its existing `disabled` attribute behavior (Jelly buttons support `disabled` natively).
 
+## Icons (Iconify)
+
+Emoji icons throughout the buttons/icon-buttons in scope for this phase are replaced with `<iconify-icon icon="lucide:...">` elements, slotted as the icon content inside `jelly-button`/`jelly-icon-button` (both explicitly support slotted `svg`/icon content per their API). Flag emoji (🇰🇼🇺🇸🇪🇺 on currency options) and the colored dot indicators (🟣🔵🟠 on type options) are decorative/out of scope — left as-is.
+
+Icon names below were verified to exist against the live Iconify API (`api.iconify.design/lucide.json?icons=...`) — all 10 confirmed present in the Lucide set:
+
+| Current emoji | Button | Icon (verified) |
+|---|---|---|
+| 🧾 | فاتورة شاملة | `lucide:receipt-text` |
+| ☑️ | تحديد الدفعات | `lucide:list-checks` |
+| ⬇ | تصدير البيانات | `lucide:download` |
+| ⬆ | استيراد البيانات | `lucide:upload` |
+| 🗑 | مسح الكل | `lucide:trash-2` |
+| 🚪 | خروج | `lucide:log-out` |
+| ✏️ | edit icon-button | `lucide:pencil` |
+| ✕ | delete icon-button | `lucide:x` |
+| + | + إضافة | `lucide:plus` |
+| 🖨 | طباعة / PDF (invoice/receipt) | `lucide:printer` |
+
 ## Cleanup
 Once every native button/input/select/checkbox above is replaced, remove the now-dead CSS: `.btn-add`, `.btn-data` and all its color variants (`.btn-export`, `.btn-import`, `.btn-clear`, `.btn-invoice`, `.btn-select`), the base `input, select { ... }` rule, `.cur-kwd`/`.cur-usd`/`.cur-eur`, `.type-monthly`/`.type-quarterly`/`.type-onetime`, `.pay-checkbox`, `.btn-edit`/`.btn-del`, `.btn-modal-cancel`/`.btn-modal-save`. (`.field`/`.pay-top-row`/`.form-grid`/`.modal-grid` layout CSS stays — those are structural containers, not the controls themselves.)
 
@@ -71,3 +91,4 @@ Once every native button/input/select/checkbox above is replaced, remove the now
 - Confirm `jelly-select`'s `change` event correctly drives the existing `updateConvertHint()`/`updateEditHint()` currency-conversion preview logic (these listen for `onchange` on the currency select today).
 - Confirm disabled states (generate-receipt button, disabled inputs during edit) still visually and functionally disable correctly.
 - Confirm no console errors from the Jelly UI script load itself (network-dependent on jelly-ui.com being reachable — note this as a new external runtime dependency, unlike Firebase which is Google-operated infrastructure).
+- Confirm every `<iconify-icon>` actually renders a real icon in the browser, not a blank/broken placeholder (icon slugs were verified to exist via the API during design, but rendering through the actual web component should still be visually confirmed). Confirm no console errors from the Iconify script load (another new external runtime dependency, same caveat as Jelly UI's CDN).
