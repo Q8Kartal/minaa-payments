@@ -672,17 +672,15 @@
     <div class="modal-title"><span class="dot"></span> تسجيل الدخول</div>
     <div class="modal-grid" style="grid-template-columns:1fr">
       <div class="field">
-        <label>البريد الإلكتروني</label>
-        <input id="lock-email" type="email" placeholder="you@example.com"/>
+        <jelly-input id="lock-email" label="البريد الإلكتروني" type="email" placeholder="you@example.com"></jelly-input>
       </div>
       <div class="field">
-        <label>كلمة المرور</label>
-        <input id="lock-password" type="password" placeholder="••••••••"/>
+        <jelly-input id="lock-password" label="كلمة المرور" type="password" placeholder="••••••••"></jelly-input>
       </div>
     </div>
     <div class="lock-error" id="lock-error"></div>
     <div class="modal-footer">
-      <button class="btn-add" id="lock-submit" onclick="login()">دخول</button>
+      <jelly-button id="lock-submit" onclick="login()">دخول</jelly-button>
     </div>
   </div>
 </div>
