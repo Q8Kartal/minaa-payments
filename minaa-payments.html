@@ -1064,6 +1064,12 @@ function render() {
   renderList('list-monthly',   monthly,   'monthly');
   renderList('list-quarterly', quarterly, 'quarterly');
   renderList('list-onetime',   onetime,   'onetime');
+
+  if (selectionMode) {
+    const existingIds = new Set(payments.map(p => p.id));
+    selectedIds.forEach(id => { if (!existingIds.has(id)) selectedIds.delete(id); });
+    updateSelectionBar();
+  }
 }
 
 function renderList(listId, items, type) {
@@ -1101,6 +1107,47 @@ function renderList(listId, items, type) {
 
 // ── Edit Modal ─────────────────────────────────────────────────
 let editingId = null;
+
+// ── Selection mode (for the selective receipt) ─────────────────
+let selectionMode = false;
+let selectedIds = new Set();
+let selectionReceiptOpen = false;
+
+function toggleSelectionMode() {
+  if (selectionMode) { cancelSelectionMode(); return; }
+  selectionMode = true;
+  selectedIds.clear();
+  document.getElementById('btn-select-toggle').textContent = '✕ إلغاء التحديد';
+  document.getElementById('btn-select-toggle').classList.add('active');
+  document.getElementById('selection-bar').style.display = 'flex';
+  document.body.classList.add('selecting');
+  updateSelectionBar();
+  render();
+}
+
+function cancelSelectionMode() {
+  selectionMode = false;
+  selectedIds.clear();
+  document.getElementById('btn-select-toggle').textContent = '☑️ تحديد الدفعات';
+  document.getElementById('btn-select-toggle').classList.remove('active');
+  document.getElementById('selection-bar').style.display = 'none';
+  document.body.classList.remove('selecting');
+  render();
+}
+
+function togglePaymentSelection(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  updateSelectionBar();
+}
+
+function updateSelectionBar() {
+  const selected = payments.filter(p => selectedIds.has(p.id));
+  const total = selected.reduce((s, p) => s + p.kwdValue, 0);
+  document.getElementById('selection-count').textContent = `تم تحديد ${selected.length} دفعات`;
+  document.getElementById('selection-total').textContent = fmtKWD(total);
+  document.getElementById('btn-generate-receipt').disabled = selected.length === 0;
+}
 
 function openEdit(id) {
   const p = payments.find(x => x.id === id);
