@@ -1084,9 +1084,13 @@ function renderList(listId, items, type) {
   el.innerHTML = items.map(p => {
     const isConverted = p.origCurrency !== 'KWD';
     const flagMap = { KWD:'🇰🇼', USD:'🇺🇸', EUR:'🇪🇺' };
+    const checked = selectedIds.has(p.id) ? 'checked' : '';
     return `
     <div class="pay-item">
-      <div class="pay-name" title="${p.name}">${p.name}</div>
+      <div class="pay-top-row">
+        ${selectionMode ? `<input type="checkbox" class="pay-checkbox" ${checked} onchange="togglePaymentSelection('${p.id}')"/>` : ''}
+        <div class="pay-name" title="${p.name}">${p.name}</div>
+      </div>
       <div class="pay-item-row">
         <div class="pay-info">
           <div class="pay-meta">${fmtDate(p.date)}</div>
