@@ -104,6 +104,12 @@
       margin: 0 auto 18px;
       flex-wrap: wrap;
     }
+    .data-toolbar jelly-button {
+      --jelly-button-min-width: 0;
+      --jelly-button-padding-inline: 14px;
+      --jelly-button-font-size: 13px;
+      --jelly-button-gap: 5px;
+    }
     #import-file { display: none; }
 
     /* ─── INVOICE MODAL ─── */
@@ -341,6 +347,7 @@
     @media(max-width:420px){ .form-grid{ grid-template-columns: 1fr; } }
 
     .field { display: flex; flex-direction: column; gap: 5px; position: relative; min-width: 0; }
+    .field jelly-input, .field jelly-select { width: 100%; min-width: 0; }
 
     /* converted preview */
     .convert-hint {
@@ -601,13 +608,13 @@
 
 <!-- DATA TOOLBAR -->
 <div class="data-toolbar">
-  <jelly-button style="--jelly-fill:#FFF1ED;--jelly-label:var(--brand)" onclick="openInvoice()"><iconify-icon icon="lucide:receipt-text"></iconify-icon> فاتورة شاملة</jelly-button>
-  <jelly-button id="btn-select-toggle" style="--jelly-fill:#F5F3FF;--jelly-label:#6D28D9" onclick="toggleSelectionMode()"><iconify-icon icon="lucide:list-checks"></iconify-icon> تحديد الدفعات</jelly-button>
-  <jelly-button style="--jelly-fill:#F0FDF4;--jelly-label:#15803D" onclick="exportData()"><iconify-icon icon="lucide:download"></iconify-icon> تصدير البيانات</jelly-button>
-  <jelly-button style="--jelly-fill:#EFF6FF;--jelly-label:#1D4ED8" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon> استيراد البيانات</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:#FFF1ED;--jelly-label:var(--brand)" onclick="openInvoice()"><iconify-icon icon="lucide:receipt-text"></iconify-icon> فاتورة شاملة</jelly-button>
+  <jelly-button size="small" id="btn-select-toggle" style="--jelly-fill:#F5F3FF;--jelly-label:#6D28D9" onclick="toggleSelectionMode()"><iconify-icon icon="lucide:list-checks"></iconify-icon> تحديد الدفعات</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:#F0FDF4;--jelly-label:#15803D" onclick="exportData()"><iconify-icon icon="lucide:download"></iconify-icon> تصدير البيانات</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:#EFF6FF;--jelly-label:#1D4ED8" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon> استيراد البيانات</jelly-button>
   <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
-  <jelly-button style="--jelly-fill:#FFF1F2;--jelly-label:#BE123C" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon> مسح الكل</jelly-button>
-  <jelly-button variant="platinum" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon> خروج</jelly-button>
+  <jelly-button size="small" style="--jelly-fill:#FFF1F2;--jelly-label:#BE123C" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon> مسح الكل</jelly-button>
+  <jelly-button size="small" variant="platinum" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon> خروج</jelly-button>
 </div>
 
 <!-- STATS -->
