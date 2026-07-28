@@ -763,32 +763,27 @@
   </div>
   <div class="form-grid">
     <div class="field">
-      <label>اسم الدفعة</label>
-      <input id="inp-name" type="text" placeholder="مثال: إيجار المخزن A"/>
+      <jelly-input id="inp-name" label="اسم الدفعة" type="text" placeholder="مثال: إيجار المخزن A"></jelly-input>
     </div>
     <div class="field">
-      <label>القيمة</label>
-      <input id="inp-value" type="number" min="0" step="0.01" placeholder="0.00"
-             oninput="updateConvertHint()"/>
+      <jelly-input id="inp-value" label="القيمة" type="number" placeholder="0.00" oninput="updateConvertHint()"></jelly-input>
       <div class="convert-hint" id="convert-hint"></div>
     </div>
     <div class="field">
-      <label>العملة</label>
-      <select id="inp-currency" onchange="updateCurrencyStyle(); updateConvertHint()">
-        <option value="KWD">🇰🇼 دينار كويتي</option>
-        <option value="USD">🇺🇸 دولار أمريكي</option>
-        <option value="EUR">🇪🇺 يورو</option>
-      </select>
+      <jelly-select id="inp-currency" label="العملة" value="KWD" onchange="updateCurrencyStyle(); updateConvertHint()">
+        <jelly-option value="KWD">🇰🇼 دينار كويتي</jelly-option>
+        <jelly-option value="USD">🇺🇸 دولار أمريكي</jelly-option>
+        <jelly-option value="EUR">🇪🇺 يورو</jelly-option>
+      </jelly-select>
     </div>
     <div class="field">
-      <label>نوع الدفعة</label>
-      <select id="inp-type" onchange="updateTypeStyle()">
-        <option value="monthly">🟣 شهري</option>
-        <option value="quarterly">🔵 اشتراك / 3 أشهر</option>
-        <option value="onetime">🟠 مرة واحدة</option>
-      </select>
+      <jelly-select id="inp-type" label="نوع الدفعة" value="monthly" onchange="updateTypeStyle()">
+        <jelly-option value="monthly">🟣 شهري</jelly-option>
+        <jelly-option value="quarterly">🔵 اشتراك / 3 أشهر</jelly-option>
+        <jelly-option value="onetime">🟠 مرة واحدة</jelly-option>
+      </jelly-select>
     </div>
-    <button class="btn-add" onclick="addPayment()">+ إضافة</button>
+    <jelly-button onclick="addPayment()"><iconify-icon icon="lucide:plus"></iconify-icon> إضافة</jelly-button>
   </div>
 </div>
 
@@ -996,11 +991,13 @@ function fmtDate(iso) {
 // ── Select styles ──────────────────────────────────────────────
 function updateCurrencyStyle() {
   const s = document.getElementById('inp-currency');
-  s.className = { KWD:'cur-kwd', USD:'cur-usd', EUR:'cur-eur' }[s.value] || '';
+  const colors = { KWD:'#10B981', USD:'#3B82F6', EUR:'#8B5CF6' };
+  s.style.setProperty('--jelly-accent', colors[s.value] || '');
 }
 function updateTypeStyle() {
   const s = document.getElementById('inp-type');
-  s.className = { monthly:'type-monthly', quarterly:'type-quarterly', onetime:'type-onetime' }[s.value] || '';
+  const colors = { monthly:'var(--purple)', quarterly:'var(--teal)', onetime:'var(--brand)' };
+  s.style.setProperty('--jelly-accent', colors[s.value] || '');
 }
 
 // ── Add ────────────────────────────────────────────────────────
