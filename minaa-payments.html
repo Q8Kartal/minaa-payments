@@ -164,21 +164,19 @@
     .stat-card.onetime   .ring-fg { stroke: var(--onetime); }
     .stat-card.onetime   .ring-pct { color: var(--onetime); }
 
-    /* featured solid-primary total card (reference's blue tile) */
-    .stat-card.total { background: var(--primary); }
+    /* featured total card — solid secondary with cream on top (the brand board's pairing) */
+    .stat-card.total { background: var(--secondary); }
     .total-icon {
       width: 46px; height: 46px; border-radius: 14px; flex: none;
       background: rgba(251,240,220,.16);
       display: inline-flex; align-items: center; justify-content: center;
-      color: var(--secondary); font-size: 1.3rem;
+      color: var(--cream); font-size: 1.3rem;
     }
-    /* Cream replaced with the secondary colour at the brand owner's direction.
-       Note: Minaã Red on Minaã Blue is 1.55:1 — below WCAG AA. Solid red is
-       used (rather than the previous dimmed opacities) to keep it as legible
-       as possible. */
-    .stat-card.total .stat-label { color: var(--secondary); }
-    .stat-card.total .stat-value { color: var(--secondary); }
-    .stat-card.total .stat-count { color: var(--secondary); }
+    /* Full-strength cream on all three: dimming them dropped contrast to
+       2.5–3.0:1. Hierarchy comes from size and weight instead. */
+    .stat-card.total .stat-label { color: var(--cream); }
+    .stat-card.total .stat-value { color: var(--cream); }
+    .stat-card.total .stat-count { color: var(--cream); }
     .stat-card.total .ring-bg  { stroke: rgba(251,240,220,.22); }
     .stat-card.total .ring-fg  { stroke: var(--cream); }
     .stat-card.total .ring-pct { color: var(--cream); }
