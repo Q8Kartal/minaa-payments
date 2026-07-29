@@ -357,8 +357,10 @@
     .rates-time { font-size: .64rem; color: var(--faint); }
 
     .rail-actions { display: flex; flex-direction: column; gap: 8px; }
-    .rail-actions jelly-button { --jelly-button-min-width: 0; width: 100%; }
-    .rail-cta jelly-button { --jelly-button-min-width: 0; width: 100%; }
+    /* Full width comes from jelly-button's `block` attribute — width:100% only
+       stretches the host, leaving the inner button hugging the inline-start edge. */
+    .rail-actions jelly-button,
+    .rail-cta jelly-button { --jelly-button-min-width: 0; }
     .rail .nav-gap { flex: 1; }
     #import-file { display: none; }
 
@@ -835,7 +837,7 @@
   <div class="nav-gap"></div>
 
   <div class="rail-cta">
-    <jelly-button style="--jelly-fill:var(--primary);--jelly-label:var(--cream)" onclick="openInvoice()"><iconify-icon icon="lucide:receipt-text"></iconify-icon> فاتورة شاملة</jelly-button>
+    <jelly-button block style="--jelly-fill:var(--primary);--jelly-label:var(--cream)" onclick="openInvoice()"><iconify-icon icon="lucide:receipt-text"></iconify-icon> فاتورة شاملة</jelly-button>
   </div>
 </aside>
 
