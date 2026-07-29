@@ -239,22 +239,14 @@
     .monthly-section   .section-title { color: var(--monthly); }
     .quarterly-section .section-title { color: var(--quarterly); }
     .onetime-section   .section-title { color: var(--onetime); }
-    .badge {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 20px; height: 20px; padding: 0 5px;
-      border-radius: 50%; font-size: .68rem; font-weight: 800; font-family: var(--font-bold); color: var(--cream);
-    }
-    .monthly-section   .badge { background: var(--monthly); }
-    .quarterly-section .badge { background: var(--quarterly); }
-    .onetime-section   .badge { background: var(--onetime); }
-    .section-sum {
-      font-size: .72rem; font-weight: 800; font-family: var(--font-bold);
-      padding: 3px 10px; border-radius: 20px;
-      color: var(--cream); white-space: nowrap;
-    }
-    .monthly-section   .section-sum { background: var(--monthly); }
-    .quarterly-section .section-sum { background: var(--quarterly); }
-    .onetime-section   .section-sum { background: var(--onetime); }
+    .badge { --jelly-label: var(--cream); font-size: .68rem; }
+    .monthly-section   .badge { --jelly-fill: var(--monthly); }
+    .quarterly-section .badge { --jelly-fill: var(--quarterly); }
+    .onetime-section   .badge { --jelly-fill: var(--onetime); }
+    .section-sum { --jelly-label: var(--cream); font-size: .72rem; white-space: nowrap; }
+    .monthly-section   .section-sum { --jelly-fill: var(--monthly); }
+    .quarterly-section .section-sum { --jelly-fill: var(--quarterly); }
+    .onetime-section   .section-sum { --jelly-fill: var(--onetime); }
 
     .pay-list { display: flex; flex-direction: column; gap: 8px; }
 
@@ -355,14 +347,13 @@
       border-top: 1px dashed var(--border);
     }
     .rates-refresh {
-      background: var(--primary-tint); border: none; cursor: pointer;
-      color: var(--primary); font-size: .72rem; font-weight: 800; font-family: var(--font-bold);
-     
-      padding: 6px 12px; border-radius: 999px;
-      transition: background .15s;
-      display: inline-flex; align-items: center; gap: 5px;
+      --jelly-fill: var(--primary-tint);
+      --jelly-label: var(--primary);
+      --jelly-button-min-width: 0;
+      --jelly-button-padding-inline: 12px;
+      --jelly-button-font-size: 12px;
+      --jelly-button-gap: 5px;
     }
-    .rates-refresh:hover { background: var(--primary-light); }
     .rates-time { font-size: .64rem; color: var(--faint); }
 
     .rail-actions { display: flex; flex-direction: column; gap: 8px; }
@@ -443,15 +434,7 @@
       z-index: 998;
     }
     .loading-box { text-align: center; }
-    .spinner {
-      width: 38px; height: 38px;
-      border: 3px solid var(--cream-200);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin: 0 auto 12px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-box jelly-spinner { --jelly-fill: var(--primary); margin-bottom: 12px; }
     .loading-box p { font-size: .9rem; color: var(--muted); font-weight: 700; font-family: var(--font-medium); }
 
     /* ═══ INVOICE / RECEIPT MODAL ═══ */
@@ -563,24 +546,17 @@
     .inv-note { font-size: .7rem; color: var(--muted); }
     .inv-actions { display: flex; gap: 8px; }
     .btn-print {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 9px 20px; border-radius: 999px; border: none;
-      background: var(--primary);
-      color: var(--cream);
-      font-size: .86rem; font-weight: 800; font-family: var(--font-bold);
-      cursor: pointer; transition: all .15s;
-      box-shadow: 0 4px 14px rgba(0,98,173,.35);
+      --jelly-fill: var(--primary);
+      --jelly-label: var(--cream);
+      --jelly-button-min-width: 0;
+      --jelly-button-padding-inline: 20px;
     }
-    .btn-print:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,98,173,.4); }
     .btn-inv-close {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 9px 16px; border-radius: 999px;
-      border: 1.5px solid var(--border);
-      background: var(--card); color: var(--muted);
-      font-size: .86rem; font-weight: 700; font-family: var(--font-medium);
-      cursor: pointer; transition: all .15s;
+      --jelly-fill: transparent;
+      --jelly-label: var(--muted);
+      --jelly-button-min-width: 0;
+      --jelly-button-padding-inline: 16px;
     }
-    .btn-inv-close:hover { background: var(--cream-50); }
 
     /* ═══ PRINT ═══ */
     @media print {
@@ -653,7 +629,7 @@
 <!-- Loading -->
 <div class="loading-overlay" id="loader">
   <div class="loading-box">
-    <div class="spinner"></div>
+    <jelly-spinner type="blob" size="large" label="جارٍ التحميل"></jelly-spinner>
     <p>جاري تحميل أسعار الصرف…</p>
   </div>
 </div>
@@ -794,10 +770,10 @@
     <div class="panel section-card monthly-section">
       <div class="section-header">
         <div class="section-title">
-          <span class="badge" id="badge-monthly">0</span>
+          <jelly-badge class="badge" id="badge-monthly" live>0</jelly-badge>
           مدفوعات شهرية
         </div>
-        <span class="section-sum" id="sum-monthly">0 د.ك</span>
+        <jelly-chip class="section-sum" id="sum-monthly">0 د.ك</jelly-chip>
       </div>
       <div class="pay-list" id="list-monthly">
         <div class="empty"><iconify-icon icon="lucide:calendar-sync"></iconify-icon>لا توجد مدفوعات شهرية</div>
@@ -806,10 +782,10 @@
     <div class="panel section-card quarterly-section">
       <div class="section-header">
         <div class="section-title">
-          <span class="badge" id="badge-quarterly">0</span>
+          <jelly-badge class="badge" id="badge-quarterly" live>0</jelly-badge>
           اشتراكات / 3 أشهر
         </div>
-        <span class="section-sum" id="sum-quarterly">0 د.ك</span>
+        <jelly-chip class="section-sum" id="sum-quarterly">0 د.ك</jelly-chip>
       </div>
       <div class="pay-list" id="list-quarterly">
         <div class="empty"><iconify-icon icon="lucide:calendar-range"></iconify-icon>لا توجد اشتراكات ربع سنوية</div>
@@ -818,10 +794,10 @@
     <div class="panel section-card onetime-section">
       <div class="section-header">
         <div class="section-title">
-          <span class="badge" id="badge-onetime">0</span>
+          <jelly-badge class="badge" id="badge-onetime" live>0</jelly-badge>
           دفعات أحادية
         </div>
-        <span class="section-sum" id="sum-onetime">0 د.ك</span>
+        <jelly-chip class="section-sum" id="sum-onetime">0 د.ك</jelly-chip>
       </div>
       <div class="pay-list" id="list-onetime">
         <div class="empty"><iconify-icon icon="lucide:zap"></iconify-icon>لا توجد دفعات أحادية</div>
@@ -851,7 +827,7 @@
       <span class="rate-val"><span id="r-eur">–</span> د.ك</span>
     </div>
     <div class="rates-foot">
-      <button class="rates-refresh" onclick="fetchRates(true)"><iconify-icon icon="lucide:refresh-cw"></iconify-icon> تحديث</button>
+      <jelly-button class="rates-refresh" size="small" onclick="fetchRates(true)"><iconify-icon icon="lucide:refresh-cw"></iconify-icon> تحديث</jelly-button>
       <span class="rates-time" id="r-time"></span>
     </div>
   </div>
@@ -1489,8 +1465,8 @@ function openInvoice() {
     <div class="inv-footer-bar">
       <div class="inv-note">Minaã • نظام إدارة المدفوعات • ${invDate}</div>
       <div class="inv-actions">
-        <button class="btn-inv-close" onclick="closeInvoice()"><iconify-icon icon="lucide:x"></iconify-icon> إغلاق</button>
-        <button class="btn-print" onclick="printInvoice()"><iconify-icon icon="lucide:printer"></iconify-icon> طباعة / PDF</button>
+        <jelly-button class="btn-inv-close" size="small" onclick="closeInvoice()"><iconify-icon icon="lucide:x"></iconify-icon> إغلاق</jelly-button>
+        <jelly-button class="btn-print" size="small" onclick="printInvoice()"><iconify-icon icon="lucide:printer"></iconify-icon> طباعة / PDF</jelly-button>
       </div>
     </div>
   `;
@@ -1592,8 +1568,8 @@ function openReceipt() {
     <div class="inv-footer-bar">
       <div class="inv-note">Minaã • إيصال دفعات محددة • ${recDate}</div>
       <div class="inv-actions">
-        <button class="btn-inv-close" onclick="closeInvoice()"><iconify-icon icon="lucide:x"></iconify-icon> إغلاق</button>
-        <button class="btn-print" onclick="printInvoice()"><iconify-icon icon="lucide:printer"></iconify-icon> طباعة / PDF</button>
+        <jelly-button class="btn-inv-close" size="small" onclick="closeInvoice()"><iconify-icon icon="lucide:x"></iconify-icon> إغلاق</jelly-button>
+        <jelly-button class="btn-print" size="small" onclick="printInvoice()"><iconify-icon icon="lucide:printer"></iconify-icon> طباعة / PDF</jelly-button>
       </div>
     </div>
   `;
