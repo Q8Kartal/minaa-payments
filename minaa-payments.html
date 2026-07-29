@@ -88,7 +88,8 @@
       display: grid;
       grid-template-columns: 88px minmax(0,1fr);
       overflow: clip;
-      min-height: calc(100vh - clamp(20px, 5vw, 68px));
+      /* Sizes to its content. Forcing full viewport height left a large empty
+         band under the cards whenever the content was shorter than the screen. */
       animation: shellIn .5s cubic-bezier(.2,.7,.3,1) both;
     }
     @keyframes shellIn { from { opacity: 0; transform: translateY(14px) scale(.995); } }
@@ -118,10 +119,10 @@
     }
 
     .greeting h1 {
-      font-size: clamp(1.25rem, 2.2vw, 1.55rem);
-      font-weight: 800; font-family: var(--font-bold); line-height: 1.3;
+      font-size: clamp(1.55rem, 3vw, 2.1rem);
+      font-weight: 800; font-family: var(--font-bold); line-height: 1.25;
     }
-    .greeting p { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+    .greeting p { font-size: .85rem; color: var(--muted); margin-top: 4px; }
 
     /* ═══ STAT CARDS with progress rings ═══ */
     .stats {
@@ -315,6 +316,9 @@
     .topbar {
       display: flex; align-items: flex-start; justify-content: space-between;
       gap: 14px; flex-wrap: wrap;
+      /* Extra room under the header only — the 20px .main-col gap alone read
+         as cramped against the stat cards. */
+      margin-bottom: 14px;
     }
     .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
