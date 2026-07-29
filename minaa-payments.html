@@ -423,7 +423,9 @@
       transition: transform .3s; z-index: 999; pointer-events: none;
       white-space: nowrap;
       box-shadow: 0 10px 30px rgba(22,22,22,.25);
+      display: flex; align-items: center; gap: 8px;
     }
+    #toast iconify-icon { font-size: 1.1rem; flex: none; }
     #toast.show { transform: translateX(-50%) translateY(0); }
     #toast.is-success { background: var(--success); color: #fff; }
     #toast.is-warning { background: var(--warning); color: var(--ink); } /* only ink text left — light text is unreadable on yellow */
@@ -500,7 +502,8 @@
     .inv-section-title {
       font-size: .78rem; font-weight: 800;
       padding: 5px 12px; border-radius: 999px;
-      margin-bottom: 8px; display: inline-block;
+      margin-bottom: 8px;
+      display: inline-flex; align-items: center; gap: 6px;
       color: var(--cream);
     }
     .inv-section.monthly   .inv-section-title { background: var(--monthly); }
@@ -541,7 +544,10 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 8px;
     }
-    .inv-grand-label { color: rgba(251,240,220,.75); font-size: .84rem; font-weight: 700; }
+    .inv-grand-label {
+      color: rgba(251,240,220,.75); font-size: .84rem; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
     .inv-grand-val   { font-size: 1.3rem; font-weight: 900; color: var(--cream); }
     .inv-footer-bar {
       background: var(--cream-50);
@@ -762,9 +768,9 @@
       </div>
       <div class="field">
         <jelly-select id="inp-currency" label="العملة" value="KWD" onchange="updateCurrencyStyle(); updateConvertHint()">
-          <jelly-option value="KWD">🇰🇼 دينار كويتي</jelly-option>
-          <jelly-option value="USD">🇺🇸 دولار أمريكي</jelly-option>
-          <jelly-option value="EUR">🇪🇺 يورو</jelly-option>
+          <jelly-option value="KWD">دينار كويتي</jelly-option>
+          <jelly-option value="USD">دولار أمريكي</jelly-option>
+          <jelly-option value="EUR">يورو</jelly-option>
         </jelly-select>
       </div>
       <div class="field">
@@ -888,9 +894,9 @@
       </div>
       <div class="field">
         <jelly-select id="edit-currency" label="العملة" onchange="updateEditCurrencyStyle(); updateEditHint()">
-          <jelly-option value="KWD">🇰🇼 دينار كويتي</jelly-option>
-          <jelly-option value="USD">🇺🇸 دولار أمريكي</jelly-option>
-          <jelly-option value="EUR">🇪🇺 يورو</jelly-option>
+          <jelly-option value="KWD">دينار كويتي</jelly-option>
+          <jelly-option value="USD">دولار أمريكي</jelly-option>
+          <jelly-option value="EUR">يورو</jelly-option>
         </jelly-select>
       </div>
       <div class="field">
@@ -949,7 +955,7 @@ async function fetchRates(manual = false) {
     const now = new Date();
     document.getElementById('r-time').textContent =
       'محدّث: ' + now.toLocaleTimeString('ar-KW', {hour:'2-digit',minute:'2-digit'});
-    if (manual) showToast('✅ تم تحديث أسعار الصرف');
+    if (manual) showToast('تم تحديث أسعار الصرف', 'success');
   } catch (e) {
     // fallback fixed rates if API fails
     rates.USD = rates.USD || 0.3065;
@@ -957,7 +963,7 @@ async function fetchRates(manual = false) {
     document.getElementById('r-usd').textContent = rates.USD.toFixed(4);
     document.getElementById('r-eur').textContent = rates.EUR.toFixed(4);
     document.getElementById('r-time').textContent = '(أسعار تقريبية)';
-    if (manual) showToast('⚠️ تعذّر الاتصال، أسعار تقريبية');
+    if (manual) showToast('تعذّر الاتصال، أسعار تقريبية', 'warning');
   } finally {
     document.getElementById('loader').style.display = 'none';
   }
@@ -991,7 +997,7 @@ function subscribeToPayments() {
     render();
   }, err => {
     console.error('Firestore sync error', err);
-    showToast('⚠️ تعذّر الاتصال بقاعدة البيانات');
+    showToast('تعذّر الاتصال بقاعدة البيانات', 'warning');
   });
 }
 
@@ -1042,8 +1048,8 @@ function addPayment() {
   const currency = document.getElementById('inp-currency').value;
   const type     = document.getElementById('inp-type').value;
 
-  if (!name)              return showToast('⚠️ أدخل اسم الدفعة');
-  if (!rawValue || rawValue <= 0) return showToast('⚠️ أدخل قيمة صحيحة');
+  if (!name)              return showToast('أدخل اسم الدفعة', 'warning');
+  if (!rawValue || rawValue <= 0) return showToast('أدخل قيمة صحيحة', 'warning');
 
   const kwdValue = toKWD(rawValue, currency);
 
@@ -1055,23 +1061,23 @@ function addPayment() {
     type,
     date: new Date().toISOString()
   }).then(() => {
-    showToast('✅ تمت الإضافة: ' + fmtKWD(kwdValue));
+    showToast('تمت الإضافة: ' + fmtKWD(kwdValue), 'success');
     document.getElementById('inp-name').value  = '';
     document.getElementById('inp-value').value = '';
     document.getElementById('convert-hint').textContent = '';
   }).catch(err => {
     console.error('Firestore write error', err);
-    showToast('❌ تعذّرت الإضافة');
+    showToast('تعذّرت الإضافة', 'error');
   });
 }
 
 // ── Delete ─────────────────────────────────────────────────────
 function deletePayment(id) {
   db.collection('payments').doc(id).delete()
-    .then(() => showToast('🗑️ تم الحذف'))
+    .then(() => showToast('تم الحذف', 'success'))
     .catch(err => {
       console.error('Firestore write error', err);
-      showToast('❌ تعذّر الحذف');
+      showToast('تعذّر الحذف', 'error');
     });
 }
 
@@ -1145,7 +1151,6 @@ function renderList(listId, items, type) {
   }
   el.innerHTML = items.map(p => {
     const isConverted = p.origCurrency !== 'KWD';
-    const flagMap = { KWD:'🇰🇼', USD:'🇺🇸', EUR:'🇪🇺' };
     const checked = selectedIds.has(p.id) ? 'checked' : '';
     return `
     <div class="pay-item">
@@ -1157,7 +1162,7 @@ function renderList(listId, items, type) {
       <div class="pay-item-row">
         <div class="pay-info">
           <div class="pay-meta">${fmtDate(p.date)}</div>
-          ${isConverted ? `<div class="pay-orig">${flagMap[p.origCurrency]||''} ${fmtOrig(p.origValue, p.origCurrency)}</div>` : ''}
+          ${isConverted ? `<div class="pay-orig">${fmtOrig(p.origValue, p.origCurrency)}</div>` : ''}
         </div>
         <div class="pay-amounts">
           <div class="pay-amount">${fmtKWD(p.kwdValue)}</div>
@@ -1250,8 +1255,8 @@ function saveEdit() {
   const currency = document.getElementById('edit-currency').value;
   const type     = document.getElementById('edit-type').value;
 
-  if (!name)             return showToast('⚠️ أدخل اسم الدفعة');
-  if (!rawValue || rawValue <= 0) return showToast('⚠️ أدخل قيمة صحيحة');
+  if (!name)             return showToast('أدخل اسم الدفعة', 'warning');
+  if (!rawValue || rawValue <= 0) return showToast('أدخل قيمة صحيحة', 'warning');
 
   db.collection('payments').doc(editingId).update({
     name,
@@ -1260,12 +1265,12 @@ function saveEdit() {
     kwdValue: toKWD(rawValue, currency),
     type
   }).then(() => {
-    showToast('✅ تم حفظ التعديل');
+    showToast('تم حفظ التعديل', 'success');
     document.getElementById('edit-modal').style.display = 'none';
     editingId = null;
   }).catch(err => {
     console.error('Firestore write error', err);
-    showToast('❌ تعذّر حفظ التعديل');
+    showToast('تعذّر حفظ التعديل', 'error');
   });
 }
 
@@ -1293,14 +1298,20 @@ function updateEditHint() {
 
 // ── Toast ──────────────────────────────────────────────────────
 let toastTimer;
-function showToast(msg) {
+// Lucide icons paired with the brand's semantic colours.
+const TOAST_ICON = {
+  success: 'lucide:circle-check',
+  warning: 'lucide:triangle-alert',
+  error:   'lucide:circle-x'
+};
+
+function showToast(msg, type) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
   // Semantic colour per the brand rule: Green=success, Yellow=warning, Orange=error.
   t.classList.remove('is-success', 'is-warning', 'is-error');
-  if (msg.startsWith('✅') || msg.startsWith('🗑️')) t.classList.add('is-success');
-  else if (msg.startsWith('⚠️'))                    t.classList.add('is-warning');
-  else if (msg.startsWith('❌'))                    t.classList.add('is-error');
+  if (type) t.classList.add('is-' + type);
+  t.innerHTML = (TOAST_ICON[type] ? `<iconify-icon icon="${TOAST_ICON[type]}"></iconify-icon>` : '') + '<span></span>';
+  t.querySelector('span').textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
@@ -1330,7 +1341,7 @@ document.addEventListener('keydown', e => {
 // ── Invoice ────────────────────────────────────────────────────
 function openInvoice() {
   selectionReceiptOpen = false;
-  if (!payments.length) return showToast('⚠️ لا توجد بيانات لإصدار فاتورة');
+  if (!payments.length) return showToast('لا توجد بيانات لإصدار فاتورة', 'warning');
 
   const monthly   = payments.filter(p => p.type === 'monthly');
   const quarterly = payments.filter(p => p.type === 'quarterly');
@@ -1411,7 +1422,7 @@ function openInvoice() {
 
       ${monthly.length ? `
       <div class="inv-section monthly">
-        <div class="inv-section-title">🟣 الدفعات الشهرية</div>
+        <div class="inv-section-title"><iconify-icon icon="lucide:calendar-sync"></iconify-icon> الدفعات الشهرية</div>
         <table class="inv-table">
           <thead>
             <tr>
@@ -1429,7 +1440,7 @@ function openInvoice() {
 
       ${quarterly.length ? `
       <div class="inv-section quarterly">
-        <div class="inv-section-title">🔵 اشتراكات ربع سنوية (كل 3 أشهر)</div>
+        <div class="inv-section-title"><iconify-icon icon="lucide:calendar-range"></iconify-icon> اشتراكات ربع سنوية (كل 3 أشهر)</div>
         <table class="inv-table">
           <thead>
             <tr>
@@ -1447,7 +1458,7 @@ function openInvoice() {
 
       ${onetime.length ? `
       <div class="inv-section onetime">
-        <div class="inv-section-title">🟠 الدفعات الأحادية</div>
+        <div class="inv-section-title"><iconify-icon icon="lucide:zap"></iconify-icon> الدفعات الأحادية</div>
         <table class="inv-table">
           <thead>
             <tr>
@@ -1464,7 +1475,7 @@ function openInvoice() {
       </div>` : ''}
 
       <div class="inv-grand">
-        <div class="inv-grand-label">💰 الإجمالي الكلي لجميع الدفعات</div>
+        <div class="inv-grand-label"><iconify-icon icon="lucide:wallet"></iconify-icon> الإجمالي الكلي لجميع الدفعات</div>
         <div class="inv-grand-val">${fmtKWD(grandTotal)}</div>
       </div>
 
@@ -1473,8 +1484,8 @@ function openInvoice() {
     <div class="inv-footer-bar">
       <div class="inv-note">Minaã • نظام إدارة المدفوعات • ${invDate}</div>
       <div class="inv-actions">
-        <button class="btn-inv-close" onclick="closeInvoice()">✕ إغلاق</button>
-        <button class="btn-print" onclick="printInvoice()">🖨 طباعة / PDF</button>
+        <button class="btn-inv-close" onclick="closeInvoice()"><iconify-icon icon="lucide:x"></iconify-icon> إغلاق</button>
+        <button class="btn-print" onclick="printInvoice()"><iconify-icon icon="lucide:printer"></iconify-icon> طباعة / PDF</button>
       </div>
     </div>
   `;
@@ -1497,7 +1508,7 @@ function closeInvoice(e) {
 
 function openReceipt() {
   const selected = payments.filter(p => selectedIds.has(p.id));
-  if (!selected.length) return showToast('⚠️ لم يتم تحديد أي دفعة');
+  if (!selected.length) return showToast('لم يتم تحديد أي دفعة', 'warning');
 
   const grandTotal = selected.reduce((s, p) => s + p.kwdValue, 0);
 
@@ -1567,7 +1578,7 @@ function openReceipt() {
       </div>
 
       <div class="inv-grand">
-        <div class="inv-grand-label">💰 إجمالي الدفعات المحددة</div>
+        <div class="inv-grand-label"><iconify-icon icon="lucide:wallet"></iconify-icon> إجمالي الدفعات المحددة</div>
         <div class="inv-grand-val">${fmtKWD(grandTotal)}</div>
       </div>
 
@@ -1576,8 +1587,8 @@ function openReceipt() {
     <div class="inv-footer-bar">
       <div class="inv-note">Minaã • إيصال دفعات محددة • ${recDate}</div>
       <div class="inv-actions">
-        <button class="btn-inv-close" onclick="closeInvoice()">✕ إغلاق</button>
-        <button class="btn-print" onclick="printInvoice()">🖨 طباعة / PDF</button>
+        <button class="btn-inv-close" onclick="closeInvoice()"><iconify-icon icon="lucide:x"></iconify-icon> إغلاق</button>
+        <button class="btn-print" onclick="printInvoice()"><iconify-icon icon="lucide:printer"></iconify-icon> طباعة / PDF</button>
       </div>
     </div>
   `;
@@ -1594,13 +1605,13 @@ function printInvoice() {
 
 // ── Export / Import / Clear ────────────────────────────────────
 function exportData() {
-  if (!payments.length) return showToast('⚠️ لا توجد بيانات للتصدير');
+  if (!payments.length) return showToast('لا توجد بيانات للتصدير', 'warning');
   const blob = new Blob([JSON.stringify({ payments }, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'minaa-payments-backup.json';
   a.click();
-  showToast('✅ تم تصدير البيانات بنجاح');
+  showToast('تم تصدير البيانات بنجاح', 'success');
 }
 
 function importData(e) {
@@ -1620,7 +1631,7 @@ function importData(e) {
           type: p.type, date: p.date || new Date().toISOString()
         }));
       } else {
-        showToast('❌ ملف غير صحيح');
+        showToast('ملف غير صحيح', 'error');
         return;
       }
       const batch = db.batch();
@@ -1636,12 +1647,12 @@ function importData(e) {
         });
       });
       batch.commit()
-        .then(() => showToast(`✅ تم استيراد ${list.length} دفعة بنجاح`))
+        .then(() => showToast(`تم استيراد ${list.length} دفعة بنجاح`, 'success'))
         .catch(err => {
           console.error('Firestore write error', err);
-          showToast('❌ تعذّر الاستيراد');
+          showToast('تعذّر الاستيراد', 'error');
         });
-    } catch { showToast('❌ تعذّر قراءة الملف'); }
+    } catch { showToast('تعذّر قراءة الملف', 'error'); }
   };
   reader.readAsText(file);
   e.target.value = '';
@@ -1649,15 +1660,15 @@ function importData(e) {
 
 function clearData() {
   const typed = prompt('لتأكيد حذف جميع البيانات نهائيًا، اكتب كلمة "مسح":');
-  if (typed !== 'مسح') { showToast('❌ تم إلغاء المسح'); return; }
+  if (typed !== 'مسح') { showToast('تم إلغاء المسح', 'error'); return; }
   db.collection('payments').get().then(snapshot => {
     const batch = db.batch();
     snapshot.docs.forEach(doc => batch.delete(doc.ref));
     return batch.commit();
-  }).then(() => showToast('🗑️ تم مسح جميع البيانات'))
+  }).then(() => showToast('تم مسح جميع البيانات', 'success'))
     .catch(err => {
       console.error('Firestore write error', err);
-      showToast('❌ تعذّر المسح');
+      showToast('تعذّر المسح', 'error');
     });
 }
 
