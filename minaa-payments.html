@@ -39,9 +39,9 @@
       --quarterly:       #0062AD;   /* Minaã Blue — same blue, no darker variant */
       --quarterly-tint:  #E2F0FF;   /* Blue 100 — slightly deeper tint tells the sections apart */
       --quarterly-mid:   #68B4FF;   /* Blue 400 */
-      --onetime:         #E8411D;   /* Minaã Red */
-      --onetime-tint:    #FEF5F3;   /* Red 50 */
-      --onetime-mid:     #FA937D;   /* Red 400 */
+      --onetime:         #0062AD;   /* Minaã Blue — payment data is always blue */
+      --onetime-tint:    #F2F8FF;   /* Blue 50 */
+      --onetime-mid:     #68B4FF;   /* Blue 400 */
 
       /* ── BASE & SURFACES — no black type: all copy is Minaã Blue, like the guide ── */
       --ink:          #161616;             /* NOT for fonts — semantic-toast text on yellow only */
@@ -161,7 +161,7 @@
     .stat-card.monthly   .ring-pct { color: var(--monthly); }
     .stat-card.quarterly .ring-fg { stroke: var(--quarterly); }
     .stat-card.quarterly .ring-pct { color: var(--quarterly); }
-    .stat-card.onetime   .ring-fg { stroke: var(--secondary); }
+    .stat-card.onetime   .ring-fg { stroke: var(--onetime); }
     .stat-card.onetime   .ring-pct { color: var(--onetime); }
 
     /* featured solid-primary total card (reference's blue tile) */
