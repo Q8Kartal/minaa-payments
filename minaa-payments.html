@@ -104,8 +104,18 @@
     }
     .logo-wrap { display: flex; justify-content: center; padding: 0 0 18px; }
     .logo-wrap img { width: 42px; height: auto; display: block; }
+    /* Equal spacers above and below centre the cluster in the leftover space */
     .side-nav .nav-gap { flex: 1; }
-    .side-nav jelly-icon-button { margin-bottom: 2px; }
+    .nav-group {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 9px;
+    }
+    /* Filled brand circles, cream icons */
+    .side-nav jelly-icon-button {
+      --jelly-fill: var(--primary);
+      --jelly-label: var(--cream);
+    }
+    .side-nav .nav-danger { --jelly-fill: var(--secondary); }
     .nav-hint {
       font-size: .52rem; font-weight: 700; font-family: var(--font-medium); color: var(--faint);
       letter-spacing: .1em; margin-bottom: 6px;
@@ -663,13 +673,19 @@
     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNTguMzQgNDk4LjcyIj48cGF0aCBmaWxsPSIjMDA2MmFkIiBkPSJNMTk2LjA4LDI5OS42NWwyMC45OSwyLjUzYzExLjg1LDEuNDMsMjguOTgsNC45MiwzMy4yNCwxNS42NCwyLjk0LDcuMzktLjEzLDE1LjQ1LTYuNDksMjAuMDItNi4wNCw0LjM0LTEwLjUyLDEwLjI5LTExLjI5LDE3Ljk3LS45Miw5LjA3LS40MSwxNy44Ny0uMjcsMjcuNTVsMjYuMS4wNWM0LjI3LDIuMTUsNS45LDYuNzUsNC41NywxMS4yMi0uNjksMi43Ny0yLjM4LDUuMDMtNS4wOCw2LjE2bC0yNS41NC0uMDIuMzQsNTYuNDFoLTg0LjQ0cy41Ni01Ni4zOC41Ni01Ni4zOGgtMjQuODFjLTMuNzgtMS43LTUuNDMtNC44My01LjY5LTguNDYuMjgtMy42NCwxLjk2LTcuMjEsNS42NC04Ljk1aDI0Ljg1cy4xOC0yMi41OC4xOC0yMi41OGMuMTYtMTkuNTQtMTIuOTYtMjAuMy0xNy43OS0yOS4zOC0zLjIyLTYuMDYtMS40My0xMi41OSwyLjg3LTE3LjU2czkuOTEtNy45MSwxNi4yNC05LjA4bDE1LjctMi44OSwxNC45MS0xLjQ1LTIuMDItNjguMjItMzUuNi02LjU1LTExLjYxLTIuMjNjLTEwLjE4LTEuMTctMjAuMzQtMi40My0zMC4zMS40bC0xNi42OCw0Ljc0LTMzLjUsOC42OGMtMS4xMi4yOS0yLjUxLTEuMTItMi44MS0yLjExbC01LjI4LTE3LjAxYy0uODUtMi43NS0yLjMzLTUuMzktMS4xMi04LjM2bDM3LjIyLTEyLjU4YzMuNzctMS4yNyw3LjM4LTMuNDMsMTAuMy01Ljk0bDE5LjQyLTE2LjY4YzExLjM1LTkuNzUsMjIuMTYtMTkuMzQsMzQuMzEtMjguMTUsMTcuNjQtMTIuNzksMzYuOS0yMi4xMSw1Ny44OS0yNy45MiwzLjctMS4wMiw3LjI4LTEuODIsMTAuMjUtNC4yOSw2LjM4LTUuMzEsNy45Ni0xOS4wNyw4LjE3LTI4LjI4LjI1LTEwLjkxLjExLTIxLjgxLDYuMTgtMzEuMSw0LjI0LTYuNDksMTAuNDMtMTEuNiwxOC4yNS0xMi41OSwxMC4wNS0xLjI3LDE5LjgsMS44MSwyNi43LDksMi45LDMuMDMsNC40Miw2Ljg5LDYuNTIsMTAuMzUsMy4wNyw1LjA4LDEzLjc1LDEuNSwyMi40LDMuNzgsNi44NSwxLjgxLDExLjk4LDcuMzYsMTIuMzQsMTQuNjEtNC42Mi0yLjY4LTkuMS00LjM5LTE0LjMzLTQuNjFsLTI1LjQ3LTEuMDYsOS40NCwzLjE5LDkuMjksMy4yNywxMC41NSwzLjc4YzIuMzUuODQsNC4wOSwxLjY4LDYuMDMsMy40OC0zLjIyLjc0LTUuNTcuODYtOC4zMy41M2wtMTcuODctMi4xYy0zLjg1LS40NS04LjY5LS4zNi0xMS40MywyLjg3LTQuODEsNS42Ny0yLjAzLDE4LjkuNjYsMjcuMTgsNi4wMSwxOC41LDkuNjUsMzYuMDcsMy41NSw1NS4wMi04LjI0LDI1LjU4LTI1LjkyLDQyLjU1LTUxLjAyLDUyLjczbDIuNzQsNS4zNSwyNi4zMSwzOS41M2MxLjA0LDEuNTcsNS4xMiwzLjU1LDYuNDUsMi4yM2wxOC40OS0xOC4yMSwzLjc0LTMuNDdjMy43OS0zLjUyLDkuNTYtOS45MSwxMy45Ni02LjcxLjkuNjUsMS42MSwyLjM1LDIuMjYsNC4wNCwxLjM4LS42Miw0LjE4LTEuODcsNS44LTEuODQsNC42LjExLDYuNjgsNC4wMiw2LjA3LDcuOTcsMi4zNi0xLjE5LDQuNTEtMS4xNCw2LjMuMjgsMS4zNiwxLjA4LDIuNDEsNS4xMS4yMiw2LjMtMTEuNjUsNi4zLTIzLjQ5LDExLjUzLTM1Ljc1LDE2LjQ1bC0yMC42OCw4LjNjLTIuNDIuOTctNi4zMSwyLjI0LTguNzMuNDhsLTguNjEtMTEuODktMTcuODEtMjMuNTItMTUuNjMtMjAuMDUtMTEuNjEsMS41NmMtMS42Mi4yMi0zLjMyLDEuMTUtMy4zOSwyLjk4bC0uOTIsMjIuNzktLjQ5LDE1LjA2LS40NiwyMS41N2MtLjA3LDMuMTIsMS4zOSw1LjcxLDQuODcsNi4xM1oiLz48L3N2Zz4=" alt="شعار ميناء"/>
   </div>
 
-  <jelly-icon-button label="تحديد الدفعات" title="تحديد الدفعات" id="btn-select-toggle" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="toggleSelectionMode()"><iconify-icon icon="lucide:list-checks"></iconify-icon></jelly-icon-button>
-  <jelly-icon-button label="تصدير البيانات" title="تصدير البيانات" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="exportData()"><iconify-icon icon="lucide:download"></iconify-icon></jelly-icon-button>
-  <jelly-icon-button label="استيراد البيانات" title="استيراد البيانات" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon></jelly-icon-button>
-  <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
   <div class="nav-gap"></div>
-  <jelly-icon-button label="مسح الكل" title="مسح الكل" style="--jelly-fill:transparent;--jelly-label:var(--secondary)" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon></jelly-icon-button>
-  <jelly-icon-button label="خروج" title="خروج" style="--jelly-fill:transparent;--jelly-label:var(--primary)" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon></jelly-icon-button>
+
+  <!-- One centred cluster; colour comes from .side-nav / .nav-danger, not inline -->
+  <div class="nav-group">
+    <jelly-icon-button shape="circle" label="تحديد الدفعات" title="تحديد الدفعات" id="btn-select-toggle" onclick="toggleSelectionMode()"><iconify-icon icon="lucide:list-checks"></iconify-icon></jelly-icon-button>
+    <jelly-icon-button shape="circle" label="تصدير البيانات" title="تصدير البيانات" onclick="exportData()"><iconify-icon icon="lucide:download"></iconify-icon></jelly-icon-button>
+    <jelly-icon-button shape="circle" label="استيراد البيانات" title="استيراد البيانات" onclick="document.getElementById('import-file').click()"><iconify-icon icon="lucide:upload"></iconify-icon></jelly-icon-button>
+    <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
+    <jelly-icon-button shape="circle" class="nav-danger" label="مسح الكل" title="مسح الكل" onclick="clearData()"><iconify-icon icon="lucide:trash-2"></iconify-icon></jelly-icon-button>
+    <jelly-icon-button shape="circle" label="خروج" title="خروج" onclick="logout()"><iconify-icon icon="lucide:log-out"></iconify-icon></jelly-icon-button>
+  </div>
+
+  <div class="nav-gap"></div>
 </aside>
 
 <!-- MAIN -->
@@ -1153,8 +1169,9 @@ function toggleSelectionMode() {
   document.getElementById('btn-select-toggle').innerHTML = '<iconify-icon icon="lucide:x"></iconify-icon>';
   document.getElementById('btn-select-toggle').setAttribute('label', 'إلغاء التحديد');
   document.getElementById('btn-select-toggle').setAttribute('title', 'إلغاء التحديد');
-  document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', 'var(--primary)');
-  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', 'var(--cream)');
+  // Resting state is already blue-on-cream, so invert it to show selection is live.
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', 'var(--cream)');
+  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', 'var(--primary)');
   document.getElementById('selection-bar').style.display = 'flex';
   document.body.classList.add('selecting');
   updateSelectionBar();
@@ -1167,8 +1184,9 @@ function cancelSelectionMode() {
   document.getElementById('btn-select-toggle').innerHTML = '<iconify-icon icon="lucide:list-checks"></iconify-icon>';
   document.getElementById('btn-select-toggle').setAttribute('label', 'تحديد الدفعات');
   document.getElementById('btn-select-toggle').setAttribute('title', 'تحديد الدفعات');
-  document.getElementById('btn-select-toggle').style.setProperty('--jelly-fill', 'transparent');
-  document.getElementById('btn-select-toggle').style.setProperty('--jelly-label', 'var(--primary)');
+  // Drop the inline overrides so the shared .side-nav styling applies again.
+  document.getElementById('btn-select-toggle').style.removeProperty('--jelly-fill');
+  document.getElementById('btn-select-toggle').style.removeProperty('--jelly-label');
   document.getElementById('selection-bar').style.display = 'none';
   document.body.classList.remove('selecting');
   render();
