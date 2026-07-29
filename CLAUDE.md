@@ -14,7 +14,7 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 - **Quarterly subscriptions:** `#0D9488` (teal)
 - **One-time payments:** `#E8471C` (orange/brand)
 - **Font:** Cairo (Google Fonts, Arabic-optimized)
-- **Logo:** Orange seagull on bollard — embedded as base64 PNG in the HTML `<img>` tag inside `.logo-wrap`
+- **Logo:** Blue seagull-on-bollard logomark — the official `Artboard 17.svg`, embedded as an SVG data URI in the `<img>` inside `.logo-wrap` (no text lockup)
 
 ---
 
