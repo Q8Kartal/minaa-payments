@@ -13,7 +13,9 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 - **Monthly payments:** `#7C3AED` (purple)
 - **Quarterly subscriptions:** `#0D9488` (teal)
 - **One-time payments:** `#E8471C` (orange/brand)
-- **Font:** Cairo (Google Fonts, Arabic-optimized)
+- **Font:** 29LT Idris Round (Fontstand webfonts), with Cairo as fallback
+  - Each weight is a **separate family name** — `"29LT Idris Round Regular" / " Medium" / " ExtraBold"` — so weight is selected by swapping `font-family`, not by `font-weight`. Use the `--font-regular` / `--font-medium` / `--font-bold` vars.
+  - **Licensed per domain.** Fontstand returns **403** for unregistered origins. `localhost` / `127.0.0.1` / `0.0.0.0:3000` work automatically; `https://q8kartal.github.io` must be added in the Fontstand account or the page silently falls back to Cairo. Also metered: 10,000 pageviews/month.
 - **Logo:** Blue seagull-on-bollard logomark — the official `Artboard 17.svg`, embedded as an SVG data URI in the `<img>` inside `.logo-wrap` (no text lockup)
 
 ---
