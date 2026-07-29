@@ -229,6 +229,18 @@
     }
     .field { display: flex; flex-direction: column; gap: 5px; position: relative; min-width: 0; }
     .field jelly-input, .field jelly-select { width: 100%; min-width: 0; }
+
+    /* iOS/Safari paints autofilled fields yellow. The native input is transparent
+       with the jelly canvas behind it, so mask the yellow with the same fill.
+       jelly-input exposes the input as part="input", which ::part() can reach. */
+    jelly-input::part(input):-webkit-autofill,
+    jelly-input::part(input):-webkit-autofill:hover,
+    jelly-input::part(input):-webkit-autofill:focus,
+    jelly-input::part(input):autofill {
+      -webkit-box-shadow: 0 0 0 40px var(--jelly-fill, #fff) inset;
+      -webkit-text-fill-color: var(--text);
+      caret-color: var(--text);
+    }
     .convert-hint {
       position: absolute; top: 100%; right: 0; left: 0;
       font-size: .7rem; color: var(--muted);
@@ -613,6 +625,10 @@
       .logo-wrap { padding: 0; }
       .logo-wrap img { width: 32px; }
       .side-nav .nav-gap { flex: 1; }
+      /* The cluster must lie down too — .side-nav alone going row left the
+         buttons stacked, making the bar ~300px tall instead of ~70px. */
+      .nav-group { flex-direction: row; gap: 8px; }
+      .side-nav jelly-icon-button { --jelly-icon-button-size: 40px; }
       .payments-wrap { grid-template-columns: 1fr; }
       .stats { grid-template-columns: 1fr 1fr; }
       .stat-card { flex-direction: column; align-items: flex-start; gap: 6px; }
