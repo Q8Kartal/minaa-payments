@@ -320,25 +320,32 @@
 
     /* Exchange rates: supporting info, so a slim bar rather than a panel */
     .rates-strip {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 12px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 999px;
-      padding: 5px 6px 5px 14px;
+      /* Logical, not physical: start is the icon side, end is the button side.
+         `padding: … 6px … 14px` put the tight edge on the icon in RTL. */
+      padding-block: 5px;
+      padding-inline: 14px 5px;
       box-shadow: var(--shadow-card);
     }
     .rates-strip-icon { color: var(--primary); font-size: 1rem; flex: none; }
     .rate-mini {
-      display: inline-flex; align-items: center; gap: 5px;
+      display: inline-flex; align-items: center; gap: 6px;
       font-size: .74rem; white-space: nowrap; direction: ltr;
     }
     .rate-mini b {
       font-family: var(--font-bold); font-size: .6rem; letter-spacing: .05em;
       color: var(--primary); background: var(--primary-tint);
-      padding: 2px 6px; border-radius: 6px;
+      padding: 3px 7px; border-radius: 6px;
     }
     .rate-mini span { font-family: var(--font-bold); color: var(--text); }
-    .rates-time { font-size: .62rem; color: var(--faint); white-space: nowrap; }
+    .rates-time {
+      font-size: .62rem; color: var(--faint); white-space: nowrap;
+      padding-inline-start: 12px;
+      border-inline-start: 1px solid var(--border);
+    }
     .rates-refresh {
       --jelly-fill: var(--primary-tint);
       --jelly-label: var(--primary);
