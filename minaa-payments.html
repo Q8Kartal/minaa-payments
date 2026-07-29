@@ -204,13 +204,18 @@
     .panel-title iconify-icon { color: var(--primary); font-size: 1.05rem; }
 
     /* ═══ ADD FORM ═══ */
+    /* Fields flex to fill the row; the circular add button keeps its own size */
     .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      display: flex; flex-wrap: wrap;
       gap: 10px;
       align-items: end;
     }
-    .form-grid > jelly-button { --jelly-button-min-width: 0; }
+    .form-grid > .field { flex: 1 1 165px; }
+    .btn-add {
+      flex: none;
+      --jelly-fill: var(--primary);
+      --jelly-label: var(--cream);
+    }
     .field { display: flex; flex-direction: column; gap: 5px; position: relative; min-width: 0; }
     .field jelly-input, .field jelly-select { width: 100%; min-width: 0; }
     .convert-hint {
@@ -573,7 +578,7 @@
     /* ═══ RESPONSIVE ═══ */
     @media (max-width: 1120px) {
       .shell { grid-template-columns: 76px minmax(0,1fr); }
-      .form-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid > .field { flex-basis: calc(50% - 5px); }
     }
     @media (max-width: 640px) {
       body { padding: 8px; }
@@ -595,7 +600,8 @@
       .topbar-actions { justify-content: space-between; }
       .rates-strip { flex: 1 1 auto; justify-content: center; }
       .rates-time { display: none; }
-      .form-grid { grid-template-columns: 1fr; }
+      .form-grid > .field { flex-basis: 100%; }
+      .btn-add { align-self: center; }
       .inv-summary { grid-template-columns: 1fr 1fr; }
     }
 
@@ -756,7 +762,7 @@
           <jelly-option value="onetime">مرة واحدة</jelly-option>
         </jelly-select>
       </div>
-      <jelly-button onclick="addPayment()"><iconify-icon icon="lucide:plus"></iconify-icon> إضافة</jelly-button>
+      <jelly-icon-button class="btn-add" shape="circle" size="large" label="إضافة دفعة" title="إضافة دفعة" onclick="addPayment()"><iconify-icon icon="lucide:plus"></iconify-icon></jelly-icon-button>
     </div>
   </div>
 
