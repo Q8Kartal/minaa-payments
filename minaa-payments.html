@@ -370,7 +370,10 @@
       /* Logical, not physical: start is the icon side, end is the button side.
          `padding: … 6px … 14px` put the tight edge on the icon in RTL. */
       padding-block: var(--space-050);
-      padding-inline: var(--space-200) var(--space-050);
+      /* Optical adjustment: the bare landmark glyph needs more inset than the
+         filled circular button, whose own fill reads as an edge. 4px on the
+         button side left it crammed against the pill. */
+      padding-inline: var(--space-200) var(--space-100);
       box-shadow: var(--shadow-card);
     }
     .rates-strip-icon { color: var(--primary); font-size: 1rem; flex: none; }
