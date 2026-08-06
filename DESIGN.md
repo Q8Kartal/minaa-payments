@@ -194,24 +194,50 @@ so `space-200` = 200% = 16px.
   paddings, negative geometric offsets, and Jelly's own `--jelly-*` padding
   tokens.
 
-## 5. Layout
+## 5. Grid
 
-**No grid framework.** Intrinsic, content-driven CSS Grid:
+The **Atlassian Design System** grid, **fixed-wide**.
+Source: https://atlassian.design/foundations/grid
 
-| Region | Columns |
-|---|---|
-| `.shell` | `88px minmax(0,1fr)` — icon rail + main |
-| `.stats` | `repeat(auto-fit, minmax(205px, 1fr))` |
-| `.payments-wrap` | `repeat(auto-fit, minmax(235px, 1fr))` |
-| `.modal-grid` | `1fr 1fr` |
-| `.inv-summary` | `repeat(4, 1fr)` |
+Fixed-wide is the default for dashboards, directories and search results —
+which is what this app is. Max width **1296px including margins**, applied to
+the main content area.
 
-Cards declare a minimum comfortable width and the browser fits as many per row
-as it can — so columns reflow without a rule per step. Flex handles all
-one-dimensional rows (top bar, rates strip, form row, payment rows, icon rail).
+### Columns, gutters, margins by breakpoint
+Breakpoints are measured on **viewport** width, not content-area width.
 
-**Only two breakpoints** — 1120px and 640px — reserved for *structural* changes
-(rail → top bar, header stacking). `auto-fit` absorbs the rest.
+| Device | Name | Viewport | Columns | Gutter | Margin |
+|---|---|---|---|---|---|
+| Mobile | xxs | < 480px | 2 | `space-150` 12px | `space-200` 16px |
+| Tablet | xs | 480–767px | 6 | `space-150` 12px | `space-200` 16px |
+| Tablet | s | 768–1023px | 6 | `space-150` 12px | `space-200` 16px |
+| Desktop | m/l/xl | ≥ 1024px | 12 | `space-200` 16px | `space-400` 32px |
+
+Implemented as three custom properties on `.main-col` (`--grid-columns`,
+`--grid-gutter`, `--grid-margin`) that the media queries reassign, so every
+aligned container tracks the same grid from one source.
+
+### What spans what
+
+| Container | m (12 col) | s/xs (6 col) | xxs (2 col) |
+|---|---|---|---|
+| `.stat-card` | span 3 → 4 across | span 3 → 2 across | span 1 → 2 across |
+| `.section-card` | span 4 → 3 across | span 2 → 3 across (span 3 below 768) | span 2 → 1 across |
+| `.topbar`, `.form-wrap` | full width | full width | full width |
+
+### Rules
+- **The grid spans the main content area only.** The 88px icon rail is
+  navigation and sits outside it — the shell's max width is therefore
+  `1296px + 88px`.
+- **Only top-level containers align to columns** — cards, panels, tables,
+  forms. Buttons, icons and anything *inside* a card use space tokens instead.
+- **Overlays are exempt.** Modals, the invoice/receipt, toasts and dropdowns
+  float above the page and do not align to the grid.
+- **Never let content bleed into a gutter or margin.**
+
+Flex still handles all one-dimensional rows (top bar, rates strip, form row,
+payment rows, icon rail) — the grid is for layout containers, not for
+distributing controls within them.
 
 The shell sizes to its content; it does not stretch to fill the viewport.
 

@@ -97,7 +97,9 @@
 
     /* ═══ APP SHELL — floating white canvas, reference-style ═══ */
     .shell {
-      max-width: 1380px;
+      /* Fixed-wide grid = 1296px of main content area (margins included).
+         The 88px icon rail sits outside the grid, so it is added on top. */
+      max-width: calc(1296px + 88px);
       margin: 0 auto;
       background: var(--cream-50);
       border-radius: 28px;
@@ -139,11 +141,31 @@
     }
 
     /* ═══ MAIN COLUMN ═══ */
+    /* ══ GRID — Atlassian Design System, fixed-wide.
+       12 columns on desktop, 6 on tablet, 2 on mobile. Gutters and margins
+       come from the space scale. The grid spans the MAIN CONTENT AREA only —
+       the icon rail is excluded, per the spec. Overlays (modals, invoice)
+       sit outside the grid entirely. ══ */
     .main-col {
-      padding: clamp(20px, 3vw, 40px);
+      --grid-columns: 12;
+      --grid-gutter:  var(--space-200);   /* 16px at m and above */
+      --grid-margin:  var(--space-400);   /* 32px at m and above */
+
+      padding: var(--grid-margin);
       display: flex; flex-direction: column; gap: var(--space-400);
       min-width: 0;
     }
+
+    /* Top-level containers align to the columns. Content inside them is laid
+       out with space tokens, not the grid. */
+    .stats,
+    .payments-wrap {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+      gap: var(--grid-gutter);
+    }
+    .stat-card    { grid-column: span 3; }   /* 4 across at 12 columns */
+    .section-card { grid-column: span 4; }   /* 3 across at 12 columns */
 
     .greeting h1 {
       font-size: clamp(1.55rem, 3vw, 2.1rem);
@@ -152,11 +174,6 @@
     .greeting p { font-size: .85rem; color: var(--muted); margin-top: var(--space-050); }
 
     /* ═══ STAT CARDS with progress rings ═══ */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
-      gap: var(--space-300);
-    }
     .stat-card {
       background: var(--card);
       border-radius: var(--radius-card);
@@ -266,12 +283,7 @@
     .convert-hint.active { color: var(--primary); font-weight: 700; font-family: var(--font-medium); }
 
     /* ═══ PAYMENTS PANELS ═══ */
-    .payments-wrap {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
-      gap: var(--space-300);
-      align-items: start;
-    }
+    .payments-wrap { align-items: start; }
     .section-card { min-width: 0; }
     .section-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -628,12 +640,36 @@
       }
     }
 
-    /* ═══ RESPONSIVE ═══ */
-    @media (max-width: 1120px) {
+    /* ══ RESPONSIVE — Atlassian grid breakpoints, measured on VIEWPORT width.
+       s/xs/xxs drop to 6 then 2 columns, with 12px gutters and 16px margins. ══ */
+
+    /* s — tablet 768–1023px: 6 columns, rail still present */
+    @media (max-width: 1023px) {
+      .main-col {
+        --grid-columns: 6;
+        --grid-gutter: var(--space-150);   /* 12px */
+        --grid-margin: var(--space-200);   /* 16px */
+      }
       .shell { grid-template-columns: 76px minmax(0,1fr); }
+      .stat-card    { grid-column: span 3; }   /* 2 across */
+      .section-card { grid-column: span 2; }   /* 3 across */
       .form-grid > .field { flex-basis: calc(50% - 5px); }
     }
-    @media (max-width: 640px) {
+
+    /* xs — 480–767px: still 6 columns, but payments drop to 2 across */
+    @media (max-width: 767px) {
+      .section-card { grid-column: span 3; }
+    }
+
+    /* xxs — mobile below 480px: 2 columns */
+    @media (max-width: 479px) {
+      .main-col { --grid-columns: 2; }
+      .stat-card    { grid-column: span 1; }   /* 2 across */
+      .section-card { grid-column: span 2; }   /* 1 across */
+    }
+
+    /* Structural switch: the rail lies down and becomes a top bar */
+    @media (max-width: 767px) {
       body { padding: 8px; }
       .shell { grid-template-columns: 1fr; border-radius: 20px; }
       .side-nav {
@@ -649,8 +685,6 @@
          buttons stacked, making the bar ~300px tall instead of ~70px. */
       .nav-group { flex-direction: row; gap: var(--space-100); }
       .side-nav jelly-icon-button { --jelly-icon-button-size: 40px; }
-      .payments-wrap { grid-template-columns: 1fr; }
-      .stats { grid-template-columns: 1fr 1fr; }
       .stat-card { flex-direction: column; align-items: flex-start; gap: var(--space-075); }
       .ring-wrap { align-self: flex-end; margin-top: -26px; }
       .topbar { flex-direction: column; align-items: stretch; }
