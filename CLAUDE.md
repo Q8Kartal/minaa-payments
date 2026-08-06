@@ -9,10 +9,14 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 ---
 
 ## Brand Identity
-- **Brand color (Orange):** `#E8471C`
-- **Monthly payments:** `#7C3AED` (purple)
-- **Quarterly subscriptions:** `#0D9488` (teal)
-- **One-time payments:** `#E8471C` (orange/brand)
+See `DESIGN.md` for the full system. Essentials:
+- **Primary — Minaã Blue:** `#0062AD` (all actions, all copy, all payment data)
+- **Secondary — Minaã Red:** `#E8411D` (destructive actions + grand-total card **only**)
+- **Neutral — Minaã Cream:** `#FBF0DC` (text on brand fills) · `#FDF9F0` page background
+- **Semantic (never brand, never decoration):** Green `#05AA00` success · Yellow `#E5B11F` warning · Orange `#E56E1F` error
+- **Payment types are all blue** — told apart by icon and label, not hue. Quarterly uses a deeper tint (Blue 100) than monthly/one-time (Blue 50).
+- **No black type.** All copy is Minaã Blue at 100% / 72% / 50%.
+- **Spacing:** Atlassian Design System scale, 8px base unit — `--space-025` … `--space-600`. Never write a raw px value for gap/margin/padding.
 - **Font:** 29LT Idris Round (Fontstand webfonts), with Cairo as fallback
   - Each weight is a **separate family name** — `"29LT Idris Round Regular" / " Medium" / " ExtraBold"` — so weight is selected by swapping `font-family`, not by `font-weight`. Use the `--font-regular` / `--font-medium` / `--font-bold` vars.
   - **Licensed per domain.** Fontstand returns **403** for unregistered origins. `localhost` / `127.0.0.1` / `0.0.0.0:3000` work automatically; `https://q8kartal.github.io` must be added in the Fontstand account or the page silently falls back to Cairo. Also metered: 10,000 pageviews/month.
@@ -21,11 +25,11 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 ---
 
 ## Payment Types
-| Type | Value | Color | Arabic Label |
-|------|-------|-------|--------------|
-| `monthly` | Recurring monthly | Purple `#7C3AED` | شهري |
-| `quarterly` | Every 3 months | Teal `#0D9488` | اشتراك / 3 أشهر |
-| `onetime` | One-time payment | Orange `#E8471C` | مرة واحدة |
+| Type | Value | Color | Icon | Arabic Label |
+|------|-------|-------|------|--------------|
+| `monthly` | Recurring monthly | Blue `#0062AD`, tint `#F2F8FF` | `lucide:calendar-sync` | شهري |
+| `quarterly` | Every 3 months | Blue `#0062AD`, tint `#E2F0FF` | `lucide:calendar-range` | اشتراك / 3 أشهر |
+| `onetime` | One-time payment | Blue `#0062AD`, tint `#F2F8FF` | `lucide:zap` | مرة واحدة |
 
 ---
 
@@ -39,7 +43,11 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 ---
 
 ## Data Storage
-- **localStorage key:** `minaa_v2_payments`
+**Firebase Firestore** with Email/Password auth (one shared team login), synced live
+via `onSnapshot`. localStorage is no longer the store — the key below is legacy,
+kept only so `migrateOldData()` can import older backups.
+
+- **Legacy localStorage key:** `minaa_v2_payments`
 - **Schema per payment:**
 ```json
 {
@@ -60,7 +68,7 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 
 | Function | Purpose |
 |----------|---------|
-| `fetchRates(manual)` | Fetch live exchange rates from Frankfurter API |
+| `fetchRates(manual)` | Fetch live exchange rates from open.er-api.com |
 | `toKWD(amount, currency)` | Convert USD/EUR to KWD using live rates |
 | `addPayment()` | Validate & add new payment entry |
 | `deletePayment(id)` | Remove payment by ID |
@@ -75,7 +83,8 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 | `importData(e)` | Import JSON backup file |
 | `clearData()` | Clear all data after confirmation |
 | `migrateOldData()` | Migrate from old localStorage keys |
-| `showToast(msg)` | Show notification toast for 2.8s |
+| `showToast(msg, type)` | Toast for 2.8s. `type` = `success`/`warning`/`error` and drives **both** the Lucide icon and the semantic colour, so they cannot drift apart. Omit for a plain blue toast |
+| `updateRing(type, part, total)` | Draw a stat card's SVG progress ring (share of grand total) |
 | `updateTypeStyle()` | Apply color class to type select input |
 | `updateCurrencyStyle()` | Apply color class to currency select |
 | `fmtKWD(val)` | Format number as KWD (3 decimals + "د.ك") |
@@ -85,16 +94,23 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 
 ## UI Components
 
-### Layout (RTL, Arabic)
-- **Header:** Logo + "Payment Management" subtitle
-- **Rates bar:** Live USD/EUR rates + refresh button
-- **Data toolbar:** Invoice button, Export, Import, Clear
-- **Stats row:** 4 cards — Monthly total, Quarterly total, One-time total, Grand total
-- **Add form:** Name, Value, Currency (KWD/USD/EUR), Type, Add button
-- **Payments grid:** 3 columns — Monthly section | Quarterly section | One-time section
-- **Toast:** Bottom-center notification
-- **Edit modal:** Overlay modal to edit existing payments
-- **Invoice modal:** Full printable invoice with logo, summary chips, tables, grand total
+### Layout (RTL, Arabic) — floating dashboard shell on cream paper
+- **Icon rail** (`.side-nav`, 88px): logo, then one centred cluster of circular
+  `jelly-icon-button`s — select / export / import / clear / logout. Becomes a
+  horizontal bar below 640px.
+- **Top bar** (`.topbar`): page title + live date on one side; on the other a slim
+  **rates strip** (currency chips, values, timestamp, refresh) and the فاتورة شاملة CTA.
+- **Stats row:** 4 cards — grand total **first** (rightmost in RTL), then monthly,
+  quarterly, one-time. Each type card carries an SVG progress ring showing its
+  share of the total.
+- **Add form:** Name, Value, Currency, Type + a circular icon-only add button.
+  Flex row, so fields stretch while the circle keeps its size.
+- **Payments grid:** 3 auto-fit columns — Monthly | Quarterly | One-time
+- **Toast:** bottom-centre, semantic colour + Lucide icon
+- **Edit / login modals**, **invoice & receipt modals** (printable)
+
+There is no separate rates panel or button toolbar — both were folded into the
+top bar and icon rail.
 
 ### Keyboard Shortcuts
 - `Enter` → Add payment (or Save edit if modal open)
@@ -114,7 +130,11 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 ## Known Quirks
 - **RTL + SVG:** Any SVG `<text>` elements need `direction="ltr"` + `text-anchor="start"` to render correctly inside an RTL page
 - **localStorage origin:** Data saved in one browser/context won't appear in another (different file path = different origin). Use Export/Import JSON to transfer data between browsers
-- **Logo:** Embedded as base64 PNG (~large). Extracted from chat JPEG, background removed with Python PIL + Gaussian blur for soft edges
+- **Logo:** the official `Artboard 17.svg`, embedded as an SVG **data URI** (~2.4 KB). Stays crisp at any size; the invoice reuses the same element and inverts it to white
+- **Web components:** styling the host does not reach inside. Use the component's own attributes (`shape`, `block`, `variant`), its `--jelly-*` custom properties, or `::part()`. Two bugs this caused: `el.disabled = x` silently no-ops (use `toggleAttribute`), and `width:100%` stretches only the host (use `block`)
+- **RTL:** always use logical properties (`padding-inline`, `margin-inline-start`). Physical sides flip wrongly — this produced a real spacing bug in the rates strip
+- **iOS autofill:** Safari paints autofilled fields yellow. Masked via `jelly-input::part(input):-webkit-autofill`
+- **Fonts are domain-licensed:** unregistered origins get 403 and fall back to Cairo. `file://` never works — serve over `localhost` (see `.claude/launch.json`) to see the real fonts
 
 ---
 
@@ -131,11 +151,26 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 
 ## File Structure
 ```
-minaa-payments.html   ← The entire app (HTML + CSS + JS + base64 logo)
+minaa-payments.html   ← The entire app (HTML + CSS + JS + SVG logo)
 CLAUDE.md             ← This file — project context for Claude Code
+DESIGN.md             ← Design system: colour, type, spacing, components
+PRODUCT.md            ← Users, purpose, brand personality
+docs/superpowers/     ← Design specs and implementation plans
+.claude/launch.json   ← Local static server on :3000
 ```
 
 ---
 
 ## How to Run
-Just open `minaa-payments.html` in any browser. No server needed.
+Opening `minaa-payments.html` directly works, **but the licensed fonts will not
+load over `file://`** — Fontstand blocks that origin, so you get Cairo instead.
+
+To see it as designed, serve it:
+
+```bash
+python -m http.server 3000
+```
+
+then open `http://localhost:3000/minaa-payments.html`.
+
+Live: https://q8kartal.github.io/minaa-payments/minaa-payments.html

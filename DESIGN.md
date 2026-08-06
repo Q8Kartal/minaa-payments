@@ -2,52 +2,65 @@
 name: Minaã Payments
 description: Shared payment ledger for the Minaã warehouse/parking team in Kuwait
 colors:
-  brand-orange: "#E8471C"
-  brand-orange-dark: "#C23A16"
-  monthly-purple: "#7C3AED"
-  monthly-purple-light: "#EDE9FE"
-  monthly-purple-mid: "#A78BFA"
-  onetime-orange-light: "#FFF1ED"
-  onetime-orange-mid: "#F47A5A"
-  quarterly-teal: "#0D9488"
-  quarterly-teal-dark: "#0F766E"
-  quarterly-teal-light: "#F0FDFA"
-  quarterly-teal-mid: "#5EEAD4"
-  surface-bg: "#F5F5F5"
+  primary: "#0062AD"
+  primary-mid: "#68B4FF"
+  primary-light: "#E2F0FF"
+  primary-tint: "#F2F8FF"
+  secondary: "#E8411D"
+  secondary-mid: "#FA937D"
+  secondary-tint: "#FEF5F3"
+  cream-50: "#FDF9F0"
+  cream: "#FBF0DC"
+  cream-200: "#F7E0B6"
+  semantic-success: "#05AA00"
+  semantic-warning: "#E5B11F"
+  semantic-error: "#E56E1F"
+  base-ink: "#161616"
   surface-card: "#FFFFFF"
-  text-primary: "#1A1A1A"
-  text-muted: "#6B7280"
-  border: "#E5E7EB"
+  text: "#0062AD"
+  text-muted: "rgba(0,98,173,.72)"
+  text-faint: "rgba(0,98,173,.5)"
+  border: "rgba(0,98,173,.14)"
 typography:
   body:
-    fontFamily: "Cairo, sans-serif"
-    fontWeight: 400
+    fontFamily: '"29LT Idris Round Regular", Cairo, sans-serif'
   label:
-    fontFamily: "Cairo, sans-serif"
-    fontWeight: 700
+    fontFamily: '"29LT Idris Round Medium", Cairo, sans-serif'
   display:
-    fontFamily: "Cairo, sans-serif"
-    fontWeight: 800
-rounded:
-  sm: "8px"
-  md: "10px"
-  lg: "14px"
-  xl: "20px"
+    fontFamily: '"29LT Idris Round ExtraBold", Cairo, sans-serif'
 spacing:
-  sm: "8px"
-  md: "14px"
-  lg: "22px"
+  space-025: "2px"
+  space-050: "4px"
+  space-075: "6px"
+  space-100: "8px"
+  space-150: "12px"
+  space-200: "16px"
+  space-250: "20px"
+  space-300: "24px"
+  space-400: "32px"
+  space-500: "40px"
+  space-600: "48px"
+rounded:
+  chip: "6px"
+  tile: "10px"
+  row: "13px"
+  card: "18px"
+  panel: "20px"
+  shell: "28px"
+  pill: "999px"
 components:
   button-primary:
-    backgroundColor: "{colors.brand-orange}"
-    textColor: "#FFFFFF"
-    rounded: "{rounded.sm}"
-    padding: "10px 22px"
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.cream}"
+    rounded: "{rounded.pill}"
   stat-card:
     backgroundColor: "{colors.surface-card}"
-    textColor: "{colors.text-primary}"
-    rounded: "{rounded.lg}"
-    padding: "18px 20px"
+    rounded: "{rounded.card}"
+    padding: "{spacing.space-200}"
+  panel:
+    backgroundColor: "{colors.surface-card}"
+    rounded: "{rounded.card}"
+    padding: "{spacing.space-250}"
 ---
 
 # Design System: Minaã Payments
@@ -56,92 +69,206 @@ components:
 
 **Creative North Star: "The Minaã Ledger"**
 
-A small internal tool for the Minaã team in Kuwait, tracking warehouse and long-term parking business payments across three currencies. The system is warm and approachable rather than corporate: an orange seagull-on-bollard mark, plain Arabic labels, and a single soft shadow used everywhere instead of a layered elevation system. It explicitly rejects the sterile grey-on-grey enterprise SaaS dashboard and avoids gamified or decorative flourishes: no badges, no confetti, no forced cheerfulness.
+A shared internal tool for the Minaã team in Kuwait, tracking warehouse and
+long-term parking payments across three currencies. The interface is a floating
+white dashboard shell on warm cream paper: a slim icon rail, a page header with
+supporting information compressed into a strip, and the payment data itself
+given the most room.
 
-Right-to-left Arabic is the native reading order, not an adaptation of an English-first layout. Every screen must work equally well on a phone in the field and a desktop in the office; nothing is desktop-only.
+Right-to-left Arabic is the native reading order, not an adaptation of an
+English-first layout. Every screen works on a phone in the field and a desktop
+in the office.
 
-**Key Characteristics:**
-- Warm orange brand color carrying the primary actions and one-time payments
-- Purple and teal as functional color-coding for monthly and quarterly payments, not decoration
-- Flat cards on a light grey background, one consistent soft shadow, no elevation hierarchy
-- Cairo (Arabic-optimized) as the only typeface, used at multiple weights for hierarchy instead of switching families
+**Key characteristics**
+- One blue, one red, cream paper — no third brand hue
+- Payment data always blue; red reserved for destructive actions
+- 29LT Idris Round, where each weight is a separate font family
+- Atlassian spacing scale on an 8px base unit
+- Jelly UI web components; Lucide icons via Iconify
 
 ## 2. Colors
 
-The palette is functional before it is decorative: color tells you what kind of payment you're looking at before you read the label.
+Source of truth: the Minaã brand guide, section 3.1 (Core Palette).
 
-### Primary
-- **Brand Orange** (#E8471C): primary actions (add button, invoice button), one-time payment type, logo mark. Used deliberately, not spread evenly — it marks "the thing to act on" or "one-time money."
+> "The Minaã core colors are Minaã Blue (#0062AD), Minaã Red (#E8411D), and
+> Minaã Cream (#FBF0DC). Make sure to stick with these colors as your main brand
+> palette everywhere. Don't swap them out for any unapproved options!"
 
-### Secondary
-- **Monthly Purple** (#7C3AED): every monthly-payment surface — stat card accent, section header, badges, amounts. Never used for anything else, so purple always means "monthly" at a glance.
+### Core
+- **Minaã Blue** `#0062AD` — the primary. Every action, every heading, all body
+  copy, and all three payment types.
+- **Minaã Red** `#E8411D` — the secondary. Used sparingly and with one meaning:
+  **destructive actions** (delete, clear-all) plus the grand-total card.
+- **Minaã Cream** `#FBF0DC` — text on brand-colored surfaces. `#FDF9F0`
+  (Cream 50) is the page background.
 
-### Tertiary
-- **Quarterly Teal** (#0D9488): every quarterly/3-month-subscription surface, same rule as purple above — teal always means "quarterly."
+Scale steps (`50/100/400`) appear only as background tints and focus accents —
+never as alternative main colors.
 
-### Neutral
-- **Surface Grey** (#F5F5F5): page background.
-- **Card White** (#FFFFFF): every card, modal, and input surface.
-- **Text Primary** (#1A1A1A): body text and headings.
-- **Text Muted** (#6B7280): labels, counts, secondary metadata.
-- **Border** (#E5E7EB): hairline dividers and input borders.
+### Semantic — success / warning / error ONLY
+Per brand guide 3.5: *"Use Green for success, Yellow for warnings, and Orange
+for errors. Do not use these as primary brand colours or substitute them with
+unapproved ones."*
 
-### Named Rules
-**The One Meaning Rule.** Purple always means monthly, teal always means quarterly, orange always means one-time or "primary action" — never reassign these colors to an unrelated meaning elsewhere in the app.
+- **Green** `#05AA00` — success toasts
+- **Yellow** `#E5B11F` — warning toasts
+- **Orange** `#E56E1F` — error toasts, login validation errors
+
+These appear **nowhere else**. They are not decoration and never brand colors.
+
+### Type color
+No black type. All copy is Minaã Blue: solid for headings, 72% for secondary
+text, 50% for faint metadata. `--ink` (`#161616`) exists only for text on the
+yellow warning toast, where light text is unreadable.
+
+### Named rules
+- **The One Meaning Rule.** A color means exactly one thing everywhere. Blue =
+  data and actions. Red = destructive. Green/Yellow/Orange = success/warning/error.
+- **Payment types are told apart by icon and label, not hue.** All three are blue;
+  quarterly uses a slightly deeper background tint (Blue 100 vs Blue 50).
 
 ## 3. Typography
 
-**Body Font:** Cairo (with system sans-serif fallback)
-**Display Font:** Cairo, heavier weight (800)
-**Label Font:** Cairo, bold weight (700)
+**29LT Idris Round**, served by Fontstand, with Cairo as fallback.
 
-**Character:** One typeface, four weights (400/500/600/700/800) carrying the entire hierarchy — no secondary font is introduced anywhere, keeping the Arabic type consistent and readable at small sizes.
+> **Each weight is a separate font family**, not a `font-weight`. Selecting a
+> weight means swapping `font-family`. Use the tokens — never `font-weight` alone.
+
+| Token | Family |
+|---|---|
+| `--font-regular` | `29LT Idris Round Regular` |
+| `--font-medium` | `29LT Idris Round Medium` |
+| `--font-bold` | `29LT Idris Round ExtraBold` |
+
+Mapping: weights 600–700 → Medium; 800–900 → ExtraBold; everything else → Regular.
+
+**Licensing:** domain-locked and metered (10,000 pageviews/month). Unregistered
+origins get a 403 and the page silently falls back to Cairo — which is why Cairo
+stays in every stack. `localhost`/`127.0.0.1` are auto-recognized; production
+domains must be registered in the Fontstand account.
 
 ### Hierarchy
-- **Display** (800, ~1.1–1.35rem): grand totals, invoice grand-total figure.
-- **Headline** (800, ~0.95–1.05rem): stat card values, section sums.
-- **Title** (700, ~0.82–0.92rem): section titles, form field group labels, button labels.
-- **Body** (400–500, ~0.78–0.88rem): payment names, dates, list content.
-- **Label** (700, ~0.68–0.78rem, uppercase for English fragments like "PAYMENT MANAGEMENT"): stat captions, muted counts.
+- **Page title** ExtraBold, `clamp(1.55rem, 3vw, 2.1rem)`
+- **Display** ExtraBold — stat values, grand totals
+- **Title** Medium/ExtraBold, ~.84–.95rem — section titles, panel headers
+- **Body** Regular, ~.78–.88rem — payment names, dates
+- **Label** Medium, ~.62–.72rem — captions, counts, timestamps
 
-## 4. Elevation
+## 4. Spacing
 
-Flat by default. A single soft ambient shadow (`0 4px 24px rgba(0,0,0,.07)`) is reused on every card, modal, and rates bar — there is no tiered elevation system distinguishing "more important" surfaces by shadow depth. Depth, where it matters, is conveyed by color (card white on grey background) rather than shadow intensity.
+The **Atlassian Design System** scale, 8px base unit.
+Source: https://atlassian.design/foundations/spacing
 
-### Shadow Vocabulary
-- **Ambient** (`box-shadow: 0 4px 24px rgba(0,0,0,.07)`): every card-like surface, no exceptions.
+| Token | px | | Token | px |
+|---|---|---|---|---|
+| `--space-025` | 2 | | `--space-250` | 20 |
+| `--space-050` | 4 | | `--space-300` | 24 |
+| `--space-075` | 6 | | `--space-400` | 32 |
+| `--space-100` | 8 (base) | | `--space-500` | 40 |
+| `--space-150` | 12 | | `--space-600` | 48 |
+| `--space-200` | 16 | | | |
 
-## 5. Components
+Token names mirror Atlassian's: the suffix is the percentage of the base unit,
+so `space-200` = 200% = 16px.
+
+### Usage ranges
+- **0–8px** — compact UI: icon/text gaps, icon-button and badge padding, input
+  padding, vertical spacing inside a card, gaps between repeating elements.
+- **12–24px** — larger components: container padding, spacing between card
+  elements, grid gutters.
+- **32px+** — page layout: separation between page content and header.
+
+### Applied
+- Grid gutters (stats, payments) — `space-200`
+- Panel padding — `space-250`; stat-card padding — `space-200`
+- Section separation (`.main-col` gap) — `space-300`
+- Header → content — `space-300` + `space-100` = **32px** (`space-400`)
+
+### Rules
+- **Never write a raw pixel value** for `gap`, `margin-top`, `margin-bottom`, or
+  padding. Use a token. There are currently zero raw values for these.
+- **Optical adjustment is allowed** — per Atlassian, visual weight sometimes
+  needs a nudge off the exact step. Use the nearest token first; deviate only
+  with a reason.
+- **Out of scope:** `border-radius` (a separate foundation), `clamp()` fluid
+  paddings, negative geometric offsets, and Jelly's own `--jelly-*` padding
+  tokens.
+
+## 5. Layout
+
+**No grid framework.** Intrinsic, content-driven CSS Grid:
+
+| Region | Columns |
+|---|---|
+| `.shell` | `88px minmax(0,1fr)` — icon rail + main |
+| `.stats` | `repeat(auto-fit, minmax(205px, 1fr))` |
+| `.payments-wrap` | `repeat(auto-fit, minmax(235px, 1fr))` |
+| `.modal-grid` | `1fr 1fr` |
+| `.inv-summary` | `repeat(4, 1fr)` |
+
+Cards declare a minimum comfortable width and the browser fits as many per row
+as it can — so columns reflow without a rule per step. Flex handles all
+one-dimensional rows (top bar, rates strip, form row, payment rows, icon rail).
+
+**Only two breakpoints** — 1120px and 640px — reserved for *structural* changes
+(rail → top bar, header stacking). `auto-fit` absorbs the rest.
+
+The shell sizes to its content; it does not stretch to fill the viewport.
+
+## 6. Elevation
+
+Two shadows, both purposeful:
+- **Card** `0 2px 10px rgba(22,22,22,.05)` — every card and panel.
+- **Float** `0 30px 80px -20px rgba(0,67,123,.18), 0 10px 30px rgba(22,22,22,.06)`
+  — the app shell only, lifting it off the cream page.
+
+## 7. Components
+
+All interactive controls are **Jelly UI** web components — there are no native
+`<button>` elements in the light DOM.
 
 ### Buttons
-- **Shape:** 10px radius (`.btn-add`, `.btn-data`).
-- **Primary:** brand-orange gradient background, white text, 10px 22px padding (`.btn-add`).
-- **Data toolbar buttons:** each action (invoice, export, import, clear) gets its own tinted-background/colored-border variant rather than one generic button style — color communicates the action's nature (green=export, blue=import, red=destructive, orange=invoice).
-- **Hover:** background deepens slightly, no shadow or transform change.
+- **Primary** — `jelly-button`, blue fill, cream label, pill.
+- **Circle icon** — `jelly-icon-button shape="circle"`, blue fill, cream icon.
+  Used for the icon rail and the add-payment action.
+- **Destructive** — same, secondary red fill (clear-all, delete).
+- **Full width** — use the `block` attribute. `width:100%` only stretches the
+  host; the inner button stays content-sized and hugs the inline-start edge.
+- **Icon-only buttons must carry `label`** for an accessible name.
 
-### Cards
-- **Corner Style:** 14–20px radius depending on card size (stat cards 14px via `.stat-card`, modals 20px).
-- **Background:** white on grey page background.
-- **Shadow Strategy:** the single ambient shadow described in Elevation.
-- **Border:** a colored left-edge accent bar identifies the stat card's payment-type color (existing pattern — kept consistent with the "One Meaning Rule" color-coding, since it's functional signal rather than decoration here, not a stripe added for pure ornament).
-- **Internal Padding:** 18–20px.
+### Cards & panels
+White on cream, `--radius-card` 18px, card shadow, no elevation tiers.
 
-### Inputs / Fields
-- **Style:** 1.5px solid border (`--border`), 10px radius, Cairo font.
-- **Focus:** currency/type selects get a colored left accent dot + tinted background matching the selected value (`updateCurrencyStyle`/`updateTypeStyle`) — a distinctive, non-generic touch specific to this app.
+### Feedback
+- `jelly-badge` (with `live`) for counts; `jelly-chip` for section totals;
+  `jelly-spinner` for loading.
+- Toasts take a **type** (`success`/`warning`/`error`) that drives both the
+  Lucide icon and the semantic color together, so they cannot drift apart.
 
-### Navigation
-- No traditional nav; the toolbar row of colored action pills serves as the primary navigation between data operations (invoice/export/import/clear/sign-out). RTL order throughout, wraps to multiple rows on narrow screens rather than scrolling horizontally.
+### Icons
+**Lucide only**, via `<iconify-icon>`. No emoji anywhere in the UI — flag emoji
+in particular do not render on Windows. Toast states use one circle family:
+`circle-check` / `circle-alert` / `circle-x`.
 
-## 6. Do's and Don'ts
+## 8. Do's and Don'ts
 
-### Do:
-- **Do** keep purple = monthly, teal = quarterly, orange = one-time/primary consistent everywhere, including any new screens or the invoice.
-- **Do** design mobile-first for the toolbar and stat rows — the team checks this from the field on phones as often as from a desktop.
-- **Do** keep the single ambient shadow; don't introduce a second shadow depth without a reason tied to real hierarchy.
-- **Do** use Cairo weights (not a second typeface) for any new hierarchy need.
+### Do
+- **Do** keep exactly one blue and one red. Reach for a scale step only for
+  tints and focus rings.
+- **Do** use a spacing token for every gap, margin and padding.
+- **Do** give every icon-only control an accessible `label`.
+- **Do** use logical properties (`padding-inline`, `margin-inline-start`) — this
+  is an RTL document and physical sides flip wrongly.
+- **Do** reach for a Jelly component's own attribute (`shape`, `block`,
+  `variant`) before overriding it with CSS.
 
-### Don't:
-- **Don't** make this feel like a sterile enterprise SaaS dashboard (grey-on-grey dense tables, corporate jargon) — per PRODUCT.md's anti-references.
-- **Don't** add gamified or decorative flourishes (badges, confetti, forced cheerfulness) — per PRODUCT.md's anti-references.
-- **Don't** hardcode column counts as inline `style` attributes on grid containers — it silently defeats the responsive breakpoints already defined in the stylesheet (this exact bug was just fixed on the stats and invoice-summary grids; keep new grids defined in CSS with proper breakpoints instead).
+### Don't
+- **Don't** introduce a third brand hue, or use Green/Yellow/Orange for anything
+  but success/warning/error.
+- **Don't** use black for type.
+- **Don't** use `font-weight` alone to get a bolder cut — swap the family.
+- **Don't** style a web component's internals from outside; use its documented
+  CSS custom properties or `::part()`.
+- **Don't** put emoji in the UI.
+- **Don't** hardcode column counts inline on grid containers — it defeats the
+  responsive behaviour defined in CSS.
