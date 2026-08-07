@@ -65,6 +65,40 @@ components:
 
 # Design System: Minaã Payments
 
+## 0. Verification against Figma — status
+
+Audited **2026-08-07** against *Minaã – Foundations*
+(`iV0IGAxiWCCjwyIbc6w74W`) via the Figma MCP server. The Figma file is
+**read-only**; corrections are made in this repo only.
+
+### Variable collections found in the file
+| Collection | Tokens | Values readable? | Status |
+|---|---|---|---|
+| **Colors** | Primary, Secondary, Neutral, Green, Yellow, Orange, Base, Alpha (11 steps each) | ✅ yes | **Verified — 100% match** |
+| **Typography** | `Font Family/*`, `Font Weight/*`, `Size/Display/*`, `Line Height/*`, `Paragraph Spacing/*` | ⚠️ partial | Display md + xs verified; rest from screenshots |
+| **Text styles** | `Text xs/sm/md/lg/xl` × Regular/Medium/ExtraBold; `Display xs…2xl` | ⚠️ names only | Structure verified; values from screenshots |
+| **Spacing** | `Global/spacing-xxs … 9xl` (14) + `Form/*`, `Icon/*`, `Text/*`, `Progress Indicator/*` | ❌ **no** | **UNVERIFIED — see below** |
+| **Radius** | `radius-lg`, `radius-xl`, `radius-full` | ❌ **no** | **UNVERIFIED** |
+| **Minaã Button / Metrics** | `Button font size/*`, `Button radius/Full` | ❌ **no** | **UNVERIFIED** |
+
+### Why some values are unreadable
+`get_variable_defs` returns only variables **bound to the node being queried**.
+The file has a single page (*Colors*) whose frames bind colour variables only,
+so the Spacing, Radius and Button collections are enumerable by name but their
+numeric values are not exposed through the MCP server.
+
+**To unblock:** share a node URL for a frame that uses those tokens (or select
+one in Figma desktop) and they can be read and cross-checked.
+
+### Open decision — two competing spacing systems
+The implementation uses the **Atlassian** spacing scale, adopted on explicit
+instruction. The Foundations file contains its **own** `Spacing` collection with
+different token names (`xxs…9xl`). These are separate systems and the code
+currently follows Atlassian.
+
+This has **not** been changed unilaterally: the Minaã values are unreadable, and
+switching would undo a deliberate earlier decision. See §4.
+
 ## 1. Overview
 
 **Creative North Star: "The Minaã Ledger"**
@@ -206,6 +240,13 @@ weights — the weight comes from the family tokens above, never `font-weight`.
 
 Each has a matching `-lh` token; always set the pair together.
 
+**Verification:** the file's text styles confirm this structure exactly — five
+`Text` steps (xs/sm/md/lg/xl) and six `Display` steps (xs…2xl), each in
+Regular / Medium / ExtraBold. Two step *values* were read directly from Figma
+variables and match: `Display md` 40/44 and `Display xs` 24/32. The remaining
+nine steps come from the Figma Styles panel screenshots and are unverified
+against the API — see §0.
+
 ### Applied
 | Element | Step |
 |---|---|
@@ -226,6 +267,14 @@ Each has a matching `-lh` token; always set the pair together.
   metrics and is deliberately out of scope.
 
 ## 4. Spacing
+
+> ⚠️ **Unresolved:** the Foundations file defines its own `Spacing` collection
+> (`Global/spacing-xxs … spacing-9xl`, plus component tokens for Form, Icon,
+> Text and Progress Indicator). The implementation below follows **Atlassian**
+> instead, adopted on explicit instruction before that collection was known.
+> The Minaã values could not be read (see §0), so no swap was made. Resolving
+> this requires either (a) the Minaã spacing values, to migrate onto them, or
+> (b) a decision to keep Atlassian.
 
 The **Atlassian Design System** scale, 8px base unit.
 Source: https://atlassian.design/foundations/spacing
