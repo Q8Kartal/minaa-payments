@@ -77,8 +77,7 @@ Audited **2026-08-07** against *Minaã – Foundations*
 | **Colors** | Primary, Secondary, Neutral, Green, Yellow, Orange, Base, Alpha (11 steps each) | ✅ yes | **Verified — 100% match** |
 | **Typography** | `Font Family/*`, `Font Weight/*`, `Size/*`, `Line Height/*`, `Paragraph Spacing/*` | ✅ yes (node `4008:3625`) | **Verified — all 11 steps match** |
 | **Text styles** | `Text xs/sm/md/lg/xl` × Regular/Medium/ExtraBold; `Display xs…2xl` | ✅ yes | **Verified — names and values match** |
-| **Spacing (Atlassian)** | `space/0` … `space/1000` (14) | ✅ yes | **Authored 2026-08-07 — matches Atlassian exactly** |
-| `Spacing` (legacy) | — | n/a | **Empty (0 variables)** — placeholder, superseded |
+| **Spacing** (official) | `space-0` … `space-1000` (14) | ✅ yes | **Authored 2026-08-07 — matches Atlassian exactly, all 3 modes** |
 | `Radius`, `Widths` | — | n/a | **Empty (0 variables)** — not yet defined in Figma |
 | **Containers** | `container-max-width-desktop`, `container-padding-*` | ❌ no | Unverified — not bound on any node |
 | **Minaã Button / Metrics** | `Button space/*`, `Button radius/Full`, `Button font size/*` | ❌ no | Unverified — not bound on any node |
@@ -287,21 +286,24 @@ are kept so the Cairo fallback still gets real weights.
 
 ## 4. Spacing
 
-> ✅ **Resolved 2026-08-07.** The Atlassian scale is now the canonical spacing
-> system for Minaã, authored into the Foundations file as the
-> **`Spacing (Atlassian)`** variable collection (14 tokens, `space/0` …
-> `space/1000`) with a dedicated **Spacing** documentation page.
+> ✅ **Resolved 2026-08-07.** The Atlassian scale is the canonical spacing system
+> for Minaã, authored into the **official `Spacing` collection** in the
+> Foundations file — 14 variables, values identical to the source, set across
+> all three modes (Desktop / Mobile / Tablet). A ten-frame **Spacing**
+> documentation page covers the base unit, the full token table, negative
+> values, usage ranges, all five layout principles with Do/Don't illustrations,
+> and practical Minaã UI examples.
 >
-> The file's older `Spacing` collection was found to be **empty** (0 variables),
-> as were `Radius` and `Widths` — so nothing was superseded or lost. The
-> earlier `Global/spacing-xxs…9xl` names came from a previously *published*
-> library version, not the live file.
+> The temporary `Spacing (Atlassian)` collection used during the first pass has
+> been removed after confirming zero remaining bindings.
 >
-> **Naming note:** Figma rejects `.` in variable names, so the tokens are stored
-> as `space/0` … `space/1000` (`/` is Figma's group separator and matches the
-> file's `Colors/Primary/700` convention). Each variable's description records
-> its canonical Atlassian name, e.g. `space.025`. Values, order and base-unit
-> relationships are identical to the source.
+> **Naming — a hard Figma constraint.** Figma rejects the `.` character in
+> variable names outright; this was probed directly and even `a.b` fails. The
+> tokens are therefore stored as **`space-0` … `space-1000`** (hyphen, flat, no
+> grouping). Each variable's description records its canonical name, e.g.
+> "Canonical token: space.025". Values, order and base-unit relationships are
+> identical to the source; only the separator differs, because no dotted form
+> is representable.
 
 The **Atlassian Design System** scale, 8px base unit.
 Source: https://atlassian.design/foundations/spacing
