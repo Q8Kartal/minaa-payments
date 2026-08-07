@@ -16,7 +16,12 @@ See `DESIGN.md` for the full system. Essentials:
 - **Semantic (never brand, never decoration):** Green `#05AA00` success · Yellow `#E5B11F` warning · Orange `#E56E1F` error
 - **Payment types are all blue** — told apart by icon and label, not hue. Quarterly uses a deeper tint (Blue 100) than monthly/one-time (Blue 50).
 - **No black type.** All copy is Minaã Blue at 100% / 72% / 50%.
-- **Spacing:** Atlassian Design System scale, 8px base unit — `--space-025` … `--space-600`. Never write a raw px value for gap/margin/padding.
+- **Spacing:** 14-step scale on an 8px base unit — **0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80px** (`space.0` … `space.1000`; CSS `--space-0` … `--space-1000`).
+  - **Source of truth:** the Figma **Spacing** page (node `4415:1705`) documents the system; the **`Spacing` variable collection** (`VariableCollectionId:4159:1679`, 14 vars × Desktop/Mobile/Tablet) enforces it. Both outrank this file and `DESIGN.md`.
+  - Never write a raw px/rem value for padding, gap, item spacing or layout spacing. In Figma, **bind** the property — a typed number that matches a token is still a violation.
+  - Ranges: **0–8px** compact UI · **12–24px** larger components · **32–80px** page layout.
+  - Principles: group by similarity · group by proximity · create order and hierarchy · introduce visual rhythm through consistent repetition · use optical adjustment. See `DESIGN.md` §4.
+  - Figma cannot store `.` in variable names, so tokens are stored as `space-0` … `space-1000`; `space.0` … `space.1000` is the canonical form.
 - **Font:** 29LT Idris Round (Fontstand webfonts), with Cairo as fallback
   - Each weight is a **separate family name** — `"29LT Idris Round Regular" / " Medium" / " ExtraBold"` — so weight is selected by swapping `font-family`, not by `font-weight`. Use the `--font-regular` / `--font-medium` / `--font-bold` vars.
   - **Licensed per domain.** Fontstand returns **403** for unregistered origins. `localhost` / `127.0.0.1` / `0.0.0.0:3000` work automatically; `https://q8kartal.github.io` must be added in the Fontstand account or the page silently falls back to Cairo. Also metered: 10,000 pageviews/month.

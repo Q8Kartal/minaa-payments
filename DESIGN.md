@@ -29,6 +29,8 @@ typography:
   display:
     fontFamily: '"29LT Idris Round ExtraBold", Cairo, sans-serif'
 spacing:
+  # Source of truth: Figma Spacing collection VariableCollectionId:4159:1679
+  space-0: "0px"
   space-025: "2px"
   space-050: "4px"
   space-075: "6px"
@@ -40,6 +42,8 @@ spacing:
   space-400: "32px"
   space-500: "40px"
   space-600: "48px"
+  space-800: "64px"
+  space-1000: "80px"
 rounded:
   chip: "6px"
   tile: "10px"
@@ -91,14 +95,15 @@ numeric values are not exposed through the MCP server.
 **To unblock:** share a node URL for a frame that uses those tokens (or select
 one in Figma desktop) and they can be read and cross-checked.
 
-### Open decision — two competing spacing systems
-The implementation uses the **Atlassian** spacing scale, adopted on explicit
-instruction. The Foundations file contains its **own** `Spacing` collection with
-different token names (`xxs…9xl`). These are separate systems and the code
-currently follows Atlassian.
-
-This has **not** been changed unilaterally: the Minaã values are unreadable, and
-switching would undo a deliberate earlier decision. See §4.
+### Spacing — closed, and now the source of truth
+**Closed 2026-08-08.** There is one spacing system. The official `Spacing`
+collection (`VariableCollectionId:4159:1679`) holds all 14 tokens across
+Desktop / Mobile / Tablet, and the ten-frame **Spacing** page (`4415:1705`)
+documents them. Together they are the **authority for all future Minaã design
+and implementation work** — this file records them, it does not define them.
+See §4. The earlier "two competing systems" question no longer applies: the
+temporary `Spacing (Atlassian)` collection was deleted after confirming zero
+remaining bindings.
 
 ## 1. Overview
 
@@ -284,61 +289,136 @@ are kept so the Cairo fallback still gets real weights.
 - Jelly's internal text (e.g. `jelly-option` rows) follows the library's own
   metrics and is deliberately out of scope.
 
-## 4. Spacing
+## 4. Spacing — the official reference
 
-> ✅ **Resolved 2026-08-07.** The Atlassian scale is the canonical spacing system
-> for Minaã, authored into the **official `Spacing` collection** in the
-> Foundations file — 14 variables, values identical to the source, set across
-> all three modes (Desktop / Mobile / Tablet). A ten-frame **Spacing**
-> documentation page covers the base unit, the full token table, negative
-> values, usage ranges, all five layout principles with Do/Don't illustrations,
-> and practical Minaã UI examples.
+> ### Source of truth
+> Spacing for all Minaã design and implementation work is governed by two
+> artefacts, and **nothing else**:
 >
-> The temporary `Spacing (Atlassian)` collection used during the first pass has
-> been removed after confirming zero remaining bindings.
+> | Artefact | Location | Role |
+> |---|---|---|
+> | **Spacing documentation page** | Foundations file, page `Spacing`, node **`4415:1705`** | Documents the system — the scale, ranges and layout principles |
+> | **`Spacing` variable collection** | `VariableCollectionId:4159:1679` | Enforces it — 14 variables, modes Desktop / Mobile / Tablet, scopes `GAP` + `WIDTH_HEIGHT` |
 >
-> **Naming — a hard Figma constraint.** Figma rejects the `.` character in
-> variable names outright; this was probed directly and even `a.b` fails. The
-> tokens are therefore stored as **`space-0` … `space-1000`** (hyphen, flat, no
-> grouping). Each variable's description records its canonical name, e.g.
-> "Canonical token: space.025". Values, order and base-unit relationships are
-> identical to the source; only the separator differs, because no dotted form
-> is representable.
+> The page explains the rules; the collection makes them binding. Where this
+> document and the Figma artefacts ever disagree, **Figma wins** and this file
+> is what gets corrected.
+>
+> The ten frames are: `01 Overview` · `02 8 pixel base unit & Scale` ·
+> `03 Space tokens` · `04 Spacing usage` · `05 Layout guidelines · Group by
+> similarity` · `06 Group by proximity` · `07 Create order and hierarchy` ·
+> `08 Introduce visual rhythm` · `09 Use optical adjustment` · `10 In practice`.
+>
+> **Naming — a hard Figma constraint.** Figma rejects `.` in variable names
+> outright (probed directly; even `a.b` fails). Tokens are therefore stored as
+> **`space-0` … `space-1000`** — hyphenated, flat, no grouping — while the
+> documentation and this file refer to them canonically as `space.0` …
+> `space.1000`. Each variable's `description` records its canonical name. Only
+> the separator differs; values, order and base-unit relationships are exact.
 
-The **Atlassian Design System** scale, 8px base unit.
+### The approved scale
+
+Fourteen steps on an **8px base unit**, derived from the Atlassian Design System.
 Source: https://atlassian.design/foundations/spacing
 
-| Token | px | | Token | px |
-|---|---|---|---|---|
-| `--space-025` | 2 | | `--space-250` | 20 |
-| `--space-050` | 4 | | `--space-300` | 24 |
-| `--space-075` | 6 | | `--space-400` | 32 |
-| `--space-100` | 8 (base) | | `--space-500` | 40 |
-| `--space-150` | 12 | | `--space-600` | 48 |
-| `--space-200` | 16 | | | |
+| Canonical | Figma variable | CSS | Multiplier | REM | px |
+|---|---|---|---|---|---|
+| `space.0` | `space-0` | `--space-0` | 0× | 0rem | **0** |
+| `space.025` | `space-025` | `--space-025` | 0.25× | 0.125rem | **2** |
+| `space.050` | `space-050` | `--space-050` | 0.5× | 0.25rem | **4** |
+| `space.075` | `space-075` | `--space-075` | 0.75× | 0.375rem | **6** |
+| `space.100` | `space-100` | `--space-100` | 1× | 0.5rem | **8** ← base unit |
+| `space.150` | `space-150` | `--space-150` | 1.5× | 0.75rem | **12** |
+| `space.200` | `space-200` | `--space-200` | 2× | 1rem | **16** |
+| `space.250` | `space-250` | `--space-250` | 2.5× | 1.25rem | **20** |
+| `space.300` | `space-300` | `--space-300` | 3× | 1.5rem | **24** |
+| `space.400` | `space-400` | `--space-400` | 4× | 2rem | **32** |
+| `space.500` | `space-500` | `--space-500` | 5× | 2.5rem | **40** |
+| `space.600` | `space-600` | `--space-600` | 6× | 3rem | **48** |
+| `space.800` | `space-800` | `--space-800` | 8× | 4rem | **64** |
+| `space.1000` | `space-1000` | `--space-1000` | 10× | 5rem | **80** |
 
-Token names mirror Atlassian's: the suffix is the percentage of the base unit,
-so `space-200` = 200% = 16px.
+**How the suffix works.** The token suffix is a *percentage of the 8px base
+unit* — `space.200` = 200% = 16px. The scale is **not** all whole multiples of
+8: it deliberately includes fractional steps *below* the base unit
+(`space.025` = 2px, `space.050` = 4px, `space.075` = 6px) and larger multiples
+above it. The base unit anchors the scale; it is not its smallest step.
+
+### Negative values
+`space.negative.025` through `space.negative.400` (−2px to −32px) exist in
+**code and documentation only** — no Figma Variables are created for them.
+They are for breaking out of a container's padding or overlapping elements.
+Before reaching for one, check whether a Bleed primitive fits instead.
 
 ### Usage ranges
-- **0–8px** — compact UI: icon/text gaps, icon-button and badge padding, input
-  padding, vertical spacing inside a card, gaps between repeating elements.
-- **12–24px** — larger components: container padding, spacing between card
-  elements, grid gutters.
-- **32px+** — page layout: separation between page content and header.
 
-### Applied
+**Small — `space.0` to `space.100` (0–8px)**, for small and compact UI:
+- Gap between small icons and text
+- Container padding of small components (badges, icon buttons, table cells)
+- Gap between repeating elements (button groups)
+- Padding within input components
+- Vertical spacing between elements in a card (title↔description, description↔actions)
+- Gap between a trigger and its elevated element (dropdown button ↔ menu)
+
+**Medium — `space.150` to `space.300` (12–24px)**, for larger, less dense UI:
+- Container padding of larger components (buttons)
+- Space between an avatar/large icon and its content (section messages)
+- Vertical spacing between elements in cards
+- Spacing between items in less densely packed or larger components
+
+**Large — `space.400` to `space.1000` (32–80px)**, for the largest UI and layout:
+- Space between content on the page (top of page ↔ header)
+- Alignment within larger pieces of content
+
+### Layout principles
+
+A layout is the elements **plus the space between them**. Use these together
+with the tokens; the tokens alone do not produce a good layout.
+
+1. **Group by similarity.** Consistent spacing around elements gives them visual
+   similarity and signals a semantic relationship. A list or table of items
+   should be spaced consistently so it reads as one cohesive collection.
+2. **Group by proximity.** Distance carries meaning — things placed close
+   together are assumed to be related. Put elements of the same flow or user
+   action closer together, and less related things further apart.
+3. **Create order and hierarchy.** Users look for order to reduce the effort of
+   scanning. Rank elements with size *and* whitespace: larger draws focus, and
+   varying the space around an element groups or separates it to impart
+   importance.
+4. **Introduce visual rhythm — through consistent repetition.** Repeating the
+   same spacing between elements (a table, a list, a board column) creates a
+   predictable rhythm and reinforces that those elements are equal in
+   importance. Varying spacing and size deliberately creates points of
+   attention and improves scannability. Repetition is the default; variation
+   must be intentional.
+5. **Use optical adjustment.** A spacing system improves consistency but does
+   not guarantee visual harmony. Visual weight — a filled disc against a text
+   cap, for instance — may need a minor deviation from the standard pattern.
+   Adjust *using the scale's units* and visual judgement, never with a raw value.
+
+### Applied in `minaa-payments.html`
 - Grid gutters (stats, payments) — `space-200`
 - Panel padding — `space-250`; stat-card padding — `space-200`
 - Section separation (`.main-col` gap) — `space-300`
 - Header → content — `space-300` + `space-100` = **32px** (`space-400`)
 
 ### Rules
-- **Never write a raw pixel value** for `gap`, `margin-top`, `margin-bottom`, or
-  padding. Use a token. There are currently zero raw values for these.
-- **Optical adjustment is allowed** — per Atlassian, visual weight sometimes
-  needs a nudge off the exact step. Use the nearest token first; deviate only
-  with a reason.
+- **Never write a raw pixel or REM value** for padding, gap, item spacing or
+  layout spacing. Use a token. In Figma, **bind** the property to the variable
+  rather than typing the number — a typed value that happens to equal a token
+  is still a violation.
+- **Bind, then verify what renders.** A binding can be present and still resolve
+  wrongly; confirm the resolved value, not just that a binding exists.
+- **Optical adjustment is allowed** (principle 5). Use the nearest token first;
+  deviate only with a reason, and stay on the scale.
+- **Token compliance is a floor, not a goal.** A layout can be fully bound and
+  still be wrong. Every choice must also produce clear hierarchy, semantic
+  grouping and optical balance. If one auto-layout frame can only express one
+  gap but the content has two different relationships, **restructure** — nest a
+  sub-group — rather than flattening the semantics.
+- **Judge gaps optically.** The perceived gap is the token *plus* the leading
+  inside each adjacent line box, `(lineHeight − fontSize) / 2`. Aim for roughly
+  **2:1** between "separate level" and "same unit" spacing.
 - **Out of scope:** `border-radius` (a separate foundation), `clamp()` fluid
   paddings, negative geometric offsets, and Jelly's own `--jelly-*` padding
   tokens.
