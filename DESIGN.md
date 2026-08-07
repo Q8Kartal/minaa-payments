@@ -147,12 +147,44 @@ origins get a 403 and the page silently falls back to Cairo — which is why Cai
 stays in every stack. `localhost`/`127.0.0.1` are auto-recognized; production
 domains must be registered in the Fontstand account.
 
-### Hierarchy
-- **Page title** ExtraBold, `clamp(1.55rem, 3vw, 2.1rem)`
-- **Display** ExtraBold — stat values, grand totals
-- **Title** Medium/ExtraBold, ~.84–.95rem — section titles, panel headers
-- **Body** Regular, ~.78–.88rem — payment names, dates
-- **Label** Medium, ~.62–.72rem — captions, counts, timestamps
+### Type scale
+From the Minaã Foundations Figma text styles. Every step exists in all three
+weights — the weight comes from the family tokens above, never `font-weight`.
+
+| Style | Size / line-height | Token |
+|---|---|---|
+| Display 2xl | 72 / 90 | `--display-2xl` |
+| Display xl | 60 / 72 | `--display-xl` |
+| Display lg | 48 / 60 | `--display-lg` |
+| Display md | 40 / 44 | `--display-md` |
+| Display sm | 32 / 40 | `--display-sm` |
+| Display xs | 24 / 32 | `--display-xs` |
+| Text xl | 20 / 30 | `--text-xl` |
+| Text lg | 18 / 28 | `--text-lg` |
+| Text md | 16 / 24 | `--text-md` |
+| Text sm | 14 / 20 | `--text-sm` |
+| Text xs | 12 / 18 | `--text-xs` |
+
+Each has a matching `-lh` token; always set the pair together.
+
+### Applied
+| Element | Step |
+|---|---|
+| Page title | Display sm → Display xs below 480px |
+| Grand-total figure | Display xs |
+| Stat values | Text xl |
+| Panel titles, modal titles, invoice totals | Text md |
+| Section titles, payment names and amounts, body | Text sm |
+| Labels, counts, dates, metadata, chips | Text xs |
+
+### Rules
+- **12px is the floor.** Nothing renders smaller — several values were
+  previously as small as 8.3px, which is unreadable in Arabic.
+- **Use discrete steps, not fluid `clamp()`.** A clamp lands *between* steps at
+  intermediate viewports, putting the type off-scale. Step down at a breakpoint
+  instead.
+- Jelly's internal text (e.g. `jelly-option` rows) follows the library's own
+  metrics and is deliberately out of scope.
 
 ## 4. Spacing
 
