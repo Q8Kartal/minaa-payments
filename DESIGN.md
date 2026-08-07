@@ -75,8 +75,8 @@ Audited **2026-08-07** against *Minaã – Foundations*
 | Collection | Tokens | Values readable? | Status |
 |---|---|---|---|
 | **Colors** | Primary, Secondary, Neutral, Green, Yellow, Orange, Base, Alpha (11 steps each) | ✅ yes | **Verified — 100% match** |
-| **Typography** | `Font Family/*`, `Font Weight/*`, `Size/Display/*`, `Line Height/*`, `Paragraph Spacing/*` | ⚠️ partial | Display md + xs verified; rest from screenshots |
-| **Text styles** | `Text xs/sm/md/lg/xl` × Regular/Medium/ExtraBold; `Display xs…2xl` | ⚠️ names only | Structure verified; values from screenshots |
+| **Typography** | `Font Family/*`, `Font Weight/*`, `Size/*`, `Line Height/*`, `Paragraph Spacing/*` | ✅ yes (node `4008:3625`) | **Verified — all 11 steps match** |
+| **Text styles** | `Text xs/sm/md/lg/xl` × Regular/Medium/ExtraBold; `Display xs…2xl` | ✅ yes | **Verified — names and values match** |
 | **Spacing** | `Global/spacing-xxs … 9xl` (14) + `Form/*`, `Icon/*`, `Text/*`, `Progress Indicator/*` | ❌ **no** | **UNVERIFIED — see below** |
 | **Radius** | `radius-lg`, `radius-xl`, `radius-full` | ❌ **no** | **UNVERIFIED** |
 | **Minaã Button / Metrics** | `Button font size/*`, `Button radius/Full` | ❌ **no** | **UNVERIFIED** |
@@ -240,12 +240,29 @@ weights — the weight comes from the family tokens above, never `font-weight`.
 
 Each has a matching `-lh` token; always set the pair together.
 
-**Verification:** the file's text styles confirm this structure exactly — five
-`Text` steps (xs/sm/md/lg/xl) and six `Display` steps (xs…2xl), each in
-Regular / Medium / ExtraBold. Two step *values* were read directly from Figma
-variables and match: `Display md` 40/44 and `Display xs` 24/32. The remaining
-nine steps come from the Figma Styles panel screenshots and are unverified
-against the API — see §0.
+**Verification (node `4008:3625`, 2026-08-07):** all **11 steps verified
+directly against the Figma variables** — every size and line-height matches
+exactly, with zero mismatches.
+
+Figma also defines a `Paragraph Spacing` variable per step (Display 2xl 72,
+xl 60, lg 48, md 36, sm 30, xs 24; Text xl 20, lg 18, md 16, sm 14, xs 12).
+Not implemented: the app has no multi-paragraph text blocks. Add as
+`margin-block-end` if that changes.
+
+Figma exposes two family variables, `font-family-display` and
+`font-family-text` — both resolve to `29LT Idris Round`, so one stack serves
+both. Weights are Regular 400, Medium 500, ExtraBold 800.
+
+There is also a `Text sm/Regular underlined` style. Not implemented — the app
+has no underlined text.
+
+**Faux-bold check:** because each Fontstand face is its own family with no
+weight descriptor, declaring `font-weight: 800` alongside it could make the
+browser synthesise bold over an already-bold cut. Measured in the DOM at 40px:
+each face renders identically at weight 400 and 800 (Regular 244.28px,
+Medium 256.27px, ExtraBold 283.72px — three distinct cuts, zero delta). **No
+synthesis is occurring**, so the `font-weight` declarations are harmless and
+are kept so the Cairo fallback still gets real weights.
 
 ### Applied
 | Element | Step |
