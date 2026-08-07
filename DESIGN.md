@@ -88,6 +88,40 @@ in the office.
 
 ## 2. Colors
 
+**Source of truth:** the *Minaã – Foundations* Figma file (`iV0IGAxiWCCjwyIbc6w74W`),
+read via the Figma MCP server. Verified 2026-08-07: every hex in the stylesheet
+matches a Figma variable, and every `rgba()` is a Figma colour at alpha.
+Treat the Figma file as read-only — correct the code, never the file.
+
+### CSS token → Figma variable
+
+| CSS | Figma variable | Value |
+|---|---|---|
+| `--primary` | `Colors/Primary/700` | `#0062ad` |
+| `--primary-mid` | `Colors/Primary/400` | `#68b4ff` |
+| `--primary-light` | `Colors/Primary/100` | `#e2f0ff` |
+| `--primary-tint` | `Colors/Primary/50` | `#f2f8ff` |
+| `--secondary` | `Colors/Secondary/600` | `#e8411d` |
+| `--secondary-mid` | `Colors/Secondary/400` | `#fa937d` |
+| `--secondary-tint` | `Colors/Secondary/50` | `#fef5f3` |
+| `--cream-50` | `Colors/Neutral/50` | `#fdf9f0` |
+| `--cream` | `Colors/Neutral/100` | `#fbf0dc` |
+| `--cream-200` | `Colors/Neutral/200` | `#f7e0b6` |
+| `--success` | `Colors/Green/600` | `#05aa00` |
+| `--warning` | `Colors/Yellow/400` | `#e5b11f` |
+| `--error` | `Colors/Orange/500` | `#e56e1f` |
+| `--ink` | `Colors/Base/black` | `#161616` |
+| `--card` | `Colors/Base/white` | `#ffffff` |
+
+### Two deliberate deviations
+1. **Text colour uses Primary at alpha** (`--muted` 72%, `--faint` 50%), not the
+   `Colors/Alpha/alpha-black-*` tokens. The brand owner directed that no copy be
+   black; all type is Minaã Blue.
+2. **Page background is Neutral 50, cards are Base white.** The Figma note
+   recommends Neutral 100 for backgrounds and cards. Both values are in the
+   palette; this pairing was chosen and approved for contrast between the page
+   and the floating cards.
+
 Source of truth: the Minaã brand guide, section 3.1 (Core Palette).
 
 > "The Minaã core colors are Minaã Blue (#0062AD), Minaã Red (#E8411D), and
@@ -130,9 +164,14 @@ yellow warning toast, where light text is unreadable.
 ## 3. Typography
 
 **29LT Idris Round**, served by Fontstand, with Cairo as fallback.
+Figma variable: `Font Family/font-family-display` = `29LT Idris Round`.
 
-> **Each weight is a separate font family**, not a `font-weight`. Selecting a
-> weight means swapping `font-family`. Use the tokens — never `font-weight` alone.
+> **Figma and the web differ here, deliberately.** In Figma the family is a
+> single `29LT Idris Round` with numeric weights (`font-weight-regular` = 400,
+> `font-weight-Extrabold` = 800). Fontstand's *webfont* delivery ships each
+> weight as its **own `@font-face` family** with no weight descriptor, so on the
+> web the weight must be selected by swapping `font-family`. Using
+> `font-weight: 800` alone would render Regular. Use the tokens.
 
 | Token | Family |
 |---|---|
