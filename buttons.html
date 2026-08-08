@@ -533,6 +533,24 @@
      what is left is an even rim that deforms with the body exactly. */
   const RING_STEPS = 16;
 
+  /* Our layers are composited 1:1 with Jelly's canvas, so any drift in size
+     puts the stroke and the fill in different places. Jelly resizes its canvas
+     when the button does — after a webfont swap, a reflow, a container change —
+     and a layer created before that keeps the old geometry. This re-syncs on
+     every paint, so a layer can never stay stale. Returns true if it changed,
+     since assigning width/height also clears the canvas. */
+  function syncLayer(c, jc) {
+    const jcs = getComputedStyle(jc);
+    let changed = false;
+    if (c.width !== jc.width || c.height !== jc.height) {
+      c.width = jc.width; c.height = jc.height; changed = true;
+    }
+    if (c.style.width !== jcs.width || c.style.height !== jcs.height) {
+      c.style.width = jcs.width; c.style.height = jcs.height; changed = true;
+    }
+    return changed;
+  }
+
   function ringFor(el) {
     if (el.__ring) return el.__ring;
     const jc = jellyCanvas(el);
@@ -556,6 +574,7 @@
     if (!colour || widthCss <= 0) return;
     const jc = jellyCanvas(el), c = ringFor(el);
     if (!jc || !c) return;
+    syncLayer(c, jc);
     const ctx = el.__rctx;
     const scale = jc.width / parseFloat(getComputedStyle(jc).width);
     const w = widthCss * scale;
@@ -593,6 +612,7 @@
   function paint(el, intensity, lean) {
     const jc = jellyCanvas(el), o = overlayFor(el);
     if (!jc || !o) return;
+    syncLayer(o, jc);
     const ctx = el.__octx;
     ctx.globalCompositeOperation = 'source-over';
     ctx.clearRect(0, 0, o.width, o.height);
@@ -721,7 +741,12 @@
 
     // Keyboard has no contact point and no deformation to follow.
     el.addEventListener('focus', () => {
-      if (!el.matches(':focus-visible')) return;
+      /* Jelly delegates focus into its shadow button, and that inner element is
+         the one that matches :focus-visible — the host never does. Testing the
+         host meant this returned on every tab stop and keyboard users saw no
+         colour at all. */
+      const inner = el.shadowRoot && el.shadowRoot.querySelector('button');
+      if (!(inner || el).matches(':focus-visible')) return;
       const b = el.getBoundingClientRect();
       el.__contact = { x: b.left + b.width / 2, y: b.top + b.height / 2 };
       el.__activeColour = resolveActiveColour(el);
@@ -737,11 +762,31 @@
     restRing(el);
   }));
 
-  /* At rest nothing is tracking, so the stroke is painted once Jelly has drawn
-     its body — and again a moment later, since the first frame can land before
-     the webfont settles the button's width. */
+  /* At rest nothing is tracking, so the stroke has to be repainted whenever the
+     button changes size. Fixed timeouts were not enough: the RTL 40px outline
+     settled to its final width after the last one, leaving a stroke drawn at
+     the old size sitting 16px off the fill. An observer catches every reflow,
+     whenever it happens. */
+  /* It watches Jelly's canvas, not the host. Watching the host fires while
+     Jelly still holds its previous canvas size, so the stroke was resynced to
+     stale dimensions and stayed exactly one resize behind — correct until the
+     first reflow, then 42px out. The canvas is the thing we composite against,
+     so it is the thing to follow. */
+  const ringWatch = new ResizeObserver(entries => {
+    entries.forEach(e => {
+      const host = e.target.__host;
+      if (host && !host.__tracking) paintRing(host);
+    });
+  });
   function restRing(el) {
-    [0, 120, 600].forEach(t => setTimeout(() => paintRing(el), t));
+    const attach = () => {
+      const jc = jellyCanvas(el);
+      if (!jc) { setTimeout(attach, 100); return; }   // the element may not have upgraded yet
+      jc.__host = el;
+      ringWatch.observe(jc);
+      paintRing(el);
+    };
+    attach();
   }
   CONTROLS.forEach(restRing);
 
