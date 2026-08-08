@@ -152,19 +152,20 @@
 
   /* Inside a panel the matrix uses SPACE TOKENS, never grid columns —
      per the rule that only top-level containers align to the grid. */
-  .matrix { overflow-x: auto; }
+  .matrix { min-width: 0; }
   .matrix-inner {
     display: grid;
-    /* 56 + 5x168 + 5x16 = 976, which clears the panel's inner width at m.
-       Narrower breakpoints scroll the matrix rather than squash the buttons. */
-    grid-template-columns: 56px repeat(5, minmax(168px, 1fr));
+    /* Tracks shrink; nothing is pinned to a width the panel may not have.
+       The row-head column sizes to its content rather than a magic number. */
+    grid-template-columns: auto repeat(5, minmax(0, 1fr));
     gap: var(--space-200);
     align-items: center;
     min-width: 0;
   }
   .col-head { font-family: var(--font-bold); font-size: var(--text-sm); line-height: var(--text-sm-lh); }
-  .row-head { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); }
+  .row-head { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); white-space: nowrap; }
   .cell { display: flex; min-width: 0; }
+  .cell-label { display: none; font-style: normal; font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); }
   .panel.ltr .matrix-inner { direction: ltr; }
   .panel.ltr .row-head { text-align: right; }
 
@@ -189,7 +190,10 @@
   .btn {
     position: relative;
     display: inline-flex; align-items: center; justify-content: center;
-    min-width: 168px;
+    /* The component set is a fixed 168px wide. Real instances hug, so the
+       fixed width is only honoured at m where the matrix has room for it —
+       below that the buttons hug and nothing is ever clipped. */
+    min-width: var(--btn-min-width, 0);
     border: none; border-radius: var(--btn-radius);
     font-family: var(--font-medium);
     cursor: pointer; overflow: hidden; isolation: isolate;
@@ -276,6 +280,24 @@
   body.trace .btn::before, body.trace .iconbtn::before { outline: 1px dashed rgba(255,255,255,.7); }
 
   /* ═══ BREAKPOINTS — the documented grid, reassigned from one source ═════ */
+
+  /* Only where the panel can actually hold 5 x 168 + gaps do the buttons take
+     the component's true fixed width. Measured need: 976px of matrix. */
+  @media (min-width: 1280px) { .btn { --btn-min-width: 168px; } }
+
+  @media (max-width: 767px) {           /* stack: the matrix stops being a matrix */
+    .matrix-inner { grid-template-columns: 1fr; gap: var(--space-150); }
+    .col-head { display: none; }
+    .row-head {
+      font-family: var(--font-bold); color: var(--text);
+      margin-top: var(--space-200); padding-bottom: var(--space-100);
+      border-bottom: 1px solid var(--border);
+    }
+    .matrix-inner > .row-head:first-of-type { margin-top: var(--space-0); }
+    .cell { justify-content: space-between; align-items: center; gap: var(--space-200); }
+    .cell-label { display: block; }
+  }
+
   @media (max-width: 1023px) {          /* s / xs — 6 columns */
     .main-col {
       --grid-columns: 6;
@@ -375,14 +397,19 @@
 
     SIZES.forEach(size => {
       parts.push('<span class="row-head">' + size + ' px</span>');
-      STYLES.forEach(([cls]) => {
+      STYLES.forEach(([cls, styleName]) => {
+        // The label only shows once the matrix stacks; above 768 the column
+        // header carries it instead.
+        const tag = '<em class="cell-label">' + styleName + '</em>';
         if (kind === 'icon') {
-          parts.push('<span class="cell"><button class="iconbtn ' + cls + ' s' + size + '" aria-label="بحث">' +
+          parts.push('<span class="cell">' + tag +
+                     '<button class="iconbtn ' + cls + ' s' + size + '" aria-label="بحث">' +
                      '<iconify-icon icon="lucide:search"></iconify-icon></button></span>');
         } else {
           const dir = kind === 'ltr' ? 'ltr' : 'rtl';
           const label = kind === 'ltr' ? 'Button' : 'زر';
-          parts.push('<span class="cell"><button dir="' + dir + '" class="btn ' + cls + ' s' + size + '">' +
+          parts.push('<span class="cell">' + tag +
+                     '<button dir="' + dir + '" class="btn ' + cls + ' s' + size + '">' +
                      '<iconify-icon icon="lucide:search"></iconify-icon>' +
                      '<span>' + label + '</span>' +
                      '<iconify-icon icon="lucide:search"></iconify-icon></button></span>');
