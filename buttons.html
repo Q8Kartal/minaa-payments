@@ -245,7 +245,8 @@
      illegible over either one. --t is written per part by the paint pass.
      iconify-icon is a custom element, so background-clip:text can't be used;
      colouring each part directly keeps the icons rendering from currentColor. */
-  .jelly-label > * {
+  .jelly-label > *,
+  jelly-icon-button > iconify-icon {     /* icon buttons carry a bare icon, no label wrapper */
     color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--t, 0) * 100%));
   }
 
@@ -573,6 +574,16 @@
     ctx.globalCompositeOperation = 'source-over';
   }
 
+  /* The pieces of copy the wave has to repaint. jelly-button wraps them in a
+     .jelly-label; jelly-icon-button carries a bare icon instead, which the
+     wave used to miss entirely — a red glyph then sat on a fully red fill and
+     vanished. Our own canvas layers are children too, so they are excluded. */
+  function labelParts(el) {
+    const wrapped = el.querySelectorAll('.jelly-label > *');
+    if (wrapped.length) return wrapped;
+    return el.querySelectorAll(':scope > :not(canvas)');
+  }
+
   function clearOverlay(el) {
     if (el.__octx && el.__overlay) el.__octx.clearRect(0, 0, el.__overlay.width, el.__overlay.height);
     resetLabel(el);
@@ -623,7 +634,7 @@
      text and icons turn where the colour actually arrives rather than fading
      on a separate timer. */
   function paintLabel(el, hb, cx, cy, reachCss, intensity) {
-    const parts = el.querySelectorAll('.jelly-label > *');
+    const parts = labelParts(el);
     if (!parts.length) return;
     const front = reachCss * intensity * CORE;          // same front as the fill
     const band = Math.max(12, reachCss * (1 - CORE));   // same soft edge
@@ -636,7 +647,7 @@
   }
 
   function resetLabel(el) {
-    el.querySelectorAll('.jelly-label > *').forEach(p => p.style.setProperty('--t', '0'));
+    labelParts(el).forEach(p => p.style.setProperty('--t', '0'));
   }
 
   function resolveActiveColour(el) {
