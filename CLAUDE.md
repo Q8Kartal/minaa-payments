@@ -137,7 +137,12 @@ top bar and icon rail.
 - **localStorage origin:** Data saved in one browser/context won't appear in another (different file path = different origin). Use Export/Import JSON to transfer data between browsers
 - **Logo:** the official `Artboard 17.svg`, embedded as an SVG **data URI** (~2.4 KB). Stays crisp at any size; the invoice reuses the same element and inverts it to white
 - **Web components:** styling the host does not reach inside. Use the component's own attributes (`shape`, `block`, `variant`), its `--jelly-*` custom properties, or `::part()`. Two bugs this caused: `el.disabled = x` silently no-ops (use `toggleAttribute`), and `width:100%` stretches only the host (use `block`)
-- **RTL:** always use logical properties (`padding-inline`, `margin-inline-start`). Physical sides flip wrongly — this produced a real spacing bug in the rates strip
+- **RTL:** always use logical properties (`padding-inline`, `margin-inline-start`, `text-align: start/end`). Physical sides flip wrongly — this produced a real spacing bug in the rates strip
+- **Direction is fixed, never adaptive.** This page is the **Arabic RTL version at all times** (`<html lang="ar" dir="rtl">`). An English payment name must not flip its card, field, alignment or icon order to LTR — Latin text keeps its own character order via the bidi algorithm, and that is enough.
+  - **Never use `unicode-bidi: plaintext`.** It derives direction from the first strong character, which is exactly the content-based detection this rule forbids. It was on `.pay-name` and flipped English rows to LTR.
+  - `unicode-bidi: isolate` is fine — it isolates a run without changing direction.
+  - **No `direction: ltr` islands.** Verified empirically that `64%`, `0.3088`, `INV-260808-001`, `ChatGBT & Codex` and `150.000 د.ك` all render identically in RTL, so the overrides on `.ring-pct`, `.rate-mini`, `.inv-meta` and `.td-amount` were unnecessary and were removed. The page now has **zero** elements computing `direction: ltr`.
+  - A separate English LTR build will come later; do **not** make this page adaptive to reach it.
 - **iOS autofill:** Safari paints autofilled fields yellow. Masked via `jelly-input::part(input):-webkit-autofill`
 - **Fonts are domain-licensed:** unregistered origins get 403 and fall back to Cairo. `file://` never works — serve over `localhost` (see `.claude/launch.json`) to see the real fonts
 

@@ -235,7 +235,8 @@
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: var(--text-xs); line-height: var(--text-xs-lh); font-weight: 800; font-family: var(--font-bold);
-      direction: ltr;
+      /* No direction override: "64%" resolves identically in RTL, verified by
+         rendering it both ways. The page has no LTR islands. */
     }
     .stat-card.monthly   .ring-fg { stroke: var(--monthly); }
     .stat-card.monthly   .ring-pct { color: var(--monthly); }
@@ -378,7 +379,11 @@
     .pay-name {
       font-weight: 700; font-family: var(--font-medium); font-size: var(--text-sm); line-height: var(--text-sm-lh);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      unicode-bidi: plaintext;
+      /* NO unicode-bidi: plaintext. That derived the paragraph direction from
+         the first strong character, so an English payment name flipped the row
+         to LTR while an Arabic one stayed RTL. This page is Arabic RTL always;
+         a Latin name keeps its own character order via the bidi algorithm but
+         must not change the alignment of the card it sits in. */
       min-width: 0; flex: 1;
     }
     .monthly-section   .pay-name { color: var(--monthly); }
@@ -436,7 +441,10 @@
     .rates-strip-icon { color: var(--primary); font-size: var(--text-md); line-height: var(--text-md-lh); flex: none; }
     .rate-mini {
       display: inline-flex; align-items: center; gap: var(--space-075);
-      font-size: var(--text-xs); line-height: var(--text-xs-lh); white-space: nowrap; direction: ltr;
+      /* No direction:ltr — this is an inline-flex row, so forcing LTR reversed
+         the order of the code and its rate. The page is RTL: the currency code
+         leads on the right. Digits order correctly on their own. */
+      font-size: var(--text-xs); line-height: var(--text-xs-lh); white-space: nowrap;
     }
     .rate-mini b {
       font-family: var(--font-bold); font-size: var(--text-xs); line-height: var(--text-xs-lh); letter-spacing: .05em;
@@ -570,7 +578,9 @@
     .inv-brand-text { color: var(--cream); }
     .inv-brand-name { font-size: var(--text-lg); line-height: var(--text-lg-lh); font-weight: 800; font-family: var(--font-bold); letter-spacing: .03em; }
     .inv-brand-sub  { font-size: var(--text-xs); line-height: var(--text-xs-lh); color: rgba(251,240,220,.65); letter-spacing: .12em; text-transform: uppercase; margin-top: var(--space-025); }
-    .inv-meta { text-align: left; direction: ltr; color: rgba(251,240,220,.85); }
+    /* Logical `end`, not physical `left`, and no direction override. The block
+       stays RTL; only the invoice identifier isolates itself (see .inv-num). */
+    .inv-meta { text-align: end; color: rgba(251,240,220,.85); }
     .inv-meta .inv-num  { font-size: var(--text-md); line-height: var(--text-md-lh); font-weight: 800; font-family: var(--font-bold); color: var(--cream); }
     .inv-meta .inv-date { font-size: var(--text-xs); line-height: var(--text-xs-lh); color: rgba(251,240,220,.65); margin-top: var(--space-050); }
     .inv-body { padding: var(--space-300) var(--space-400); }
@@ -605,7 +615,7 @@
     .inv-table th {
       font-size: var(--text-xs); line-height: var(--text-xs-lh); color: var(--muted); font-weight: 700; font-family: var(--font-medium);
       border-bottom: 1.5px solid var(--border);
-      padding: var(--space-100) var(--space-150); text-align: right;
+      padding: var(--space-100) var(--space-150); text-align: start;
     }
     .inv-table td {
       font-size: var(--text-sm); line-height: var(--text-sm-lh); padding: var(--space-100) var(--space-150);
@@ -615,7 +625,8 @@
     .inv-table .td-name { font-weight: 700; font-family: var(--font-medium); }
     .inv-table .td-date { color: var(--muted); font-size: var(--text-xs); line-height: var(--text-xs-lh); }
     .inv-table .td-orig { color: var(--faint); font-size: var(--text-xs); line-height: var(--text-xs-lh); }
-    .inv-table .td-amount { font-weight: 800; font-family: var(--font-bold); text-align: left; direction: ltr; white-space: nowrap; }
+    /* Logical `end`; no direction override. Digits resolve correctly in RTL. */
+    .inv-table .td-amount { font-weight: 800; font-family: var(--font-bold); text-align: end; white-space: nowrap; }
     .inv-section.monthly   .inv-table .td-amount { color: var(--monthly); }
     .inv-section.quarterly .inv-table .td-amount { color: var(--quarterly); }
     .inv-section.onetime   .inv-table .td-amount { color: var(--onetime); }
@@ -1531,7 +1542,7 @@ function openInvoice() {
             <tr>
               <th>اسم الدفعة</th>
               <th>تاريخ الإضافة</th>
-              <th style="text-align:left">المبلغ (د.ك)</th>
+              <th style="text-align:end">المبلغ (د.ك)</th>
             </tr>
           </thead>
           <tbody>${rowsHTML(monthly)}</tbody>
@@ -1549,7 +1560,7 @@ function openInvoice() {
             <tr>
               <th>اسم الاشتراك</th>
               <th>تاريخ الإضافة</th>
-              <th style="text-align:left">المبلغ (د.ك)</th>
+              <th style="text-align:end">المبلغ (د.ك)</th>
             </tr>
           </thead>
           <tbody>${rowsHTML(quarterly)}</tbody>
@@ -1567,7 +1578,7 @@ function openInvoice() {
             <tr>
               <th>اسم الدفعة</th>
               <th>تاريخ الإضافة</th>
-              <th style="text-align:left">المبلغ (د.ك)</th>
+              <th style="text-align:end">المبلغ (د.ك)</th>
             </tr>
           </thead>
           <tbody>${rowsHTML(onetime)}</tbody>
@@ -1673,7 +1684,7 @@ function openReceipt() {
             <tr>
               <th>اسم الدفعة</th>
               <th>تاريخ الإضافة</th>
-              <th style="text-align:left">المبلغ (د.ك)</th>
+              <th style="text-align:end">المبلغ (د.ك)</th>
             </tr>
           </thead>
           <tbody>${rowsHTML(selected)}</tbody>
