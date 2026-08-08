@@ -198,8 +198,11 @@ yellow warning toast, where light text is unreadable.
 ### Named rules
 - **The One Meaning Rule.** A color means exactly one thing everywhere. Blue =
   data and actions. Red = destructive. Green/Yellow/Orange = success/warning/error.
-- **Payment types are told apart by icon and label, not hue.** All three are blue;
-  quarterly uses a slightly deeper background tint (Blue 100 vs Blue 50).
+- **Payment types are told apart by icon and label, not hue.** All three are blue
+  and share one Blue 50 tint; the icon carries the distinction. Quarterly used to
+  take Blue 100, which broke the rule this line states — and because that tint was
+  also reused for row hover, the same gesture gave different feedback per section.
+  Identity and interaction must not share a variable.
 
 ## 3. Typography
 

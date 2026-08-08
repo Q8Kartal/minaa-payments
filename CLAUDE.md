@@ -14,7 +14,7 @@ See `DESIGN.md` for the full system. Essentials:
 - **Secondary — Minaã Red:** `#E8411D` (destructive actions + grand-total card **only**)
 - **Neutral — Minaã Cream:** `#FBF0DC` (text on brand fills) · `#FDF9F0` page background
 - **Semantic (never brand, never decoration):** Green `#05AA00` success · Yellow `#E5B11F` warning · Orange `#E56E1F` error
-- **Payment types are all blue** — told apart by icon and label, not hue. Quarterly uses a deeper tint (Blue 100) than monthly/one-time (Blue 50).
+- **Payment types are all blue** — told apart by icon and label, not hue. All three share one Blue 50 tint (`--primary-tint`); the differentiator is the glyph (`calendar-sync` / `calendar-range` / `zap`). Quarterly previously used Blue 100, which contradicted this rule.
 - **No black type.** All copy is Minaã Blue at 100% / 72% / 50%.
 - **Spacing:** 14-step scale on an 8px base unit — **0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80px** (`space.0` … `space.1000`; CSS `--space-0` … `--space-1000`).
   - **Source of truth:** the Figma **Spacing** page (node `4415:1705`) documents the system; the **`Spacing` variable collection** (`VariableCollectionId:4159:1679`, 14 vars × Desktop/Mobile/Tablet) enforces it. Both outrank this file and `DESIGN.md`.

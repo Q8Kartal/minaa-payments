@@ -40,14 +40,18 @@
       --error:           #E56E1F;   /* Mina Orange */
 
       /* ── PAYMENT TYPES — main blue for recurring, main red for one-time ── */
+      /* Payment types are told apart by ICON AND LABEL, NOT HUE. All three
+         therefore resolve to the same blue and the same Blue 50 tint; the
+         differentiator is the glyph (calendar-sync / calendar-range / zap).
+         Quarterly previously used Blue 100, which broke that rule. */
       --monthly:         #0062AD;   /* Minaã Blue */
-      --monthly-tint:    #F2F8FF;   /* Blue 50 */
+      --monthly-tint:    var(--primary-tint);
       --monthly-mid:     #68B4FF;   /* Blue 400 */
-      --quarterly:       #0062AD;   /* Minaã Blue — same blue, no darker variant */
-      --quarterly-tint:  #E2F0FF;   /* Blue 100 — slightly deeper tint tells the sections apart */
+      --quarterly:       #0062AD;   /* Minaã Blue */
+      --quarterly-tint:  var(--primary-tint);
       --quarterly-mid:   #68B4FF;   /* Blue 400 */
       --onetime:         #0062AD;   /* Minaã Blue — payment data is always blue */
-      --onetime-tint:    #F2F8FF;   /* Blue 50 */
+      --onetime-tint:    var(--primary-tint);
       --onetime-mid:     #68B4FF;   /* Blue 400 */
 
       /* ══ TYPE SCALE — Minaã Foundations (Figma text styles).
