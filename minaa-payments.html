@@ -125,6 +125,9 @@
       box-shadow: var(--shadow-float);
       display: grid;
       grid-template-columns: 88px minmax(0,1fr);
+      /* Explicit zero: the rail is meant to sit flush against the content and
+         is separated by its own border, not by space. */
+      gap: var(--space-0);
       overflow: clip;
       /* Sizes to its content. Forcing full viewport height left a large empty
          band under the cards whenever the content was shorter than the screen. */
@@ -240,7 +243,9 @@
     /* featured total card — solid secondary with cream on top (the brand board's pairing) */
     .stat-card.total { background: var(--secondary); }
     .total-icon {
-      width: 46px; height: 46px; border-radius: 14px; flex: none;
+      /* 48px = space-600. Was 46px, off the scale, and inconsistent with the
+         32px type chip and icon buttons that share the same control family. */
+      width: 48px; height: 48px; border-radius: 14px; flex: none;
       background: rgba(251,240,220,.16);
       display: inline-flex; align-items: center; justify-content: center;
       color: var(--cream); font-size: var(--text-xl); line-height: var(--text-xl-lh);
@@ -621,7 +626,9 @@
       background: var(--primary);
       border-radius: 16px;
       padding: var(--space-200) var(--space-250);
-      display: flex; align-items: center; justify-content: space-between;
+      /* space-between pins the label and total to opposite edges; the gap is
+         the guaranteed minimum so they can never touch as the total grows. */
+      display: flex; align-items: center; justify-content: space-between; gap: var(--space-200);
       margin-top: var(--space-100);
     }
     .inv-grand-label {
@@ -723,7 +730,9 @@
       .nav-group { flex-direction: row; gap: var(--space-100); }
       .side-nav jelly-icon-button { --jelly-icon-button-size: 40px; }
       .stat-card { flex-direction: column; align-items: flex-start; gap: var(--space-075); }
-      .ring-wrap { align-self: flex-end; margin-top: -26px; }
+      /* Negative offset kept on the scale: -space-300 rather than an arbitrary
+         -26px. The ring overlaps the row above by exactly one step. */
+      .ring-wrap { align-self: flex-end; margin-top: calc(var(--space-300) * -1); }
       .topbar { flex-direction: column; align-items: stretch; }
       .topbar-actions { justify-content: space-between; }
       .rates-strip { flex: 1 1 auto; justify-content: center; }
