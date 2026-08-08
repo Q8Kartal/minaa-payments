@@ -6,6 +6,9 @@
 <title>مكتبة الأزرار – Minaã</title>
 <link rel="stylesheet" type="text/css" href="https://webfonts.fontstand.com/WF-094922-4fc5a1e5caa40a909afb60cdb86e8f10.css"/>
 <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+<!-- Jelly UI owns the soft-body physics. Nothing here reimplements its motion;
+     the colour reveal is layered on top of the properties it already exposes. -->
+<script type="module" src="https://jelly-ui.com/package.js"></script>
 <style>
   :root {
     /* ── Type ───────────────────────────────────────────────────────────── */
@@ -193,99 +196,64 @@
   .note li:last-child { margin-bottom: 0; }
 
   /* ═══════════════════════════════════════════════════════════════════════
-     THE BUTTON — a faithful re-creation of the Figma component set.
-     The wipe is one absolutely positioned circle that starts 8px wide at the
-     leading icon and scales up; the capsule's own overflow:hidden clips it
-     back into a pill, exactly as Figma's `clipsContent` does.
+     THE BUTTON — Jelly UI owns the movement, Minaã owns the colour.
+
+     Jelly paints the pill on a <canvas part="jelly">; the inner
+     button[part="button"] is transparent. So the colour reveal cannot be a
+     DOM overlay — it would sit flat on top of a body that is deforming
+     underneath, which is exactly the "two separate animations" to avoid.
+     Instead the reveal is fed into --jelly-fill, the property Jelly already
+     paints from. Verified: changing it repaints the canvas live, and
+     color-mix() survives all the way into the canvas fill.
+
+     Everything below binds to Jelly's own custom properties. Nothing here
+     reimplements its physics.
      ═════════════════════════════════════════════════════════════════════ */
-  .btn {
-    position: relative;
-    display: inline-flex; align-items: center; justify-content: center;
-    /* The component set is a fixed 168px wide. Real instances hug, so the
-       fixed width is only honoured at m where the matrix has room for it —
-       below that the buttons hug and nothing is ever clipped. */
-    min-width: var(--btn-min-width, 0);
-    /* The UA stylesheet gives <button> padding: 1px 6px. The inline padding is
-       overridden per size below, but the 1px block padding survived and was
-       silently adding 2px that came from no design decision. */
-    padding-block: var(--space-0);
-    /* Content advances one space-050 in the reading direction as p rises. */
-    padding-inline: calc(var(--pad-lead)  + var(--space-050) * var(--p))
-                    calc(var(--pad-trail) - var(--space-050) * var(--p));
-    border: none; border-radius: var(--btn-radius);
+  jelly-button, jelly-icon-button {
+    --p: 0;                       /* progress, written by input, never by a timer */
+    --dir: 1;                     /* +1 in LTR, -1 in RTL — for the content advance */
+    --jelly-button-radius: 999px;
+    --jelly-button-min-width: var(--btn-min-width, 0);
+    /* The body colour IS the reveal. It deforms because Jelly paints it. */
+    --jelly-fill:  color-mix(in srgb, var(--fill-rest),  var(--fill-active)  calc(var(--p) * 100%));
+    --jelly-label: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--p) * 100%));
     font-family: var(--font-medium);
-    cursor: pointer; overflow: hidden; isolation: isolate;
     touch-action: manipulation;
-    /* --p is the single source of truth: 0 = rest, 1 = fully revealed.
-       Nothing here transitions — the value is written by input, frame by
-       frame, so the visual state is always exactly what the user is doing. */
-    color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--p) * 100%));
   }
-  .btn::before {                       /* the Hover Reveal layer */
-    content: ''; position: absolute;
-    width: 8px; height: 8px; border-radius: 50%;
-    left: var(--wipe-x, 50%); top: var(--wipe-y, 50%);
-    background: var(--wipe-colour);
-    transform: translate(-50%, -50%) scale(calc(1 + var(--p) * (var(--wipe-scale, 45) - 1)));
-    opacity: clamp(0, calc(var(--p) * 4), 1);
-    z-index: -1;
+  jelly-button:dir(rtl), jelly-icon-button:dir(rtl) { --dir: -1; }
+
+  /* Content advances one space-050 in the reading direction as p rises.
+     Jelly exposes a single --jelly-button-padding-inline for both sides, so
+     the offset is a transform on the slotted content rather than asymmetric
+     padding — still bound to a token, and it rides the deformation. */
+  .jelly-label {
+    display: inline-flex; align-items: center; gap: var(--space-100);
+    transform: translateX(calc(var(--space-050) * var(--p) * var(--dir)));
   }
-  .btn > * { position: relative; }
-  .btn iconify-icon { flex: none; }
+  .jelly-label iconify-icon { flex: none; }
 
-  /* Sizes — every number lifted from the component set, expressed as tokens */
-  .btn.s56 { height: 56px; font-size: var(--text-xl); gap: var(--space-100); --pad-lead: var(--space-300); --pad-trail: var(--space-300); }
-  .btn.s48 { height: 48px; font-size: var(--text-lg); gap: var(--space-100); --pad-lead: var(--space-250); --pad-trail: var(--space-250); }
-  .btn.s40 { height: 40px; font-size: var(--text-md); gap: var(--space-100); --pad-lead: var(--space-200); --pad-trail: var(--space-200); }
-  .btn.s56 iconify-icon, .btn.s48 iconify-icon { font-size: 20px; }
-  .btn.s40 iconify-icon { font-size: 16px; }
+  /* Sizes — bound to Jelly's own metric properties, values from the Figma set */
+  jelly-button.s56 { --jelly-button-height: 56px; --jelly-button-padding-inline: var(--space-300); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-xl); }
+  jelly-button.s48 { --jelly-button-height: 48px; --jelly-button-padding-inline: var(--space-250); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-lg); }
+  jelly-button.s40 { --jelly-button-height: 40px; --jelly-button-padding-inline: var(--space-200); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-md); }
+  jelly-button.s56 iconify-icon, jelly-button.s48 iconify-icon { font-size: 20px; }
+  jelly-button.s40 iconify-icon { font-size: 16px; }
 
-  /* Styles — rest colour, wipe colour, and the label it interpolates toward */
-  .btn.primary   { background: var(--primary);   --wipe-colour: var(--secondary); --label-rest: var(--cream);     --label-active: var(--cream); }
-  .btn.secondary { background: var(--secondary); --wipe-colour: var(--primary);   --label-rest: var(--cream);     --label-active: var(--cream); }
-  .btn.outline   { background: var(--cream); box-shadow: inset 0 0 0 1.5px var(--primary);
-                   --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
-  .btn.ghost     { background: var(--cream); --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
-  .btn.ghostsec  { background: var(--cream); --wipe-colour: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
+  jelly-icon-button.s56 { --jelly-icon-button-size: 56px; }
+  jelly-icon-button.s48 { --jelly-icon-button-size: 48px; }
+  jelly-icon-button.s40 { --jelly-icon-button-size: 40px; }
+  jelly-icon-button.s56 iconify-icon, jelly-icon-button.s48 iconify-icon { font-size: 20px; }
+  jelly-icon-button.s40 iconify-icon { font-size: 16px; }
 
-  /* ── Icon button — same mechanic, circular, no label ──────────────────── */
-  .iconbtn {
-    position: relative; display: inline-flex; align-items: center; justify-content: center;
-    border: none; border-radius: 50%; cursor: pointer; overflow: hidden;
-    isolation: isolate; padding: 0; touch-action: manipulation;
-    color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--p) * 100%));
-  }
-  .iconbtn::before {
-    content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%;
-    left: var(--wipe-x, 50%); top: var(--wipe-y, 50%);
-    background: var(--wipe-colour);
-    transform: translate(-50%, -50%) scale(calc(1 + var(--p) * (var(--wipe-scale, 15) - 1)));
-    opacity: clamp(0, calc(var(--p) * 4), 1);
-    z-index: -1;
-  }
-  .iconbtn iconify-icon { position: relative; }
-  .iconbtn.s56 { width: 56px; height: 56px; } .iconbtn.s56 iconify-icon { font-size: 20px; }
-  .iconbtn.s48 { width: 48px; height: 48px; } .iconbtn.s48 iconify-icon { font-size: 20px; }
-  .iconbtn.s40 { width: 40px; height: 40px; } .iconbtn.s40 iconify-icon { font-size: 16px; }
-
-  .iconbtn.primary   { background: var(--primary);   --wipe-colour: var(--secondary); --label-rest: var(--cream);     --label-active: var(--cream); }
-  .iconbtn.secondary { background: var(--secondary); --wipe-colour: var(--primary);   --label-rest: var(--cream);     --label-active: var(--cream); }
-  .iconbtn.outline   { background: var(--cream); box-shadow: inset 0 0 0 1.5px var(--primary);
-                       --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
-  .iconbtn.ghost     { background: var(--cream); --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
-  .iconbtn.ghostsec  { background: var(--cream); --wipe-colour: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
-
-  /* ═══ MODEL B — height derived from padding + line-height ════════════════
-     The default above is Model A (fixed height), which is what the Figma
-     component does. This alternative declares the padding from the spacing
-     scale and a constant 24px line-height, and lets the height fall out:
-       16 + 24 + 16 = 56    12 + 24 + 12 = 48    8 + 24 + 8 = 40
-     Same three heights, every number a token. Toggle to compare.
-     ═════════════════════════════════════════════════════════════════════ */
-  body.padding-model .btn { height: auto; line-height: 24px; }
-  body.padding-model .btn.s56 { padding-block: var(--space-200); }
-  body.padding-model .btn.s48 { padding-block: var(--space-150); }
-  body.padding-model .btn.s40 { padding-block: var(--space-100); }
+  /* Variants — Primary/700 and Secondary/600 exactly as the approved states.
+     Primary swaps to Secondary; Secondary swaps to Primary; the quiet styles
+     fill with their own accent and flip the label to cream. */
+  .primary   { --fill-rest: var(--primary);   --fill-active: var(--secondary); --label-rest: var(--cream);     --label-active: var(--cream); }
+  .secondary { --fill-rest: var(--secondary); --fill-active: var(--primary);   --label-rest: var(--cream);     --label-active: var(--cream); }
+  .outline   { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream);
+               --jelly-ring: var(--primary); --jelly-ring-width: 1.5px; }
+  .ghost     { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
+  .ghostsec  { --fill-rest: var(--cream); --fill-active: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
 
   /* ── Live measurement readout ─────────────────────────────────────────── */
   .measure table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm-lh); }
@@ -299,16 +267,22 @@
   .measure .scroll { overflow-x: auto; }
 
   /* ── Options ──────────────────────────────────────────────────────────── */
-  body.no-icons .btn iconify-icon { display: none; }
-  body.trace .btn::before, body.trace .iconbtn::before { outline: 1px dashed rgba(255,255,255,.7); }
+  body.no-icons jelly-button iconify-icon { display: none; }
+  /* Jelly draws the body on a canvas, so there is no reveal element to outline.
+     Instead the trace mode rings the host so the deformation is easy to watch. */
+  body.trace jelly-button, body.trace jelly-icon-button { outline: 1px dashed var(--secondary); outline-offset: 2px; }
 
   /* ═══ BREAKPOINTS — the documented grid, reassigned from one source ═════ */
 
   /* Only where the panel can actually hold 5 x 168 + gaps do the buttons take
      the component's true fixed width. Measured need: 976px of matrix. */
-  @media (min-width: 1280px) { .btn { --btn-min-width: 168px; } }
+  @media (min-width: 1280px) { jelly-button { --btn-min-width: 168px; } }
 
-  @media (max-width: 767px) {           /* stack: the matrix stops being a matrix */
+  /* Stack the matrix below 820px. That threshold is measured, not guessed:
+     five 56px buttons at their natural 146px plus gaps, the row-head column
+     and the panel padding stop fitting just under 820, and the last column
+     began pushing out of the panel by 4-10px. */
+  @media (max-width: 819px) {           /* stack: the matrix stops being a matrix */
     .matrix-inner { grid-template-columns: 1fr; gap: var(--space-150); }
     .col-head { display: none; }
     .row-head {
@@ -367,8 +341,7 @@
 
   <!-- Controls -->
   <div class="controls">
-    <label><input type="checkbox" id="paddingmodel"> نموذج الحشو — الارتفاع من الحشو + ارتفاع السطر</label>
-    <label><input type="checkbox" id="trace"> إظهار حدود طبقة الكشف</label>
+    <label><input type="checkbox" id="trace"> إظهار حدود الزر أثناء التشوّه</label>
     <label><input type="checkbox" id="noicons"> إخفاء الأيقونات</label>
     <label class="scrub">
       تمرير يدوي للتقدّم
@@ -437,16 +410,18 @@
         const tag = '<em class="cell-label">' + styleName + '</em>';
         if (kind === 'icon') {
           parts.push('<span class="cell">' + tag +
-                     '<button class="iconbtn ' + cls + ' s' + size + '" aria-label="بحث">' +
-                     '<iconify-icon icon="lucide:search"></iconify-icon></button></span>');
+                     '<jelly-icon-button shape="circle" label="بحث" class="' + cls + ' s' + size + '">' +
+                     '<iconify-icon icon="lucide:search"></iconify-icon></jelly-icon-button></span>');
         } else {
           const dir = kind === 'ltr' ? 'ltr' : 'rtl';
           const label = kind === 'ltr' ? 'Button' : 'زر';
           parts.push('<span class="cell">' + tag +
-                     '<button dir="' + dir + '" class="btn ' + cls + ' s' + size + '">' +
+                     '<jelly-button dir="' + dir + '" class="' + cls + ' s' + size + '">' +
+                     '<span class="jelly-label">' +
                      '<iconify-icon icon="lucide:search"></iconify-icon>' +
                      '<span>' + label + '</span>' +
-                     '<iconify-icon icon="lucide:search"></iconify-icon></button></span>');
+                     '<iconify-icon icon="lucide:search"></iconify-icon>' +
+                     '</span></jelly-button></span>');
         }
       });
     });
@@ -463,7 +438,7 @@
      the touch fallback, which only advances while a finger is held down and
      unwinds the moment it lifts.
      ═════════════════════════════════════════════════════════════════════ */
-  const CONTROLS = [...document.querySelectorAll('.btn, .iconbtn')];
+  const CONTROLS = [...document.querySelectorAll('jelly-button, jelly-icon-button')];
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
   const cssMs = name => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0;
 
@@ -477,27 +452,39 @@
      but it is still first in DOM order, so this needs no direction branch. */
   function calibrate(el) {
     const b = el.getBoundingClientRect();
+    if (!b.width || !b.height) { el.__origin = null; return; }   // not laid out yet
     const icon = el.querySelector('iconify-icon');
-    const r = icon ? icon.getBoundingClientRect() : b;
-    const cx = (r.left + r.width / 2) - b.left;
-    const cy = (r.top + r.height / 2) - b.top;
-    el.style.setProperty('--wipe-x', cx.toFixed(1) + 'px');
-    el.style.setProperty('--wipe-y', cy.toFixed(1) + 'px');
-    // p reaches 0 at the corner furthest from the icon, 1 at its centre
+    const r = icon ? icon.getBoundingClientRect() : null;
+    let cx, cy;
+    if (r && r.width && r.height) {
+      cx = (r.left + r.width / 2) - b.left;
+      cy = (r.top  + r.height / 2) - b.top;
+    }
+    /* Icons are custom elements and may still be 0x0 when a pointer first
+       arrives. Caching that produced an origin far outside the button and
+       pinned p to 0 on every real hover. Fall back to the leading inset and
+       reject any origin that lands outside the box. */
+    if (!Number.isFinite(cx) || cx < 0 || cx > b.width || cy < 0 || cy > b.height) {
+      const isRTL = getComputedStyle(el).direction === 'rtl';
+      const inset = Math.min(b.width / 2, 34);
+      cx = isRTL ? b.width - inset : inset;
+      cy = b.height / 2;
+      el.__originProvisional = true;      // recalibrate again once icons settle
+    } else {
+      el.__originProvisional = false;
+    }
+    // p reaches 0 at the corner furthest from the leading icon, 1 at its centre
     el.__origin = { cx, cy, rect: b };
     el.__maxDist = Math.max(
       Math.hypot(0 - cx, 0 - cy),               Math.hypot(b.width - cx, 0 - cy),
       Math.hypot(0 - cx, b.height - cy),        Math.hypot(b.width - cx, b.height - cy)
-    );
-    /* The reveal must *just* cover the button at p = 1, no sooner. The seed is
-       8px across, so its radius is 4 x scale; a fixed scale overshot badly and
-       finished the wipe by p ~ 0.4, wasting half the input range. */
-    el.style.setProperty('--wipe-scale', (el.__maxDist / 4).toFixed(2));
+    ) || 1;
   }
 
   /* ── Desktop: progress = proximity of the cursor to the icon centre ────── */
   function fromPointer(el, e) {
-    if (!el.__origin) calibrate(el);
+    if (!el.__origin || el.__originProvisional) calibrate(el);
+    if (!el.__origin) return;
     const b = el.getBoundingClientRect();
     const dx = (e.clientX - b.left) - el.__origin.cx;
     const dy = (e.clientY - b.top)  - el.__origin.cy;
@@ -591,35 +578,34 @@
   const SCALE = new Set([0,2,4,6,8,12,16,20,24,32,40,48,64,80,96]);
   const r1 = n => Math.round(n * 10) / 10;
 
+  /* Reads what Jelly actually rendered inside its shadow root, so the table
+     proves the tokens reached the component rather than that we set them. */
   function measure() {
     const onScale = v => SCALE.has(Math.round(v));
-    const model = document.body.classList.contains('padding-model')
-      ? 'ب — الارتفاع من الحشو'
-      : 'أ — ارتفاع ثابت (مطابق لـ Figma)';
     const rows = ['56','48','40'].map(size => {
-      const b = document.querySelector('#grid-ltr .btn.primary.s' + size);
-      const span = [...b.children].find(c => c.tagName === 'SPAN');
-      const cs = getComputedStyle(b);
-      const bb = b.getBoundingClientRect(), lb = span.getBoundingClientRect();
-      const pad = parseFloat(cs.paddingTop);
-      const space = r1(lb.top - bb.top);
-      return { size, h: r1(bb.height), pad, lh: getComputedStyle(span).lineHeight,
-               box: r1(lb.height), space, padOK: onScale(pad), spaceOK: onScale(space) };
+      const host = document.querySelector('#grid-ltr jelly-button.primary.s' + size);
+      const inner = host && host.shadowRoot ? host.shadowRoot.querySelector('button') : null;
+      if (!inner) return { size, pending: true };
+      const cs = getComputedStyle(inner);
+      const pad = parseFloat(cs.paddingInlineStart);
+      const gap = parseFloat(cs.gap) || 0;
+      return { size,
+               h: r1(host.getBoundingClientRect().height),
+               pad, gap, font: cs.fontSize,
+               p: r1(parseFloat(getComputedStyle(host).getPropertyValue('--p')) || 0),
+               padOK: onScale(pad), gapOK: onScale(gap) };
     });
     const cell = (v, ok) => '<td class="' + (ok ? 'ok' : 'off') + '">' + v + (ok ? ' ✓' : ' ✗') + '</td>';
     document.getElementById('measure-table').innerHTML =
-      '<tr><th>الحجم</th><th>النموذج</th><th>الارتفاع</th><th>الحشو الرأسي</th>' +
-      '<th>ارتفاع السطر</th><th>صندوق النص</th><th>الفراغ العلوي/السفلي</th></tr>' +
-      rows.map(x =>
-        '<tr><th>' + x.size + ' px</th><td class="model">' + model + '</td>' +
-        '<td>' + x.h + 'px</td>' +
-        cell(x.pad + 'px', x.padOK) +
-        '<td dir="ltr">' + x.lh + '</td>' +
-        '<td>' + x.box + 'px</td>' +
-        cell(x.space + 'px', x.spaceOK) +
-        '</tr>').join('') +
-      '<tr><td colspan="7" style="white-space:normal">✓ يعني أنّ القيمة على مقياس المسافات المعتمد. ' +
-      'في النموذج «أ» الفراغ ناتج عن الطرح وليس قراراً؛ في النموذج «ب» الحشو مُعلَن من المقياس والارتفاع ناتج عنه.</td></tr>';
+      '<tr><th>الحجم</th><th>الارتفاع</th><th>الحشو الأفقي</th><th>الفجوة</th>' +
+      '<th>حجم الخط</th><th dir="ltr">--p</th></tr>' +
+      rows.map(x => x.pending
+        ? '<tr><th>' + x.size + ' px</th><td colspan="5">— بانتظار تحميل Jelly —</td></tr>'
+        : '<tr><th>' + x.size + ' px</th><td>' + x.h + 'px</td>' +
+          cell(x.pad + 'px', x.padOK) + cell(x.gap + 'px', x.gapOK) +
+          '<td dir="ltr">' + x.font + '</td><td dir="ltr">' + x.p.toFixed(2) + '</td></tr>').join('') +
+      '<tr><td colspan="6" style="white-space:normal">القيم مقروءة من داخل الظل الخاص بـ Jelly. ' +
+      '✓ يعني أنّ القيمة على مقياس المسافات المعتمد — الارتفاع والحشو والفجوة كلها مربوطة بخصائص Jelly نفسها.</td></tr>';
   }
 
   /* Nothing transitions any more, so a single frame is enough for layout to
@@ -633,10 +619,17 @@
       CONTROLS.forEach(el => { el.__origin = null; });   // padding changed, recalibrate
       measureWhenSettled();
     });
-  toggle('paddingmodel', 'padding-model');
   toggle('trace',   'trace');
   toggle('noicons', 'no-icons');
 
+  /* Jelly upgrades its elements asynchronously; measure once they exist. */
+  Promise.all([
+    customElements.whenDefined('jelly-button'),
+    customElements.whenDefined('jelly-icon-button')
+  ]).then(() => {
+    CONTROLS.forEach(el => { el.__origin = null; setP(el, 0); });
+    setTimeout(measure, 300);
+  });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
   measure();
 </script>
