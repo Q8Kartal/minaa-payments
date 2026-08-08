@@ -72,7 +72,8 @@
       radial-gradient(900px 500px at 10% 110%, rgba(232,65,29,.05), transparent 55%),
       var(--cream);
     min-height: 100vh;
-    padding: clamp(10px, 2.5vw, 34px);
+    /* Both ends of the clamp are tokens — 10px/34px were off-scale. */
+    padding: clamp(var(--space-150), 2.5vw, var(--space-500));
   }
 
   /* ═══ PAGE LAYOUT SYSTEM ══════════════════════════════════════════════════
@@ -166,7 +167,11 @@
 
   /* Inside a panel the matrix uses SPACE TOKENS, never grid columns —
      per the rule that only top-level containers align to the grid. */
-  .matrix { min-width: 0; }
+  /* Jelly draws its body on a canvas deliberately larger than the button so
+     the bulge has room, and the colour overlay matches it. That surplus is
+     decoration, so it is clipped with a margin rather than allowed to become
+     scrollable overflow — stacked at 375px it pushed the matrix 44px wide. */
+  .matrix { min-width: 0; overflow: clip; overflow-clip-margin: var(--space-300); }
   .matrix-inner {
     display: grid;
     /* Tracks shrink; nothing is pinned to a width the panel may not have.
@@ -214,9 +219,11 @@
     --dir: 1;                     /* +1 in LTR, -1 in RTL — for the content advance */
     --jelly-button-radius: 999px;
     --jelly-button-min-width: var(--btn-min-width, 0);
-    /* The body colour IS the reveal. It deforms because Jelly paints it. */
-    --jelly-fill:  color-mix(in srgb, var(--fill-rest),  var(--fill-active)  calc(var(--p) * 100%));
-    --jelly-label: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--p) * 100%));
+    /* Jelly paints the resting body. The active colour is composited into that
+       same silhouette by the overlay, so the spread has a real origin and
+       direction instead of the whole pill changing at once. */
+    --jelly-fill:  var(--fill-rest);
+    --jelly-label: var(--label-rest);
     font-family: var(--font-medium);
     touch-action: manipulation;
   }
@@ -231,6 +238,16 @@
     transform: translateX(calc(var(--space-050) * var(--p) * var(--dir)));
   }
   .jelly-label iconify-icon { flex: none; }
+
+  /* The label is not crossfaded on progress — each part is repainted when the
+     spread actually reaches it, from the same origin and radius as the fill.
+     A global fade left mid-progress labels halfway between both colours and
+     illegible over either one. --t is written per part by the paint pass.
+     iconify-icon is a custom element, so background-clip:text can't be used;
+     colouring each part directly keeps the icons rendering from currentColor. */
+  .jelly-label > * {
+    color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--t, 0) * 100%));
+  }
 
   /* Sizes — bound to Jelly's own metric properties, values from the Figma set */
   jelly-button.s56 { --jelly-button-height: 56px; --jelly-button-padding-inline: var(--space-300); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-xl); }
@@ -433,14 +450,32 @@
   buildGrid(document.getElementById('grid-icon'), 'icon');
 
   /* ═══════════════════════════════════════════════════════════════════════
-     DIRECT-MANIPULATION ENGINE
-     --p is written straight from input. Nothing here runs on a timer except
-     the touch fallback, which only advances while a finger is held down and
-     unwinds the moment it lifts.
+     COLOUR DRIVEN BY JELLY'S LIVE DEFORMATION
+
+     Jelly emits no motion events and exposes no progress API, but it repaints
+     its blob into <canvas part="jelly"> every frame. Measured during a real
+     drag: the alpha count moved 523 -> 586 and the alpha centroid shifted
+     204.6 -> 195.8, returning to rest afterwards. The canvas transform never
+     changes, so the deformation lives purely in those pixels — which means it
+     can be read rather than guessed at.
+
+     So each frame, for the one button being touched:
+       intensity  = how far the blob has departed from its resting shape
+       lean       = which way its centroid has moved
+     and the colour is composited into Jelly's own silhouette with
+     `source-in`, so it can only ever appear exactly where the deformed body
+     is. Origin is the real contact point; the spread leans with the blob;
+     when Jelly springs back, intensity falls and the spread retracts along
+     the same path. One response, one source of truth.
      ═════════════════════════════════════════════════════════════════════ */
   const CONTROLS = [...document.querySelectorAll('jelly-button, jelly-icon-button')];
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
-  const cssMs = name => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0;
+  const SAMPLE_STEP = 6;                       // pixel stride when reading the blob
+  const AREA_SPAN   = 0.14;                    // +14% area  ~ full intensity
+  const SHIFT_SPAN  = 10;                      // 10 canvas px of centroid travel ~ full
+  const CORE        = 0.88;                    // solid share of the wave before it
+                                               // fades out; the label uses the same
+                                               // figure so the two cannot drift
 
   const setP = (el, p) => {
     const v = clamp01(p);
@@ -448,129 +483,204 @@
     el.style.setProperty('--p', v.toFixed(4));
   };
 
-  /* The reveal starts at the leading icon. In RTL that is the right-hand one,
-     but it is still first in DOM order, so this needs no direction branch. */
-  function calibrate(el) {
-    const b = el.getBoundingClientRect();
-    if (!b.width || !b.height) { el.__origin = null; return; }   // not laid out yet
-    const icon = el.querySelector('iconify-icon');
-    const r = icon ? icon.getBoundingClientRect() : null;
-    let cx, cy;
-    if (r && r.width && r.height) {
-      cx = (r.left + r.width / 2) - b.left;
-      cy = (r.top  + r.height / 2) - b.top;
-    }
-    /* Icons are custom elements and may still be 0x0 when a pointer first
-       arrives. Caching that produced an origin far outside the button and
-       pinned p to 0 on every real hover. Fall back to the leading inset and
-       reject any origin that lands outside the box. */
-    if (!Number.isFinite(cx) || cx < 0 || cx > b.width || cy < 0 || cy > b.height) {
-      const isRTL = getComputedStyle(el).direction === 'rtl';
-      const inset = Math.min(b.width / 2, 34);
-      cx = isRTL ? b.width - inset : inset;
-      cy = b.height / 2;
-      el.__originProvisional = true;      // recalibrate again once icons settle
-    } else {
-      el.__originProvisional = false;
-    }
-    // p reaches 0 at the corner furthest from the leading icon, 1 at its centre
-    el.__origin = { cx, cy, rect: b };
-    el.__maxDist = Math.max(
-      Math.hypot(0 - cx, 0 - cy),               Math.hypot(b.width - cx, 0 - cy),
-      Math.hypot(0 - cx, b.height - cy),        Math.hypot(b.width - cx, b.height - cy)
-    ) || 1;
+  const jellyCanvas = el => el.shadowRoot && el.shadowRoot.querySelector('canvas');
+
+  /* Reads Jelly's rendered blob: area + centroid, cheaply and only on demand. */
+  function readBlob(el) {
+    const c = jellyCanvas(el);
+    if (!c || !c.width) return null;
+    if (!el.__ctx) el.__ctx = c.getContext('2d', { willReadFrequently: true });
+    const d = el.__ctx.getImageData(0, 0, c.width, c.height).data;
+    let n = 0, sx = 0, sy = 0;
+    for (let y = 0; y < c.height; y += SAMPLE_STEP)
+      for (let x = 0; x < c.width; x += SAMPLE_STEP) {
+        if (d[(y * c.width + x) * 4 + 3] > 16) { n++; sx += x; sy += y; }
+      }
+    return n ? { n, cx: sx / n, cy: sy / n } : null;
   }
 
-  /* ── Desktop: progress = proximity of the cursor to the icon centre ────── */
-  function fromPointer(el, e) {
-    if (!el.__origin || el.__originProvisional) calibrate(el);
-    if (!el.__origin) return;
-    const b = el.getBoundingClientRect();
-    const dx = (e.clientX - b.left) - el.__origin.cx;
-    const dy = (e.clientY - b.top)  - el.__origin.cy;
-    setP(el, 1 - Math.hypot(dx, dy) / el.__maxDist);
+  /* The overlay carries the colour. It is slotted into .jelly-content, which
+     is its own stacking context above the jelly canvas, so a negative z-index
+     puts it between the body and the label — tinting the blob, never the text. */
+  function overlayFor(el) {
+    if (el.__overlay) return el.__overlay;
+    const jc = jellyCanvas(el);
+    if (!jc) return null;
+    const o = document.createElement('canvas');
+    o.className = 'reveal-layer';
+    const cs = getComputedStyle(jc);
+    o.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
+                      'pointer-events:none;z-index:-1;width:' + cs.width + ';height:' + cs.height + ';';
+    o.width = jc.width; o.height = jc.height;
+    el.appendChild(o);
+    el.__overlay = o;
+    el.__octx = o.getContext('2d');
+    return o;
   }
 
-  /* ── Touch: pressure when the device reports it, held-press otherwise ──── */
-  let pressureSeen = false;                     // becomes true once a real reading arrives
-  const looksLikeRealPressure = e =>
-    e.pointerType !== 'mouse' && e.pressure > 0 && Math.abs(e.pressure - 0.5) > 0.02;
+  function clearOverlay(el) {
+    if (el.__octx && el.__overlay) el.__octx.clearRect(0, 0, el.__overlay.width, el.__overlay.height);
+    resetLabel(el);
+  }
 
-  function rampPress(el) {
-    const dur = cssMs('--press-ramp-ms');
-    const from = el.__p || 0, t0 = performance.now();
-    cancelAnimationFrame(el.__raf);
+  /* Paints the active colour into Jelly's silhouette, from the contact point. */
+  function paint(el, intensity, lean) {
+    const jc = jellyCanvas(el), o = overlayFor(el);
+    if (!jc || !o) return;
+    const ctx = el.__octx;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, o.width, o.height);
+    if (intensity <= 0.001 || !el.__contact) { resetLabel(el); return; }
+
+    const scale = jc.width / parseFloat(getComputedStyle(jc).width);   // device px per css px
+    // contact point, host coords -> canvas coords
+    const hb = el.getBoundingClientRect();
+    const jb = jc.getBoundingClientRect();
+    let ox = (el.__contact.x - jb.left) * scale;
+    let oy = (el.__contact.y - jb.top)  * scale;
+    // let the spread lean the way the body is leaning
+    ox += lean.x * 2; oy += lean.y * 2;
+
+    /* Reach = the distance from this contact point to the furthest corner of
+       the button, so intensity 1 means "just covered" wherever you touched and
+       intensity 0.5 really is half way. A fixed reach saturated long before 1:
+       the canvas diagonal by p≈0.45, the button diagonal by p≈0.5 from centre. */
+    const cx = el.__contact.x - hb.left, cy = el.__contact.y - hb.top;
+    const reach = Math.hypot(Math.max(cx, hb.width - cx),
+                             Math.max(cy, hb.height - cy)) * scale;
+    const r = Math.max(1, reach * intensity);
+
+    ctx.drawImage(jc, 0, 0);                     // exact deformed silhouette
+    ctx.globalCompositeOperation = 'source-in';  // colour only inside the body
+    const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, r);
+    const active = el.__activeColour || 'rgb(232,65,29)';
+    g.addColorStop(0, active);
+    g.addColorStop(CORE, active);
+    g.addColorStop(1, active.replace('rgb(', 'rgba(').replace(')', ',0)'));
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, o.width, o.height);
+    ctx.globalCompositeOperation = 'source-over';
+
+    paintLabel(el, hb, cx, cy, reach / scale, intensity);
+  }
+
+  /* Repaints each label part as the same wave front passes over it, so the
+     text and icons turn where the colour actually arrives rather than fading
+     on a separate timer. */
+  function paintLabel(el, hb, cx, cy, reachCss, intensity) {
+    const parts = el.querySelectorAll('.jelly-label > *');
+    if (!parts.length) return;
+    const front = reachCss * intensity * CORE;          // same front as the fill
+    const band = Math.max(12, reachCss * (1 - CORE));   // same soft edge
+    parts.forEach(part => {
+      const pb = part.getBoundingClientRect();
+      const d = Math.hypot(pb.left + pb.width / 2 - hb.left - cx,
+                           pb.top + pb.height / 2 - hb.top - cy);
+      part.style.setProperty('--t', clamp01((front - d) / band + 0.5).toFixed(3));
+    });
+  }
+
+  function resetLabel(el) {
+    el.querySelectorAll('.jelly-label > *').forEach(p => p.style.setProperty('--t', '0'));
+  }
+
+  function resolveActiveColour(el) {
+    const v = getComputedStyle(el).getPropertyValue('--fill-active').trim();
+    if (!v) return 'rgb(232,65,29)';
+    const probe = document.createElement('span');
+    probe.style.cssText = 'position:fixed;left:-9999px;color:' + v;
+    document.body.appendChild(probe);
+    const rgb = getComputedStyle(probe).color;
+    probe.remove();
+    return rgb.startsWith('rgb') ? rgb : 'rgb(232,65,29)';
+  }
+
+  /* One loop per active button. It follows Jelly rather than leading it, and
+     stops on its own once the body has settled back to rest. */
+  function track(el) {
+    if (el.__tracking) return;
+    el.__tracking = true;
+    el.__activeColour = resolveActiveColour(el);
+    if (!el.__rest) el.__rest = readBlob(el);
+    let still = 0, prev = null;
     const step = () => {
-      if (!el.__pressing || el.__usePressure) return;   // released, or pressure took over
-      const t = clamp01((performance.now() - t0) / dur);
-      setP(el, from + (1 - from) * t);
-      if (t < 1) el.__raf = requestAnimationFrame(step); // stops at 1 only while held
+      const now = readBlob(el);
+      const rest = el.__rest;
+      if (!now || !rest) { el.__tracking = false; return; }
+
+      /* While nothing is touching it, ease the baseline toward what we see.
+         The baseline is read from a live canvas, so it can be captured
+         mid-wobble; without this it stays wrong and the button keeps a
+         phantom colour forever. */
+      if (!el.__engaged) {
+        rest.n  += (now.n  - rest.n)  * 0.08;
+        rest.cx += (now.cx - rest.cx) * 0.08;
+        rest.cy += (now.cy - rest.cy) * 0.08;
+      }
+
+      const dArea = (now.n - rest.n) / rest.n;
+      const dx = now.cx - rest.cx, dy = now.cy - rest.cy;
+      const shift = Math.hypot(dx, dy);
+      const intensity = clamp01(Math.max(dArea / AREA_SPAN, shift / SHIFT_SPAN));
+
+      setP(el, intensity);
+      paint(el, intensity, { x: dx, y: dy });
+
+      /* Stop on frame-to-frame stillness, not on distance from the baseline —
+         a bad baseline must never be able to keep the loop alive. */
+      const moved = prev
+        ? Math.abs(now.n - prev.n) / rest.n + Math.hypot(now.cx - prev.cx, now.cy - prev.cy)
+        : Infinity;
+      prev = now;
+      still = moved < 0.004 ? still + 1 : 0;
+      if (still > 12 && !el.__engaged) {          // settled and no longer touched
+        el.__tracking = false; setP(el, 0); clearOverlay(el); return;
+      }
+      requestAnimationFrame(step);
     };
-    el.__raf = requestAnimationFrame(step);
-  }
-  function rampRelease(el) {
-    const dur = cssMs('--release-ramp-ms');
-    const from = el.__p || 0, t0 = performance.now();
-    cancelAnimationFrame(el.__raf);
-    const step = () => {
-      if (el.__pressing) return;                        // pressed again mid-unwind
-      const t = clamp01((performance.now() - t0) / dur);
-      setP(el, from * (1 - t));
-      if (t < 1) el.__raf = requestAnimationFrame(step);
-    };
-    el.__raf = requestAnimationFrame(step);
+    requestAnimationFrame(step);
   }
 
   CONTROLS.forEach(el => {
     setP(el, 0);
+    const contact = e => { el.__contact = { x: e.clientX, y: e.clientY }; };
 
-    el.addEventListener('pointerenter', e => {
-      calibrate(el);
-      if (e.pointerType === 'mouse') fromPointer(el, e);
+    el.addEventListener('pointerenter', e => { el.__engaged = true; contact(e); track(el); });
+    el.addEventListener('pointermove',  e => { contact(e); track(el); });
+    el.addEventListener('pointerdown',  e => { el.__engaged = true; contact(e); track(el); });
+    el.addEventListener('pointerup',    e => { contact(e); });
+    ['pointerleave','pointercancel'].forEach(t =>
+      el.addEventListener(t, () => { el.__engaged = false; }));   // loop unwinds itself
+
+    // Keyboard has no contact point and no deformation to follow.
+    el.addEventListener('focus', () => {
+      if (!el.matches(':focus-visible')) return;
+      const b = el.getBoundingClientRect();
+      el.__contact = { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+      el.__activeColour = resolveActiveColour(el);
+      setP(el, 1); paint(el, 1, { x: 0, y: 0 });
     });
-
-    el.addEventListener('pointermove', e => {
-      if (scrubbing) return;
-      if (e.pointerType === 'mouse') { fromPointer(el, e); return; }
-      if (el.__pressing && looksLikeRealPressure(e)) {
-        el.__usePressure = true;                        // abandon the ramp
-        setP(el, e.pressure);
-      }
-    });
-
-    el.addEventListener('pointerleave', () => { if (!scrubbing) setP(el, 0); });
-
-    el.addEventListener('pointerdown', e => {
-      if (e.pointerType === 'mouse') return;            // desktop stays proximity-driven
-      el.__pressing = true;
-      if (looksLikeRealPressure(e)) { el.__usePressure = true; pressureSeen = true; setP(el, e.pressure); }
-      else { el.__usePressure = false; rampPress(el); }
-    });
-
-    const lift = () => {
-      if (!el.__pressing) return;
-      el.__pressing = false; el.__usePressure = false;
-      rampRelease(el);
-    };
-    el.addEventListener('pointerup', lift);
-    el.addEventListener('pointercancel', lift);
-
-    // Keyboard reveals the end state outright — no timer, no partial value.
-    el.addEventListener('focus', () => { if (el.matches(':focus-visible')) { calibrate(el); setP(el, 1); } });
-    el.addEventListener('blur',  () => setP(el, 0));
+    el.addEventListener('blur', () => { setP(el, 0); clearOverlay(el); });
   });
 
-  addEventListener('resize', () => CONTROLS.forEach(el => { el.__origin = null; }));
+  addEventListener('resize', () => CONTROLS.forEach(el => {
+    el.__rest = null;
+    if (el.__overlay) { el.__overlay.remove(); el.__overlay = null; el.__octx = null; }
+  }));
 
-  /* ── Manual scrubber — drives every control at once, for inspection ────── */
-  let scrubbing = false;
+  /* ── Manual scrubber — forces the spread from each button's centre ─────── */
   const scrub = document.getElementById('scrub');
   const scrubOut = document.getElementById('scrub-out');
   scrub.addEventListener('input', () => {
     const v = parseFloat(scrub.value);
-    scrubbing = v > 0;
     scrubOut.textContent = v.toFixed(2);
-    CONTROLS.forEach(el => { calibrate(el); setP(el, v); });
+    CONTROLS.forEach(el => {
+      const b = el.getBoundingClientRect();
+      el.__contact = { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+      el.__activeColour = resolveActiveColour(el);
+      setP(el, v);
+      paint(el, v, { x: 0, y: 0 });
+    });
     measureWhenSettled();
   });
 
