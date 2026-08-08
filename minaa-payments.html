@@ -333,7 +333,9 @@
     .pay-list { display: flex; flex-direction: column; gap: var(--space-150); }
 
     .pay-item {
-      display: flex; flex-direction: column; gap: var(--space-050);
+      /* space-100 separates the two groups (title block / data block); the gaps
+         *inside* each group are space-025, so the break reads at 4:1. */
+      display: flex; flex-direction: column; gap: var(--space-100);
       padding: var(--space-200);
       border-radius: 13px;
       border: 1px solid var(--border);
@@ -351,7 +353,9 @@
 
     .pay-top-row { display: flex; align-items: center; gap: var(--space-100); min-width: 0; }
     .type-dot {
-      width: 30px; height: 30px; border-radius: 10px; flex: none;
+      /* 32px matches the action icon-buttons in the row below, so the card's
+         two rows share one control height. 30px left the title floating. */
+      width: 32px; height: 32px; border-radius: 10px; flex: none;
       display: inline-flex; align-items: center; justify-content: center;
       font-size: var(--text-sm); line-height: var(--text-sm-lh);
     }
@@ -369,11 +373,15 @@
     .quarterly-section .pay-name { color: var(--quarterly); }
     .onetime-section   .pay-name { color: var(--onetime); }
 
-    .pay-item-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-100); }
+    /* No space-between: .pay-info already absorbs the slack via flex:1, so the
+       gaps between the three groups are exactly space-100 rather than leftovers. */
+    .pay-item-row { display: flex; align-items: center; gap: var(--space-100); }
     .pay-info { display: flex; flex-direction: column; gap: var(--space-025); flex: 1; min-width: 0; }
     .pay-meta { font-size: var(--text-xs); line-height: var(--text-xs-lh); color: var(--muted); }
     .pay-orig { font-size: var(--text-xs); line-height: var(--text-xs-lh); color: var(--faint); font-style: italic; }
-    .pay-amounts { display: flex; flex-direction: column; align-items: flex-end; }
+    /* Same gap as its sibling .pay-info so both stacked columns in the row
+       share one rhythm; previously this had no gap declared at all. */
+    .pay-amounts { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-025); }
     .pay-amount { font-size: var(--text-sm); line-height: var(--text-sm-lh); font-weight: 800; font-family: var(--font-bold); white-space: nowrap; }
     .monthly-section   .pay-amount { color: var(--monthly); }
     .quarterly-section .pay-amount { color: var(--quarterly); }
