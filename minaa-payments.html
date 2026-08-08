@@ -352,9 +352,12 @@
       from { opacity: 0; transform: translateY(-6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .monthly-section   .pay-item:hover { background: var(--monthly-tint);   border-color: transparent; }
-    .quarterly-section .pay-item:hover { background: var(--quarterly-tint); border-color: transparent; }
-    .onetime-section   .pay-item:hover { background: var(--onetime-tint);   border-color: transparent; }
+    /* Hover is an interaction state, not a type. It must read identically in
+       every section, so it uses the one interaction surface rather than the
+       per-type tints — those stay on the type chip, where they carry identity.
+       Previously quarterly hovered to Blue 100 while the other two hovered to
+       Blue 50, so the same gesture gave three different amounts of feedback. */
+    .pay-item:hover { background: var(--primary-tint); border-color: transparent; }
 
     .pay-top-row { display: flex; align-items: center; gap: var(--space-100); min-width: 0; }
     .type-dot {
