@@ -278,6 +278,29 @@
   .iconbtn.ghostsec::before  { background: var(--secondary); }
   .iconbtn.ghostsec:hover    { color: var(--cream); }
 
+  /* ═══ MODEL B — height derived from padding + line-height ════════════════
+     The default above is Model A (fixed height), which is what the Figma
+     component does. This alternative declares the padding from the spacing
+     scale and a constant 24px line-height, and lets the height fall out:
+       16 + 24 + 16 = 56    12 + 24 + 12 = 48    8 + 24 + 8 = 40
+     Same three heights, every number a token. Toggle to compare.
+     ═════════════════════════════════════════════════════════════════════ */
+  body.padding-model .btn { height: auto; line-height: 24px; }
+  body.padding-model .btn.s56 { padding-block: var(--space-200); }
+  body.padding-model .btn.s48 { padding-block: var(--space-150); }
+  body.padding-model .btn.s40 { padding-block: var(--space-100); }
+
+  /* ── Live measurement readout ─────────────────────────────────────────── */
+  .measure table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm-lh); }
+  .measure th, .measure td { text-align: start; padding: var(--space-100) var(--space-150); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .measure th { font-family: var(--font-bold); color: var(--text); }
+  .measure td { color: var(--muted); }
+  .measure tr:last-child td { border-bottom: none; }
+  .measure .ok   { color: #158200; font-family: var(--font-bold); }
+  .measure .off  { color: #A14712; font-family: var(--font-bold); }
+  .measure .model { font-family: var(--font-bold); color: var(--text); }
+  .measure .scroll { overflow-x: auto; }
+
   /* ── Options ──────────────────────────────────────────────────────────── */
   body.slowmo { --btn-wipe-duration: 2200ms; }
   body.no-icons .btn iconify-icon { display: none; }
@@ -348,6 +371,7 @@
 
   <!-- Controls -->
   <div class="controls">
+    <label><input type="checkbox" id="paddingmodel"> نموذج الحشو — الارتفاع من الحشو + ارتفاع السطر</label>
     <label><input type="checkbox" id="slowmo"> تشغيل بطيء (×4)</label>
     <label><input type="checkbox" id="trace"> إظهار حدود طبقة الكشف</label>
     <label><input type="checkbox" id="noicons"> إخفاء الأيقونات</label>
@@ -369,6 +393,11 @@
     <section class="panel span-full">
       <h2 class="panel-title"><iconify-icon icon="lucide:circle-dot"></iconify-icon> Icon Button</h2>
       <div class="matrix"><div class="matrix-inner" id="grid-icon"></div></div>
+    </section>
+
+    <section class="panel measure span-full">
+      <h2 class="panel-title"><iconify-icon icon="lucide:ruler"></iconify-icon> القياس الحيّ</h2>
+      <div class="scroll"><table id="measure-table"></table></div>
     </section>
 
     <div class="note span-full">
@@ -427,12 +456,58 @@
   buildGrid(document.getElementById('grid-rtl'),  'rtl');
   buildGrid(document.getElementById('grid-icon'), 'icon');
 
+  /* ── Live measurement — reads what actually rendered, per size ─────────── */
+  const SCALE = new Set([0,2,4,6,8,12,16,20,24,32,40,48,64,80,96]);
+  const r1 = n => Math.round(n * 10) / 10;
+
+  function measure() {
+    const onScale = v => SCALE.has(Math.round(v));
+    const model = document.body.classList.contains('padding-model')
+      ? 'ب — الارتفاع من الحشو'
+      : 'أ — ارتفاع ثابت (مطابق لـ Figma)';
+    const rows = ['56','48','40'].map(size => {
+      const b = document.querySelector('#grid-ltr .btn.primary.s' + size);
+      const span = [...b.children].find(c => c.tagName === 'SPAN');
+      const cs = getComputedStyle(b);
+      const bb = b.getBoundingClientRect(), lb = span.getBoundingClientRect();
+      const pad = parseFloat(cs.paddingTop);
+      const space = r1(lb.top - bb.top);
+      return { size, h: r1(bb.height), pad, lh: getComputedStyle(span).lineHeight,
+               box: r1(lb.height), space, padOK: onScale(pad), spaceOK: onScale(space) };
+    });
+    const cell = (v, ok) => '<td class="' + (ok ? 'ok' : 'off') + '">' + v + (ok ? ' ✓' : ' ✗') + '</td>';
+    document.getElementById('measure-table').innerHTML =
+      '<tr><th>الحجم</th><th>النموذج</th><th>الارتفاع</th><th>الحشو الرأسي</th>' +
+      '<th>ارتفاع السطر</th><th>صندوق النص</th><th>الفراغ العلوي/السفلي</th></tr>' +
+      rows.map(x =>
+        '<tr><th>' + x.size + ' px</th><td class="model">' + model + '</td>' +
+        '<td>' + x.h + 'px</td>' +
+        cell(x.pad + 'px', x.padOK) +
+        '<td dir="ltr">' + x.lh + '</td>' +
+        '<td>' + x.box + 'px</td>' +
+        cell(x.space + 'px', x.spaceOK) +
+        '</tr>').join('') +
+      '<tr><td colspan="7" style="white-space:normal">✓ يعني أنّ القيمة على مقياس المسافات المعتمد. ' +
+      'في النموذج «أ» الفراغ ناتج عن الطرح وليس قراراً؛ في النموذج «ب» الحشو مُعلَن من المقياس والارتفاع ناتج عنه.</td></tr>';
+  }
+
+  /* Padding is transitioned (550ms) for the hover nudge, so switching models
+     animates too. Measuring immediately reports values mid-flight — that
+     caught me out once. Always read after the transition has settled. */
+  const measureWhenSettled = () => setTimeout(measure, 620);
+
   const toggle = (id, cls) =>
-    document.getElementById(id).addEventListener('change', e =>
-      document.body.classList.toggle(cls, e.target.checked));
+    document.getElementById(id).addEventListener('change', e => {
+      document.body.classList.toggle(cls, e.target.checked);
+      measureWhenSettled();
+    });
+  toggle('paddingmodel', 'padding-model');
   toggle('slowmo',  'slowmo');
   toggle('trace',   'trace');
   toggle('noicons', 'no-icons');
+
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  measure();
 </script>
 </body>
 </html>
