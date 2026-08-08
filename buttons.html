@@ -47,10 +47,15 @@
     --space-300: 24px; --space-400: 32px; --space-500: 40px; --space-600: 48px;
     --space-800: 64px; --space-1000: 80px;
 
-    /* ── The hover choreography, read from the Figma prototype ──────────── */
-    --btn-wipe-duration: 550ms;
-    --btn-wipe-easing: cubic-bezier(.32, .72, 0, 1);
+    /* ── Interaction ────────────────────────────────────────────────────────
+       The Figma prototype plays a 550ms Smart Animate. Here the same visual
+       is driven continuously by input instead: --p goes 0 -> 1 under the
+       user's control and nothing advances on a timer. The old duration and
+       easing are kept only as the touch fallback's ramp, used when a device
+       reports no usable pressure. */
     --btn-radius: 999px;
+    --press-ramp-ms: 450;      /* touch fallback only */
+    --release-ramp-ms: 260;    /* touch fallback only */
   }
 
   * { box-sizing: border-box; }
@@ -134,8 +139,14 @@
     display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-300);
   }
   .controls label { display: inline-flex; align-items: center; gap: var(--space-100); font-size: var(--text-md); line-height: var(--text-md-lh); cursor: pointer; }
-  .controls input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+  .controls input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
   .controls .hint { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); margin-inline-start: auto; }
+  .controls .scrub { gap: var(--space-150); }
+  .controls .scrub input[type="range"] { width: 160px; accent-color: var(--secondary); cursor: ew-resize; }
+  .controls .scrub output {
+    font-family: var(--font-bold); font-size: var(--text-sm); line-height: var(--text-sm-lh);
+    min-width: 40px; color: var(--secondary);
+  }
 
   /* ── Section panels — top-level containers, so they align to the grid ── */
   .panel {
@@ -198,85 +209,71 @@
        overridden per size below, but the 1px block padding survived and was
        silently adding 2px that came from no design decision. */
     padding-block: var(--space-0);
+    /* Content advances one space-050 in the reading direction as p rises. */
+    padding-inline: calc(var(--pad-lead)  + var(--space-050) * var(--p))
+                    calc(var(--pad-trail) - var(--space-050) * var(--p));
     border: none; border-radius: var(--btn-radius);
     font-family: var(--font-medium);
     cursor: pointer; overflow: hidden; isolation: isolate;
+    touch-action: manipulation;
+    /* --p is the single source of truth: 0 = rest, 1 = fully revealed.
+       Nothing here transitions — the value is written by input, frame by
+       frame, so the visual state is always exactly what the user is doing. */
+    color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--p) * 100%));
   }
   .btn::before {                       /* the Hover Reveal layer */
     content: ''; position: absolute;
     width: 8px; height: 8px; border-radius: 50%;
-    top: 50%; margin-top: -4px;
-    inset-inline-start: var(--wipe-origin);
-    transform: scale(1); opacity: 0; z-index: -1;
-    transition: transform var(--btn-wipe-duration) var(--btn-wipe-easing),
-                opacity   var(--btn-wipe-duration) var(--btn-wipe-easing);
+    left: var(--wipe-x, 50%); top: var(--wipe-y, 50%);
+    background: var(--wipe-colour);
+    transform: translate(-50%, -50%) scale(calc(1 + var(--p) * (var(--wipe-scale, 45) - 1)));
+    opacity: clamp(0, calc(var(--p) * 4), 1);
+    z-index: -1;
   }
-  .btn:hover::before, .btn:focus-visible::before { transform: scale(46); opacity: 1; }
   .btn > * { position: relative; }
   .btn iconify-icon { flex: none; }
-  .btn { transition: padding var(--btn-wipe-duration) var(--btn-wipe-easing),
-                     color   var(--btn-wipe-duration) var(--btn-wipe-easing); }
 
-  /* Sizes — every number lifted from the component set */
-  .btn.s56 { height: 56px; font-size: var(--text-xl); gap: var(--space-100); padding-inline: 24px 24px; --wipe-origin: 33px; }
-  .btn.s48 { height: 48px; font-size: var(--text-lg); gap: var(--space-100); padding-inline: 20px 20px; --wipe-origin: 33px; }
-  .btn.s40 { height: 40px; font-size: var(--text-md); gap: var(--space-100); padding-inline: 16px 16px; --wipe-origin: 38px; }
+  /* Sizes — every number lifted from the component set, expressed as tokens */
+  .btn.s56 { height: 56px; font-size: var(--text-xl); gap: var(--space-100); --pad-lead: var(--space-300); --pad-trail: var(--space-300); }
+  .btn.s48 { height: 48px; font-size: var(--text-lg); gap: var(--space-100); --pad-lead: var(--space-250); --pad-trail: var(--space-250); }
+  .btn.s40 { height: 40px; font-size: var(--text-md); gap: var(--space-100); --pad-lead: var(--space-200); --pad-trail: var(--space-200); }
   .btn.s56 iconify-icon, .btn.s48 iconify-icon { font-size: 20px; }
   .btn.s40 iconify-icon { font-size: 16px; }
 
-  /* The 4px advance in the reading direction, on hover */
-  .btn.s56:hover { padding-inline: 28px 20px; }
-  .btn.s48:hover { padding-inline: 24px 16px; }
-  .btn.s40:hover { padding-inline: 20px 12px; }
-
-  /* Styles — rest colour, wipe colour, and the label flip */
-  .btn.primary   { background: var(--primary);  color: var(--cream); }
-  .btn.primary::before   { background: var(--secondary); }
-  .btn.secondary { background: var(--secondary); color: var(--cream); }
-  .btn.secondary::before { background: var(--primary); }
-  .btn.outline   { background: var(--cream); color: var(--primary); box-shadow: inset 0 0 0 1.5px var(--primary); }
-  .btn.outline::before   { background: var(--primary); }
-  .btn.outline:hover     { color: var(--cream); }
-  .btn.ghost     { background: var(--cream); color: var(--primary); }
-  .btn.ghost::before     { background: var(--primary); }
-  .btn.ghost:hover       { color: var(--cream); }
-  .btn.ghostsec  { background: var(--cream); color: var(--secondary); }
-  .btn.ghostsec::before  { background: var(--secondary); }
-  .btn.ghostsec:hover    { color: var(--cream); }
+  /* Styles — rest colour, wipe colour, and the label it interpolates toward */
+  .btn.primary   { background: var(--primary);   --wipe-colour: var(--secondary); --label-rest: var(--cream);     --label-active: var(--cream); }
+  .btn.secondary { background: var(--secondary); --wipe-colour: var(--primary);   --label-rest: var(--cream);     --label-active: var(--cream); }
+  .btn.outline   { background: var(--cream); box-shadow: inset 0 0 0 1.5px var(--primary);
+                   --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
+  .btn.ghost     { background: var(--cream); --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
+  .btn.ghostsec  { background: var(--cream); --wipe-colour: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
 
   /* ── Icon button — same mechanic, circular, no label ──────────────────── */
   .iconbtn {
     position: relative; display: inline-flex; align-items: center; justify-content: center;
     border: none; border-radius: 50%; cursor: pointer; overflow: hidden;
-    isolation: isolate; padding: 0;
-    transition: color var(--btn-wipe-duration) var(--btn-wipe-easing);
+    isolation: isolate; padding: 0; touch-action: manipulation;
+    color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--p) * 100%));
   }
   .iconbtn::before {
     content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%;
-    top: 50%; left: 50%; margin: -4px 0 0 -4px;
-    transform: scale(1); opacity: 0; z-index: -1;
-    transition: transform var(--btn-wipe-duration) var(--btn-wipe-easing),
-                opacity   var(--btn-wipe-duration) var(--btn-wipe-easing);
+    left: var(--wipe-x, 50%); top: var(--wipe-y, 50%);
+    background: var(--wipe-colour);
+    transform: translate(-50%, -50%) scale(calc(1 + var(--p) * (var(--wipe-scale, 15) - 1)));
+    opacity: clamp(0, calc(var(--p) * 4), 1);
+    z-index: -1;
   }
-  .iconbtn:hover::before, .iconbtn:focus-visible::before { transform: scale(16); opacity: 1; }
   .iconbtn iconify-icon { position: relative; }
   .iconbtn.s56 { width: 56px; height: 56px; } .iconbtn.s56 iconify-icon { font-size: 20px; }
   .iconbtn.s48 { width: 48px; height: 48px; } .iconbtn.s48 iconify-icon { font-size: 20px; }
   .iconbtn.s40 { width: 40px; height: 40px; } .iconbtn.s40 iconify-icon { font-size: 16px; }
 
-  .iconbtn.primary   { background: var(--primary);  color: var(--cream); }
-  .iconbtn.primary::before   { background: var(--secondary); }
-  .iconbtn.secondary { background: var(--secondary); color: var(--cream); }
-  .iconbtn.secondary::before { background: var(--primary); }
-  .iconbtn.outline   { background: var(--cream); color: var(--primary); box-shadow: inset 0 0 0 1.5px var(--primary); }
-  .iconbtn.outline::before   { background: var(--primary); }
-  .iconbtn.outline:hover     { color: var(--cream); }
-  .iconbtn.ghost     { background: var(--cream); color: var(--primary); }
-  .iconbtn.ghost::before     { background: var(--primary); }
-  .iconbtn.ghost:hover       { color: var(--cream); }
-  .iconbtn.ghostsec  { background: var(--cream); color: var(--secondary); }
-  .iconbtn.ghostsec::before  { background: var(--secondary); }
-  .iconbtn.ghostsec:hover    { color: var(--cream); }
+  .iconbtn.primary   { background: var(--primary);   --wipe-colour: var(--secondary); --label-rest: var(--cream);     --label-active: var(--cream); }
+  .iconbtn.secondary { background: var(--secondary); --wipe-colour: var(--primary);   --label-rest: var(--cream);     --label-active: var(--cream); }
+  .iconbtn.outline   { background: var(--cream); box-shadow: inset 0 0 0 1.5px var(--primary);
+                       --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
+  .iconbtn.ghost     { background: var(--cream); --wipe-colour: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
+  .iconbtn.ghostsec  { background: var(--cream); --wipe-colour: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
 
   /* ═══ MODEL B — height derived from padding + line-height ════════════════
      The default above is Model A (fixed height), which is what the Figma
@@ -302,7 +299,6 @@
   .measure .scroll { overflow-x: auto; }
 
   /* ── Options ──────────────────────────────────────────────────────────── */
-  body.slowmo { --btn-wipe-duration: 2200ms; }
   body.no-icons .btn iconify-icon { display: none; }
   body.trace .btn::before, body.trace .iconbtn::before { outline: 1px dashed rgba(255,255,255,.7); }
 
@@ -364,18 +360,22 @@
   <!-- Stat cards — aligned to the grid, span 3 of 12 -->
   <div class="grid">
     <div class="stat-card"><b>90</b><span>مكوّناً — ٣ عائلات × ٥ أنماط × ٣ أحجام × حالتان</span></div>
-    <div class="stat-card"><b>550ms</b><span>مدة التمرير — Smart Animate</span></div>
-    <div class="stat-card"><b dir="ltr">.32 .72 0 1</b><span>منحنى التسارع المخصّص</span></div>
+    <div class="stat-card"><b dir="ltr">0 → 1</b><span>تقدّم مستمر يقوده الإدخال — لا مؤقّت</span></div>
+    <div class="stat-card"><b>القرب</b><span>المسافة إلى مركز الأيقونة · أو ضغط اللمس</span></div>
     <div class="stat-card"><b>999px</b><span>نصف القطر — كبسولة كاملة</span></div>
   </div>
 
   <!-- Controls -->
   <div class="controls">
     <label><input type="checkbox" id="paddingmodel"> نموذج الحشو — الارتفاع من الحشو + ارتفاع السطر</label>
-    <label><input type="checkbox" id="slowmo"> تشغيل بطيء (×4)</label>
     <label><input type="checkbox" id="trace"> إظهار حدود طبقة الكشف</label>
     <label><input type="checkbox" id="noicons"> إخفاء الأيقونات</label>
-    <span class="hint">مرّر المؤشر فوق الأزرار — التركيز بلوحة المفاتيح يعمل أيضاً</span>
+    <label class="scrub">
+      تمرير يدوي للتقدّم
+      <input type="range" id="scrub" min="0" max="1" step="0.01" value="0">
+      <output id="scrub-out" dir="ltr">0.00</output>
+    </label>
+    <span class="hint">قرّب المؤشر من الأيقونة الأمامية — التقدّم يتبع المسافة، ولا يكتمل من تلقاء نفسه</span>
   </div>
 
   <!-- Panels — top-level containers, each spans the full grid -->
@@ -401,12 +401,13 @@
     </section>
 
     <div class="note span-full">
-      <b>كيف يعمل التمرير</b>
+      <b>التفاعل — تحكّم مباشر</b>
       <ul>
-        <li>دائرة مخفيّة قياسها <b>8×8</b> تبدأ عند الأيقونة الأمامية، ثم تتمدّد لتغطي الزر بالكامل خلال <b>550ms</b>.</li>
-        <li>الزر يقصّ ما يفيض عنه، فتتحوّل الدائرة بصرياً إلى كبسولة مملوءة — وهي نفس آلية <span dir="ltr">clipsContent</span> في Figma.</li>
-        <li>اللون <b>ينقلب</b> ولا يغمق فقط: الأزرق يصبح أحمر، والأحمر يصبح أزرق، والأنماط الهادئة تمتلئ بلونها.</li>
-        <li>المحتوى يتقدّم <b>4px</b> باتجاه القراءة — يميناً في LTR ويساراً في RTL.</li>
+        <li>التقدّم <b dir="ltr">--p</b> يمتد من <b dir="ltr">0</b> إلى <b dir="ltr">1</b> ويكتبه الإدخال مباشرة. لا يوجد أي انتقال زمني، والتأثير <b>لا يكتمل من تلقاء نفسه أبداً</b>.</li>
+        <li><b>سطح المكتب:</b> التقدّم = قرب المؤشر من مركز الأيقونة الأمامية. يبدأ عند دخول الزر، ويصل إلى ١ عند المركز، ويتراجع بالتناسب عند الابتعاد.</li>
+        <li><b>اللمس:</b> يُستخدم ضغط الإصبع عندما يوفّره الجهاز فعلياً؛ وإلا فبديل ضغط تدريجي يتقدّم ما دام الإصبع مُلامساً ويتراجع فور رفعه.</li>
+        <li>الشكل كما هو: دائرة <b>8×8</b> عند الأيقونة الأمامية تتمدّد عبر الزر، والزر يقصّ ما يفيض فتصبح كبسولة — نفس آلية <span dir="ltr">clipsContent</span>.</li>
+        <li>اللون <b>ينقلب</b> تدريجياً مع التقدّم، والمحتوى يتقدّم <b>4px</b> (<span dir="ltr">space-050</span>) باتجاه القراءة.</li>
       </ul>
     </div>
   </div>
@@ -456,6 +457,136 @@
   buildGrid(document.getElementById('grid-rtl'),  'rtl');
   buildGrid(document.getElementById('grid-icon'), 'icon');
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     DIRECT-MANIPULATION ENGINE
+     --p is written straight from input. Nothing here runs on a timer except
+     the touch fallback, which only advances while a finger is held down and
+     unwinds the moment it lifts.
+     ═════════════════════════════════════════════════════════════════════ */
+  const CONTROLS = [...document.querySelectorAll('.btn, .iconbtn')];
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const cssMs = name => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0;
+
+  const setP = (el, p) => {
+    const v = clamp01(p);
+    el.__p = v;
+    el.style.setProperty('--p', v.toFixed(4));
+  };
+
+  /* The reveal starts at the leading icon. In RTL that is the right-hand one,
+     but it is still first in DOM order, so this needs no direction branch. */
+  function calibrate(el) {
+    const b = el.getBoundingClientRect();
+    const icon = el.querySelector('iconify-icon');
+    const r = icon ? icon.getBoundingClientRect() : b;
+    const cx = (r.left + r.width / 2) - b.left;
+    const cy = (r.top + r.height / 2) - b.top;
+    el.style.setProperty('--wipe-x', cx.toFixed(1) + 'px');
+    el.style.setProperty('--wipe-y', cy.toFixed(1) + 'px');
+    // p reaches 0 at the corner furthest from the icon, 1 at its centre
+    el.__origin = { cx, cy, rect: b };
+    el.__maxDist = Math.max(
+      Math.hypot(0 - cx, 0 - cy),               Math.hypot(b.width - cx, 0 - cy),
+      Math.hypot(0 - cx, b.height - cy),        Math.hypot(b.width - cx, b.height - cy)
+    );
+    /* The reveal must *just* cover the button at p = 1, no sooner. The seed is
+       8px across, so its radius is 4 x scale; a fixed scale overshot badly and
+       finished the wipe by p ~ 0.4, wasting half the input range. */
+    el.style.setProperty('--wipe-scale', (el.__maxDist / 4).toFixed(2));
+  }
+
+  /* ── Desktop: progress = proximity of the cursor to the icon centre ────── */
+  function fromPointer(el, e) {
+    if (!el.__origin) calibrate(el);
+    const b = el.getBoundingClientRect();
+    const dx = (e.clientX - b.left) - el.__origin.cx;
+    const dy = (e.clientY - b.top)  - el.__origin.cy;
+    setP(el, 1 - Math.hypot(dx, dy) / el.__maxDist);
+  }
+
+  /* ── Touch: pressure when the device reports it, held-press otherwise ──── */
+  let pressureSeen = false;                     // becomes true once a real reading arrives
+  const looksLikeRealPressure = e =>
+    e.pointerType !== 'mouse' && e.pressure > 0 && Math.abs(e.pressure - 0.5) > 0.02;
+
+  function rampPress(el) {
+    const dur = cssMs('--press-ramp-ms');
+    const from = el.__p || 0, t0 = performance.now();
+    cancelAnimationFrame(el.__raf);
+    const step = () => {
+      if (!el.__pressing || el.__usePressure) return;   // released, or pressure took over
+      const t = clamp01((performance.now() - t0) / dur);
+      setP(el, from + (1 - from) * t);
+      if (t < 1) el.__raf = requestAnimationFrame(step); // stops at 1 only while held
+    };
+    el.__raf = requestAnimationFrame(step);
+  }
+  function rampRelease(el) {
+    const dur = cssMs('--release-ramp-ms');
+    const from = el.__p || 0, t0 = performance.now();
+    cancelAnimationFrame(el.__raf);
+    const step = () => {
+      if (el.__pressing) return;                        // pressed again mid-unwind
+      const t = clamp01((performance.now() - t0) / dur);
+      setP(el, from * (1 - t));
+      if (t < 1) el.__raf = requestAnimationFrame(step);
+    };
+    el.__raf = requestAnimationFrame(step);
+  }
+
+  CONTROLS.forEach(el => {
+    setP(el, 0);
+
+    el.addEventListener('pointerenter', e => {
+      calibrate(el);
+      if (e.pointerType === 'mouse') fromPointer(el, e);
+    });
+
+    el.addEventListener('pointermove', e => {
+      if (scrubbing) return;
+      if (e.pointerType === 'mouse') { fromPointer(el, e); return; }
+      if (el.__pressing && looksLikeRealPressure(e)) {
+        el.__usePressure = true;                        // abandon the ramp
+        setP(el, e.pressure);
+      }
+    });
+
+    el.addEventListener('pointerleave', () => { if (!scrubbing) setP(el, 0); });
+
+    el.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse') return;            // desktop stays proximity-driven
+      el.__pressing = true;
+      if (looksLikeRealPressure(e)) { el.__usePressure = true; pressureSeen = true; setP(el, e.pressure); }
+      else { el.__usePressure = false; rampPress(el); }
+    });
+
+    const lift = () => {
+      if (!el.__pressing) return;
+      el.__pressing = false; el.__usePressure = false;
+      rampRelease(el);
+    };
+    el.addEventListener('pointerup', lift);
+    el.addEventListener('pointercancel', lift);
+
+    // Keyboard reveals the end state outright — no timer, no partial value.
+    el.addEventListener('focus', () => { if (el.matches(':focus-visible')) { calibrate(el); setP(el, 1); } });
+    el.addEventListener('blur',  () => setP(el, 0));
+  });
+
+  addEventListener('resize', () => CONTROLS.forEach(el => { el.__origin = null; }));
+
+  /* ── Manual scrubber — drives every control at once, for inspection ────── */
+  let scrubbing = false;
+  const scrub = document.getElementById('scrub');
+  const scrubOut = document.getElementById('scrub-out');
+  scrub.addEventListener('input', () => {
+    const v = parseFloat(scrub.value);
+    scrubbing = v > 0;
+    scrubOut.textContent = v.toFixed(2);
+    CONTROLS.forEach(el => { calibrate(el); setP(el, v); });
+    measureWhenSettled();
+  });
+
   /* ── Live measurement — reads what actually rendered, per size ─────────── */
   const SCALE = new Set([0,2,4,6,8,12,16,20,24,32,40,48,64,80,96]);
   const r1 = n => Math.round(n * 10) / 10;
@@ -491,18 +622,18 @@
       'في النموذج «أ» الفراغ ناتج عن الطرح وليس قراراً؛ في النموذج «ب» الحشو مُعلَن من المقياس والارتفاع ناتج عنه.</td></tr>';
   }
 
-  /* Padding is transitioned (550ms) for the hover nudge, so switching models
-     animates too. Measuring immediately reports values mid-flight — that
-     caught me out once. Always read after the transition has settled. */
-  const measureWhenSettled = () => setTimeout(measure, 620);
+  /* Nothing transitions any more, so a single frame is enough for layout to
+     settle. (The old 620ms wait existed because padding animated over 550ms
+     and measuring immediately reported values mid-flight.) */
+  const measureWhenSettled = () => requestAnimationFrame(() => requestAnimationFrame(measure));
 
   const toggle = (id, cls) =>
     document.getElementById(id).addEventListener('change', e => {
       document.body.classList.toggle(cls, e.target.checked);
+      CONTROLS.forEach(el => { el.__origin = null; });   // padding changed, recalibrate
       measureWhenSettled();
     });
   toggle('paddingmodel', 'padding-model');
-  toggle('slowmo',  'slowmo');
   toggle('trace',   'trace');
   toggle('noicons', 'no-icons');
 
