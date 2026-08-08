@@ -268,7 +268,10 @@
   .primary   { --fill-rest: var(--primary);   --fill-active: var(--secondary); --label-rest: var(--cream);     --label-active: var(--cream); }
   .secondary { --fill-rest: var(--secondary); --fill-active: var(--primary);   --label-rest: var(--cream);     --label-active: var(--cream); }
   .outline   { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream);
-               --jelly-ring: var(--primary); --jelly-ring-width: 1.5px; }
+               /* Our own names: --jelly-ring is Jelly's focus ring and is set on
+                  every button, so keying the outline off it striped all five
+                  variants. The stroke is drawn from the silhouette, not by CSS. */
+               --stroke: var(--primary); --stroke-width: 1.5px; }
   .ghost     { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
   .ghostsec  { --fill-rest: var(--cream); --fill-active: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
 
@@ -518,6 +521,58 @@
     return o;
   }
 
+  /* ── Outline ────────────────────────────────────────────────────────────
+     The outline variant needs a real stroke, and Jelly has no ring API — the
+     --jelly-ring properties we were setting are Jelly's focus ring, not a
+     border, which is how the outline quietly became a plain cream fill when
+     the buttons moved onto Jelly. A CSS border is not an option
+     either: it would stay a rigid capsule while the body squashes. So the
+     stroke is derived from Jelly's own silhouette every frame — draw the blob
+     smeared around a small circle, punch the undisplaced blob back out, and
+     what is left is an even rim that deforms with the body exactly. */
+  const RING_STEPS = 16;
+
+  function ringFor(el) {
+    if (el.__ring) return el.__ring;
+    const jc = jellyCanvas(el);
+    if (!jc) return null;
+    const c = document.createElement('canvas');
+    c.className = 'ring-layer';
+    const cs = getComputedStyle(jc);
+    c.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
+                      'pointer-events:none;z-index:-2;width:' + cs.width + ';height:' + cs.height + ';';
+    c.width = jc.width; c.height = jc.height;
+    el.appendChild(c);
+    el.__ring = c;
+    el.__rctx = c.getContext('2d');
+    return c;
+  }
+
+  function paintRing(el) {
+    const cs = getComputedStyle(el);
+    const colour = cs.getPropertyValue('--stroke').trim();
+    const widthCss = parseFloat(cs.getPropertyValue('--stroke-width')) || 0;
+    if (!colour || widthCss <= 0) return;
+    const jc = jellyCanvas(el), c = ringFor(el);
+    if (!jc || !c) return;
+    const ctx = el.__rctx;
+    const scale = jc.width / parseFloat(getComputedStyle(jc).width);
+    const w = widthCss * scale;
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, c.width, c.height);
+    for (let i = 0; i < RING_STEPS; i++) {
+      const a = (i / RING_STEPS) * Math.PI * 2;
+      ctx.drawImage(jc, Math.cos(a) * w, Math.sin(a) * w);
+    }
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(jc, 0, 0);
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = colour;
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
   function clearOverlay(el) {
     if (el.__octx && el.__overlay) el.__octx.clearRect(0, 0, el.__overlay.width, el.__overlay.height);
     resetLabel(el);
@@ -625,6 +680,7 @@
 
       setP(el, intensity);
       paint(el, intensity, { x: dx, y: dy });
+      paintRing(el);                             // the stroke deforms with the body
 
       /* Stop on frame-to-frame stillness, not on distance from the baseline —
          a bad baseline must never be able to keep the loop alive. */
@@ -666,7 +722,17 @@
   addEventListener('resize', () => CONTROLS.forEach(el => {
     el.__rest = null;
     if (el.__overlay) { el.__overlay.remove(); el.__overlay = null; el.__octx = null; }
+    if (el.__ring) { el.__ring.remove(); el.__ring = null; el.__rctx = null; }
+    restRing(el);
   }));
+
+  /* At rest nothing is tracking, so the stroke is painted once Jelly has drawn
+     its body — and again a moment later, since the first frame can land before
+     the webfont settles the button's width. */
+  function restRing(el) {
+    [0, 120, 600].forEach(t => setTimeout(() => paintRing(el), t));
+  }
+  CONTROLS.forEach(restRing);
 
   /* ── Manual scrubber — forces the spread from each button's centre ─────── */
   const scrub = document.getElementById('scrub');
