@@ -71,6 +71,7 @@
          suffix is the percentage of the base unit (space-200 = 200% = 16px).
          Usage ranges: 0–8px small/compact UI · 12–24px larger components ·
          32px+ page-level layout. ══ */
+      --space-0:     0;
       --space-025:  2px;
       --space-050:  4px;
       --space-075:  6px;
@@ -82,6 +83,8 @@
       --space-400: 32px;
       --space-500: 40px;
       --space-600: 48px;
+      --space-800: 64px;
+      --space-1000: 80px;
 
       /* ── BASE & SURFACES — no black type: all copy is Minaã Blue, like the guide ── */
       --ink:          #161616;             /* NOT for fonts — semantic-toast text on yellow only */
@@ -379,8 +382,8 @@
     .pay-actions { display: flex; gap: var(--space-025); align-items: center; }
     .pay-actions jelly-icon-button { --jelly-icon-button-size: 32px; }
 
-    .empty { text-align: center; padding: 22px 0 18px; font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); }
-    .empty iconify-icon { font-size: var(--display-xs); line-height: var(--display-xs-lh); display: block; margin: 0 auto 6px; }
+    .empty { text-align: center; padding: var(--space-300) var(--space-0) var(--space-200); font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); }
+    .empty iconify-icon { font-size: var(--display-xs); line-height: var(--display-xs-lh); display: block; margin: var(--space-0) auto var(--space-075); }
     .monthly-section   .empty iconify-icon { color: var(--monthly-mid); }
     .quarterly-section .empty iconify-icon { color: var(--quarterly-mid); }
     .onetime-section   .empty iconify-icon { color: var(--onetime-mid); }
@@ -423,7 +426,7 @@
     .rate-mini span { font-family: var(--font-bold); color: var(--text); }
     .rates-time {
       font-size: var(--text-xs); line-height: var(--text-xs-lh); color: var(--faint); white-space: nowrap;
-      padding-inline-start: 12px;
+      padding-inline-start: var(--space-150);
       border-inline-start: 1px solid var(--border);
     }
     .rates-refresh {
@@ -453,7 +456,9 @@
     }
     .selection-bar .selection-info { display: flex; align-items: center; gap: var(--space-200); font-weight: 700; font-family: var(--font-medium); }
     .selection-actions { display: flex; gap: var(--space-150); }
-    body.selecting .shell { padding-bottom: 90px; }
+    /* Clearance for the fixed selection bar. Composed from tokens, never a raw
+       value; kept above the bar's ~72px height so content is never covered. */
+    body.selecting .shell { padding-bottom: calc(var(--space-800) + var(--space-400)); }
 
     /* ═══ MODALS (login + edit) ═══ */
     .modal-overlay {
@@ -462,7 +467,7 @@
       display: flex; align-items: center; justify-content: center;
       z-index: 990; backdrop-filter: blur(5px);
       animation: fadeIn .2s ease;
-      padding: 16px;
+      padding: var(--space-200);
     }
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     .modal {
@@ -523,7 +528,7 @@
       background: rgba(22,22,22,.5);
       display: flex; align-items: flex-start; justify-content: center;
       z-index: 1000; backdrop-filter: blur(6px);
-      padding: 20px 16px 40px; overflow-y: auto;
+      padding: var(--space-250) var(--space-200) var(--space-500); overflow-y: auto;
       animation: fadeIn .2s ease;
     }
     .inv-modal {
@@ -694,7 +699,7 @@
 
     /* Structural switch: the rail lies down and becomes a top bar */
     @media (max-width: 767px) {
-      body { padding: 8px; }
+      body { padding: var(--space-100); }
       .shell { grid-template-columns: 1fr; border-radius: 20px; }
       .side-nav {
         flex-direction: row; align-items: center;
@@ -1442,7 +1447,7 @@ function openInvoice() {
   const logoSrc   = logoImgEl ? logoImgEl.src : '';
 
   function rowsHTML(list, cls) {
-    if (!list.length) return `<tr><td colspan="3" style="text-align:center;color:var(--muted);font-size:.8rem;padding:14px">— لا يوجد —</td></tr>`;
+    if (!list.length) return `<tr><td colspan="3" style="text-align:center;color:var(--muted);font-size:.8rem;padding:var(--space-200)">— لا يوجد —</td></tr>`;
     return list.map(p => {
       const isConv = p.origCurrency && p.origCurrency !== 'KWD';
       const origStr = isConv
