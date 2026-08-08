@@ -194,6 +194,10 @@
        fixed width is only honoured at m where the matrix has room for it —
        below that the buttons hug and nothing is ever clipped. */
     min-width: var(--btn-min-width, 0);
+    /* The UA stylesheet gives <button> padding: 1px 6px. The inline padding is
+       overridden per size below, but the 1px block padding survived and was
+       silently adding 2px that came from no design decision. */
+    padding-block: var(--space-0);
     border: none; border-radius: var(--btn-radius);
     font-family: var(--font-medium);
     cursor: pointer; overflow: hidden; isolation: isolate;
