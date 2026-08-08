@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مكتبة الأزرار – Minaã</title>
+<link rel="stylesheet" type="text/css" href="https://webfonts.fontstand.com/WF-094922-4fc5a1e5caa40a909afb60cdb86e8f10.css"/>
+<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+<style>
+  :root {
+    /* ── Type ───────────────────────────────────────────────────────────── */
+    --font-regular: "29LT Idris Round Regular", 'Cairo', sans-serif;
+    --font-medium:  "29LT Idris Round Medium",  'Cairo', sans-serif;
+    --font-bold:    "29LT Idris Round ExtraBold", 'Cairo', sans-serif;
+
+    /* ── Colour, straight from the Minaã Colour variables ───────────────── */
+    --primary-700:   #0062AD;
+    --primary-100:   #E2F0FF;
+    --primary-tint:  #F2F8FF;
+    --secondary-600: #E8411D;
+    --neutral-0:     #FFFFFF;
+    --neutral-50:    #FDF9F0;
+    --neutral-100:   #FBF0DC;
+    --neutral-200:   #F7E0B6;
+
+    /* ── Spacing, the official 14-step scale ────────────────────────────── */
+    --space-0: 0;      --space-025: 2px;  --space-050: 4px;  --space-075: 6px;
+    --space-100: 8px;  --space-150: 12px; --space-200: 16px; --space-250: 20px;
+    --space-300: 24px; --space-400: 32px; --space-500: 40px; --space-600: 48px;
+    --space-800: 64px; --space-1000: 80px;
+
+    /* ── The hover choreography, read from the Figma prototype ──────────── */
+    --btn-wipe-duration: 550ms;
+    --btn-wipe-easing: cubic-bezier(.32, .72, 0, 1);
+    --btn-radius: 999px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: var(--space-1000) var(--space-600);
+    background: var(--neutral-100);
+    font-family: var(--font-regular);
+    color: var(--primary-700);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 1240px; margin: 0 auto;
+    background: var(--neutral-0);
+    border-radius: 28px;
+    padding: var(--space-800);
+    box-shadow: 0 24px 60px rgba(0, 67, 123, .10);
+  }
+
+  /* ── Page header ──────────────────────────────────────────────────────── */
+  .eyebrow {
+    font-family: var(--font-bold); font-size: 20px; line-height: 30px;
+    color: var(--secondary-600); margin: 0;
+  }
+  h1 {
+    font-family: var(--font-bold); font-size: 56px; line-height: 68px;
+    margin: var(--space-050) 0 0;
+  }
+  .lede {
+    font-size: 20px; line-height: 32px; margin: var(--space-300) 0 0;
+    max-width: 760px; color: var(--primary-700);
+  }
+
+  /* ── Spec strip ───────────────────────────────────────────────────────── */
+  .spec {
+    display: flex; flex-wrap: wrap; gap: var(--space-200);
+    margin-top: var(--space-500);
+  }
+  .spec div {
+    flex: 1 1 190px;
+    background: var(--neutral-50);
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    padding: var(--space-300);
+  }
+  .spec b { display: block; font-family: var(--font-bold); font-size: 24px; line-height: 32px; }
+  .spec span { display: block; font-size: 14px; line-height: 20px; margin-top: var(--space-050); }
+
+  /* ── Controls ─────────────────────────────────────────────────────────── */
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-300);
+    margin-top: var(--space-500); padding: var(--space-300);
+    background: var(--primary-tint); border: 1px solid var(--primary-100);
+    border-radius: 12px;
+  }
+  .controls label { display: inline-flex; align-items: center; gap: var(--space-100); font-size: 16px; cursor: pointer; }
+  .controls input { width: 18px; height: 18px; accent-color: var(--primary-700); cursor: pointer; }
+  .hint { font-size: 14px; line-height: 20px; margin-inline-start: auto; }
+
+  /* ── Section + grid ───────────────────────────────────────────────────── */
+  section { margin-top: var(--space-800); }
+  h2 {
+    font-family: var(--font-bold); font-size: 32px; line-height: 40px;
+    margin: 0 0 var(--space-400);
+    padding-bottom: var(--space-150);
+    border-bottom: 2px solid var(--primary-100);
+  }
+  .grid { display: grid; grid-template-columns: 64px repeat(5, 1fr); gap: var(--space-300); align-items: center; }
+  .grid .col-head { font-family: var(--font-bold); font-size: 14px; line-height: 20px; }
+  .grid .row-head { font-size: 14px; line-height: 20px; }
+  .cell { display: flex; }
+  section.ltr .grid { direction: ltr; }
+  section.ltr .grid .row-head { text-align: right; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     THE BUTTON
+     A faithful re-creation of the Figma component. The wipe is one absolutely
+     positioned circle that starts 8px wide at the leading icon and scales up;
+     the capsule's own overflow:hidden clips it back into a pill, exactly as
+     Figma's `clipsContent` does.
+     ═════════════════════════════════════════════════════════════════════ */
+  .btn {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 168px;
+    border: none; border-radius: var(--btn-radius);
+    font-family: var(--font-medium);
+    cursor: pointer; overflow: hidden;
+    isolation: isolate;
+    transition: padding var(--btn-wipe-duration) var(--btn-wipe-easing);
+  }
+  .btn::before {                       /* the Hover Reveal layer */
+    content: ''; position: absolute;
+    width: 8px; height: 8px; border-radius: 50%;
+    top: 50%; margin-top: -4px;
+    inset-inline-start: var(--wipe-origin);
+    transform: scale(1); opacity: 0;
+    z-index: -1;
+    transition: transform var(--btn-wipe-duration) var(--btn-wipe-easing),
+                opacity   var(--btn-wipe-duration) var(--btn-wipe-easing);
+  }
+  .btn:hover::before, .btn:focus-visible::before { transform: scale(46); opacity: 1; }
+  .btn > * { position: relative; }
+  .btn iconify-icon { flex: none; }
+
+  /* Sizes — every number lifted from the component set */
+  .btn.s56 { height: 56px; font-size: 20px; gap: var(--space-100); padding-inline: 24px 24px; --wipe-origin: 33px; }
+  .btn.s48 { height: 48px; font-size: 18px; gap: var(--space-100); padding-inline: 20px 20px; --wipe-origin: 33px; }
+  .btn.s40 { height: 40px; font-size: 16px; gap: var(--space-100); padding-inline: 16px 16px; --wipe-origin: 38px; }
+  .btn.s56 iconify-icon { font-size: 20px; }
+  .btn.s48 iconify-icon { font-size: 20px; }
+  .btn.s40 iconify-icon { font-size: 16px; }
+
+  /* The 4px advance in the reading direction, on hover */
+  .btn.s56:hover { padding-inline: 28px 20px; }
+  .btn.s48:hover { padding-inline: 24px 16px; }
+  .btn.s40:hover { padding-inline: 20px 12px; }
+
+  /* Styles — rest colour, wipe colour, and the label flip */
+  .btn.primary   { background: var(--primary-700);   color: var(--neutral-100); }
+  .btn.primary::before   { background: var(--secondary-600); }
+
+  .btn.secondary { background: var(--secondary-600); color: var(--neutral-100); }
+  .btn.secondary::before { background: var(--primary-700); }
+
+  .btn.outline   { background: var(--neutral-100); color: var(--primary-700); box-shadow: inset 0 0 0 1.5px var(--primary-700); }
+  .btn.outline::before   { background: var(--primary-700); }
+  .btn.outline:hover     { color: var(--neutral-100); }
+
+  .btn.ghost     { background: var(--neutral-100); color: var(--primary-700); }
+  .btn.ghost::before     { background: var(--primary-700); }
+  .btn.ghost:hover       { color: var(--neutral-100); }
+
+  .btn.ghostsec  { background: var(--neutral-100); color: var(--secondary-600); }
+  .btn.ghostsec::before  { background: var(--secondary-600); }
+  .btn.ghostsec:hover    { color: var(--neutral-100); }
+
+  .btn.primary, .btn.secondary, .btn.outline, .btn.ghost, .btn.ghostsec {
+    transition: padding var(--btn-wipe-duration) var(--btn-wipe-easing),
+                color   var(--btn-wipe-duration) var(--btn-wipe-easing);
+  }
+
+  /* ── Icon button — same mechanic, circular, no label ──────────────────── */
+  .iconbtn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    border: none; border-radius: 50%; cursor: pointer; overflow: hidden;
+    isolation: isolate; padding: 0;
+  }
+  .iconbtn::before {
+    content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%;
+    top: 50%; left: 50%; margin: -4px 0 0 -4px;
+    transform: scale(1); opacity: 0; z-index: -1;
+    transition: transform var(--btn-wipe-duration) var(--btn-wipe-easing),
+                opacity   var(--btn-wipe-duration) var(--btn-wipe-easing);
+  }
+  .iconbtn:hover::before, .iconbtn:focus-visible::before { transform: scale(16); opacity: 1; }
+  .iconbtn iconify-icon { position: relative; }
+  .iconbtn.s56 { width: 56px; height: 56px; } .iconbtn.s56 iconify-icon { font-size: 20px; }
+  .iconbtn.s48 { width: 48px; height: 48px; } .iconbtn.s48 iconify-icon { font-size: 20px; }
+  .iconbtn.s40 { width: 40px; height: 40px; } .iconbtn.s40 iconify-icon { font-size: 16px; }
+
+  .iconbtn.primary   { background: var(--primary-700);   color: var(--neutral-100); }
+  .iconbtn.primary::before   { background: var(--secondary-600); }
+  .iconbtn.secondary { background: var(--secondary-600); color: var(--neutral-100); }
+  .iconbtn.secondary::before { background: var(--primary-700); }
+  .iconbtn.outline   { background: var(--neutral-100); color: var(--primary-700); box-shadow: inset 0 0 0 1.5px var(--primary-700); }
+  .iconbtn.outline::before   { background: var(--primary-700); }
+  .iconbtn.outline:hover     { color: var(--neutral-100); }
+  .iconbtn.ghost     { background: var(--neutral-100); color: var(--primary-700); }
+  .iconbtn.ghost::before     { background: var(--primary-700); }
+  .iconbtn.ghost:hover       { color: var(--neutral-100); }
+  .iconbtn.ghostsec  { background: var(--neutral-100); color: var(--secondary-600); }
+  .iconbtn.ghostsec::before  { background: var(--secondary-600); }
+  .iconbtn.ghostsec:hover    { color: var(--neutral-100); }
+  .iconbtn { transition: color var(--btn-wipe-duration) var(--btn-wipe-easing); }
+
+  /* ── Options ──────────────────────────────────────────────────────────── */
+  body.slowmo { --btn-wipe-duration: 2200ms; }
+  body.no-icons .btn iconify-icon { display: none; }
+  body.trace .btn::before, body.trace .iconbtn::before { outline: 1px dashed rgba(255,255,255,.7); }
+
+  .note {
+    margin-top: var(--space-800); padding: var(--space-400);
+    background: var(--neutral-50); border: 1px solid var(--neutral-200);
+    border-radius: 12px; font-size: 16px; line-height: 26px;
+  }
+  .note b { font-family: var(--font-bold); }
+  .note ul { margin: var(--space-150) 0 0; padding-inline-start: var(--space-300); }
+  .note li { margin-bottom: var(--space-100); }
+
+  @media (max-width: 900px) {
+    body { padding: var(--space-400) var(--space-200); }
+    .sheet { padding: var(--space-400); }
+    h1 { font-size: 36px; line-height: 44px; }
+    .grid { grid-template-columns: 56px repeat(5, minmax(120px, 1fr)); overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <p class="eyebrow">Foundations</p>
+  <h1>مكتبة الأزرار</h1>
+  <p class="lede">
+    معاينة حيّة لمكتبة أزرار ميناء كما هي معرّفة في ملف Figma — ثلاث عائلات،
+    خمسة أنماط، ثلاثة أحجام، وحالة تمرير واحدة. مرّر المؤشر فوق أي زر لترى
+    السلوك الحقيقي.
+  </p>
+
+  <div class="spec">
+    <div><b>90</b><span>مكوّناً — ٣ عائلات × ٥ أنماط × ٣ أحجام × حالتان</span></div>
+    <div><b>550ms</b><span>مدة التمرير — Smart Animate</span></div>
+    <div><b dir="ltr">.32 .72 0 1</b><span>منحنى التسارع المخصّص</span></div>
+    <div><b>999px</b><span>نصف القطر — كبسولة كاملة</span></div>
+  </div>
+
+  <div class="controls">
+    <label><input type="checkbox" id="slowmo"> تشغيل بطيء (×4)</label>
+    <label><input type="checkbox" id="trace"> إظهار حدود طبقة الكشف</label>
+    <label><input type="checkbox" id="noicons"> إخفاء الأيقونات</label>
+    <span class="hint">مرّر المؤشر فوق الأزرار — التركيز بلوحة المفاتيح يعمل أيضاً</span>
+  </div>
+
+  <section class="ltr">
+    <h2>Button — LTR</h2>
+    <div class="grid" id="grid-ltr"></div>
+  </section>
+
+  <section>
+    <h2>Button — RTL</h2>
+    <div class="grid" id="grid-rtl"></div>
+  </section>
+
+  <section>
+    <h2>Icon Button</h2>
+    <div class="grid" id="grid-icon"></div>
+  </section>
+
+  <div class="note">
+    <b>كيف يعمل التمرير</b>
+    <ul>
+      <li>دائرة مخفيّة قياسها <b>8×8</b> تبدأ عند الأيقونة الأمامية، ثم تتمدّد لتغطي الزر بالكامل خلال <b>550ms</b>.</li>
+      <li>الزر يقصّ ما يفيض عنه، فتتحوّل الدائرة بصرياً إلى كبسولة مملوءة — وهي نفس آلية <span dir="ltr">clipsContent</span> في Figma.</li>
+      <li>اللون <b>ينقلب</b> ولا يغمق فقط: الأزرق يصبح أحمر، والأحمر يصبح أزرق، والأنماط الهادئة تمتلئ بلونها.</li>
+      <li>المحتوى يتقدّم <b>4px</b> باتجاه القراءة — يميناً في LTR ويساراً في RTL.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  const STYLES = [
+    ['primary',   'Primary'],
+    ['secondary', 'Secondary'],
+    ['outline',   'Outline'],
+    ['ghost',     'Ghost'],
+    ['ghostsec',  'Ghost Secondary'],
+  ];
+  const SIZES = ['56', '48', '40'];
+
+  function buildGrid(el, kind) {
+    const parts = [];
+    parts.push('<span></span>');
+    STYLES.forEach(([, label]) => parts.push('<span class="col-head">' + label + '</span>'));
+
+    SIZES.forEach(size => {
+      parts.push('<span class="row-head">' + size + ' px</span>');
+      STYLES.forEach(([cls]) => {
+        if (kind === 'icon') {
+          parts.push(
+            '<span class="cell"><button class="iconbtn ' + cls + ' s' + size + '" aria-label="بحث">' +
+            '<iconify-icon icon="lucide:search"></iconify-icon></button></span>'
+          );
+        } else {
+          const dir = kind === 'ltr' ? 'ltr' : 'rtl';
+          const label = kind === 'ltr' ? 'Button' : 'زر';
+          parts.push(
+            '<span class="cell"><button dir="' + dir + '" class="btn ' + cls + ' s' + size + '">' +
+            '<iconify-icon icon="lucide:search"></iconify-icon>' +
+            '<span>' + label + '</span>' +
+            '<iconify-icon icon="lucide:search"></iconify-icon></button></span>'
+          );
+        }
+      });
+    });
+    el.innerHTML = parts.join('');
+  }
+
+  buildGrid(document.getElementById('grid-ltr'),  'ltr');
+  buildGrid(document.getElementById('grid-rtl'),  'rtl');
+  buildGrid(document.getElementById('grid-icon'), 'icon');
+
+  const toggle = (id, cls) =>
+    document.getElementById(id).addEventListener('change', e =>
+      document.body.classList.toggle(cls, e.target.checked));
+  toggle('slowmo',  'slowmo');
+  toggle('trace',   'trace');
+  toggle('noicons', 'no-icons');
+</script>
+</body>
+</html>
