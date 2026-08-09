@@ -20,7 +20,7 @@
     --text-sm: 14px;  --text-sm-lh: 20px;
     --text-md: 16px;  --text-md-lh: 24px;
     --text-lg: 18px;  --text-lg-lh: 28px;
-    --text-xl: 20px;  --text-xl-lh: 30px;
+    --text-xl: 20px;
     --display-xs: 24px; --display-xs-lh: 32px;
     --display-sm: 32px; --display-sm-lh: 40px;
     --display-lg: 48px; --display-lg-lh: 60px;
@@ -51,14 +51,10 @@
     --space-800: 64px; --space-1000: 80px;
 
     /* ── Interaction ────────────────────────────────────────────────────────
-       The Figma prototype plays a 550ms Smart Animate. Here the same visual
-       is driven continuously by input instead: --p goes 0 -> 1 under the
-       user's control and nothing advances on a timer. The old duration and
-       easing are kept only as the touch fallback's ramp, used when a device
-       reports no usable pressure. */
-    --btn-radius: 999px;
-    --press-ramp-ms: 450;      /* touch fallback only */
-    --release-ramp-ms: 260;    /* touch fallback only */
+       The Figma prototype plays a 550ms Smart Animate. Nothing here replays
+       it: --p is read from Jelly's live deformation, so there is no duration,
+       no easing and no timer anywhere on this page. The ramp variables that
+       used to live here went with the timed version. */
   }
 
   * { box-sizing: border-box; }
@@ -86,6 +82,10 @@
     background: var(--cream-50);
     border-radius: 28px;
     box-shadow: var(--shadow-float);
+    /* The one clip on the page: it keeps the rounded corners and stops Jelly's
+       oversized canvases reaching the document. It is far enough from any
+       button — panel padding plus the column margin — that no bulge is ever
+       cut here, which is exactly why clipping closer in did not work. */
     overflow: clip;
   }
 
@@ -167,11 +167,14 @@
 
   /* Inside a panel the matrix uses SPACE TOKENS, never grid columns —
      per the rule that only top-level containers align to the grid. */
-  /* Jelly draws its body on a canvas deliberately larger than the button so
-     the bulge has room, and the colour overlay matches it. That surplus is
-     decoration, so it is clipped with a margin rather than allowed to become
-     scrollable overflow — stacked at 375px it pushed the matrix 44px wide. */
-  .matrix { min-width: 0; overflow: clip; overflow-clip-margin: var(--space-300); }
+  /* Deliberately not clipped. Jelly draws its body on a canvas ~45px wider
+     than the button per side so the bulge has room, and our colour layers
+     match it. Clipping here cut 20px off the left of a pressed button on a
+     phone. There is no margin that fixes it either: Chrome counts everything
+     inside overflow-clip-margin as overflow anyway, so a margin large enough
+     to spare the bulge just moves the same number up to the panel. The clip
+     lives on .shell instead, far enough away to cost nothing. */
+  .matrix { min-width: 0; }
   .matrix-inner {
     display: grid;
     /* Tracks shrink; nothing is pinned to a width the panel may not have.
@@ -218,7 +221,6 @@
     --p: 0;                       /* progress, written by input, never by a timer */
     --dir: 1;                     /* +1 in LTR, -1 in RTL — for the content advance */
     --jelly-button-radius: 999px;
-    --jelly-button-min-width: var(--btn-min-width, 0);
     /* Jelly paints the resting body. The active colour is composited into that
        same silhouette by the overlay, so the spread has a real origin and
        direction instead of the whole pill changing at once. */
@@ -228,6 +230,20 @@
     touch-action: manipulation;
   }
   jelly-button:dir(rtl), jelly-icon-button:dir(rtl) { --dir: -1; }
+
+  /* A text button holds the component's minimum width at every breakpoint.
+     Allowed to shrink-wrap, "زر" with its icons hidden came out 60x56 — a
+     circle, indistinguishable from the icon-button component sitting next to
+     it. This was previously applied only above 1280px, so the same button
+     looked like a different component on a phone.
+
+     min() lets it give way instead of overflowing when a narrow matrix column
+     cannot hold the full width. It is set on the host because Jelly's own
+     --jelly-button-min-width is inert — measured: the host stayed at 60px. */
+  jelly-button {
+    --btn-min-width: 168px;               /* the width of the Figma component */
+    min-width: min(var(--btn-min-width), 100%);
+  }
 
   /* Content advances one space-050 in the reading direction as p rises.
      Jelly exposes a single --jelly-button-padding-inline for both sides, so
@@ -283,8 +299,6 @@
   .measure td { color: var(--muted); }
   .measure tr:last-child td { border-bottom: none; }
   .measure .ok   { color: #158200; font-family: var(--font-bold); }
-  .measure .off  { color: #A14712; font-family: var(--font-bold); }
-  .measure .model { font-family: var(--font-bold); color: var(--text); }
   .measure .scroll { overflow-x: auto; }
 
   /* ── Options ──────────────────────────────────────────────────────────── */
@@ -295,9 +309,8 @@
 
   /* ═══ BREAKPOINTS — the documented grid, reassigned from one source ═════ */
 
-  /* Only where the panel can actually hold 5 x 168 + gaps do the buttons take
-     the component's true fixed width. Measured need: 976px of matrix. */
-  @media (min-width: 1280px) { jelly-button { --btn-min-width: 168px; } }
+  /* Nothing here — the button's minimum width is not a breakpoint concern.
+     See the --btn-min-width rule above. */
 
   /* Stack the matrix below 820px. That threshold is measured, not guessed:
      five 56px buttons at their natural 146px plus gaps, the row-head column
@@ -503,23 +516,36 @@
     return n ? { n, cx: sx / n, cy: sy / n } : null;
   }
 
-  /* The overlay carries the colour. It is slotted into .jelly-content, which
-     is its own stacking context above the jelly canvas, so a negative z-index
-     puts it between the body and the label — tinting the blob, never the text. */
-  function overlayFor(el) {
-    if (el.__overlay) return el.__overlay;
+  /* Both layers are canvases stacked on Jelly's own, pixel for pixel. They are
+     slotted into .jelly-content, its own stacking context above the jelly
+     canvas, so a negative z-index puts them between the body and the label —
+     tinting or outlining the blob, never the text.
+
+       reveal (z -1)  the colour, composited inside the silhouette
+       ring   (z -2)  the outline variant's stroke, derived from the silhouette
+
+     One factory builds both: they differ only in class and depth, and letting
+     them drift apart is what let the ring keep a stale size while the reveal
+     stayed correct. */
+  const LAYERS = {
+    reveal: { className: 'reveal-layer', z: -1, node: '__overlay', ctx: '__octx' },
+    ring:   { className: 'ring-layer',   z: -2, node: '__ring',    ctx: '__rctx' },
+  };
+
+  function layerFor(el, kind) {
+    const spec = LAYERS[kind];
+    if (el[spec.node]) return el[spec.node];
     const jc = jellyCanvas(el);
     if (!jc) return null;
-    const o = document.createElement('canvas');
-    o.className = 'reveal-layer';
-    const cs = getComputedStyle(jc);
-    o.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
-                      'pointer-events:none;z-index:-1;width:' + cs.width + ';height:' + cs.height + ';';
-    o.width = jc.width; o.height = jc.height;
-    el.appendChild(o);
-    el.__overlay = o;
-    el.__octx = o.getContext('2d');
-    return o;
+    const c = document.createElement('canvas');
+    c.className = spec.className;
+    c.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
+                      'pointer-events:none;z-index:' + spec.z + ';';
+    el.appendChild(c);
+    el[spec.node] = c;
+    el[spec.ctx] = c.getContext('2d');
+    syncLayer(c, jc);                 // sole owner of layer geometry
+    return c;
   }
 
   /* ── Outline ────────────────────────────────────────────────────────────
@@ -551,28 +577,12 @@
     return changed;
   }
 
-  function ringFor(el) {
-    if (el.__ring) return el.__ring;
-    const jc = jellyCanvas(el);
-    if (!jc) return null;
-    const c = document.createElement('canvas');
-    c.className = 'ring-layer';
-    const cs = getComputedStyle(jc);
-    c.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
-                      'pointer-events:none;z-index:-2;width:' + cs.width + ';height:' + cs.height + ';';
-    c.width = jc.width; c.height = jc.height;
-    el.appendChild(c);
-    el.__ring = c;
-    el.__rctx = c.getContext('2d');
-    return c;
-  }
-
   function paintRing(el) {
     const cs = getComputedStyle(el);
     const colour = cs.getPropertyValue('--stroke').trim();
     const widthCss = parseFloat(cs.getPropertyValue('--stroke-width')) || 0;
     if (!colour || widthCss <= 0) return;
-    const jc = jellyCanvas(el), c = ringFor(el);
+    const jc = jellyCanvas(el), c = layerFor(el, 'ring');
     if (!jc || !c) return;
     syncLayer(c, jc);
     const ctx = el.__rctx;
@@ -603,14 +613,16 @@
     return el.querySelectorAll(':scope > :not(canvas)');
   }
 
-  function clearOverlay(el) {
+  /* Wipes the colour and puts the label back to its resting colour. The stroke
+     is left alone — it belongs to the resting state, not the interaction. */
+  function clearReveal(el) {
     if (el.__octx && el.__overlay) el.__octx.clearRect(0, 0, el.__overlay.width, el.__overlay.height);
     resetLabel(el);
   }
 
   /* Paints the active colour into Jelly's silhouette, from the contact point. */
   function paint(el, intensity, lean) {
-    const jc = jellyCanvas(el), o = overlayFor(el);
+    const jc = jellyCanvas(el), o = layerFor(el, 'reveal');
     if (!jc || !o) return;
     syncLayer(o, jc);
     const ctx = el.__octx;
@@ -721,7 +733,7 @@
       prev = now;
       still = moved < 0.004 ? still + 1 : 0;
       if (still > 12 && !el.__engaged) {          // settled and no longer touched
-        el.__tracking = false; setP(el, 0); clearOverlay(el); return;
+        el.__tracking = false; setP(el, 0); clearReveal(el); return;
       }
       requestAnimationFrame(step);
     };
@@ -752,26 +764,25 @@
       el.__activeColour = resolveActiveColour(el);
       setP(el, 1); paint(el, 1, { x: 0, y: 0 });
     });
-    el.addEventListener('blur', () => { setP(el, 0); clearOverlay(el); });
+    el.addEventListener('blur', () => { setP(el, 0); clearReveal(el); });
   });
 
-  addEventListener('resize', () => CONTROLS.forEach(el => {
-    el.__rest = null;
-    if (el.__overlay) { el.__overlay.remove(); el.__overlay = null; el.__octx = null; }
-    if (el.__ring) { el.__ring.remove(); el.__ring = null; el.__rctx = null; }
-    restRing(el);
-  }));
+  /* Only the deformation baseline needs clearing on resize: the button's
+     resting shape has changed, so the old sample would read as a permanent
+     deformation. The layers look after themselves through syncLayer and the
+     observer below, so there is nothing to tear down here. */
+  addEventListener('resize', () => CONTROLS.forEach(el => { el.__rest = null; }));
 
   /* At rest nothing is tracking, so the stroke has to be repainted whenever the
      button changes size. Fixed timeouts were not enough: the RTL 40px outline
      settled to its final width after the last one, leaving a stroke drawn at
-     the old size sitting 16px off the fill. An observer catches every reflow,
-     whenever it happens. */
-  /* It watches Jelly's canvas, not the host. Watching the host fires while
-     Jelly still holds its previous canvas size, so the stroke was resynced to
+     the old size sitting 16px off the fill.
+
+     The observer watches Jelly's canvas, not the host. Watching the host fires
+     while Jelly still holds its previous canvas size, so the stroke resynced to
      stale dimensions and stayed exactly one resize behind — correct until the
-     first reflow, then 42px out. The canvas is the thing we composite against,
-     so it is the thing to follow. */
+     first reflow, then 42px out. The canvas is what we composite against, so it
+     is what to follow. */
   const ringWatch = new ResizeObserver(entries => {
     entries.forEach(e => {
       const host = e.target.__host;
