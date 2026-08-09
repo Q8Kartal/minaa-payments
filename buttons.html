@@ -186,6 +186,10 @@
   }
   .col-head { font-family: var(--font-bold); font-size: var(--text-sm); line-height: var(--text-sm-lh); }
   .row-head { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); white-space: nowrap; }
+  /* An isolated LTR run for a measurement, so "56 px" cannot be reordered into
+     "px 56" by the surrounding RTL. Inline only — the block keeps its own
+     direction and alignment. See the metric() helper for the measurement. */
+  .metric { direction: ltr; unicode-bidi: isolate; }
   .cell { display: flex; min-width: 0; }
   .cell-label { display: none; font-style: normal; font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); }
   .panel.ltr .matrix-inner { direction: ltr; }
@@ -231,18 +235,21 @@
   }
   jelly-button:dir(rtl), jelly-icon-button:dir(rtl) { --dir: -1; }
 
-  /* A text button holds the component's minimum width at every breakpoint.
-     Allowed to shrink-wrap, "زر" with its icons hidden came out 60x56 — a
-     circle, indistinguishable from the icon-button component sitting next to
-     it. This was previously applied only above 1280px, so the same button
-     looked like a different component on a phone.
+  /* Intrinsic width — the button hugs its content and nothing else.
+         no icons: padding + text + padding
+         icons:    padding + icon + gap + text + gap + icon + padding
+     All three terms are tokens, so the width is a consequence of the metrics
+     rather than a number anyone picks. A longer label makes a wider button and
+     an icon pair makes a wider one still, in Arabic exactly as in English.
 
-     min() lets it give way instead of overflowing when a narrow matrix column
-     cannot hold the full width. It is set on the host because Jelly's own
-     --jelly-button-min-width is inert — measured: the host stayed at 60px. */
+     The 168px came from Jelly itself: --jelly-button-min-width defaults to
+     168px and lands as min-width on its inner button, which is why every
+     button measured exactly that regardless of its label. Releasing it to
+     space-0 is what restores intrinsic sizing — a host-level rule cannot,
+     because the floor is inside the shadow root. */
   jelly-button {
-    --btn-min-width: 168px;               /* the width of the Figma component */
-    min-width: min(var(--btn-min-width), 100%);
+    --jelly-button-min-width: var(--space-0);
+    inline-size: fit-content;
   }
 
   /* Content advances one space-050 in the reading direction as p rises.
@@ -253,7 +260,15 @@
     display: inline-flex; align-items: center; gap: var(--space-100);
     transform: translateX(calc(var(--space-050) * var(--p) * var(--dir)));
   }
-  .jelly-label iconify-icon { flex: none; }
+  /* Reserve the icon's box up front. iconify hydrates lazily, so until its SVG
+     arrives the element measured 0 wide and the button was born narrow and
+     jumped when scrolled into view — measured: the RTL 40px button read 57.9px
+     off-screen and 89.9px in view. 1em resolves against the icon's own
+     font-size, which is a type token, so the width stays token-derived. */
+  .jelly-label iconify-icon,
+  jelly-icon-button > iconify-icon {
+    flex: none; inline-size: 1em; block-size: 1em;
+  }
 
   /* The label is not crossfaded on progress — each part is repainted when the
      spread actually reaches it, from the same origin and radius as the fill.
@@ -270,8 +285,10 @@
   jelly-button.s56 { --jelly-button-height: 56px; --jelly-button-padding-inline: var(--space-300); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-xl); }
   jelly-button.s48 { --jelly-button-height: 48px; --jelly-button-padding-inline: var(--space-250); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-lg); }
   jelly-button.s40 { --jelly-button-height: 40px; --jelly-button-padding-inline: var(--space-200); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-md); }
-  jelly-button.s56 iconify-icon, jelly-button.s48 iconify-icon { font-size: 20px; }
-  jelly-button.s40 iconify-icon { font-size: 16px; }
+  /* Icon box = the type token for that size, so the icon contributes a token
+     width to the sum above rather than a raw number. */
+  jelly-button.s56 iconify-icon, jelly-button.s48 iconify-icon { font-size: var(--text-xl); }
+  jelly-button.s40 iconify-icon { font-size: var(--text-md); }
 
   jelly-icon-button.s56 { --jelly-icon-button-size: 56px; }
   jelly-icon-button.s48 { --jelly-icon-button-size: 48px; }
@@ -432,12 +449,20 @@
   ];
   const SIZES = ['56', '48', '40'];
 
+  /* "56 px" is a single technical token, not prose. Dropped into an RTL panel
+     the bidi algorithm puts the number to the right of the unit and it reads
+     "px 56". Measured, not assumed: unicode-bidi:isolate and :embed both still
+     produced "px 56"; only an isolated LTR run produced "56 px". Scoped to
+     measurement values, so it stays an isolated run inside an RTL block rather
+     than direction chosen from content. */
+  const metric = text => '<span class="metric">' + text + '</span>';
+
   function buildGrid(el, kind) {
     const parts = ['<span></span>'];
     STYLES.forEach(([, label]) => parts.push('<span class="col-head">' + label + '</span>'));
 
     SIZES.forEach(size => {
-      parts.push('<span class="row-head">' + size + ' px</span>');
+      parts.push('<span class="row-head">' + metric(size + ' px') + '</span>');
       STYLES.forEach(([cls, styleName]) => {
         // The label only shows once the matrix stacks; above 768 the column
         // header carries it instead.
@@ -767,11 +792,38 @@
     el.addEventListener('blur', () => { setP(el, 0); clearReveal(el); });
   });
 
-  /* Only the deformation baseline needs clearing on resize: the button's
-     resting shape has changed, so the old sample would read as a permanent
-     deformation. The layers look after themselves through syncLayer and the
-     observer below, so there is nothing to tear down here. */
-  addEventListener('resize', () => CONTROLS.forEach(el => { el.__rest = null; }));
+  /* On resize the resting shape has changed, so the old baseline would read as
+     a permanent deformation and has to go.
+
+     The stroke is repainted here as well as by the observer below. The observer
+     watches the layout box, but a change in device pixel ratio rewrites Jelly's
+     backing store while the CSS box stays put — measured after a viewport
+     switch: our layer held 468x288 against Jelly's 410x252 at an identical
+     234px on screen, which would have drawn the stroke at 0.88 scale. */
+  addEventListener('resize', () => CONTROLS.forEach(el => {
+    el.__rest = null;
+    settleRing(el);
+  }));
+
+  /* Repaint until Jelly has finished resizing rather than once on the event.
+     Painting immediately syncs to the size Jelly is about to abandon, and the
+     observer cannot cover it — a device-pixel-ratio change rewrites the
+     backing store while the layout box it watches stays identical. So watch
+     the backing store directly and stop as soon as it holds still. */
+  function settleRing(el) {
+    if (el.__settling) return;
+    el.__settling = true;
+    let stable = 0, frames = 0;
+    const step = () => {
+      const jc = jellyCanvas(el), c = el.__ring;
+      if (!jc || ++frames > 40) { el.__settling = false; return; }
+      const matched = c && c.width === jc.width && c.height === jc.height;
+      if (!matched) { paintRing(el); stable = 0; } else stable++;
+      if (stable >= 3) { el.__settling = false; return; }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
 
   /* At rest nothing is tracking, so the stroke has to be repainted whenever the
      button changes size. Fixed timeouts were not enough: the RTL 40px outline
@@ -843,8 +895,8 @@
       '<tr><th>الحجم</th><th>الارتفاع</th><th>الحشو الأفقي</th><th>الفجوة</th>' +
       '<th>حجم الخط</th><th dir="ltr">--p</th></tr>' +
       rows.map(x => x.pending
-        ? '<tr><th>' + x.size + ' px</th><td colspan="5">— بانتظار تحميل Jelly —</td></tr>'
-        : '<tr><th>' + x.size + ' px</th><td>' + x.h + 'px</td>' +
+        ? '<tr><th>' + metric(x.size + ' px') + '</th><td colspan="5">— بانتظار تحميل Jelly —</td></tr>'
+        : '<tr><th>' + metric(x.size + ' px') + '</th><td>' + x.h + 'px</td>' +
           cell(x.pad + 'px', x.padOK) + cell(x.gap + 'px', x.gapOK) +
           '<td dir="ltr">' + x.font + '</td><td dir="ltr">' + x.p.toFixed(2) + '</td></tr>').join('') +
       '<tr><td colspan="6" style="white-space:normal">القيم مقروءة من داخل الظل الخاص بـ Jelly. ' +
