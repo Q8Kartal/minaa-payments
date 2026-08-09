@@ -16,7 +16,6 @@
     --font-medium:  "29LT Idris Round Medium",  'Cairo', sans-serif;
     --font-bold:    "29LT Idris Round ExtraBold", 'Cairo', sans-serif;
 
-    --text-xs: 12px;  --text-xs-lh: 18px;
     --text-sm: 14px;  --text-sm-lh: 20px;
     --text-md: 16px;  --text-md-lh: 24px;
     --text-lg: 18px;  --text-lg-lh: 28px;
@@ -34,7 +33,6 @@
     --cream:         #FBF0DC;
     --cream-200:     #F7E0B6;
 
-    --bg:     #FDF9F0;
     --card:   #FFFFFF;
     --text:   #0062AD;
     --muted:  rgba(0,98,173,.72);
@@ -326,13 +324,10 @@
 
   /* ═══ BREAKPOINTS — the documented grid, reassigned from one source ═════ */
 
-  /* Nothing here — the button's minimum width is not a breakpoint concern.
-     See the --btn-min-width rule above. */
-
   /* Stack the matrix below 820px. That threshold is measured, not guessed:
-     five 56px buttons at their natural 146px plus gaps, the row-head column
-     and the panel padding stop fitting just under 820, and the last column
-     began pushing out of the panel by 4-10px. */
+     five columns of buttons plus gaps, the row-head column and the panel
+     padding stop fitting just under 820, and the last column began pushing
+     out of the panel by 4-10px. */
   @media (max-width: 819px) {           /* stack: the matrix stops being a matrix */
     .matrix-inner { grid-template-columns: 1fr; gap: var(--space-150); }
     .col-head { display: none; }
@@ -464,7 +459,7 @@
     SIZES.forEach(size => {
       parts.push('<span class="row-head">' + metric(size + ' px') + '</span>');
       STYLES.forEach(([cls, styleName]) => {
-        // The label only shows once the matrix stacks; above 768 the column
+        // The label only shows once the matrix stacks; above that the column
         // header carries it instead.
         const tag = '<em class="cell-label">' + styleName + '</em>';
         if (kind === 'icon') {
@@ -512,12 +507,22 @@
      ═════════════════════════════════════════════════════════════════════ */
   const CONTROLS = [...document.querySelectorAll('jelly-button, jelly-icon-button')];
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
-  const SAMPLE_STEP = 6;                       // pixel stride when reading the blob
-  const AREA_SPAN   = 0.14;                    // +14% area  ~ full intensity
-  const SHIFT_SPAN  = 10;                      // 10 canvas px of centroid travel ~ full
-  const CORE        = 0.88;                    // solid share of the wave before it
-                                               // fades out; the label uses the same
-                                               // figure so the two cannot drift
+  /* Reading the deformation */
+  const SAMPLE_STEP   = 6;      // pixel stride when reading the blob
+  const AREA_SPAN     = 0.14;   // +14% area ~ full intensity
+  const SHIFT_SPAN    = 10;     // 10 canvas px of centroid travel ~ full
+  const BASELINE_EASE = 0.08;   // how fast the resting sample re-learns when untouched
+
+  /* Knowing when it has settled */
+  const STILL_EPS     = 0.004;  // frame-to-frame movement counted as "not moving"
+  const STILL_FRAMES  = 12;     // consecutive still frames before the loop lets go
+
+  /* Drawing the wave */
+  const CORE      = 0.88;       // solid share of the wave before it fades; the label
+                                // uses the same figure so the two cannot drift
+  const LEAN_GAIN = 2;          // how far the origin leans with the body's centroid
+  const MIN_BAND  = 12;         // floor for the soft edge on the smallest buttons
+  const FALLBACK_ACTIVE = 'rgb(232,65,29)';   // only if --fill-active resolves to nothing
 
   const setP = (el, p) => {
     const v = clamp01(p);
@@ -662,7 +667,7 @@
     let ox = (el.__contact.x - jb.left) * scale;
     let oy = (el.__contact.y - jb.top)  * scale;
     // let the spread lean the way the body is leaning
-    ox += lean.x * 2; oy += lean.y * 2;
+    ox += lean.x * LEAN_GAIN; oy += lean.y * LEAN_GAIN;
 
     /* Reach = the distance from this contact point to the furthest corner of
        the button, so intensity 1 means "just covered" wherever you touched and
@@ -676,7 +681,7 @@
     ctx.drawImage(jc, 0, 0);                     // exact deformed silhouette
     ctx.globalCompositeOperation = 'source-in';  // colour only inside the body
     const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, r);
-    const active = el.__activeColour || 'rgb(232,65,29)';
+    const active = activeColour(el);
     g.addColorStop(0, active);
     g.addColorStop(CORE, active);
     g.addColorStop(1, active.replace('rgb(', 'rgba(').replace(')', ',0)'));
@@ -694,7 +699,7 @@
     const parts = labelParts(el);
     if (!parts.length) return;
     const front = reachCss * intensity * CORE;          // same front as the fill
-    const band = Math.max(12, reachCss * (1 - CORE));   // same soft edge
+    const band = Math.max(MIN_BAND, reachCss * (1 - CORE));   // same soft edge
     parts.forEach(part => {
       const pb = part.getBoundingClientRect();
       const d = Math.hypot(pb.left + pb.width / 2 - hb.left - cx,
@@ -707,15 +712,24 @@
     labelParts(el).forEach(p => p.style.setProperty('--t', '0'));
   }
 
-  function resolveActiveColour(el) {
+  /* --fill-active may be any CSS colour, and the canvas needs a concrete rgb()
+     to build a gradient from. A throwaway element resolves it. The answer is
+     fixed by the variant class, so it is worked out once per button rather
+     than on every interaction. */
+  function activeColour(el) {
+    if (el.__activeColour) return el.__activeColour;
     const v = getComputedStyle(el).getPropertyValue('--fill-active').trim();
-    if (!v) return 'rgb(232,65,29)';
-    const probe = document.createElement('span');
-    probe.style.cssText = 'position:fixed;left:-9999px;color:' + v;
-    document.body.appendChild(probe);
-    const rgb = getComputedStyle(probe).color;
-    probe.remove();
-    return rgb.startsWith('rgb') ? rgb : 'rgb(232,65,29)';
+    let rgb = FALLBACK_ACTIVE;
+    if (v) {
+      const probe = document.createElement('span');
+      probe.style.cssText = 'position:fixed;left:-9999px;color:' + v;
+      document.body.appendChild(probe);
+      const resolved = getComputedStyle(probe).color;
+      probe.remove();
+      if (resolved.startsWith('rgb')) rgb = resolved;
+    }
+    el.__activeColour = rgb;
+    return rgb;
   }
 
   /* One loop per active button. It follows Jelly rather than leading it, and
@@ -723,7 +737,7 @@
   function track(el) {
     if (el.__tracking) return;
     el.__tracking = true;
-    el.__activeColour = resolveActiveColour(el);
+    activeColour(el);
     if (!el.__rest) el.__rest = readBlob(el);
     let still = 0, prev = null;
     const step = () => {
@@ -736,9 +750,9 @@
          mid-wobble; without this it stays wrong and the button keeps a
          phantom colour forever. */
       if (!el.__engaged) {
-        rest.n  += (now.n  - rest.n)  * 0.08;
-        rest.cx += (now.cx - rest.cx) * 0.08;
-        rest.cy += (now.cy - rest.cy) * 0.08;
+        rest.n  += (now.n  - rest.n)  * BASELINE_EASE;
+        rest.cx += (now.cx - rest.cx) * BASELINE_EASE;
+        rest.cy += (now.cy - rest.cy) * BASELINE_EASE;
       }
 
       const dArea = (now.n - rest.n) / rest.n;
@@ -756,8 +770,8 @@
         ? Math.abs(now.n - prev.n) / rest.n + Math.hypot(now.cx - prev.cx, now.cy - prev.cy)
         : Infinity;
       prev = now;
-      still = moved < 0.004 ? still + 1 : 0;
-      if (still > 12 && !el.__engaged) {          // settled and no longer touched
+      still = moved < STILL_EPS ? still + 1 : 0;
+      if (still > STILL_FRAMES && !el.__engaged) {   // settled and no longer touched
         el.__tracking = false; setP(el, 0); clearReveal(el); return;
       }
       requestAnimationFrame(step);
@@ -786,7 +800,6 @@
       if (!(inner || el).matches(':focus-visible')) return;
       const b = el.getBoundingClientRect();
       el.__contact = { x: b.left + b.width / 2, y: b.top + b.height / 2 };
-      el.__activeColour = resolveActiveColour(el);
       setP(el, 1); paint(el, 1, { x: 0, y: 0 });
     });
     el.addEventListener('blur', () => { setP(el, 0); clearReveal(el); });
@@ -862,7 +875,6 @@
     CONTROLS.forEach(el => {
       const b = el.getBoundingClientRect();
       el.__contact = { x: b.left + b.width / 2, y: b.top + b.height / 2 };
-      el.__activeColour = resolveActiveColour(el);
       setP(el, v);
       paint(el, v, { x: 0, y: 0 });
     });
@@ -911,7 +923,6 @@
   const toggle = (id, cls) =>
     document.getElementById(id).addEventListener('change', e => {
       document.body.classList.toggle(cls, e.target.checked);
-      CONTROLS.forEach(el => { el.__origin = null; });   // padding changed, recalibrate
       measureWhenSettled();
     });
   toggle('trace',   'trace');
@@ -922,7 +933,7 @@
     customElements.whenDefined('jelly-button'),
     customElements.whenDefined('jelly-icon-button')
   ]).then(() => {
-    CONTROLS.forEach(el => { el.__origin = null; setP(el, 0); });
+    CONTROLS.forEach(el => setP(el, 0));
     setTimeout(measure, 300);
   });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
