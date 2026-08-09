@@ -8,6 +8,15 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
+    /* Never let the browser fake a weight. Each Idris Round weight ships as its
+       own family, all registered at 400, so a rule asking for 700/800/900 makes
+       the browser smear an already-bold face. Latin survives it; Arabic does
+       not — the smear thickens the joined strokes until they merge and the
+       counters fill, which mangles the script on phones. With synthesis off the
+       real face is used as it is, and if Idris fails to load Cairo still
+       supplies genuine 400-900 weights, so the hierarchy below is unharmed. */
+    html { font-synthesis: none; }
+
     :root {
       /* 29LT Idris Round — each weight ships as a separate family name,
          so pick the family, not the font-weight. Cairo is the fallback. */

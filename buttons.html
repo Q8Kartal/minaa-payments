@@ -57,6 +57,21 @@
 
   * { box-sizing: border-box; }
 
+  /* ── Weight comes from the family, never from font-weight ────────────────
+     Idris Round ships each weight as its own family, and all three faces are
+     registered at weight 400. So anything asking for 600 or 700 makes the
+     browser fake a bolder face on top of one that is already bold, by smearing
+     every glyph. Latin tolerates that; Arabic does not — the smear thickens the
+     joined strokes until they merge and the counters fill in, which is what
+     mangled the heading and the button labels on phones.
+
+     Two rules keep it honest: never synthesise, and never ask for a weight the
+     family does not have. Measured before this: h1 and the panel titles
+     computed 700, and Jelly's own label computed 640. */
+  html { font-synthesis: none; }
+  h1, h2, h3, h4, th, b, strong,
+  .jelly-label, jelly-button, jelly-icon-button { font-weight: 400; }
+
   body {
     margin: 0;
     font-family: var(--font-regular);
