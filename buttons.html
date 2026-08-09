@@ -169,15 +169,42 @@
     padding: var(--space-250);
     display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-300);
   }
-  .controls label { display: inline-flex; align-items: center; gap: var(--space-100); font-size: var(--text-md); line-height: var(--text-md-lh); cursor: pointer; }
-  .controls input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+  .controls { font-size: var(--text-md); line-height: var(--text-md-lh); }
   .controls .hint { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); margin-inline-start: auto; }
-  .controls .scrub { gap: var(--space-150); }
-  .controls .scrub input[type="range"] { width: 160px; accent-color: var(--secondary); cursor: ew-resize; }
+  .controls .scrub { display: inline-flex; align-items: center; gap: var(--space-150); }
   .controls .scrub output {
     font-family: var(--font-bold); font-size: var(--text-sm); line-height: var(--text-sm-lh);
     min-width: 40px; color: var(--secondary);
   }
+
+  /* The page's own controls are Jelly's too — a showcase that used the OS
+     checkbox and range would be arguing against itself. Jelly resolves its
+     theme tokens at draw time, so tinting --jelly-color-background-accent is
+     what carries the Minaã palette onto a canvas-painted control; there is no
+     CSS surface to style directly. */
+  jelly-switch, jelly-slider {
+    /* Which token paints what was established by probing, not by reading names:
+       -accent is the on/filled colour, -neutral the rest of the track, and
+       -background-white the thumb. Jelly's defaults are a near-black track and
+       an off-white thumb, neither of which belongs in this palette. */
+    --jelly-color-background-neutral: var(--faint);
+    --jelly-color-background-white: var(--cream);
+    --jelly-color-foreground-on-accent: var(--cream);
+  }
+  jelly-switch {
+    --jelly-color-background-accent: var(--primary);
+    /* The slotted label is painted by the shadow root, so an inherited `color`
+       loses to it. Probed: --jelly-color-foreground-muted is the one that
+       reaches it, and its default is an off-palette grey. */
+    --jelly-color-foreground-muted: var(--text);
+    --jelly-switch-gap: var(--space-100);
+    --jelly-switch-font-size: var(--text-md);
+    font-family: var(--font-regular);
+    cursor: pointer;
+  }
+  /* The scrubber is a debug affordance, not a payment action — red, matching
+     the readout beside it. */
+  jelly-slider { --jelly-color-background-accent: var(--secondary); }
 
   /* ── Section panels — top-level containers, so they align to the grid ── */
   .panel {
@@ -416,13 +443,14 @@
 
   <!-- Controls -->
   <div class="controls">
-    <label><input type="checkbox" id="trace"> إظهار حدود الزر أثناء التشوّه</label>
-    <label><input type="checkbox" id="noicons"> إخفاء الأيقونات</label>
-    <label class="scrub">
-      تمرير يدوي للتقدّم
-      <input type="range" id="scrub" min="0" max="1" step="0.01" value="0">
-      <output id="scrub-out" dir="ltr">0.00</output>
-    </label>
+    <jelly-switch id="trace" size="small">إظهار حدود الزر أثناء التشوّه</jelly-switch>
+    <jelly-switch id="noicons" size="small">إخفاء الأيقونات</jelly-switch>
+    <span class="scrub">
+      <span>تمرير يدوي للتقدّم</span>
+      <jelly-slider id="scrub" size="small" min="0" max="1" step="0.01" value="0"
+                    label="تمرير يدوي للتقدّم"></jelly-slider>
+      <output id="scrub-out" class="metric">0.00</output>
+    </span>
     <span class="hint">قرّب المؤشر من الأيقونة الأمامية — التقدّم يتبع المسافة، ولا يكتمل من تلقاء نفسه</span>
   </div>
 
