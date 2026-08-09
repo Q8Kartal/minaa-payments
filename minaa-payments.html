@@ -4,17 +4,37 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>نظام المدفوعات – Minaã</title>
-  <link rel="stylesheet" type="text/css" href="https://webfonts.fontstand.com/WF-094922-4fc5a1e5caa40a909afb60cdb86e8f10.css"/>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
-    /* Never let the browser fake a weight. Each Idris Round weight ships as its
-       own family, all registered at 400, so a rule asking for 700/800/900 makes
-       the browser smear an already-bold face. Latin survives it; Arabic does
-       not — the smear thickens the joined strokes until they merge and the
-       counters fill, which mangles the script on phones. With synthesis off the
-       real face is used as it is, and if Idris fails to load Cairo still
-       supplies genuine 400-900 weights, so the hierarchy below is unharmed. */
+    /* ── Type — self-hosted, no Fontstand ─────────────────────────────────
+       29LT ships each weight as its own file, and the app keeps them as three
+       family names so weight is still chosen by swapping family.
+
+       Each face claims the whole 100-900 range deliberately. Registered at a
+       single weight, the many rules below asking for 700/800/900 made the
+       browser fake a bolder face by smearing the glyphs — which merges Arabic
+       strokes and fills the counters, mangling the script on phones. Claiming
+       the range means every one of those requests resolves to this face
+       exactly, with nothing left to synthesise. */
+    @font-face {
+      font-family: "29LT Idris Round Regular";
+      src: url("fonts/29LTIdrisRound-Regular.woff2") format("woff2");
+      font-weight: 100 900; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: "29LT Idris Round Medium";
+      src: url("fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+      font-weight: 100 900; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: "29LT Idris Round ExtraBold";
+      src: url("fonts/29LTIdrisRound-ExtraBold.woff2") format("woff2");
+      font-weight: 100 900; font-style: normal; font-display: swap;
+    }
+
+    /* Belt and braces: only reached if a face fails to load and Cairo, which
+       does carry real 400-900 weights, takes over. */
     html { font-synthesis: none; }
 
     :root {

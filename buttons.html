@@ -4,17 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>مكتبة الأزرار – Minaã</title>
-<link rel="stylesheet" type="text/css" href="https://webfonts.fontstand.com/WF-094922-4fc5a1e5caa40a909afb60cdb86e8f10.css"/>
 <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
 <!-- Jelly UI owns the soft-body physics. Nothing here reimplements its motion;
      the colour reveal is layered on top of the properties it already exposes. -->
 <script type="module" src="https://jelly-ui.com/package.js"></script>
 <style>
+  /* ── Type — self-hosted, no Fontstand ───────────────────────────────────
+     29LT ships each weight as its own file, and the page keeps them as three
+     family names so weight is still chosen by swapping family.
+
+     Each face is declared across the whole 100-900 range on purpose. Registered
+     at a single weight, any rule asking for 700 would have made the browser
+     fake a bolder face by smearing the glyphs, which merges Arabic strokes and
+     fills the counters. Claiming the range means every weight request resolves
+     to this face exactly, with nothing left to synthesise. */
+  @font-face {
+    font-family: "29LT Idris Round Regular";
+    src: url("fonts/29LTIdrisRound-Regular.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "29LT Idris Round Medium";
+    src: url("fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "29LT Idris Round ExtraBold";
+    src: url("fonts/29LTIdrisRound-ExtraBold.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+
   :root {
     /* ── Type ───────────────────────────────────────────────────────────── */
-    --font-regular: "29LT Idris Round Regular", 'Cairo', sans-serif;
-    --font-medium:  "29LT Idris Round Medium",  'Cairo', sans-serif;
-    --font-bold:    "29LT Idris Round ExtraBold", 'Cairo', sans-serif;
+    --font-regular: "29LT Idris Round Regular", sans-serif;
+    --font-medium:  "29LT Idris Round Medium",  sans-serif;
+    --font-bold:    "29LT Idris Round ExtraBold", sans-serif;
 
     --text-sm: 14px;  --text-sm-lh: 20px;
     --text-md: 16px;  --text-md-lh: 24px;
@@ -57,20 +81,10 @@
 
   * { box-sizing: border-box; }
 
-  /* ── Weight comes from the family, never from font-weight ────────────────
-     Idris Round ships each weight as its own family, and all three faces are
-     registered at weight 400. So anything asking for 600 or 700 makes the
-     browser fake a bolder face on top of one that is already bold, by smearing
-     every glyph. Latin tolerates that; Arabic does not — the smear thickens the
-     joined strokes until they merge and the counters fill in, which is what
-     mangled the heading and the button labels on phones.
-
-     Two rules keep it honest: never synthesise, and never ask for a weight the
-     family does not have. Measured before this: h1 and the panel titles
-     computed 700, and Jelly's own label computed 640. */
+  /* Belt and braces. The @font-face range above already leaves nothing to
+     synthesise, so this only matters if a face fails to load and a fallback
+     without real weights takes over. */
   html { font-synthesis: none; }
-  h1, h2, h3, h4, th, b, strong,
-  .jelly-label, jelly-button, jelly-icon-button { font-weight: 400; }
 
   body {
     margin: 0;

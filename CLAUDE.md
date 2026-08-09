@@ -22,9 +22,10 @@ See `DESIGN.md` for the full system. Essentials:
   - Ranges: **0–8px** compact UI · **12–24px** larger components · **32–80px** page layout.
   - Principles: group by similarity · group by proximity · create order and hierarchy · introduce visual rhythm through consistent repetition · use optical adjustment. See `DESIGN.md` §4.
   - Figma cannot store `.` in variable names, so tokens are stored as `space-0` … `space-1000`; `space.0` … `space.1000` is the canonical form.
-- **Font:** 29LT Idris Round (Fontstand webfonts), with Cairo as fallback
+- **Font:** 29LT Idris Round, **self-hosted** from `fonts/*.woff2` (~130 KB per weight). Cairo remains the fallback in the app.
   - Each weight is a **separate family name** — `"29LT Idris Round Regular" / " Medium" / " ExtraBold"` — so weight is selected by swapping `font-family`, not by `font-weight`. Use the `--font-regular` / `--font-medium` / `--font-bold` vars.
-  - **Licensed per domain.** Fontstand returns **403** for unregistered origins. `localhost` / `127.0.0.1` / `0.0.0.0:3000` work automatically; `https://q8kartal.github.io` must be added in the Fontstand account or the page silently falls back to Cairo. Also metered: 10,000 pageviews/month.
+  - Each `@font-face` claims `font-weight: 100 900` **deliberately**. Registered at a single weight, any rule asking for 700/800/900 makes the browser fake a bolder face by smearing the glyphs — which merges Arabic strokes and fills the counters, mangling the script on phones. Claiming the range makes every weight request resolve to that face exactly, with nothing to synthesise. `html { font-synthesis: none }` is the backstop.
+  - No Fontstand, so **no per-domain licensing, no 403 on unregistered origins, no 10,000 pageview meter, and `file://` works**.
 - **Logo:** Blue seagull-on-bollard logomark — the official `Artboard 17.svg`, embedded as an SVG data URI in the `<img>` inside `.logo-wrap` (no text lockup)
 
 ---
@@ -144,7 +145,7 @@ top bar and icon rail.
   - **No `direction: ltr` islands.** Verified empirically that `64%`, `0.3088`, `INV-260808-001`, `ChatGBT & Codex` and `150.000 د.ك` all render identically in RTL, so the overrides on `.ring-pct`, `.rate-mini`, `.inv-meta` and `.td-amount` were unnecessary and were removed. The page now has **zero** elements computing `direction: ltr`.
   - A separate English LTR build will come later; do **not** make this page adaptive to reach it.
 - **iOS autofill:** Safari paints autofilled fields yellow. Masked via `jelly-input::part(input):-webkit-autofill`
-- **Fonts are domain-licensed:** unregistered origins get 403 and fall back to Cairo. `file://` never works — serve over `localhost` (see `.claude/launch.json`) to see the real fonts
+- **Never register a face at one weight when rules ask for another.** The browser then synthesises bold by smearing each glyph; Latin survives it, Arabic does not — joined strokes merge and counters fill. This shipped once and mangled the headings and button labels on phones. Fixed by declaring `font-weight: 100 900` on every `@font-face`.
 
 ---
 
@@ -162,6 +163,8 @@ top bar and icon rail.
 ## File Structure
 ```
 minaa-payments.html   ← The entire app (HTML + CSS + JS + SVG logo)
+buttons.html          ← Live preview of the Figma button library, built on Jelly UI
+fonts/                ← 29LT Idris Round, self-hosted WOFF2 (Regular / Medium / ExtraBold)
 CLAUDE.md             ← This file — project context for Claude Code
 DESIGN.md             ← Design system: colour, type, spacing, components
 PRODUCT.md            ← Users, purpose, brand personality
@@ -172,10 +175,10 @@ docs/superpowers/     ← Design specs and implementation plans
 ---
 
 ## How to Run
-Opening `minaa-payments.html` directly works, **but the licensed fonts will not
-load over `file://`** — Fontstand blocks that origin, so you get Cairo instead.
+Opening `minaa-payments.html` directly works, fonts included — they are served
+from `fonts/` alongside the file, so `file://` is no longer a problem.
 
-To see it as designed, serve it:
+Serving it is still the closer match to production:
 
 ```bash
 python -m http.server 3000

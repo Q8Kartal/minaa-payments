@@ -206,15 +206,15 @@ yellow warning toast, where light text is unreadable.
 
 ## 3. Typography
 
-**29LT Idris Round**, served by Fontstand, with Cairo as fallback.
+**29LT Idris Round**, self-hosted from `fonts/*.woff2`, with Cairo as fallback.
 Figma variable: `Font Family/font-family-display` = `29LT Idris Round`.
 
 > **Figma and the web differ here, deliberately.** In Figma the family is a
 > single `29LT Idris Round` with numeric weights (`font-weight-regular` = 400,
-> `font-weight-Extrabold` = 800). Fontstand's *webfont* delivery ships each
-> weight as its **own `@font-face` family** with no weight descriptor, so on the
-> web the weight must be selected by swapping `font-family`. Using
-> `font-weight: 800` alone would render Regular. Use the tokens.
+> `font-weight-Extrabold` = 800). 29LT ships each weight as a **separate file**,
+> and the web build keeps them as **three `@font-face` families**, so on the web
+> the weight is selected by swapping `font-family`. Using `font-weight: 800`
+> alone would render Regular. Use the tokens.
 
 | Token | Family |
 |---|---|
@@ -224,10 +224,10 @@ Figma variable: `Font Family/font-family-display` = `29LT Idris Round`.
 
 Mapping: weights 600–700 → Medium; 800–900 → ExtraBold; everything else → Regular.
 
-**Licensing:** domain-locked and metered (10,000 pageviews/month). Unregistered
-origins get a 403 and the page silently falls back to Cairo — which is why Cairo
-stays in every stack. `localhost`/`127.0.0.1` are auto-recognized; production
-domains must be registered in the Fontstand account.
+**Delivery:** self-hosted WOFF2 in `fonts/`, ~130 KB per weight, `font-display:
+swap`. No per-domain registration, no 403 on unfamiliar origins, no pageview
+meter, and `file://` works. Cairo stays in the app's stack as a fallback for the
+case where a font file fails to load.
 
 ### Type scale
 From the Minaã Foundations Figma text styles. Every step exists in all three
@@ -265,13 +265,22 @@ both. Weights are Regular 400, Medium 500, ExtraBold 800.
 There is also a `Text sm/Regular underlined` style. Not implemented — the app
 has no underlined text.
 
-**Faux-bold check:** because each Fontstand face is its own family with no
-weight descriptor, declaring `font-weight: 800` alongside it could make the
-browser synthesise bold over an already-bold cut. Measured in the DOM at 40px:
-each face renders identically at weight 400 and 800 (Regular 244.28px,
-Medium 256.27px, ExtraBold 283.72px — three distinct cuts, zero delta). **No
-synthesis is occurring**, so the `font-weight` declarations are harmless and
-are kept so the Cairo fallback still gets real weights.
+**Faux-bold — this section previously said the opposite, and was wrong.**
+It claimed no synthesis was occurring, on the evidence that each face measured
+the same width at weight 400 and 800. That test cannot detect the problem:
+Chrome's synthetic bold smears the outline without materially changing advance
+widths, so equal widths are a false negative. Synthesis *was* occurring — the
+headings computed 700 and Jelly's button label 640 against faces registered at
+400 — and it mangled Arabic on phones, thickening joined strokes until they
+merged and filling the counters.
+
+Now every `@font-face` claims `font-weight: 100 900`, so a request for any
+weight resolves to that face exactly with nothing left to synthesise, and
+`html { font-synthesis: none }` backs it up. Verified the way that actually
+detects it: per family, the rendered width at 400, 700 and 900 is identical
+(Regular 287.4px, Medium 304.2px, ExtraBold 342.4px — three distinct cuts), and
+`font-synthesis` computes `none`. The `font-weight` declarations stay so the
+Cairo fallback still gets real weights.
 
 ### Applied
 | Element | Step |
