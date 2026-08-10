@@ -692,22 +692,31 @@
      It drives transforms rather than repainting pixels, so it costs the
      compositor a matrix and nothing else — worth having on a phone, where the
      canvas approach would not be. */
-  const SPRING = 0.36, DAMP = 0.72, SQUASH = 0.22, LEAN = 3;
+  const SPRING = 0.36, DAMP = 0.72, SQUASH = 0.22, LEAN = 3, HOVER = 0.34;
+  /* A mouse click presses and releases inside a single frame, so a press read
+     purely as a state is never sampled and the button looks dead to a mouse
+     while working under a finger that rests. Every press is therefore held for
+     at least this long, which is what makes a click on a desktop feel like
+     anything at all. Measured: it reaches the squash and wobbles out. */
+  const MIN_PRESS = 110;
 
   document.querySelectorAll('.lang-part').forEach(part => {
     const path = part.querySelector('path');
-    let held = false, hx = 0, hy = 0;      // where it is being pressed, 0..1
+    let down = false, hovered = false, hx = 0.5, hy = 0.5;
+    let pressedAt = 0, held = false;
     let v = 0, k = 0, raf = 0;             // spring velocity and displacement
 
-    const frame = () => {
-      const target = held ? 1 : 0;
+    const wake = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+    function frame() {
+      held = down || performance.now() - pressedAt < MIN_PRESS;
+      const target = held ? 1 : (hovered ? HOVER : 0);
       v += (target - k) * SPRING;
       v *= DAMP;
       k += v;
-      if (!held && Math.abs(k) < 0.001 && Math.abs(v) < 0.001) {
+      if (!held && !hovered && Math.abs(k) < 0.001 && Math.abs(v) < 0.001) {
         k = 0; v = 0; raf = 0;
-        path.style.removeProperty('--sx'); path.style.removeProperty('--sy');
-        path.style.removeProperty('--tx'); path.style.removeProperty('--ty');
+        ['--sx','--sy','--tx','--ty'].forEach(p => path.style.removeProperty(p));
         return;
       }
       path.style.setProperty('--sx', (1 + SQUASH * k).toFixed(4));
@@ -715,34 +724,50 @@
       path.style.setProperty('--tx', ((hx - 0.5) * LEAN * k).toFixed(2) + 'px');
       path.style.setProperty('--ty', ((hy - 0.5) * LEAN * k).toFixed(2) + 'px');
       raf = requestAnimationFrame(frame);
-    };
+    }
 
-    const grab = e => {
+    const aim = e => {
       const b = part.getBoundingClientRect();
       hx = (e.clientX - b.left) / b.width;
       hy = (e.clientY - b.top) / b.height;
       path.style.setProperty('--ox', (hx * 100).toFixed(1) + '%');
       path.style.setProperty('--oy', (hy * 100).toFixed(1) + '%');
-      if (!raf) raf = requestAnimationFrame(frame);
     };
 
+    const release = () => { if (!down) return; down = false; wake(); };
+
     path.addEventListener('pointerdown', e => {
-      held = true; grab(e);
-      part.setPointerCapture?.(e.pointerId);
+      down = true; pressedAt = performance.now(); aim(e); wake();
     });
-    path.addEventListener('pointermove', e => { if (held) grab(e); });
-    ['pointerup', 'pointercancel', 'pointerleave'].forEach(t =>
-      path.addEventListener(t, () => { held = false; if (!raf) raf = requestAnimationFrame(frame); }));
+
+    /* Move and release are watched on the window, not on the glyph. Pointer
+       capture was the obvious way to follow a drag, but it retargets events to
+       the capturing element and this button is pointer-events:none so the
+       paths can own the hit area — so the release never came back and the
+       press stuck down. The window sees it wherever the finger ends up. */
+    addEventListener('pointermove', e => { if (held) aim(e); }, { passive: true });
+    ['pointerup', 'pointercancel'].forEach(t => addEventListener(t, release));
+    /* A drag that leaves the window entirely still has to let go. */
+    addEventListener('blur', release);
+
+    /* Hover is the desktop equivalent of a finger resting on it, and gives the
+       mouse the same live response the rest of the page has. Touch never
+       reports hover, so this stays a pointer-device affordance. */
+    path.addEventListener('pointerenter', e => {
+      if (e.pointerType === 'touch') return;
+      hovered = true; aim(e); wake();
+    });
+    path.addEventListener('pointerleave', () => { hovered = false; wake(); });
 
     /* Keyboard gets the same squish, from the centre, since there is no
        contact point to squash toward. */
     part.addEventListener('keydown', e => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      hx = hy = 0.5; held = true;
+      hx = hy = 0.5; down = true; pressedAt = performance.now();
       path.style.setProperty('--ox', '50%'); path.style.setProperty('--oy', '50%');
-      if (!raf) raf = requestAnimationFrame(frame);
+      wake();
     });
-    part.addEventListener('keyup', () => { held = false; if (!raf) raf = requestAnimationFrame(frame); });
+    part.addEventListener('keyup', release);
 
     /* Pressing the language you are already reading does nothing. */
     part.addEventListener('click', () => {

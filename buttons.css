@@ -208,7 +208,9 @@
      which hit-tests the real bubble silhouettes. */
   .lang-pair {
     position: relative;
-    inline-size: 44px; block-size: 44px;   /* a comfortable touch target */
+    /* space-800. The previous 44px was off the scale outright — a touch-target
+       number borrowed from a guideline rather than taken from the system. */
+    inline-size: var(--space-800); block-size: var(--space-800);
     flex: none;
   }
   .lang-part {
@@ -220,6 +222,10 @@
   .lang-part svg { display: block; inline-size: 100%; block-size: 100%; overflow: visible; }
   .lang-part path {
     pointer-events: auto; cursor: pointer;
+    /* The press belongs to the button, not the scroller. Left at auto, a touch
+       starting on the glyph was claimed for scrolling and arrived back as
+       pointercancel, which is what made it unreliable on a phone. */
+    touch-action: none;
     /* Squash toward the finger. The origin is written per press, so the shape
        gives way where it is actually touched rather than around its middle. */
     transform-origin: var(--ox, 50%) var(--oy, 50%);
