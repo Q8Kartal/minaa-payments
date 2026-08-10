@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>مكتبة الأزرار – Minaã</title>
+<!-- The three faces are 394KB of the page and are only discovered once the
+     stylesheet parses, which on a phone is the slowest thing here. Preloading
+     starts them with the document instead. Preconnect opens the two
+     third-party sockets early: Jelly is a module plus a chunk, and iconify is
+     a script plus a call to its API for the icon set. -->
+<link rel="preload" href="fonts/29LTIdrisRound-Regular.woff2"   as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/29LTIdrisRound-Medium.woff2"    as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/29LTIdrisRound-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://jelly-ui.com" crossorigin>
+<link rel="preconnect" href="https://code.iconify.design" crossorigin>
+<link rel="preconnect" href="https://api.iconify.design" crossorigin>
 <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
 <!-- Jelly UI owns the soft-body physics. Nothing here reimplements its motion;
      the colour reveal is layered on top of the properties it already exposes. -->

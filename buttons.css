@@ -196,7 +196,14 @@
   }
   .controls { font-size: var(--text-md); line-height: var(--text-md-lh); }
   .controls .hint { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); margin-inline-start: auto; }
-  .controls .scrub { display: inline-flex; align-items: center; gap: var(--space-150); }
+  /* Wraps and shrinks. Held rigid it measured 291px inside a 277px bar on a
+     phone and pushed 33px out — the slider alone asks for 166px, and a label
+     and a readout do not fit beside it at that width. */
+  .controls .scrub {
+    display: inline-flex; align-items: center; gap: var(--space-150);
+    flex-wrap: wrap; min-width: 0;
+  }
+  .controls .scrub jelly-slider { flex: 1 1 auto; min-width: 0; }
   .controls .scrub output {
     font-family: var(--font-bold); font-size: var(--text-sm); line-height: var(--text-sm-lh);
     min-width: 40px; color: var(--secondary);
@@ -468,7 +475,10 @@
   .measure td { color: var(--muted); }
   .measure tr:last-child td { border-bottom: none; }
   .measure .ok   { color: var(--success-text); font-family: var(--font-bold); }
-  .measure .scroll { overflow-x: auto; }
+  /* min-width:0 or the scroll container refuses to shrink below its table and
+     widens the panel instead of scrolling — it was pushing the grid out by 3px
+     on a phone rather than scrolling the 8 columns it is there to scroll. */
+  .measure .scroll { overflow-x: auto; min-width: 0; }
 
   /* ── Options ──────────────────────────────────────────────────────────── */
   /* There is deliberately no "hide icons" option. Icon presence is a
@@ -487,12 +497,19 @@
       --grid-columns: 6;
       --grid-gutter: var(--space-150);   /* 12px */
       --grid-margin: var(--space-200);   /* 16px */
+      /* Steps down with the margin. Left at space-400 it kept 32px between
+         sections while the page margin halved to 16px, so the rhythm sloped:
+         the gutter said small screen and the stack said large one. */
+      gap: var(--space-300);
     }
     .stat-card { grid-column: span 3; }  /* 2 across */
     .greeting h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
   }
   @media (max-width: 767px) {
     .panel { padding: var(--space-300); }
+    /* A 40px column gap inside a 278px panel spent a seventh of the width on
+       air and pushed specimens onto extra rows. Steps down with the panel. */
+    .examples { gap: var(--space-250) var(--space-300); }
   }
   @media (max-width: 479px) {           /* xxs — 2 columns */
     .main-col { --grid-columns: 2; }
