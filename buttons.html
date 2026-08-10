@@ -258,6 +258,17 @@
     --jelly-toast-font-size: var(--text-sm);
     font-family: var(--font-regular);
   }
+  /* Jelly rings the pill in a dark grey and puts the dismiss glyph in grey on a
+     darker grey disc. Neither is a Minaã colour, and the pill needs no stroke —
+     it already separates from the page by fill and shadow. */
+  jelly-toaster::part(toast) { border: none; }
+  /* The × is Minaã Red. It sits on a cream disc rather than straight on the
+     blue: measured, red on Primary 700 is 1.59:1 and all but disappears, while
+     red on cream is 3.57:1 and clears the 3:1 a control needs. */
+  jelly-toaster::part(close) {
+    background: var(--cream);
+    color: var(--secondary);
+  }
 
   /* ── Section panels — top-level containers, so they align to the grid ── */
   /* The panel owns the rhythm between its blocks instead of each block
