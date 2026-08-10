@@ -28,6 +28,25 @@ See `DESIGN.md` for the full system. Essentials:
   - No Fontstand, so **no per-domain licensing, no 403 on unregistered origins, no 10,000 pageview meter, and `file://` works**.
 - **Logo:** Blue seagull-on-bollard logomark — the official `Artboard 17.svg`, embedded as an SVG data URI in the `<img>` inside `.logo-wrap` (no text lockup)
 
+### Before committing any UI — run these three checks
+Every design-system violation in this project so far came from one of three
+places, not from disagreeing with the system:
+
+1. **Scan for raw values.** Any literal `px` in a padding/margin/gap, or any
+   literal hex/rgb outside the `:root` token block, is a violation. Both the
+   0px panel gaps and the hardcoded `#158200` tick survived review because
+   nobody looked for them — they were written and never checked.
+2. **Check the step, not just the palette.** A colour can be a real Minaã
+   colour and still be the wrong step. Name the Foundations step in a comment
+   (`Primary 700`, `Green 700`) so the next reader can verify it.
+3. **Chrome normalises colours**, so a regex looking for `#RRGGBB` in the CSSOM
+   finds nothing — it returns `rgb(...)`. Grep the source file for literals, or
+   compare rendered values against a map of Foundations steps. A clean scan
+   from the wrong method is worse than no scan.
+
+Documentation furniture — tables, captions, debug controls — is design work and
+gets the same treatment as components. That is where these misses happened.
+
 ---
 
 ## Payment Types

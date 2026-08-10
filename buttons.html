@@ -48,14 +48,23 @@
     --display-sm: 32px; --display-sm-lh: 40px;
     --display-lg: 48px; --display-lg-lh: 60px;
 
-    /* ── Colour — the Minaã Colour variables ────────────────────────────── */
-    --primary:       #0062AD;
+    /* ── Colour — the Minaã Colour variables ─────────────────────────────
+       Named after the Foundations steps they come from, so a value can be
+       checked against the page it came from rather than taken on trust. */
+    --primary:       #0062AD;   /* Primary 700 — Minaã Blue */
     --primary-100:   #E2F0FF;
-    --primary-tint:  #F2F8FF;
-    --secondary:     #E8411D;
-    --cream-50:      #FDF9F0;
-    --cream:         #FBF0DC;
-    --cream-200:     #F7E0B6;
+    --primary-tint:  #F2F8FF;   /* Primary 50  */
+    --secondary:     #E8411D;   /* Secondary 600 — Minaã Red */
+    --cream-50:      #FDF9F0;   /* Neutral 50  */
+    --cream:         #FBF0DC;   /* Neutral 100 — Minaã Cream */
+    --cream-200:     #F7E0B6;   /* Neutral 200 */
+
+    /* Semantic — success only; this page has nothing to warn about or fail.
+       The signature success hue is Green 600 (#05AA00), but at 3.11:1 on the
+       white card it does not clear 4.5:1 for text this small, so the ✓ uses
+       Green 700 at 4.97:1 — the same logic that makes Minaã Blue the 700 step
+       of its own scale. A Foundations step either way, not an invented value. */
+    --success-text:  #158200;   /* Green 700 */
 
     --card:   #FFFFFF;
     --text:   #0062AD;
@@ -392,7 +401,7 @@
   .measure th { font-family: var(--font-bold); color: var(--text); }
   .measure td { color: var(--muted); }
   .measure tr:last-child td { border-bottom: none; }
-  .measure .ok   { color: #158200; font-family: var(--font-bold); }
+  .measure .ok   { color: var(--success-text); font-family: var(--font-bold); }
   .measure .scroll { overflow-x: auto; }
 
   /* ── Options ──────────────────────────────────────────────────────────── */
