@@ -98,6 +98,17 @@
      without real weights takes over. */
   html { font-synthesis: none; }
 
+  /* Text that Jelly creates itself — toast copy, for one — lives inside its
+     shadow root and is set from these tokens, so an inherited font-family on
+     the host never reaches it. Measured: toasts were rendering in
+     ui-rounded / SF Pro Rounded while the rest of the page was Idris Round.
+     Set once at the root so every Jelly component that writes its own text
+     inherits the brand face. Mono is left alone; nothing here is code. */
+  :root {
+    --jelly-font-display: var(--font-medium);
+    --jelly-font-text:    var(--font-regular);
+  }
+
   body {
     margin: 0;
     font-family: var(--font-regular);
@@ -740,23 +751,23 @@
      that varies is the tone. "error" and "neutral" are not tones — measured,
      both fall back to Info — so the set is exactly these four. */
   const TONES = [
-    ['info',    'Info',    'تم تحديث القائمة'],
-    ['success', 'Success', 'تم حفظ الدفعة'],
-    ['warning', 'Warning', 'سعر الصرف قديم'],
-    ['danger',  'Danger',  'تعذّر الحفظ'],
+    ['info',    'Info',    'معلومة', 'تم تحديث القائمة'],
+    ['success', 'Success', 'نجاح',   'تم حفظ الدفعة'],
+    ['warning', 'Warning', 'تحذير',  'سعر الصرف قديم'],
+    ['danger',  'Danger',  'خطأ',    'تعذّر الحفظ'],
   ];
 
-  fill('ex-toast', TONES.map(([tone, name]) =>
-    specimen(name, button('leading', 'outline', BASE_SIZE, DIR).replace(
-      'data-config="leading"', 'data-config="leading" data-tone="' + tone + '"'),
-      'نبرة ' + tone)).join(''));
+  /* The button carries the tone's own word, not the sentence it will show.
+     Full sentences made four buttons of four different widths and then the
+     caption repeated them; a short label keeps the row even and leaves the
+     caption to say what the toast will actually read. */
+  fill('ex-toast', TONES.map(([, name, , message]) =>
+    specimen(name, button('leading', 'outline', BASE_SIZE, DIR), '«' + message + '»')).join(''));
 
-  /* The label is the tone's own word, not the sample text, so each button says
-     what it will do. Written after the markup so it does not have to be
-     threaded through button(). */
-  document.querySelectorAll('#ex-toast [data-tone]').forEach((el, i) => {
-    const [tone, , message] = TONES[i];
-    el.querySelector('.jelly-label > span').textContent = message;
+  document.querySelectorAll('#ex-toast jelly-button').forEach((el, i) => {
+    const [tone, , label, message] = TONES[i];
+    el.dataset.tone = tone;
+    el.querySelector('.jelly-label > span').textContent = label;
     el.addEventListener('click', () => jellyToast(message, { tone }));
   });
 
