@@ -114,8 +114,12 @@
       radial-gradient(900px 500px at 10% 110%, rgba(232,65,29,.05), transparent 55%),
       var(--cream);
     min-height: 100vh;
-    /* Both ends of the clamp are tokens — 10px/34px were off-scale. */
-    padding: clamp(var(--space-150), 2.5vw, var(--space-500));
+    /* Steps, not a slide. Both ends of the old clamp were tokens, but 2.5vw
+       between them lands wherever the viewport says — 29.45px here, on no step
+       of the scale at all. The Spacing collection carries a value per mode
+       rather than a formula, so the page margin steps with the breakpoints the
+       way --grid-margin already does. */
+    padding: var(--space-400);
   }
 
   /* ═══ PAGE LAYOUT SYSTEM ══════════════════════════════════════════════════
@@ -365,12 +369,24 @@
     display: flex; flex-direction: column; gap: var(--space-300);
   }
   .panel-head { display: flex; flex-direction: column; gap: var(--space-100); }
+  /* The icon belongs to the first line of the heading, not to the block. On
+     `center` it sat halfway down a heading that wrapped, which put it beside
+     the gap between the two lines with text on neither side of it — visible
+     only on the English build, where "Button with leading or trailing icon" is
+     the one title long enough to wrap. Aligning to the start and giving the
+     icon a box exactly one line tall centres it on that first line whether the
+     heading wraps or not. */
   .panel-title {
-    display: flex; align-items: center; gap: var(--space-100);
+    display: flex; align-items: flex-start; gap: var(--space-100);
     font-family: var(--font-bold); font-size: var(--display-xs); line-height: var(--display-xs-lh);
     margin: var(--space-0);
   }
-  .panel-title iconify-icon { color: var(--primary); font-size: var(--text-xl); }
+  .panel-title iconify-icon {
+    color: var(--primary); font-size: var(--text-xl);
+    flex: none;
+    block-size: var(--display-xs-lh);      /* one line of the heading */
+    display: flex; align-items: center;    /* glyph centred within that line */
+  }
 
   .panel-note {
     margin: var(--space-0);
@@ -585,30 +601,7 @@
     /* A 40px column gap inside a 278px panel spent a seventh of the width on
        air and pushed specimens onto extra rows. Steps down with the panel. */
     .examples { gap: var(--space-250) var(--space-300); }
-
-    /* Columns, not a wrapping row. Each specimen is only as wide as its own
-       button — 68px for text alone against 124px with two icons — so once the
-       row wrapped on a phone nothing lined up with the row above it and the
-       buttons read as scattered rather than as a set being compared. Two
-       equal columns is what the page's own grid already drops to at this
-       width. The buttons still hug their content; the column is a slot to sit
-       at the start of, not a width imposed on them. */
-    .examples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-    /* Groups are the exception. A group's whole point is buttons sitting beside
-       each other, and half a phone's width is not enough for two of them — they
-       stacked, which is the one arrangement that section must not show. One
-       column each, so a group keeps the width it needs to stay a row. */
-    #ex-group { grid-template-columns: minmax(0, 1fr); }
-
-    /* Captions align across a row even when the buttons do not match in height.
-       A 40px button beside a 56px one hangs from the top, so its caption rode
-       16px higher than its neighbour's and the row read as crooked. Letting the
-       specimens fill the row and pushing the caption to the foot of each puts
-       every caption on one line; the buttons keep their own heights, which is
-       the thing the sizes section is there to show. */
-    .examples { align-items: stretch; }
-    .specimen figcaption { margin-block-start: auto; }
+    body { padding: var(--space-200); }   /* steps with --grid-margin */
   }
   @media (max-width: 479px) {           /* xxs — 2 columns */
     .main-col { --grid-columns: 2; }
