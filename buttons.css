@@ -188,16 +188,10 @@
      will do. The current one takes Primary, the other Secondary, which is the
      documented pairing for an active state against a supporting one.
 
-     It is a jelly-icon-button, so the press physics are the same soft body as
-     every other button here. */
-  /* Stacked, not side by side: the switch takes the corner and the reference
-     chip tucks under it, so the two never compete for the same 44px. Aligned
-     to the inline end, which is the empty corner in either direction. */
-  .topbar-meta {
-    grid-area: meta;
-    display: flex; flex-direction: column; align-items: flex-end;
-    gap: var(--space-150);
-  }
+     It holds the corner alone. This used to be a stack that also carried the
+     Figma reference chip, which is why it was a flex column; with the chip
+     gone there is nothing left to group, so it is just the switch. */
+  .topbar-meta { grid-area: meta; justify-self: end; }
   /* Two buttons, not one, and no circle around them: each glyph of the icon is
      its own control, and they overlap exactly as they do in the source icon so
      they still read as one pair.
@@ -226,6 +220,16 @@
        starting on the glyph was claimed for scrolling and arrived back as
        pointercancel, which is what made it unreliable on a phone. */
     touch-action: none;
+  }
+  /* The squash is on the group, not the paths. AR is three paths — the bubble
+     and its two marks — so transforming a path moved the bubble and left the
+     marks behind, tearing the glyph apart on every press. The group carries all
+     of them as one body. EN is a single path and never showed the fault.
+
+     transform-box stays at its default view-box, so the percentage origin
+     resolves against the 24-unit square both glyphs share — the same square as
+     the button, which is what makes the contact point map straight through. */
+  .lang-part g {
     /* Squash toward the finger. The origin is written per press, so the shape
        gives way where it is actually touched rather than around its middle. */
     transform-origin: var(--ox, 50%) var(--oy, 50%);
@@ -240,12 +244,6 @@
   html[dir="rtl"] .lang-part[data-lang="en"] path { fill: var(--secondary); }
   html[dir="ltr"] .lang-part[data-lang="ar"] path { fill: var(--secondary); }
   html[dir="ltr"] .lang-part[data-lang="en"] path { fill: var(--primary); }
-  .source {
-    font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint);
-    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: var(--space-100) var(--space-200); white-space: nowrap;
-  }
-
   /* ── Stat cards ───────────────────────────────────────────────────────── */
   .stat-card {
     background: var(--card); border: 1px solid var(--border); border-radius: 18px;
@@ -572,14 +570,6 @@
     .greeting h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
   }
   @media (max-width: 767px) {
-    /* The reference chip is 131px wide and would take a third of a phone's
-       header if it shared the corner column. It drops to its own row and the
-       switch keeps the corner. display:contents lets both be placed directly. */
-    .topbar { grid-template-areas: "greet pair" "chip chip"; }
-    .topbar-meta { display: contents; }
-    #lang { grid-area: pair; }
-    .topbar .source { grid-area: chip; justify-self: end; }
-
     .panel { padding: var(--space-300); }
     /* A 40px column gap inside a 278px panel spent a seventh of the width on
        air and pushed specimens onto extra rows. Steps down with the panel. */

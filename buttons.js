@@ -671,7 +671,7 @@
      they line up exactly as they do in the icon. */
   const langPart = (which, paths, label) =>
     '<button class="lang-part" type="button" data-lang="' + which + '" aria-label="' + label + '">' +
-      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + paths + '</svg>' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g>' + paths + '</g></svg>' +
     '</button>';
 
   const pair = document.getElementById('lang');
@@ -701,7 +701,8 @@
   const MIN_PRESS = 110;
 
   document.querySelectorAll('.lang-part').forEach(part => {
-    const path = part.querySelector('path');
+    /* The whole glyph, not one path of it — AR is three. */
+    const path = part.querySelector('g');
     let down = false, hovered = false, hx = 0.5, hy = 0.5;
     let pressedAt = 0, held = false;
     let v = 0, k = 0, raf = 0;             // spring velocity and displacement
