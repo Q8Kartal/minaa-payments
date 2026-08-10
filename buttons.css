@@ -155,7 +155,20 @@
   .stat-card { grid-column: span 3; }          /* 4 across at 12 columns */
 
   /* ── Top bar ──────────────────────────────────────────────────────────── */
-  .topbar { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-300); flex-wrap: wrap; }
+  /* A grid rather than a wrapping row, so the corner is a place rather than a
+     side effect. As a flex row it bottom-aligned and wrapped, which dropped the
+     language switch 180px down the header and left it sitting under the heading
+     instead of across from it. The columns hold at every width; only the chip
+     moves. The inset from the shell edge is the column's own --grid-margin, so
+     the switch sits inside the same protected margin as everything else. */
+  .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "greet meta";
+    align-items: start;
+    gap: var(--space-300);
+  }
+  .greeting { grid-area: greet; }
   .greeting .eyebrow {
     font-family: var(--font-bold); font-size: var(--text-md); line-height: var(--text-md-lh);
     color: var(--secondary); margin: 0;
@@ -177,13 +190,13 @@
 
      It is a jelly-icon-button, so the press physics are the same soft body as
      every other button here. */
-  /* Pushed to the inline end so it keeps the corner opposite the heading — the
-     empty one — in both directions. space-between alone only does that while
-     the bar is one row; once it wraps on a phone the group falls back to the
-     start, which put it under the heading instead of across from it. */
+  /* Stacked, not side by side: the switch takes the corner and the reference
+     chip tucks under it, so the two never compete for the same 44px. Aligned
+     to the inline end, which is the empty corner in either direction. */
   .topbar-meta {
-    display: flex; align-items: center; gap: var(--space-200); flex-wrap: wrap;
-    margin-inline-start: auto;
+    grid-area: meta;
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: var(--space-150);
   }
   /* Two buttons, not one, and no circle around them: each glyph of the icon is
      its own control, and they overlap exactly as they do in the source icon so
@@ -553,6 +566,14 @@
     .greeting h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
   }
   @media (max-width: 767px) {
+    /* The reference chip is 131px wide and would take a third of a phone's
+       header if it shared the corner column. It drops to its own row and the
+       switch keeps the corner. display:contents lets both be placed directly. */
+    .topbar { grid-template-areas: "greet pair" "chip chip"; }
+    .topbar-meta { display: contents; }
+    #lang { grid-area: pair; }
+    .topbar .source { grid-area: chip; justify-self: end; }
+
     .panel { padding: var(--space-300); }
     /* A 40px column gap inside a 278px panel spent a seventh of the width on
        air and pushed specimens onto extra rows. Steps down with the panel. */
