@@ -177,19 +177,50 @@
 
      It is a jelly-icon-button, so the press physics are the same soft body as
      every other button here. */
-  .topbar-meta { display: flex; align-items: center; gap: var(--space-200); flex-wrap: wrap; }
-  .lang-switch {
-    /* The body barely changes on press: the icon is carrying the meaning and a
-       full colour flood would bury it. The deformation still reads. */
-    --fill-rest: var(--cream);
-    --fill-active: var(--primary-tint);
-    cursor: pointer;
+  /* Pushed to the inline end so it keeps the corner opposite the heading — the
+     empty one — in both directions. space-between alone only does that while
+     the bar is one row; once it wraps on a phone the group falls back to the
+     start, which put it under the heading instead of across from it. */
+  .topbar-meta {
+    display: flex; align-items: center; gap: var(--space-200); flex-wrap: wrap;
+    margin-inline-start: auto;
   }
-  .lang-icon { display: block; inline-size: 24px; block-size: 24px; }
-  html[dir="rtl"] .lang-icon .ar { fill: var(--primary); }
-  html[dir="rtl"] .lang-icon .en { fill: var(--secondary); }
-  html[dir="ltr"] .lang-icon .ar { fill: var(--secondary); }
-  html[dir="ltr"] .lang-icon .en { fill: var(--primary); }
+  /* Two buttons, not one, and no circle around them: each glyph of the icon is
+     its own control, and they overlap exactly as they do in the source icon so
+     they still read as one pair.
+
+     The hit area is the painted glyph rather than a box. Both buttons cover the
+     same square, so a box would make the upper one swallow the lower's clicks;
+     instead the buttons pass pointer events through and the paths accept them,
+     which hit-tests the real bubble silhouettes. */
+  .lang-pair {
+    position: relative;
+    inline-size: 44px; block-size: 44px;   /* a comfortable touch target */
+    flex: none;
+  }
+  .lang-part {
+    position: absolute; inset: 0;
+    margin: 0; padding: var(--space-0); border: 0; background: none;
+    pointer-events: none;                  /* the paths take the hits */
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lang-part svg { display: block; inline-size: 100%; block-size: 100%; overflow: visible; }
+  .lang-part path {
+    pointer-events: auto; cursor: pointer;
+    /* Squash toward the finger. The origin is written per press, so the shape
+       gives way where it is actually touched rather than around its middle. */
+    transform-origin: var(--ox, 50%) var(--oy, 50%);
+    transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--sx, 1), var(--sy, 1));
+    will-change: transform;
+  }
+  .lang-part:focus-visible path { outline: none; }
+  .lang-part:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+
+  /* Blue is where you are, red is where the other button will take you. */
+  html[dir="rtl"] .lang-part[data-lang="ar"] path { fill: var(--primary); }
+  html[dir="rtl"] .lang-part[data-lang="en"] path { fill: var(--secondary); }
+  html[dir="ltr"] .lang-part[data-lang="ar"] path { fill: var(--secondary); }
+  html[dir="ltr"] .lang-part[data-lang="en"] path { fill: var(--primary); }
   .source {
     font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint);
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
