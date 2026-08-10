@@ -69,6 +69,13 @@
     --warning:       #E5B11F;   /* Yellow 400 — Minaã Yellow */
     --error:         #E56E1F;   /* Orange 500 — Minaã Orange */
 
+    /* The deep step of each hue, used as the pressed fill so the colour reveal
+       reads as the same colour deepening rather than changing family. */
+    --primary-900:   #00437B;
+    --success-deep:  #146600;   /* Green 800  */
+    --warning-deep:  #94630E;   /* Yellow 700 */
+    --error-deep:    #A14712;   /* Orange 700 */
+
     --card:   #FFFFFF;
     --text:   #0062AD;
     --muted:  rgba(0,98,173,.72);
@@ -432,6 +439,22 @@
   .ghost     { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
   .ghostsec  { --fill-rest: var(--cream); --fill-active: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
 
+  /* ── Feedback triggers — the one place a button carries a semantic hue ───
+     Everywhere else the five appearances hold and semantic colour stays off
+     brand components. Here the button IS the legend for the tone it fires, so
+     the hue is doing the explaining rather than decorating. Pressed fill is the
+     deep step of the same hue, so the reveal deepens instead of changing family.
+
+     Labels are cream throughout. Measured against the resting fill: info 5.55,
+     success 2.75, warning 1.75, danger 2.83 — only info clears the 4.5 AA
+     threshold for text this size. Kept at Ahmad's request to judge on screen;
+     Primary 950 labels would give 4.90 / 7.72 / 4.77 on the same three fills. */
+  #ex-toast [data-tone] { --label-rest: var(--cream); --label-active: var(--cream); }
+  #ex-toast [data-tone="info"]    { --fill-rest: var(--primary); --fill-active: var(--primary-900); }
+  #ex-toast [data-tone="success"] { --fill-rest: var(--success); --fill-active: var(--success-deep); }
+  #ex-toast [data-tone="warning"] { --fill-rest: var(--warning); --fill-active: var(--warning-deep); }
+  #ex-toast [data-tone="danger"]  { --fill-rest: var(--error);   --fill-active: var(--error-deep); }
+
   /* ── Live measurement readout ─────────────────────────────────────────── */
   .measure table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm-lh); }
   .measure th, .measure td { text-align: start; padding: var(--space-100) var(--space-150); border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -761,8 +784,11 @@
      Full sentences made four buttons of four different widths and then the
      caption repeated them; a short label keeps the row even and leaves the
      caption to say what the toast will actually read. */
+  /* Base class is primary only so the button arrives with no stroke; the
+     data-tone rules replace its fill and label. Outline would have ringed a
+     green button in blue. */
   fill('ex-toast', TONES.map(([, name, , message]) =>
-    specimen(name, button('leading', 'outline', BASE_SIZE, DIR), '«' + message + '»')).join(''));
+    specimen(name, button('leading', 'primary', BASE_SIZE, DIR), '«' + message + '»')).join(''));
 
   document.querySelectorAll('#ex-toast jelly-button').forEach((el, i) => {
     const [tone, , label, message] = TONES[i];
