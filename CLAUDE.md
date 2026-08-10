@@ -182,7 +182,14 @@ top bar and icon rail.
 ## File Structure
 ```
 minaa-payments.html   ← The entire app (HTML + CSS + JS + SVG logo)
-buttons.html          ← Live preview of the Figma button library, built on Jelly UI
+buttons.html          ← Button library, Arabic RTL build
+buttons-en.html       ← Button library, English LTR build
+buttons.css           ← Styling, shared by both builds
+buttons.js            ← Behaviour, shared by both builds. **Bump the `?v=` on the
+                         `<link>` and `<script>` in BOTH html files whenever
+                         either shared file changes** — Pages serves them with
+                         `max-age=600`, so without it a deploy hands visitors
+                         new markup against stale styling for ten minutes.
 fonts/                ← 29LT Idris Round, self-hosted WOFF2 (Regular / Medium / ExtraBold)
 CLAUDE.md             ← This file — project context for Claude Code
 DESIGN.md             ← Design system: colour, type, spacing, components

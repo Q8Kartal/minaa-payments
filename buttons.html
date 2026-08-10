@@ -19,7 +19,11 @@
 <!-- Jelly UI owns the soft-body physics. Nothing here reimplements its motion;
      the colour reveal is layered on top of the properties it already exposes. -->
 <script type="module" src="https://jelly-ui.com/package.js"></script>
-<link rel="stylesheet" href="buttons.css">
+<!-- ?v= is bumped whenever buttons.css or buttons.js changes. GitHub Pages
+     serves both with max-age=600, so without it a deploy can hand a visitor new
+     markup against ten-minute-old styling, or nothing at all until the cache
+     expires. The HTML itself is revalidated, so the version travels with it. -->
+<link rel="stylesheet" href="buttons.css?v=20260810b">
 <script>
   /* Every visible string for this build. The CSS and the behaviour live in
      buttons.css and buttons.js and are shared with the English build, so a fix
@@ -64,7 +68,7 @@
     },
   };
 </script>
-<script src="buttons.js" defer></script>
+<script src="buttons.js?v=20260810b" defer></script>
 </head>
 <body>
 <div class="shell">
