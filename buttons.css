@@ -168,12 +168,28 @@
     font-size: var(--text-lg); line-height: var(--text-lg-lh);
     color: var(--muted); margin: var(--space-150) 0 0; max-width: 62ch;
   }
-  /* The two builds switch between each other. It is a jelly-switch rather than
-     a link because it reads as what it is — a setting with two states, one of
-     which you are currently in — and because the page's own components should
-     be the ones doing the work. */
+  /* Language switch — the Translation icon from the Minaã icon library
+     (Icons file, node 5:173), which is already two glyphs: AR is the upper-left
+     bubble, EN the lower-right. Colouring them separately lets the icon say
+     both things at once — which language you are reading, and what pressing it
+     will do. The current one takes Primary, the other Secondary, which is the
+     documented pairing for an active state against a supporting one.
+
+     It is a jelly-icon-button, so the press physics are the same soft body as
+     every other button here. */
   .topbar-meta { display: flex; align-items: center; gap: var(--space-200); flex-wrap: wrap; }
-  .lang-switch { --jelly-switch-font-size: var(--text-sm); }
+  .lang-switch {
+    /* The body barely changes on press: the icon is carrying the meaning and a
+       full colour flood would bury it. The deformation still reads. */
+    --fill-rest: var(--cream);
+    --fill-active: var(--primary-tint);
+    cursor: pointer;
+  }
+  .lang-icon { display: block; inline-size: 24px; block-size: 24px; }
+  html[dir="rtl"] .lang-icon .ar { fill: var(--primary); }
+  html[dir="rtl"] .lang-icon .en { fill: var(--secondary); }
+  html[dir="ltr"] .lang-icon .ar { fill: var(--secondary); }
+  html[dir="ltr"] .lang-icon .en { fill: var(--primary); }
   .source {
     font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint);
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;

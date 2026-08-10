@@ -152,9 +152,12 @@
   });
 
   /* Counted from the DOM rather than written down, so the figure cannot drift
-     away from the page the way the old "90 components" line had. */
+     away from the page the way the old "90 components" line had. Scoped to the
+     example rows: the language switch is a button too, but it is page chrome,
+     not a specimen, and counting it made the figure claim one example more
+     than the page shows. */
   document.getElementById('stat-examples').textContent =
-    document.querySelectorAll('jelly-button, jelly-icon-button').length;
+    document.querySelectorAll('.examples jelly-button, .examples jelly-icon-button').length;
 
   /* ═══════════════════════════════════════════════════════════════════════
      COLOUR DRIVEN BY JELLY'S LIVE DEFORMATION
@@ -649,25 +652,29 @@
      itself the moment it opened: the browser restores the checkbox across a
      same-form navigation, Jelly emits change when it takes that value, and an
      unguarded handler read that as a request to switch. */
+  /* The Translation icon from the Minaã icon library, node 5:173, inlined so it
+     costs no request and so its halves can be coloured apart. AR is the
+     upper-left bubble with its two marks; EN is the lower-right one. Which
+     half gets which colour is decided in CSS from the page direction, so this
+     stays the same in both builds. */
+  const LANG_ICON =
+    '<svg class="lang-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<g class="ar">' +
+        '<path fill-rule="evenodd" clip-rule="evenodd" d="M12.09 2.08C12.56 2.09 13.01 2.15 13.48 2.26C14.64 2.53 15.29 3.38 15.44 4.55C15.61 5.89 15.61 7.21 15.49 8.56C15.37 9.67 14.86 10.43 13.73 10.62C11.94 10.92 9.86 10.37 8.82 11.62H8.84C8.72 11.74 8.6 11.77 8.44 11.77C7.26 11.72 6.12 11.95 5.4 12.93L4.92 13.58C4.57 14.06 3.96 14.19 3.44 13.87C3.15 13.69 2.97 13.32 2.96 12.96C2.87 10.68 2.82 8.43 2.86 6.14C2.87 5.47 2.93 4.84 3.08 4.21C3.41 2.85 4.48 2.14 5.87 2.09L9.11 2L12.09 2.08ZM10.14 4.65H10.13C9.92 4.65 9.74 4.79 9.74 5.02L9.78 8.52C9.89 8.72 10.37 8.71 10.49 8.59C10.55 8.55 10.58 8.45 10.58 8.36L10.61 7.21C10.92 7.15 11.22 7.13 11.5 7.2C11.71 7.27 11.79 7.46 11.83 7.67L11.91 8.37C11.94 8.64 12.17 8.74 12.42 8.71C12.53 8.7 12.64 8.65 12.7 8.58C12.76 8.49 12.77 8.37 12.72 8.27C12.52 7.89 12.86 7.39 12.36 6.99C12.31 6.94 12.28 6.88 12.28 6.82C12.3 6.67 13.03 6.28 12.68 5.4C12.5 4.96 12.14 4.65 11.64 4.64H10.15L10.14 4.65ZM7.56 4.64C7.39 4.64 7.09 4.65 7.02 4.85L5.75 8.27C5.72 8.37 5.71 8.46 5.75 8.54C5.79 8.61 5.89 8.63 5.98 8.66C6.28 8.75 6.53 8.59 6.6 8.3C6.63 8.17 6.68 7.89 6.83 7.89L8.13 7.86C8.23 8.01 8.28 8.14 8.31 8.29C8.37 8.6 8.62 8.74 8.92 8.67C9.01 8.65 9.11 8.63 9.14 8.57C9.17 8.49 9.17 8.4 9.14 8.32L7.99 4.95C7.92 4.74 7.73 4.64 7.56 4.64Z"/>' +
+        '<path d="M11.45 5.39C11.71 5.4 11.9 5.62 11.92 5.86C11.94 6.07 11.81 6.34 11.54 6.4H11.53C11.22 6.48 10.9 6.43 10.58 6.41V5.56C10.58 5.47 10.65 5.39 10.75 5.39H11.45Z"/>' +
+        '<path d="M7.9 7.13C7.61 7.2 7.33 7.17 6.99 7.14C7.1 6.68 7.24 6.27 7.44 5.8L7.9 7.13Z"/>' +
+      '</g>' +
+      '<g class="en">' +
+        '<path fill-rule="evenodd" clip-rule="evenodd" d="M18.06 10.36C18.57 10.36 19.06 10.47 19.53 10.66C20.1 10.9 20.53 11.32 20.75 11.88C20.93 12.28 21.06 12.7 21.08 13.16L21.06 13.17H21.05L21.15 15.21L21.06 20.96C21.05 21.25 20.92 21.58 20.72 21.75C20.27 22.16 19.6 22.04 19.24 21.59L18.48 20.65C17.88 19.92 17.05 19.77 16.1 19.76L12.03 19.68C11.46 19.67 10.93 19.6 10.39 19.46C9.07 19.13 8.69 18.01 8.61 16.74C8.56 15.86 8.56 15.02 8.61 14.15C8.67 13.18 8.96 12.27 9.88 11.89C10.28 11.71 10.71 11.68 11.16 11.66L13.57 11.55C14.46 11.51 15.19 10.99 15.75 10.33L18.06 10.36ZM15.45 13.58C15.25 13.57 15.04 13.71 15.04 13.95V17.22C15.04 17.47 15.23 17.63 15.44 17.63C15.68 17.64 15.84 17.49 15.84 17.22L15.86 15.3C15.96 15.26 16.05 15.33 16.1 15.42L17.28 17.35C17.39 17.56 17.56 17.63 17.8 17.63C18.01 17.62 18.18 17.5 18.18 17.27L18.17 17.26L18.2 14.01C18.2 13.91 18.22 13.85 18.09 13.71C17.97 13.56 17.75 13.56 17.6 13.64C17.46 13.72 17.37 13.88 17.37 14.06V15.71C17.37 15.8 17.34 15.93 17.23 15.93L16.02 13.94C15.88 13.71 15.73 13.58 15.45 13.58ZM12.11 13.62C11.89 13.62 11.72 13.8 11.72 14.01V17.2C11.72 17.4 11.89 17.62 12.11 17.62H13.97C14.09 17.62 14.21 17.56 14.26 17.5C14.33 17.4 14.33 17.31 14.33 17.2C14.32 17.02 14.21 16.89 14.02 16.89H12.8C12.67 16.89 12.57 16.82 12.58 16.67V16.11C12.6 16 12.67 15.94 12.79 15.93H13.84C14.05 15.93 14.16 15.78 14.17 15.59C14.18 15.37 14.04 15.21 13.81 15.21L12.58 15.18C12.53 14.92 12.52 14.65 12.58 14.42C12.61 14.33 12.75 14.34 12.8 14.33H14.06C14.26 14.33 14.34 14.1 14.31 13.94C14.29 13.78 14.16 13.62 13.97 13.62H12.11Z"/>' +
+      '</g>' +
+    '</svg>';
+
+  /* A button has no state to restore, so the whole guard the switch needed is
+     gone with it: the browser cannot hand a button a remembered value, and
+     Jelly cannot emit a change that looks like a press. A click is a press. */
   const lang = document.getElementById('lang');
-  const hereIsEnglish = T.dir === 'ltr';
-  lang.checked = hereIsEnglish;
-
-  /* The browser restores this checkbox from the page you just came from, and
-     Jelly emits change when it takes that value — indistinguishable from a
-     flip, and acting on it bounced the page straight back where it came from.
-     Waiting a couple of frames first does not fix it either; the restore can
-     land later than that. So the decision is not made on timing but on whether
-     a person actually touched the control: a restore cannot produce a pointer
-     or key event, and a change without one is corrected rather than obeyed. */
-  let touched = false;
-  ['pointerdown', 'keydown'].forEach(evt =>
-    lang.addEventListener(evt, () => { touched = true; }));
-
-  lang.addEventListener('change', () => {
-    if (!touched) { lang.checked = hereIsEnglish; return; }
-    if (lang.checked !== hereIsEnglish) location.href = T.otherHref;
-  });
+  lang.innerHTML = LANG_ICON;
+  lang.addEventListener('click', () => { location.href = T.otherHref; });
 
   /* Jelly upgrades its elements asynchronously; measure once they exist. */
   Promise.all([
