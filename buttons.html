@@ -219,35 +219,47 @@
   }
   .panel-title iconify-icon { color: var(--primary); font-size: var(--text-xl); }
 
-  /* Inside a panel the matrix uses SPACE TOKENS, never grid columns —
-     per the rule that only top-level containers align to the grid. */
-  /* Deliberately not clipped. Jelly draws its body on a canvas ~45px wider
-     than the button per side so the bulge has room, and our colour layers
-     match it. Clipping here cut 20px off the left of a pressed button on a
-     phone. There is no margin that fixes it either: Chrome counts everything
-     inside overflow-clip-margin as overflow anyway, so a margin large enough
-     to spare the bulge just moves the same number up to the panel. The clip
-     lives on .shell instead, far enough away to cost nothing. */
-  .matrix { min-width: 0; }
-  .matrix-inner {
-    display: grid;
-    /* Tracks shrink; nothing is pinned to a width the panel may not have.
-       The row-head column sizes to its content rather than a magic number. */
-    grid-template-columns: auto repeat(5, minmax(0, 1fr));
-    gap: var(--space-200);
-    align-items: center;
-    min-width: 0;
+  .panel-note {
+    margin: calc(var(--space-200) * -1) 0 var(--space-300);
+    max-width: 68ch;
+    font-size: var(--text-md); line-height: var(--text-md-lh); color: var(--muted);
   }
-  .col-head { font-family: var(--font-bold); font-size: var(--text-sm); line-height: var(--text-sm-lh); }
-  .row-head { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); white-space: nowrap; }
+  .panel-note b { font-family: var(--font-medium); color: var(--text); }
+
   /* An isolated LTR run for a measurement, so "56 px" cannot be reordered into
      "px 56" by the surrounding RTL. Inline only — the block keeps its own
      direction and alignment. See the metric() helper for the measurement. */
   .metric { direction: ltr; unicode-bidi: isolate; }
-  .cell { display: flex; min-width: 0; }
-  .cell-label { display: none; font-style: normal; font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); }
-  .panel.ltr .matrix-inner { direction: ltr; }
-  .panel.ltr .row-head { text-align: right; }
+
+  /* ── Examples ───────────────────────────────────────────────────────────
+     A row of specimens instead of a matrix. Each carries its own caption, so
+     a section can vary one thing and say which thing it varied. It wraps on
+     its own, which is why this page no longer needs a stacking breakpoint.
+
+     Deliberately not clipped: Jelly draws its body on a canvas ~45px wider
+     than the button per side so the bulge has room, and clipping here cut
+     20px off a pressed button on a phone. The clip lives on .shell, far
+     enough away to cost nothing. */
+  .examples {
+    display: flex; flex-wrap: wrap;
+    gap: var(--space-300) var(--space-500);
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .specimen {
+    margin: 0;
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: var(--space-150);
+  }
+  .specimen figcaption {
+    font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted);
+  }
+  .specimen .cap-note {
+    display: block; color: var(--faint);
+  }
+  /* A group is the one place buttons sit together, so it is the one place the
+     space between them is part of the specimen. */
+  .group { display: inline-flex; align-items: center; gap: var(--space-150); flex-wrap: wrap; }
 
   /* ── Notes ────────────────────────────────────────────────────────────── */
   .note {
@@ -256,7 +268,6 @@
     font-size: var(--text-md); line-height: var(--text-md-lh);
   }
   .note b { font-family: var(--font-bold); }
-  .note > b { display: block; margin-bottom: var(--space-150); font-size: var(--text-lg); line-height: var(--text-lg-lh); }
   .note ul { margin: 0; padding-inline-start: var(--space-300); }
   .note li { margin-bottom: var(--space-100); }
   .note li:last-child { margin-bottom: 0; }
@@ -381,22 +392,8 @@
 
   /* ═══ BREAKPOINTS — the documented grid, reassigned from one source ═════ */
 
-  /* Stack the matrix below 820px. That threshold is measured, not guessed:
-     five columns of buttons plus gaps, the row-head column and the panel
-     padding stop fitting just under 820, and the last column began pushing
-     out of the panel by 4-10px. */
-  @media (max-width: 819px) {           /* stack: the matrix stops being a matrix */
-    .matrix-inner { grid-template-columns: 1fr; gap: var(--space-150); }
-    .col-head { display: none; }
-    .row-head {
-      font-family: var(--font-bold); color: var(--text);
-      margin-top: var(--space-200); padding-bottom: var(--space-100);
-      border-bottom: 1px solid var(--border);
-    }
-    .matrix-inner > .row-head:first-of-type { margin-top: var(--space-0); }
-    .cell { justify-content: space-between; align-items: center; gap: var(--space-200); }
-    .cell-label { display: block; }
-  }
+  /* The 820px stacking breakpoint went with the matrix. Specimen rows wrap on
+     their own, so there is nothing left that needs a width to be told about. */
 
   @media (max-width: 1023px) {          /* s / xs — 6 columns */
     .main-col {
@@ -428,74 +425,109 @@
     <div class="greeting">
       <p class="eyebrow">Foundations</p>
       <h1>مكتبة الأزرار</h1>
-      <p>معاينة حيّة لمكتبة أزرار ميناء كما هي معرّفة في ملف Figma — ثلاث عائلات،
-         خمسة أنماط، ثلاثة أحجام، وحالة تمرير واحدة. مرّر المؤشر فوق أي زر لترى السلوك الحقيقي.</p>
+      <p>معاينة حيّة لمكتبة أزرار ميناء. عائلتان — <b>الزر</b> و<b>زر الأيقونة</b> —
+         بخمسة مظاهر وثلاثة أحجام. كل قسم أدناه يغيّر متغيّراً واحداً فقط،
+         والأبعاد في نهاية الصفحة مقروءة من الأمثلة نفسها لحظة عرضها.</p>
     </div>
     <span class="source" dir="ltr">Figma · node 4246:1302</span>
   </header>
 
   <!-- Stat cards — aligned to the grid, span 3 of 12 -->
   <div class="grid">
-    <div class="stat-card"><b>90</b><span>مكوّناً — ٣ عائلات × ٥ أنماط × ٣ أحجام × حالتان</span></div>
-    <div class="stat-card"><b dir="ltr">0 → 1</b><span>تقدّم مستمر يقوده الإدخال — لا مؤقّت</span></div>
-    <div class="stat-card"><b>القرب</b><span>المسافة إلى مركز الأيقونة · أو ضغط اللمس</span></div>
+    <div class="stat-card"><b id="stat-examples">—</b><span>مثالاً حيّاً على الصفحة — بلا مصفوفات مكرّرة</span></div>
+    <div class="stat-card"><b>٤ + ١</b><span>تكوينات للزر · وزر الأيقونة عائلة مستقلّة</span></div>
+    <div class="stat-card"><b dir="ltr">0 → 1</b><span>تقدّم يقرأ من تشوّه Jelly — لا مؤقّت</span></div>
     <div class="stat-card"><b>999px</b><span>نصف القطر — كبسولة كاملة</span></div>
   </div>
 
-  <!-- Controls -->
-  <div class="controls">
-    <jelly-switch id="trace" size="small">إظهار حدود الزر أثناء التشوّه</jelly-switch>
-    <span class="scrub">
-      <span>تمرير يدوي للتقدّم</span>
-      <jelly-slider id="scrub" size="small" min="0" max="1" step="0.01" value="0"
-                    label="تمرير يدوي للتقدّم"></jelly-slider>
-      <output id="scrub-out" class="metric">0.00</output>
-    </span>
-    <span class="hint">قرّب المؤشر من الأيقونة الأمامية — التقدّم يتبع المسافة، ولا يكتمل من تلقاء نفسه</span>
-  </div>
-
-  <!-- Panels — top-level containers, each spans the full grid -->
+  <!-- Sections — one purpose each, one variable at a time -->
   <div class="grid">
-    <section class="panel ltr span-full">
-      <h2 class="panel-title"><iconify-icon icon="lucide:square-mouse-pointer"></iconify-icon> Button — LTR</h2>
-      <div class="matrix"><div class="matrix-inner" id="grid-ltr"></div></div>
+
+    <section class="panel span-full">
+      <h2 class="panel-title"><iconify-icon icon="lucide:square-mouse-pointer"></iconify-icon> الزر</h2>
+      <p class="panel-note">العنصر الأساسي: كبسولة تتّسع لمحتواها، بجسم Jelly لَيّن.
+         كل ما يلي يغيّر متغيّراً واحداً فقط من هذا الزر.</p>
+      <div class="examples" id="ex-base"></div>
     </section>
 
     <section class="panel span-full">
-      <h2 class="panel-title"><iconify-icon icon="lucide:square-mouse-pointer"></iconify-icon> Button — RTL</h2>
-      <div class="matrix"><div class="matrix-inner" id="grid-rtl"></div></div>
+      <h2 class="panel-title"><iconify-icon icon="lucide:layout-grid"></iconify-icon> الزر مع أيقونة أمامية أو خلفية</h2>
+      <p class="panel-note">أربعة تكوينات للمحتوى. المظهر <b>Primary</b> والحجم <b>48px</b> ثابتان،
+         والمتغيّر الوحيد هو وجود الأيقونة وموضعها. كل تكوين يملك عرضه الخاص — لا مساحة محجوزة لأيقونة غائبة.</p>
+      <div class="examples" id="ex-config"></div>
     </section>
 
     <section class="panel span-full">
-      <h2 class="panel-title"><iconify-icon icon="lucide:circle-dot"></iconify-icon> Icon Button</h2>
-      <div class="matrix"><div class="matrix-inner" id="grid-icon"></div></div>
-    </section>
-
-    <section class="panel ltr span-full">
-      <h2 class="panel-title"><iconify-icon icon="lucide:layout-grid"></iconify-icon> التكوينات — LTR</h2>
-      <div class="matrix"><div class="matrix-inner" id="grid-config-ltr"></div></div>
+      <h2 class="panel-title"><iconify-icon icon="lucide:circle-dot"></iconify-icon> زر الأيقونة</h2>
+      <p class="panel-note">عائلة مستقلّة، لا تكوين من تكوينات الزر: عنصر
+         <span dir="ltr">jelly-icon-button</span> دائري ضلعه = ارتفاع الزر، ويلزمه اسم بديل لأنه بلا نص.</p>
+      <div class="examples" id="ex-icon"></div>
     </section>
 
     <section class="panel span-full">
-      <h2 class="panel-title"><iconify-icon icon="lucide:layout-grid"></iconify-icon> التكوينات — RTL</h2>
-      <div class="matrix"><div class="matrix-inner" id="grid-config-rtl"></div></div>
+      <h2 class="panel-title"><iconify-icon icon="lucide:palette"></iconify-icon> المظاهر</h2>
+      <p class="panel-note">خمسة مظاهر. الحجم <b>48px</b> وتكوين المحتوى (أيقونة أمامية) ثابتان،
+         والمتغيّر الوحيد هو اللون.</p>
+      <div class="examples" id="ex-appearance"></div>
+    </section>
+
+    <section class="panel span-full">
+      <h2 class="panel-title"><iconify-icon icon="lucide:ruler-dimension-line"></iconify-icon> الأحجام</h2>
+      <p class="panel-note">ثلاثة أحجام معتمدة. المظهر <b>Primary</b> وتكوين المحتوى ثابتان،
+         والمتغيّر الوحيد هو الارتفاع — ومعه الحشو الأفقي وحجم النص والأيقونة.</p>
+      <div class="examples" id="ex-size"></div>
+    </section>
+
+    <section class="panel span-full">
+      <h2 class="panel-title"><iconify-icon icon="lucide:rows-3"></iconify-icon> مجموعات الأزرار</h2>
+      <p class="panel-note">أزرار متجاورة تفصلها مسافة من المقياس المعتمد. الإجراء الأساسي أوّلاً
+         في اتجاه القراءة، ولا يزيد الأساسي عن واحد في المجموعة.</p>
+      <div class="examples" id="ex-group"></div>
+    </section>
+
+    <section class="panel span-full">
+      <h2 class="panel-title"><iconify-icon icon="lucide:activity"></iconify-icon> التفاعل وسلوك Jelly</h2>
+      <p class="panel-note">حالة التفاعل منفصلة تماماً عن التكوين: التمرير والضغط والتركيز
+         لا تغيّر محتوى الزر ولا عرضه.</p>
+
+      <div class="controls">
+        <jelly-switch id="trace" size="small">إظهار حدود الزر أثناء التشوّه</jelly-switch>
+        <span class="scrub">
+          <span>تمرير يدوي للتقدّم</span>
+          <jelly-slider id="scrub" size="small" min="0" max="1" step="0.01" value="0"
+                        label="تمرير يدوي للتقدّم"></jelly-slider>
+          <output id="scrub-out" class="metric">0.00</output>
+        </span>
+        <span class="hint">مرّر المؤشر أو اضغط على أي زر في الصفحة لترى السلوك الحقيقي</span>
+      </div>
+
+      <div class="examples" id="ex-states"></div>
+
+      <div class="note">
+        <ul>
+          <li>التقدّم <b dir="ltr">--p</b> يمتد من <b dir="ltr">0</b> إلى <b dir="ltr">1</b> ويقرأ من تشوّه Jelly نفسه — لا مؤقّت، ولا يكتمل من تلقاء نفسه أبداً.</li>
+          <li><b>اللون:</b> يبدأ من نقطة اللمس الفعلية، وينتشر باتجاه ميل الجسم، ويتراجع في المسار نفسه عند الإفلات.</li>
+          <li><b>اللمس:</b> يُستخدم ضغط الإصبع عندما يوفّره الجهاز؛ وإلا يتقدّم ما دام الإصبع مُلامساً.</li>
+          <li><b>لوحة المفاتيح:</b> التنقّل بـ <span dir="ltr">Tab</span> يُظهر اللون كاملاً، ويزول عند مغادرة التركيز.</li>
+          <li>العرض لا يتأثّر بأي من ذلك: التلوين يُرسم على لوحة <span dir="ltr">canvas</span> ولا يحرّك التخطيط.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel span-full">
+      <h2 class="panel-title"><iconify-icon icon="lucide:arrow-right-left"></iconify-icon> الاتجاه — RTL و LTR</h2>
+      <p class="panel-note">المقارنة الاتجاهية الوحيدة في الصفحة. نفس المظهر ونفس الحجم ونفس التكوين،
+         والمتغيّر هو الاتجاه: الأيقونة الأمامية تتبع بداية القراءة، والمسافات لا تتغيّر.</p>
+      <div class="examples" id="ex-dir"></div>
     </section>
 
     <section class="panel measure span-full">
-      <h2 class="panel-title"><iconify-icon icon="lucide:ruler"></iconify-icon> القياس الحيّ</h2>
+      <h2 class="panel-title"><iconify-icon icon="lucide:ruler"></iconify-icon> الأبعاد والمسافات المتحقَّقة</h2>
+      <p class="panel-note">مقروءة من الأمثلة المعروضة أعلاه لحظة العرض، لا من ملف التنسيق.
+         العرض المتوقّع = حشو + أيقونات + فجوات + نص.</p>
       <div class="scroll"><table id="measure-table"></table></div>
     </section>
 
-    <div class="note span-full">
-      <b>التفاعل — تحكّم مباشر</b>
-      <ul>
-        <li>التقدّم <b dir="ltr">--p</b> يمتد من <b dir="ltr">0</b> إلى <b dir="ltr">1</b> ويكتبه الإدخال مباشرة. لا يوجد أي انتقال زمني، والتأثير <b>لا يكتمل من تلقاء نفسه أبداً</b>.</li>
-        <li><b>سطح المكتب:</b> التقدّم = قرب المؤشر من مركز الأيقونة الأمامية. يبدأ عند دخول الزر، ويصل إلى ١ عند المركز، ويتراجع بالتناسب عند الابتعاد.</li>
-        <li><b>اللمس:</b> يُستخدم ضغط الإصبع عندما يوفّره الجهاز فعلياً؛ وإلا فبديل ضغط تدريجي يتقدّم ما دام الإصبع مُلامساً ويتراجع فور رفعه.</li>
-        <li>الشكل كما هو: دائرة <b>8×8</b> عند الأيقونة الأمامية تتمدّد عبر الزر، والزر يقصّ ما يفيض فتصبح كبسولة — نفس آلية <span dir="ltr">clipsContent</span>.</li>
-        <li>اللون <b>ينقلب</b> تدريجياً مع التقدّم، والمحتوى يتقدّم <b>4px</b> (<span dir="ltr">space-050</span>) باتجاه القراءة.</li>
-      </ul>
-    </div>
   </div>
 
  </main>
@@ -551,38 +583,73 @@
            '<span class="jelly-label">' + build(LABEL[dir]) + '</span></jelly-button>';
   }
 
-  /* Variant matrix — every style at every size, in one configuration. */
-  function buildVariantGrid(el, dir, config) {
-    const parts = ['<span></span>'];
-    STYLES.forEach(([, name]) => parts.push('<span class="col-head">' + name + '</span>'));
-    SIZES.forEach(size => {
-      parts.push('<span class="row-head">' + metric(size + ' px') + '</span>');
-      STYLES.forEach(([cls, name]) =>
-        parts.push('<span class="cell"><em class="cell-label">' + name + '</em>' +
-                   button(config, cls, size, dir) + '</span>'));
-    });
-    el.innerHTML = parts.join('');
-  }
+  /* One specimen: the thing itself, and a caption naming what varies. Sections
+     are built from these rather than from a matrix, so each row of examples
+     changes exactly one variable and nothing is demonstrated twice. */
+  const specimen = (caption, markup, note) =>
+    '<figure class="specimen">' + markup +
+    '<figcaption>' + caption +
+    (note ? '<span class="cap-note">' + note + '</span>' : '') +
+    '</figcaption></figure>';
 
-  /* Configuration matrix — every configuration at every size, one variant, so
-     the widths can be read against each other. */
-  function buildConfigGrid(el, dir) {
-    const parts = ['<span></span>'];
-    CONFIGS.forEach(([, name]) => parts.push('<span class="col-head">' + name + '</span>'));
-    SIZES.forEach(size => {
-      parts.push('<span class="row-head">' + metric(size + ' px') + '</span>');
-      CONFIGS.forEach(([config, name]) =>
-        parts.push('<span class="cell"><em class="cell-label">' + name + '</em>' +
-                   button(config, 'primary', size, dir) + '</span>'));
-    });
-    el.innerHTML = parts.join('');
-  }
+  const fill = (id, html) => { document.getElementById(id).innerHTML = html; };
 
-  buildVariantGrid(document.getElementById('grid-ltr'), 'ltr', 'both');
-  buildVariantGrid(document.getElementById('grid-rtl'), 'rtl', 'both');
-  buildVariantGrid(document.getElementById('grid-icon'), 'ltr', 'icononly');
-  buildConfigGrid(document.getElementById('grid-config-ltr'), 'ltr');
-  buildConfigGrid(document.getElementById('grid-config-rtl'), 'rtl');
+  /* The page is Arabic-first: every section is authored RTL, and only the
+     direction section shows LTR, where the comparison is the point. */
+  const DIR = 'rtl';
+  const BASE_SIZE = '48';
+  const BASE_STYLE = 'primary';
+
+  fill('ex-base', specimen('Button', button('text', BASE_STYLE, BASE_SIZE, DIR),
+                           'Primary · 48px · نص فقط'));
+
+  fill('ex-config', CONFIGS.filter(([c]) => c !== 'icononly')
+    .map(([config, name]) => specimen(name, button(config, BASE_STYLE, BASE_SIZE, DIR)))
+    .join(''));
+
+  fill('ex-icon', SIZES.map(size =>
+    specimen(metric(size + ' px'), button('icononly', BASE_STYLE, size, DIR))).join(''));
+
+  fill('ex-appearance', STYLES.map(([cls, name]) =>
+    specimen(name, button('leading', cls, BASE_SIZE, DIR))).join(''));
+
+  fill('ex-size', SIZES.map(size =>
+    specimen(metric(size + ' px'), button('leading', BASE_STYLE, size, DIR))).join(''));
+
+  /* Groups — the only place buttons sit next to each other, so the only place
+     the spacing between them is on show. space-150 keeps them related without
+     letting them read as one control. */
+  fill('ex-group', [
+    specimen('إجراء أساسي وثانوي',
+      '<span class="group">' + button('text', 'primary', BASE_SIZE, DIR) +
+      button('text', 'ghost', BASE_SIZE, DIR) + '</span>',
+      'space-150 بينهما'),
+    specimen('مع زر أيقونة',
+      '<span class="group">' + button('leading', 'primary', BASE_SIZE, DIR) +
+      button('text', 'outline', BASE_SIZE, DIR) +
+      button('icononly', 'ghost', BASE_SIZE, DIR) + '</span>',
+      'زر الأيقونة يحمل اسماً بديلاً'),
+    specimen('إجراء هدّام',
+      '<span class="group">' + button('text', 'secondary', BASE_SIZE, DIR) +
+      button('text', 'ghost', BASE_SIZE, DIR) + '</span>',
+      'الأحمر للحذف فقط'),
+  ].join(''));
+
+  fill('ex-states', [
+    specimen('في السكون', button('leading', BASE_STYLE, BASE_SIZE, DIR), 'مرّر المؤشر لترى التشوّه'),
+    specimen('مظهر شبحي', button('leading', 'ghost', BASE_SIZE, DIR), 'نفس الفيزياء، لون مختلف'),
+    specimen('زر أيقونة', button('icononly', BASE_STYLE, BASE_SIZE, DIR), 'نفس الاستجابة'),
+  ].join(''));
+
+  fill('ex-dir', [
+    specimen('RTL — عربي', button('leading', BASE_STYLE, BASE_SIZE, 'rtl'), 'الأيقونة إلى اليمين'),
+    specimen('LTR — English', button('leading', BASE_STYLE, BASE_SIZE, 'ltr'), 'الأيقونة إلى اليسار'),
+  ].join(''));
+
+  /* Counted from the DOM rather than written down, so the figure cannot drift
+     away from the page the way the old "90 components" line had. */
+  document.getElementById('stat-examples').textContent =
+    document.querySelectorAll('jelly-button, jelly-icon-button').length;
 
   /* ═══════════════════════════════════════════════════════════════════════
      COLOUR DRIVEN BY JELLY'S LIVE DEFORMATION
@@ -996,9 +1063,13 @@
     const pad = parseFloat(ics.paddingInlineStart);
     const gap = parseFloat(ics.gap) || 0;
 
+    /* The icon button is not padded to its width — it is square by
+       construction, so its expected width is its own height. Reporting a
+       padding of 0 here would read as a violation of the 24/20/16 rule when
+       the rule simply does not apply to this family. */
     if (host.dataset.config === 'icononly') {
       const box = host.getBoundingClientRect();
-      return { pad, gap: 0, icons: 1, gaps: 0, text: 0,
+      return { square: true, icons: 1, gaps: 0,
                expected: r1(box.height), actual: r1(box.width), h: r1(box.height) };
     }
     const label = host.querySelector('.jelly-label');
@@ -1014,15 +1085,25 @@
              h: r1(host.getBoundingClientRect().height) };
   }
 
+  const CONFIG_NAME = Object.fromEntries(CONFIGS.map(([c, n]) => [c, n]));
+
+  /* Measures the examples the page actually shows, one row per distinct
+     configuration-and-size pair. Nothing is rendered just to be measured, and
+     a pair that appears in several sections is still measured once — the same
+     no-duplication rule the sections follow. */
   function measure() {
     const onScale = v => SCALE.has(Math.round(v));
-    const rows = [];
-    SIZES.forEach(size => CONFIGS.forEach(([config, name]) => {
-      const host = document.querySelector(
-        '#grid-config-ltr [data-config="' + config + '"].s' + size);
-      const m = host ? measureConfig(host) : null;
-      rows.push({ size, name, m });
-    }));
+    const seen = new Set(), rows = [];
+    document.querySelectorAll('[data-config]').forEach(host => {
+      const size = (host.className.match(/\bs(\d+)\b/) || [])[1];
+      const config = host.dataset.config;
+      const key = config + '@' + size;
+      if (!size || seen.has(key)) return;
+      seen.add(key);
+      rows.push({ size, config, name: CONFIG_NAME[config], m: measureConfig(host) });
+    });
+    rows.sort((a, b) => b.size - a.size ||
+      CONFIGS.findIndex(c => c[0] === a.config) - CONFIGS.findIndex(c => c[0] === b.config));
 
     const yes = (v, ok) => '<td class="' + (ok ? 'ok' : 'off') + '">' + v + (ok ? ' ✓' : ' ✗') + '</td>';
     document.getElementById('measure-table').innerHTML =
@@ -1032,8 +1113,9 @@
         ? '<tr><th>' + metric(x.size + ' px') + '</th><td colspan="7">— بانتظار تحميل Jelly —</td></tr>'
         : '<tr><th>' + metric(x.size + ' px') + '</th><td>' + x.name + '</td>' +
           '<td dir="ltr">' + x.m.icons + '</td>' +
-          '<td dir="ltr">' + x.m.gaps + ' × ' + x.m.gap + 'px</td>' +
-          yes(x.m.pad + 'px', onScale(x.m.pad)) +
+          (x.m.square ? '<td>—</td><td>مربّع</td>'
+                      : '<td dir="ltr">' + x.m.gaps + ' × ' + x.m.gap + 'px</td>' +
+                        yes(x.m.pad + 'px', onScale(x.m.pad))) +
           '<td dir="ltr">' + x.m.expected + 'px</td>' +
           yes(x.m.actual + 'px', Math.abs(x.m.actual - x.m.expected) < 0.6) +
           yes(x.m.h + 'px', x.m.h === Number(x.size)) + '</tr>').join('') +
