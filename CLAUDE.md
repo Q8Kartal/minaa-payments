@@ -11,7 +11,7 @@ No build tools, no dependencies, no backend. Opens directly in any browser.
 ## Brand Identity
 See `DESIGN.md` for the full system. Essentials:
 - **Primary — Minaã Blue:** `#0062AD` (all actions, all copy, all payment data)
-- **Secondary — Minaã Red:** `#E8411D` (destructive actions + grand-total card **only**)
+- **Secondary — Minaã Red:** `#E8411D` (Secondary 600). Per the Colour Foundations page (`4008:11512`) this is the **secondary** colour — secondary buttons, navigation, info elements, links, highlights, supporting states — balanced against Primary, and *"these labels show hierarchy, not brand importance"*. It is **not** a destructive colour; the system reserves no brand hue for destruction, and errors are semantic Orange. This file used to say "destructive actions only", which was wrong and reached the button library as a mislabelled example. The app's narrow use of Red (grand-total card, delete/clear) is a product choice, not the system rule.
 - **Neutral — Minaã Cream:** `#FBF0DC` (text on brand fills) · `#FDF9F0` page background
 - **Semantic (never brand, never decoration):** Green `#05AA00` success · Yellow `#E5B11F` warning · Orange `#E56E1F` error
 - **Payment types are all blue** — told apart by icon and label, not hue. All three share one Blue 50 tint (`--primary-tint`); the differentiator is the glyph (`calendar-sync` / `calendar-range` / `zap`). Quarterly previously used Blue 100, which contradicted this rule.

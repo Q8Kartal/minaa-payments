@@ -486,7 +486,8 @@
       <div class="panel-head">
         <h2 class="panel-title"><iconify-icon icon="lucide:palette"></iconify-icon> المظاهر</h2>
         <p class="panel-note">خمسة مظاهر. الحجم <b>48px</b> وتكوين المحتوى (أيقونة أمامية) ثابتان،
-           والمتغيّر الوحيد هو اللون.</p>
+           والمتغيّر الوحيد هو اللون. <b>Primary</b> للإجراء الرئيسي و<b>Secondary</b> للزر الثانوي —
+           والاثنان علامة تسلسل لا أهمية. و<b>Outline</b> و<b>Ghost</b> لإجراء مساند أقل بروزاً.</p>
       </div>
       <div class="examples" id="ex-appearance"></div>
     </section>
@@ -503,8 +504,10 @@
     <section class="panel span-full">
       <div class="panel-head">
         <h2 class="panel-title"><iconify-icon icon="lucide:rows-3"></iconify-icon> مجموعات الأزرار</h2>
-        <p class="panel-note">أزرار متجاورة تفصلها مسافة من المقياس المعتمد. الإجراء الأساسي أوّلاً
-           في اتجاه القراءة، ولا يزيد الأساسي عن واحد في المجموعة.</p>
+        <p class="panel-note">أزرار متجاورة تفصلها <b>space-150</b>. الإجراء الأساسي أوّلاً في اتجاه
+           القراءة، ولا يزيد الأساسي عن واحد في المجموعة. اللون هنا يعبّر عن
+           <b>التسلسل لا عن الأهمية</b>: الأزرق <span dir="ltr">Primary 700</span> للإجراء الرئيسي،
+           والأحمر <span dir="ltr">Secondary 600</span> للزر الثانوي — كما في أسس الألوان.</p>
       </div>
       <div class="examples" id="ex-group"></div>
     </section>
@@ -647,22 +650,27 @@
     specimen(metric(size + ' px'), button('leading', BASE_STYLE, size, DIR))).join(''));
 
   /* Groups — the only place buttons sit next to each other, so the only place
-     the spacing between them is on show. space-150 keeps them related without
-     letting them read as one control. */
+     the spacing between them is on show, and the only place the colour
+     hierarchy is legible as a hierarchy.
+
+     Per Colour Foundations: Primary 700 carries the key action, and Secondary
+     600 is the secondary button — "these labels show hierarchy, not brand
+     importance". Red is not a destructive colour here; the system reserves no
+     brand hue for destruction, and errors are the semantic Orange 500. */
   fill('ex-group', [
-    specimen('إجراء أساسي وثانوي',
+    specimen('أساسي وثانوي',
+      '<span class="group">' + button('text', 'primary', BASE_SIZE, DIR) +
+      button('text', 'secondary', BASE_SIZE, DIR) + '</span>',
+      'الأزرق للإجراء الرئيسي، والأحمر للزر الثانوي'),
+    specimen('أساسي وإجراء أخفّ',
       '<span class="group">' + button('text', 'primary', BASE_SIZE, DIR) +
       button('text', 'ghost', BASE_SIZE, DIR) + '</span>',
-      'space-150 بينهما'),
+      'الشبحي لإجراء مساند أقل بروزاً'),
     specimen('مع زر أيقونة',
       '<span class="group">' + button('leading', 'primary', BASE_SIZE, DIR) +
       button('text', 'outline', BASE_SIZE, DIR) +
       button('icononly', 'ghost', BASE_SIZE, DIR) + '</span>',
       'زر الأيقونة يحمل اسماً بديلاً'),
-    specimen('إجراء هدّام',
-      '<span class="group">' + button('text', 'secondary', BASE_SIZE, DIR) +
-      button('text', 'ghost', BASE_SIZE, DIR) + '</span>',
-      'الأحمر للحذف فقط'),
   ].join(''));
 
   fill('ex-states', [

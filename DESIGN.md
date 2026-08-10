@@ -121,7 +121,8 @@ in the office.
 
 **Key characteristics**
 - One blue, one red, cream paper — no third brand hue
-- Payment data always blue; red reserved for destructive actions
+- Payment data always blue; red is the secondary hierarchy colour, not a
+  destructive one (see Core, below)
 - 29LT Idris Round, where each weight is a separate font family
 - Atlassian spacing scale on an 8px base unit
 - Jelly UI web components; Lucide icons via Iconify
@@ -171,8 +172,18 @@ Source of truth: the Minaã brand guide, section 3.1 (Core Palette).
 ### Core
 - **Minaã Blue** `#0062AD` — the primary. Every action, every heading, all body
   copy, and all three payment types.
-- **Minaã Red** `#E8411D` — the secondary. Used sparingly and with one meaning:
-  **destructive actions** (delete, clear-all) plus the grand-total card.
+- **Minaã Red** `#E8411D` (Secondary 600) — the secondary. Per Colour
+  Foundations it carries **secondary buttons**, navigation, info elements,
+  links, highlights and supporting states, balanced against Primary — *"these
+  labels show hierarchy, not brand importance."* It is **not** a destructive
+  colour: the system reserves no brand hue for destruction, and errors are the
+  semantic Orange 500.
+  - This file previously said Red meant "destructive actions only". That was
+    wrong against the Foundations and it propagated — the button library
+    shipped a group captioned "red for delete only". Corrected 2026-08-10.
+  - The payments app applies Red narrowly, to the grand-total card and to
+    delete/clear. That is a product choice inside the system, not the system's
+    rule, and it must not be restated as the rule.
 - **Minaã Cream** `#FBF0DC` — text on brand-colored surfaces. `#FDF9F0`
   (Cream 50) is the page background.
 
