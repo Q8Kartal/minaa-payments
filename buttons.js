@@ -679,6 +679,29 @@
   pair.innerHTML = langPart('ar', LANG_AR_PATHS, T.langTo.ar)
                  + langPart('en', LANG_EN_PATHS, T.langTo.en);
 
+  /* Each bubble is drawn with its letters cut out of it — one evenodd path
+     whose first subpath is the outline and whose other two are the A and R (or
+     E and N) knocked through. Hit-testing follows the painted fill, so those
+     letters were holes: a quarter of the AR bubble did not answer the mouse,
+     and hovering them did not read as a button. Measured before the fix, 66 of
+     272 sampled points inside AR's own box were dead.
+
+     So each glyph gets an unpainted twin of its outline subpath, sitting under
+     the artwork with pointer-events:all — which hit-tests a fill region whether
+     or not it is painted. The silhouette answers everywhere, the letters
+     included, while the empty corners still fall through to neither button,
+     which is what keeps the upper bubble from swallowing the lower's clicks.
+     It lives inside the same group, so it deforms with the press and the hit
+     area never separates from the shape. */
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  document.querySelectorAll('.lang-part g').forEach(g => {
+    const outline = g.querySelector('path').getAttribute('d').split(/(?=M)/i)[0];
+    const hit = document.createElementNS(SVGNS, 'path');
+    hit.setAttribute('d', outline);
+    hit.setAttribute('class', 'lang-hit');
+    g.insertBefore(hit, g.firstChild);
+  });
+
   /* ── Soft body, our shape ───────────────────────────────────────────────
      Jelly only paints a capsule or a rounded square, so it cannot carry this
      silhouette. The behaviour is written here instead, on the glyph itself.

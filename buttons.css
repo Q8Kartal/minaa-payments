@@ -214,8 +214,16 @@
     -webkit-tap-highlight-color: transparent;
   }
   .lang-part svg { display: block; inline-size: 100%; block-size: 100%; overflow: visible; }
-  .lang-part path {
-    pointer-events: auto; cursor: pointer;
+  /* The artwork is not the hit area — the letters are cut out of it, so it has
+     holes. The unpainted .lang-hit twin below carries every event instead. */
+  .lang-part path:not(.lang-hit) { pointer-events: none; }
+  .lang-hit {
+    fill: none;
+    /* `all` hit-tests the fill region whether or not it is painted, which is
+       what makes an invisible silhouette clickable. `auto` would not: it only
+       answers where there is paint, which is the bug this fixes. */
+    pointer-events: all;
+    cursor: pointer;
     /* The press belongs to the button, not the scroller. Left at auto, a touch
        starting on the glyph was claimed for scrolling and arrived back as
        pointercancel, which is what made it unreliable on a phone. */
@@ -236,14 +244,17 @@
     transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--sx, 1), var(--sy, 1));
     will-change: transform;
   }
-  .lang-part:focus-visible path { outline: none; }
+  .lang-part:focus-visible path, .lang-part:focus-visible .lang-hit { outline: none; }
   .lang-part:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
 
-  /* Blue is where you are, red is where the other button will take you. */
-  html[dir="rtl"] .lang-part[data-lang="ar"] path { fill: var(--primary); }
-  html[dir="rtl"] .lang-part[data-lang="en"] path { fill: var(--secondary); }
-  html[dir="ltr"] .lang-part[data-lang="ar"] path { fill: var(--secondary); }
-  html[dir="ltr"] .lang-part[data-lang="en"] path { fill: var(--primary); }
+  /* Blue is where you are, red is where the other button will take you.
+     :not(.lang-hit) matters — these selectors outrank .lang-hit{fill:none}, so
+     without it the invisible hit twin would be painted in full and cover the
+     letters it was added to make clickable. */
+  html[dir="rtl"] .lang-part[data-lang="ar"] path:not(.lang-hit) { fill: var(--primary); }
+  html[dir="rtl"] .lang-part[data-lang="en"] path:not(.lang-hit) { fill: var(--secondary); }
+  html[dir="ltr"] .lang-part[data-lang="ar"] path:not(.lang-hit) { fill: var(--secondary); }
+  html[dir="ltr"] .lang-part[data-lang="en"] path:not(.lang-hit) { fill: var(--primary); }
   /* ── Stat cards ───────────────────────────────────────────────────────── */
   .stat-card {
     background: var(--card); border: 1px solid var(--border); border-radius: 18px;
