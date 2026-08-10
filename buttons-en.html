@@ -15,6 +15,7 @@
      lands in both at once and the two cannot drift. */
   window.MINAA_BUTTONS_STRINGS = {
     dir: 'ltr',
+    otherHref: 'buttons.html',      /* where the language switch leads */
     search: 'Search',
     baseNote: 'Primary · 48px · text only',
     group: {
@@ -69,7 +70,7 @@
          from the examples themselves as they render.</p>
     </div>
     <div class="topbar-meta">
-      <a class="lang-switch" href="buttons.html" lang="ar" dir="rtl">العربية</a>
+      <jelly-switch class="lang-switch" id="lang" size="small" checked>English</jelly-switch>
       <span class="source">Figma · node 4246:1302</span>
     </div>
   </header>

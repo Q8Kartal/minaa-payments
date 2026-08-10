@@ -641,6 +641,34 @@
     });
   toggle('trace', 'trace');
 
+  /* Language switch. On means English, so its state is simply which build you
+     are reading and nothing here has to remember it.
+
+     Navigation is guarded by comparing the requested language with the current
+     one, and the state is asserted on load. Without both, the page navigated to
+     itself the moment it opened: the browser restores the checkbox across a
+     same-form navigation, Jelly emits change when it takes that value, and an
+     unguarded handler read that as a request to switch. */
+  const lang = document.getElementById('lang');
+  const hereIsEnglish = T.dir === 'ltr';
+  lang.checked = hereIsEnglish;
+
+  /* The browser restores this checkbox from the page you just came from, and
+     Jelly emits change when it takes that value — indistinguishable from a
+     flip, and acting on it bounced the page straight back where it came from.
+     Waiting a couple of frames first does not fix it either; the restore can
+     land later than that. So the decision is not made on timing but on whether
+     a person actually touched the control: a restore cannot produce a pointer
+     or key event, and a change without one is corrected rather than obeyed. */
+  let touched = false;
+  ['pointerdown', 'keydown'].forEach(evt =>
+    lang.addEventListener(evt, () => { touched = true; }));
+
+  lang.addEventListener('change', () => {
+    if (!touched) { lang.checked = hereIsEnglish; return; }
+    if (lang.checked !== hereIsEnglish) location.href = T.otherHref;
+  });
+
   /* Jelly upgrades its elements asynchronously; measure once they exist. */
   Promise.all([
     customElements.whenDefined('jelly-button'),

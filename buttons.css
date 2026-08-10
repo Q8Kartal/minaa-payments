@@ -168,17 +168,12 @@
     font-size: var(--text-lg); line-height: var(--text-lg-lh);
     color: var(--muted); margin: var(--space-150) 0 0; max-width: 62ch;
   }
-  /* The two builds link to each other. Same pill as the source chip beside it,
-     but in Primary rather than faint, because it is the one thing here you can
-     actually act on. */
-  .topbar-meta { display: flex; align-items: center; gap: var(--space-150); flex-wrap: wrap; }
-  .lang-switch {
-    font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--primary);
-    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: var(--space-100) var(--space-200); white-space: nowrap;
-    text-decoration: none;
-  }
-  .lang-switch:hover { background: var(--primary-tint); }
+  /* The two builds switch between each other. It is a jelly-switch rather than
+     a link because it reads as what it is — a setting with two states, one of
+     which you are currently in — and because the page's own components should
+     be the ones doing the work. */
+  .topbar-meta { display: flex; align-items: center; gap: var(--space-200); flex-wrap: wrap; }
+  .lang-switch { --jelly-switch-font-size: var(--text-sm); }
   .source {
     font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint);
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
