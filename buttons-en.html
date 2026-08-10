@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Button library – Minaã</title>
+<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+<!-- Jelly UI owns the soft-body physics. Nothing here reimplements its motion;
+     the colour reveal is layered on top of the properties it already exposes. -->
+<script type="module" src="https://jelly-ui.com/package.js"></script>
+<link rel="stylesheet" href="buttons.css">
+<script>
+  /* Every visible string for this build. The CSS and the behaviour live in
+     buttons.css and buttons.js and are shared with the Arabic build, so a fix
+     lands in both at once and the two cannot drift. */
+  window.MINAA_BUTTONS_STRINGS = {
+    dir: 'ltr',
+    search: 'Search',
+    baseNote: 'Primary · 48px · text only',
+    group: {
+      pair: 'Primary and secondary',
+      pairNote: 'Blue for the key action, red for the secondary button',
+      quiet: 'Primary and a quieter action',
+      quietNote: 'Ghost for a lower-emphasis supporting action',
+      withIcon: 'With an icon button',
+      withIconNote: 'The icon button carries an accessible name',
+    },
+    states: {
+      rest:  'At rest',           restNote:  'Hover to see the deformation',
+      ghost: 'Ghost appearance',  ghostNote: 'Same physics, different colour',
+      icon:  'Icon button',       iconNote:  'Same response',
+    },
+    dirs: {
+      rtl: 'RTL — عربي',     rtlNote: 'Icon on the right',
+      ltr: 'LTR — English',  ltrNote: 'Icon on the left',
+    },
+    tones: {
+      info:    { label: 'Info',    message: 'List updated' },
+      success: { label: 'Success', message: 'Payment saved' },
+      warning: { label: 'Warning', message: 'Exchange rate is stale' },
+      danger:  { label: 'Error',   message: 'Could not save' },
+    },
+    table: {
+      size: 'Size', config: 'Configuration', icons: 'Icons', gaps: 'Gaps',
+      padding: 'Padding', expected: 'Expected width', actual: 'Actual width',
+      height: 'Height', square: 'square',
+      pending: '— waiting for Jelly —',
+      footnote: "Padding and gap are read from inside Jelly's shadow root. " +
+        'Expected width = padding + icons + gaps + text — no space is reserved ' +
+        'for content that is not there. A ✓ on the width means the size matches ' +
+        'its content exactly.',
+    },
+  };
+</script>
+<script src="buttons.js" defer></script>
+</head>
+<body>
+<div class="shell">
+ <main class="main-col">
+
+  <!-- Top bar — full width, like the app's -->
+  <header class="topbar">
+    <div class="greeting">
+      <p class="eyebrow">Foundations</p>
+      <h1>Button library</h1>
+      <p>A live preview of the Minaã button library. Two families — <b>Button</b> and
+         <b>Icon Button</b> — in five appearances and three sizes. Each section below
+         changes one variable only, and the dimensions at the foot of the page are read
+         from the examples themselves as they render.</p>
+    </div>
+    <div class="topbar-meta">
+      <a class="lang-switch" href="buttons.html" lang="ar" dir="rtl">العربية</a>
+      <span class="source">Figma · node 4246:1302</span>
+    </div>
+  </header>
+
+  <!-- Stat cards — aligned to the grid, span 3 of 12 -->
+  <div class="grid">
+    <div class="stat-card"><b id="stat-examples">—</b><span>live examples on this page — no repeated matrices</span></div>
+    <div class="stat-card"><b>4 + 1</b><span>button configurations · Icon Button is its own family</span></div>
+    <div class="stat-card"><b>0 → 1</b><span>progress read from Jelly's deformation — no timer</span></div>
+    <div class="stat-card"><b>999px</b><span>corner radius — a full capsule</span></div>
+  </div>
+
+  <!-- Sections — one purpose each, one variable at a time -->
+  <div class="grid">
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:square-mouse-pointer"></iconify-icon> Button</h2>
+        <p class="panel-note">The base component: a capsule that fits its content, with a soft
+           Jelly body. Everything below changes exactly one variable of this button.</p>
+      </div>
+      <div class="examples" id="ex-base"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:layout-grid"></iconify-icon> Button with leading or trailing icon</h2>
+        <p class="panel-note">Four content configurations. Appearance <b>Primary</b> and size
+           <b>48px</b> are fixed; the only variable is whether an icon is present and where it
+           sits. Each configuration owns its width — no space is reserved for an icon that is
+           not there.</p>
+      </div>
+      <div class="examples" id="ex-config"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:circle-dot"></iconify-icon> Icon Button</h2>
+        <p class="panel-note">Its own family, not a configuration of Button: a circular
+           <span>jelly-icon-button</span> whose side equals the button height, and which needs
+           an accessible name because it carries no text.</p>
+      </div>
+      <div class="examples" id="ex-icon"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:palette"></iconify-icon> Appearances</h2>
+        <p class="panel-note">Five appearances. Size <b>48px</b> and the content configuration
+           (leading icon) are fixed; the only variable is colour. <b>Primary</b> carries the key
+           action and <b>Secondary</b> the secondary button — both mark hierarchy, not
+           importance. <b>Outline</b> and <b>Ghost</b> are for a quieter supporting action.</p>
+      </div>
+      <div class="examples" id="ex-appearance"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:ruler-dimension-line"></iconify-icon> Sizes</h2>
+        <p class="panel-note">Three approved sizes. Appearance <b>Primary</b> and the content
+           configuration are fixed; the only variable is height — and with it the horizontal
+           padding, the text size and the icon size.</p>
+      </div>
+      <div class="examples" id="ex-size"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:rows-3"></iconify-icon> Button groups</h2>
+        <p class="panel-note">Buttons side by side, separated by <b>space-150</b>. The primary
+           action comes first in reading order, and a group holds no more than one primary.
+           Colour here expresses <b>hierarchy, not importance</b>: blue <span>Primary 700</span>
+           for the key action, red <span>Secondary 600</span> for the secondary button — as in
+           the Colour Foundations.</p>
+      </div>
+      <div class="examples" id="ex-group"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:activity"></iconify-icon> Interaction and Jelly behaviour</h2>
+        <p class="panel-note">Interaction state is entirely separate from configuration: hover,
+           press and focus change neither the button's content nor its width.</p>
+      </div>
+
+      <div class="controls">
+        <jelly-switch id="trace" size="small">Show the button outline while it deforms</jelly-switch>
+        <span class="scrub">
+          <span>Manual progress scrub</span>
+          <jelly-slider id="scrub" size="small" min="0" max="1" step="0.01" value="0"
+                        label="Manual progress scrub"></jelly-slider>
+          <output id="scrub-out" class="metric">0.00</output>
+        </span>
+        <span class="hint">Hover or press any button on the page to see the real behaviour</span>
+      </div>
+
+      <div class="examples" id="ex-states"></div>
+
+      <div class="note">
+        <ul>
+          <li>Progress <b>--p</b> runs <b>0</b> to <b>1</b> and is read from Jelly's own deformation — no timer, and it <b>never completes on its own</b>.</li>
+          <li><b>Colour:</b> starts at the real contact point, spreads the way the body leans, and retracts along the same path on release.</li>
+          <li><b>Touch:</b> finger pressure is used where the device actually reports it; otherwise progress advances while the finger stays down.</li>
+          <li><b>Keyboard:</b> tabbing to a button shows the colour in full, and it clears when focus leaves.</li>
+          <li>Width is unaffected by any of it: the colour is painted on a <span>canvas</span> and cannot move the layout.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:bell"></iconify-icon> Feedback</h2>
+        <p class="panel-note">Buttons that fire <span>jelly-toaster</span> through
+           <span>jellyToast()</span>. The buttons are identical — same appearance, size and
+           configuration — and the only variable is the <b>tone</b>. Each carries the hue of the
+           toast it fires: blue info, green success, yellow warning, orange error. A semantic
+           colour is never a brand colour. And because Jelly adds a spoken prefix to every
+           toast, meaning never rests on colour alone.</p>
+      </div>
+      <div class="examples" id="ex-toast"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:arrow-right-left"></iconify-icon> Direction — RTL and LTR</h2>
+        <p class="panel-note">The only directional comparison on the page. Same appearance, same
+           size, same configuration; the variable is direction. The leading icon follows the
+           start of reading, and the spacing does not change.</p>
+      </div>
+      <div class="examples" id="ex-dir"></div>
+    </section>
+
+    <section class="panel measure span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:ruler"></iconify-icon> Verified dimensions and spacing</h2>
+        <p class="panel-note">Read from the examples shown above at the moment they render, not
+           from the stylesheet. Expected width = padding + icons + gaps + text.</p>
+      </div>
+      <div class="scroll"><table id="measure-table"></table></div>
+    </section>
+
+  </div>
+
+ </main>
+</div>
+
+<!-- Placed rather than auto-created, so the stack is ours to position. It
+     grows from the inline-end, which mirrors by itself when direction flips. -->
+<jelly-toaster position="bottom"></jelly-toaster>
+</body>
+</html>
