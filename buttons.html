@@ -59,12 +59,15 @@
     --cream:         #FBF0DC;   /* Neutral 100 — Minaã Cream */
     --cream-200:     #F7E0B6;   /* Neutral 200 */
 
-    /* Semantic — success only; this page has nothing to warn about or fail.
-       The signature success hue is Green 600 (#05AA00), but at 3.11:1 on the
-       white card it does not clear 4.5:1 for text this small, so the ✓ uses
-       Green 700 at 4.97:1 — the same logic that makes Minaã Blue the 700 step
-       of its own scale. A Foundations step either way, not an invented value. */
-    --success-text:  #158200;   /* Green 700 */
+    /* Semantic — success / warning / error, never brand, never decoration.
+       The ✓ in the measurement table uses Green 700 rather than the signature
+       Green 600: measured against the white card, Green 600 gives 3.11:1 and
+       does not clear 4.5:1 for text that small, while Green 700 gives 4.97:1.
+       Same logic that makes Minaã Blue the 700 step of its own scale. */
+    --success-text:  #158200;   /* Green 700  — the step that stays legible */
+    --success:       #05AA00;   /* Green 600  — Minaã Green */
+    --warning:       #E5B11F;   /* Yellow 400 — Minaã Yellow */
+    --error:         #E56E1F;   /* Orange 500 — Minaã Orange */
 
     --card:   #FFFFFF;
     --text:   #0062AD;
@@ -214,6 +217,29 @@
   /* The scrubber is a debug affordance, not a payment action — red, matching
      the readout beside it. */
   jelly-slider { --jelly-color-background-accent: var(--secondary); }
+
+  /* ── Toaster ────────────────────────────────────────────────────────────
+     Which token paints what was probed, not guessed: the pill reads
+     --jelly-color-background-surface, its text --jelly-color-foreground-default,
+     and each tone's dot is an inline var() onto one of Jelly's palette hues.
+     Jelly's own pill is near-black, which has no place in this palette.
+
+     The pill is Minaã Blue with cream copy — 5.67:1, comfortably past AA — and
+     the tone rides the dot in the approved semantic colours. Semantic hues are
+     never brand and never decoration, so they stay on the dot rather than
+     flooding the pill. The dot is not the only carrier of tone either: Jelly
+     puts a spoken prefix ("Success:", "Error:") in the toast, so meaning
+     survives without colour. */
+  jelly-toaster {
+    --jelly-color-background-surface:    var(--primary);
+    --jelly-color-foreground-default:    var(--cream);
+    --jelly-color-background-azure:      var(--cream);      /* info    */
+    --jelly-color-background-mint:       var(--success);    /* success */
+    --jelly-color-background-amber:      var(--warning);    /* warning */
+    --jelly-color-background-rose:       var(--error);      /* danger  */
+    --jelly-toast-font-size: var(--text-sm);
+    font-family: var(--font-regular);
+  }
 
   /* ── Section panels — top-level containers, so they align to the grid ── */
   /* The panel owns the rhythm between its blocks instead of each block
@@ -554,6 +580,18 @@
 
     <section class="panel span-full">
       <div class="panel-head">
+        <h2 class="panel-title"><iconify-icon icon="lucide:bell"></iconify-icon> التنبيهات — Feedback</h2>
+        <p class="panel-note">أزرار تُطلق <span dir="ltr">jelly-toaster</span> عبر
+           <span dir="ltr">jellyToast()</span>. الأزرار نفسها متطابقة — نفس المظهر والحجم والتكوين —
+           والمتغيّر الوحيد هو <b>النبرة</b>. الشريط بالأزرق ونصّه كريمي، والنبرة على النقطة
+           بالألوان الدلالية: أخضر نجاح، أصفر تحذير، برتقالي خطأ. الدلالي لا يكون لوناً للعلامة أبداً.
+           ولأن Jelly يضيف بادئة منطوقة لكل تنبيه، فالمعنى لا يعتمد على اللون وحده.</p>
+      </div>
+      <div class="examples" id="ex-toast"></div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
         <h2 class="panel-title"><iconify-icon icon="lucide:arrow-right-left"></iconify-icon> الاتجاه — RTL و LTR</h2>
         <p class="panel-note">المقارنة الاتجاهية الوحيدة في الصفحة. نفس المظهر ونفس الحجم ونفس التكوين،
            والمتغيّر هو الاتجاه: الأيقونة الأمامية تتبع بداية القراءة، والمسافات لا تتغيّر.</p>
@@ -574,6 +612,10 @@
 
  </main>
 </div>
+
+<!-- Placed rather than auto-created, so the stack is ours to position. It
+     grows from the inline-end, which mirrors on this RTL page by itself. -->
+<jelly-toaster position="bottom"></jelly-toaster>
 
 <script>
   const STYLES = [
@@ -692,6 +734,31 @@
     specimen('RTL — عربي', button('leading', BASE_STYLE, BASE_SIZE, 'rtl'), 'الأيقونة إلى اليمين'),
     specimen('LTR — English', button('leading', BASE_STYLE, BASE_SIZE, 'ltr'), 'الأيقونة إلى اليسار'),
   ].join(''));
+
+  /* ── Feedback ───────────────────────────────────────────────────────────
+     Jelly's four tones, each fired by an identical button so the only thing
+     that varies is the tone. "error" and "neutral" are not tones — measured,
+     both fall back to Info — so the set is exactly these four. */
+  const TONES = [
+    ['info',    'Info',    'تم تحديث القائمة'],
+    ['success', 'Success', 'تم حفظ الدفعة'],
+    ['warning', 'Warning', 'سعر الصرف قديم'],
+    ['danger',  'Danger',  'تعذّر الحفظ'],
+  ];
+
+  fill('ex-toast', TONES.map(([tone, name]) =>
+    specimen(name, button('leading', 'outline', BASE_SIZE, DIR).replace(
+      'data-config="leading"', 'data-config="leading" data-tone="' + tone + '"'),
+      'نبرة ' + tone)).join(''));
+
+  /* The label is the tone's own word, not the sample text, so each button says
+     what it will do. Written after the markup so it does not have to be
+     threaded through button(). */
+  document.querySelectorAll('#ex-toast [data-tone]').forEach((el, i) => {
+    const [tone, , message] = TONES[i];
+    el.querySelector('.jelly-label > span').textContent = message;
+    el.addEventListener('click', () => jellyToast(message, { tone }));
+  });
 
   /* Counted from the DOM rather than written down, so the figure cannot drift
      away from the page the way the old "90 components" line had. */
