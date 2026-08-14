@@ -678,6 +678,15 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       column-gap: var(--space-250);
     }
+
+    /* The three sizes belong on one line — they are a progression, and a
+       progression split across two rows stops reading as one. The English
+       labels make these the widest specimens on the page: 118 + 106 + 89 =
+       313px against a row of 333px at 430px, so only space-100 leaves them
+       room. Left as flex rather than forced into a grid: below about 426px
+       the three simply do not fit at any gap, and flex wraps them instead of
+       pushing them off the edge. */
+    #ex-size { column-gap: var(--space-100); }
   }
   @media (max-width: 479px) {           /* xxs — 2 columns */
     .main-col { --grid-columns: 2; }
