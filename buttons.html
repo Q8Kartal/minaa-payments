@@ -23,7 +23,7 @@
      serves both with max-age=600, so without it a deploy can hand a visitor new
      markup against ten-minute-old styling, or nothing at all until the cache
      expires. The HTML itself is revalidated, so the version travels with it. -->
-<link rel="stylesheet" href="buttons.css?v=20260810g">
+<link rel="stylesheet" href="buttons.css?v=20260815a">
 <script>
   /* Every visible string for this build. The CSS and the behaviour live in
      buttons.css and buttons.js and are shared with the English build, so a fix
@@ -68,7 +68,7 @@
     },
   };
 </script>
-<script src="buttons.js?v=20260810g" defer></script>
+<script src="buttons.js?v=20260815a" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -94,7 +94,11 @@
     <!-- Western digits, like every other number on the page. This card was the
          only Arabic-Indic one, which read as a mistake next to 999px and 32. -->
     <div class="stat-card"><b>4 + 1</b><span>تكوينات للزر · وزر الأيقونة عائلة مستقلّة</span></div>
-    <div class="stat-card"><b dir="ltr">0 → 1</b><span>تقدّم يقرأ من تشوّه Jelly — لا مؤقّت</span></div>
+    <!-- The arrow points the way the line is read. In RTL that is leftward, so
+         the glyph is ← and 0 lands on the right where reading starts. It used
+         to carry dir="ltr", which is the LTR island the direction rule forbids;
+         flipping the glyph says the same thing without overriding direction. -->
+    <div class="stat-card"><b>0 ← 1</b><span>تقدّم يقرأ من تشوّه Jelly — لا مؤقّت</span></div>
     <div class="stat-card"><b>999px</b><span>نصف القطر — كبسولة كاملة</span></div>
   </div>
 

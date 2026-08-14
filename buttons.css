@@ -35,12 +35,14 @@
     --text-xl: 20px;
     --display-xs: 24px; --display-xs-lh: 32px;
     --display-sm: 32px; --display-sm-lh: 40px;
+    --display-md: 40px; --display-md-lh: 44px;   /* Figma text style Display md */
     --display-lg: 48px; --display-lg-lh: 60px;
 
     /* ── Colour — the Minaã Colour variables ─────────────────────────────
        Named after the Foundations steps they come from, so a value can be
        checked against the page it came from rather than taken on trust. */
     --primary:       #0062AD;   /* Primary 700 — Minaã Blue */
+    --primary-300:   #A1CFFF;   /* Primary 300 — control tracks, never text */
     --primary-100:   #E2F0FF;
     --primary-tint:  #F2F8FF;   /* Primary 50  */
     --secondary:     #E8411D;   /* Secondary 600 — Minaã Red */
@@ -66,9 +68,15 @@
     --error-deep:    #A14712;   /* Orange 700 */
 
     --card:   #FFFFFF;
-    --text:   #0062AD;
-    --muted:  rgba(0,98,173,.72);
-    --faint:  rgba(0,98,173,.5);
+    /* One ink for every word on the page: Primary 700, at full strength.
+       Captions and labels are small, but they are still copy — they name what
+       you are looking at — so they read like a paragraph rather than like an
+       aside. Hierarchy comes from size and weight, never from fading the text.
+       The three role names are kept because they say what each run of copy is
+       for, and because a future theme may want to move them apart again. */
+    --text:   #0062AD;   /* Primary 700 — headings and body */
+    --muted:  #0062AD;   /* Primary 700 — paragraphs */
+    --faint:  #0062AD;   /* Primary 700 — captions and small labels */
     --border: rgba(0,98,173,.14);
 
     --shadow-card:  0 2px 10px rgba(22,22,22,.05);
@@ -264,8 +272,14 @@
     background: var(--card); border: 1px solid var(--border); border-radius: 18px;
     padding: var(--space-250); box-shadow: var(--shadow-card);
   }
-  .stat-card b { display: block; font-family: var(--font-bold); font-size: var(--display-xs); line-height: var(--display-xs-lh); }
-  .stat-card span { display: block; font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted); margin-top: var(--space-050); }
+  /* The figure is the one thing on the card that is not prose, so it takes
+     Secondary 600 — hierarchy, not alarm. Its caption stays Primary 700. */
+  .stat-card b {
+    display: block; font-family: var(--font-bold);
+    font-size: var(--display-xs); line-height: var(--display-xs-lh);
+    color: var(--secondary);
+  }
+  .stat-card span { display: block; font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); margin-top: var(--space-050); }
 
   /* ── Controls panel ───────────────────────────────────────────────────── */
   .controls {
@@ -297,12 +311,23 @@
     /* Which token paints what was established by probing, not by reading names:
        -accent is the on/filled colour, -neutral the rest of the track, and
        -background-white the thumb. Jelly's defaults are a near-black track and
-       an off-white thumb, neither of which belongs in this palette. */
-    --jelly-color-background-neutral: var(--faint);
-    --jelly-color-background-white: var(--cream);
+       an off-white thumb, neither of which belongs in this palette.
+
+       The track takes Primary 300. It carries no text, so the contrast floor
+       that keeps 300 away from copy does not apply — here the pale step is
+       doing the job it is actually for. It cannot be --faint any more: that
+       token now resolves to Primary 700 along with the rest of the type. */
+    --jelly-color-background-neutral: var(--primary-300);
+    /* The thumb is Secondary 600 — the moving part is the one that reports
+       state, so it takes the colour that marks a change rather than the cream
+       that reads as a surface. */
+    --jelly-color-background-white: var(--secondary);
     --jelly-color-foreground-on-accent: var(--cream);
   }
   jelly-switch {
+    /* On is Primary 700, off is Primary 300 (the shared -neutral above). The
+       state is carried by the track's own weight, so it reads at a glance
+       without depending on the knob's position alone. */
     --jelly-color-background-accent: var(--primary);
     /* The slotted label is painted by the shadow root, so an inherited `color`
        loses to it. Probed: --jelly-color-foreground-muted is the one that
@@ -382,7 +407,10 @@
     margin: var(--space-0);
   }
   .panel-title iconify-icon {
-    color: var(--primary); font-size: var(--text-xl);
+    /* Secondary 600. The icon marks where a section starts; the heading beside
+       it carries the words, so the mark can take the second colour without
+       competing with the copy. */
+    color: var(--secondary); font-size: var(--text-xl);
     flex: none;
     block-size: var(--display-xs-lh);      /* one line of the heading */
     display: flex; align-items: center;    /* glyph centred within that line */
@@ -420,6 +448,8 @@
     display: flex; flex-direction: column; align-items: flex-start;
     gap: var(--space-150);
   }
+  /* The caption names the specimen — it is the only thing telling you which
+     configuration you are looking at, so it reads as content, not as an aside. */
   .specimen figcaption {
     font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted);
   }
@@ -464,6 +494,14 @@
        direction instead of the whole pill changing at once. */
     --jelly-fill:  var(--fill-rest);
     --jelly-label: var(--label-rest);
+    /* Weight comes from the family, never from font-weight: the three weights
+       are three separate faces, and every @font-face claims 100–900 so the
+       browser can never fake a heavier one by smearing the glyphs.
+
+       Medium, not ExtraBold. Tried heavier and reverted: the label holds
+       against a filled pill either way, and the heavier face is wider, so
+       every button grew ~5px and a row of them started competing with the
+       section heading above it. */
     font-family: var(--font-medium);
     touch-action: manipulation;
   }
@@ -563,7 +601,7 @@
   .measure table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm-lh); }
   .measure th, .measure td { text-align: start; padding: var(--space-100) var(--space-150); border-bottom: 1px solid var(--border); white-space: nowrap; }
   .measure th { font-family: var(--font-bold); color: var(--text); }
-  .measure td { color: var(--muted); }
+  .measure td { color: var(--faint); }
   .measure tr:last-child td { border-bottom: none; }
   .measure .ok   { color: var(--success-text); font-family: var(--font-bold); }
   /* min-width:0 or the scroll container refuses to shrink below its table and
@@ -594,7 +632,13 @@
       gap: var(--space-300);
     }
     .stat-card { grid-column: span 3; }  /* 2 across */
-    .greeting h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
+    /* 48 → 40 → 32 down the page title. It used to drop 48 → 32 → 24, which
+       made the title on a phone half the size it is on a desktop and left it
+       reading as a caption rather than as the name of the page. Measured at
+       430px: the widest of the two builds is "Button library" at 223px in
+       294px of space, so even 48px would fit — the old steps were cautious
+       about a constraint that was not there. */
+    .greeting h1 { font-size: var(--display-md); line-height: var(--display-md-lh); }
   }
   @media (max-width: 767px) {
     .panel { padding: var(--space-300); }
@@ -602,11 +646,43 @@
        air and pushed specimens onto extra rows. Steps down with the panel. */
     .examples { gap: var(--space-250) var(--space-300); }
     body { padding: var(--space-200); }   /* steps with --grid-margin */
+
+    /* Only the four content configurations get columns. They are a set of
+       four meant to be compared against each other, and a wrapping row packed
+       three onto the first line and stranded the fourth. Two equal columns
+       pair them 2 + 2 so every specimen sits in the same slot.
+
+       Deliberately scoped to this one row: everywhere else the specimen count
+       differs (three sizes, three states, five appearances) and forcing two
+       columns there strands a lone specimen instead of fixing one. Those rows
+       wrap on their own and should keep doing so. */
+    #ex-config { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    /* One group per row. A group is itself a row of buttons, so two groups
+       side by side put four buttons on one line with two captions underneath
+       and no way to tell where the first group ended — the reader has to guess
+       which explanation belongs to which pair. Given the full width, each
+       group sits above its own caption and the pairing is unambiguous. */
+    #ex-group { display: grid; grid-template-columns: minmax(0, 1fr); }
+
+    /* Three then two: the solid appearances on one line, the two ghosts on the
+       next, so the pairing you compare is the pairing you see. Five specimens
+       in three columns fall 3 + 2 on their own.
+
+       The column gap steps down to space-250 here for a measured reason: three
+       96px specimens plus two 24px gaps need 336px and the row is 333px, so at
+       space-300 the third wrapped. 20px gaps leave 97px per column and the
+       buttons keep their own width — the gap gave way, not the buttons. */
+    #ex-appearance {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-250);
+    }
   }
   @media (max-width: 479px) {           /* xxs — 2 columns */
     .main-col { --grid-columns: 2; }
     .stat-card { grid-column: span 1; } /* 2 across */
     body { padding: var(--space-100); }
     .shell { border-radius: 20px; }
-    .greeting h1 { font-size: var(--display-xs); line-height: var(--display-xs-lh); }
+    .greeting h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
   }
