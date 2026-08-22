@@ -1,3 +1,75 @@
+  /* ── Micons ──────────────────────────────────────────────────────────────
+     The page used to pull eleven lucide glyphs from iconify's CDN. These are
+     the official Minaa icons instead, exported from the Micons library and
+     inlined as one <symbol> sprite: no third party, no CDN round-trip, no
+     api.iconify.design lookup, and they paint with the first frame instead of
+     after a network hop.
+
+     Every path carries stroke/fill="currentColor", so an icon takes the colour
+     of the text beside it and the existing colour rules keep working untouched.
+     Strokes are 1.5 on a 24-unit grid, which is the library's own
+     construction — never rescale the stroke when you change the rendered
+     size, or they stop matching Figma.
+
+     Which icon a slot gets is not a free choice. The system's order of
+     preference is brand first; if nothing in brand fits the subject, solid;
+     and outline only after that. Every heading below is solid except Sizes,
+     which takes brand/ruler, and `search`, which is explained at its own
+     entry. Do not swap one for a nicer-looking glyph from a lower tier.
+
+     The sprite is defined once and referenced by <use>, so each path is stored
+     once no matter how many times its icon appears. `search` sits inside every
+     example button on the page, which is why that matters. */
+  const MICONS = {
+    /* e-commerce/id-803-solid */
+    button: '<path d="M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2ZM12 7.85645C11.5858 7.85645 11.25 8.19223 11.25 8.60645V10.1895L10.0303 8.96973C9.73738 8.67683 9.26262 8.67683 8.96973 8.96973C8.67702 9.26264 8.6769 9.73744 8.96973 10.0303L10.1895 11.25H8.60645C8.19223 11.25 7.85645 11.5858 7.85645 12C7.85646 12.4142 8.19224 12.75 8.60645 12.75H10.1895L8.96973 13.9697C8.67699 14.2626 8.67689 14.7374 8.96973 15.0303C9.26258 15.3229 9.73743 15.3229 10.0303 15.0303L11.25 13.8105V15.3945C11.2503 15.8085 11.586 16.1445 12 16.1445C12.414 16.1445 12.7497 15.8085 12.75 15.3945V13.8105L13.9697 15.0303C14.2626 15.3229 14.7374 15.3229 15.0303 15.0303C15.3231 14.7374 15.323 14.2626 15.0303 13.9697L13.8105 12.75H15.3945C15.8085 12.7497 16.1445 12.414 16.1445 12C16.1445 11.586 15.8085 11.2503 15.3945 11.25H13.8105L15.0303 10.0303C15.3231 9.73744 15.323 9.26264 15.0303 8.96973C14.7374 8.67683 14.2626 8.67683 13.9697 8.96973L12.75 10.1895V8.60645C12.75 8.19223 12.4142 7.85645 12 7.85645Z" fill="currentColor"/>',
+    /* arrows/internet-12-solid */
+    config: '<path d="M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2ZM9.375 7.21191C8.96079 7.21191 8.625 7.5477 8.625 7.96191V14.0459L7.31348 12.5537C7.04017 12.2429 6.56599 12.2123 6.25488 12.4854C5.94388 12.7586 5.91348 13.2328 6.18652 13.5439L8.81152 16.5332C8.95392 16.6953 9.15927 16.7881 9.375 16.7881C9.59073 16.7881 9.79609 16.6953 9.93848 16.5332L12.5635 13.5439C12.8365 13.2328 12.8061 12.7586 12.4951 12.4854C12.184 12.2123 11.7098 12.2429 11.4365 12.5537L10.125 14.0459V7.96191C10.125 7.5477 9.78921 7.21191 9.375 7.21191ZM14.625 7.21191C14.4093 7.21192 14.2039 7.30474 14.0615 7.4668L11.4365 10.4561C11.1635 10.7672 11.1939 11.2414 11.5049 11.5146C11.816 11.7877 12.2902 11.7571 12.5635 11.4463L13.875 9.95312V16.0381C13.875 16.4523 14.2108 16.7881 14.625 16.7881C15.0392 16.7881 15.375 16.4523 15.375 16.0381V9.95312L16.6865 11.4463C16.9598 11.7571 17.434 11.7877 17.7451 11.5146C18.0561 11.2414 18.0865 10.7672 17.8135 10.4561L15.1885 7.4668C15.0461 7.30474 14.8407 7.21191 14.625 7.21191Z" fill="currentColor"/>',
+    /* interface/filter-3-solid */
+    iconbutton: '<rect x="16.4016" y="7.75009" width="8.80305" height="8.80305" rx="4.40153" transform="rotate(90 16.4016 7.75009)" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><path d="M1.99999 12.1516H7.38513" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M16.5435 12.1516L22.0001 12.1516" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    /* education/reward-52-solid */
+    appearance: '<path d="M11.5391 2C16.2903 2 23.1817 3.80005 21.8271 9.86523C21.5209 11.2359 20.2014 12.0467 18.8291 12.3457C12.3061 13.767 17.6299 17.4811 15.0449 20.2305C13.2421 22.1478 10.0844 22.2592 7.69531 21.1553C4.34138 19.6054 2 16.0892 2 12C2 6.47716 6.27078 2.00002 11.5391 2ZM10 14.8125C8.89543 14.8125 8 15.7079 8 16.8125C8 17.9171 8.89543 18.8125 10 18.8125C11.1046 18.8125 12 17.9171 12 16.8125C12 15.7079 11.1046 14.8125 10 14.8125ZM10 16.3125C10.2761 16.3125 10.5 16.5364 10.5 16.8125C10.5 17.0886 10.2761 17.3125 10 17.3125C9.72386 17.3125 9.5 17.0886 9.5 16.8125C9.5 16.5364 9.72386 16.3125 10 16.3125ZM6.75 9.60938C5.64543 9.60938 4.75 10.5048 4.75 11.6094C4.75003 12.7139 5.64545 13.6094 6.75 13.6094C7.85455 13.6094 8.74997 12.7139 8.75 11.6094C8.75 10.5048 7.85457 9.60938 6.75 9.60938ZM6.75 11.1094C7.02614 11.1094 7.25 11.3332 7.25 11.6094C7.24997 11.8855 7.02612 12.1094 6.75 12.1094C6.47388 12.1094 6.25003 11.8855 6.25 11.6094C6.25 11.3332 6.47386 11.1094 6.75 11.1094ZM13.8096 9.58301C13.6311 8.49298 12.6027 7.75417 11.5127 7.93262C10.4227 8.11112 9.68386 9.13947 9.8623 10.2295C10.0409 11.3194 11.0692 12.0583 12.1592 11.8799C13.2491 11.7014 13.988 10.673 13.8096 9.58301ZM11.7549 9.41309C12.0273 9.36849 12.2844 9.55281 12.3291 9.8252C12.3737 10.0976 12.1893 10.3546 11.917 10.3994C11.6446 10.444 11.3876 10.2596 11.3428 9.9873C11.2982 9.71489 11.4825 9.45783 11.7549 9.41309ZM16.9219 5.60938C15.8173 5.60938 14.9219 6.50481 14.9219 7.60938C14.9219 8.71392 15.8173 9.60938 16.9219 9.60938C18.0264 9.60938 18.9218 8.71392 18.9219 7.60938C18.9219 6.50481 18.0264 5.60938 16.9219 5.60938ZM16.9219 7.10938C17.198 7.10938 17.4219 7.33323 17.4219 7.60938C17.4218 7.88549 17.198 8.10938 16.9219 8.10938C16.6458 8.10938 16.4219 7.88549 16.4219 7.60938C16.4219 7.33323 16.6457 7.10938 16.9219 7.10938Z" fill="currentColor"/>',
+    /* brand/ruler — brand is the first choice, so Sizes takes it */
+    size: '<path d="M16.3563 2.40016C16.9094 1.84088 17.7393 1.88345 18.2801 2.43043L21.5868 5.76149C22.0415 6.22241 22.0657 7.01524 21.6356 7.50075L20.7694 8.38551L15.8827 13.2908L15.0477 14.1326L7.84459 21.3543L7.54967 21.6609C7.08878 22.0788 6.32622 22.1345 5.84068 21.6922C5.2937 21.1943 4.80156 20.6653 4.27916 20.1306L2.35631 18.1882C1.94457 17.7703 1.96913 17.0145 2.35631 16.572L3.8983 14.9929C3.97205 14.913 4.13257 14.8883 4.21861 14.9744L5.72349 16.4675C5.87098 16.6089 6.11131 16.5664 6.23424 16.4558C6.38784 16.3084 6.40614 16.0991 6.27721 15.9148L4.72838 14.366C4.7038 14.323 4.68497 14.1997 4.71568 14.1629L6.43053 12.448C6.52886 12.3498 6.67695 12.3627 6.77525 12.4548L8.26842 13.9295C8.41592 14.0708 8.66756 14.0091 8.77818 13.8923C8.90107 13.7633 8.95008 13.5235 8.8026 13.3699L7.24791 11.8093H7.26646C7.22959 11.7725 7.22959 11.6431 7.26646 11.6062L7.69713 11.1638L8.95689 9.90407C9.06751 9.79356 9.22731 9.86074 9.31334 9.95289L10.7508 11.3855C10.8922 11.5269 11.1318 11.483 11.2547 11.3601C11.3838 11.2311 11.4455 10.992 11.2919 10.8445L9.78599 9.32594C9.70031 9.23379 9.71304 9.11109 9.79283 9.02516L11.4276 7.38454C11.5198 7.29235 11.6674 7.31021 11.7596 7.39625L13.16 8.79762C13.3259 8.96354 13.5661 8.99445 13.7381 8.83473C13.9164 8.66879 13.8917 8.41014 13.7196 8.23805L12.3495 6.88649C12.2758 6.81282 12.1465 6.69596 12.2381 6.59157L12.5028 6.29664L13.9344 4.85817C14.0266 4.76598 14.1622 4.80952 14.242 4.88942L15.6864 6.3152C15.8338 6.46227 16.0915 6.37633 16.1962 6.25368C16.3006 6.13081 16.344 5.86633 16.1844 5.71266L14.7342 4.26246C14.6728 4.20101 14.6851 4.09581 14.7342 4.04664L16.3563 2.40016Z" fill="currentColor"/>',
+    /* interface/category-2-solid */
+    group: '<rect x="2" y="2" width="8.95523" height="8.95523" rx="3" fill="currentColor"/><rect x="2" y="13.0448" width="8.95523" height="8.95523" rx="3" fill="currentColor"/><rect x="13.0448" y="2" width="8.95523" height="8.95523" rx="4.47762" fill="currentColor"/><rect x="13.0448" y="13.0448" width="8.95523" height="8.95523" rx="3" fill="currentColor"/>',
+    /* education/reward-63-solid */
+    interaction: '<rect x="3.25" y="15.1184" width="17.5" height="6.13158" rx="3.06579" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><rect x="7.68359" y="2.75" width="8.63333" height="2.71053" rx="1.35526" stroke="currentColor" stroke-width="1.5"/><path d="M4.14648 16.0131L8.36266 11.864C8.74468 11.488 8.95982 10.9745 8.95982 10.4385V5.48682" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.8535 16.0131L15.6373 11.864C15.2553 11.488 15.0402 10.9745 15.0402 10.4385V5.48682" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+    /* date-time/alarm-bell-6-solid */
+    feedback: '<path d="M6.24978 9.27176V8.71875C6.24978 5.40504 8.93607 2.71875 12.2498 2.71875C15.5635 2.71875 18.2498 5.40504 18.2498 8.71875V9.94624C18.2498 11.1612 18.7324 12.3264 19.5915 13.1855L19.9229 13.5169C21.5193 15.1133 20.6736 17.8453 18.4546 18.2606C14.1884 19.0591 9.81114 19.0591 5.54499 18.2606C3.32593 17.8453 2.48026 15.1133 4.07662 13.5169L4.78466 12.8089C5.72276 11.8708 6.24978 10.5984 6.24978 9.27176Z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><path d="M9.25 18.3125V18.5313C9.25 20.05 10.4812 21.2813 12 21.2813C13.5188 21.2813 14.75 20.05 14.75 18.5313V18.3125" stroke="currentColor" stroke-width="1.5"/><path d="M18.5918 2.71875L20.9783 5.10524" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.41016 2.71875L3.02367 5.10524" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    /* transportation/deliverycar-solid */
+    direction: '<path d="M12 2.75C12.8888 2.75 13.6094 3.47054 13.6094 4.35938V21.25H10.3906V4.35938C10.3906 3.47054 11.1112 2.75 12 2.75Z" stroke="currentColor" stroke-width="1.5"/><path d="M5.00365 5.97339H10.375V10.5266H5.00366C4.57716 10.5266 4.36391 10.5266 4.17388 10.4444C3.98384 10.3621 3.83784 10.2067 3.54586 9.89582L3.28606 9.61923C2.67664 8.97039 2.37193 8.64597 2.37193 8.24998C2.37193 7.854 2.67664 7.52958 3.28606 6.88074L3.54586 6.60415C3.83784 6.29328 3.98384 6.13784 4.17388 6.05561C4.36391 5.97339 4.57716 5.97339 5.00365 5.97339Z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><path d="M18.9963 15.0797L13.625 15.0797L13.625 10.5266L18.9963 10.5266C19.4228 10.5266 19.6361 10.5266 19.8261 10.6088C20.0162 10.691 20.1622 10.8464 20.4541 11.1573L20.7139 11.4339C21.3234 12.0827 21.6281 12.4072 21.6281 12.8031C21.6281 13.1991 21.3234 13.5236 20.7139 14.1724L20.4541 14.449C20.1622 14.7599 20.0162 14.9153 19.8261 14.9975C19.6361 15.0797 19.4228 15.0797 18.9963 15.0797Z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>',
+    /* arrows/maxi-7-solid */
+    verified: '<path d="M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2ZM7.18262 12.8379C6.7685 12.834 6.42977 13.167 6.42578 13.5811C6.42202 13.9951 6.75484 14.334 7.16895 14.3379L8.58789 14.3506L6.46875 16.4707C6.17586 16.7636 6.17586 17.2393 6.46875 17.5322C6.76161 17.8247 7.23651 17.8248 7.5293 17.5322L9.64844 15.4121L9.66211 16.8311C9.66602 17.2452 10.0048 17.578 10.4189 17.5742C10.8331 17.5703 11.1659 17.2315 11.1621 16.8174L11.1318 13.6113C11.1278 13.2031 10.7978 12.8725 10.3896 12.8682L7.18262 12.8379Z" fill="currentColor"/>',
+    /* interface/search-5-line — the one outline face on the page, and chosen
+       as such. This icon is not a section marker: it sits inside the example
+       buttons at 16-20px, where a solid magnifier collapses into a filled disc
+       with a stick and stops reading as search. The glint arc inside the lens
+       is what separates this face from plain search-line. Both builds draw
+       their buttons from this one entry, so the two cannot drift. */
+    search: '<circle cx="11.7236" cy="10.7236" r="8.72358" stroke="currentColor" stroke-width="1.5"/><path d="M17.1758 18.3567L20.0271 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 11C7 8.23858 9.23858 6 12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  };
+
+  /* One hidden <svg> holding every symbol, mounted before anything references
+     it. aria-hidden and focusable=false keep the sprite out of the
+     accessibility tree and out of the tab order; the icons are decorative and
+     each one sits beside text that already says what it means. */
+  (function mountMicons() {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.style.position = 'absolute';
+    svg.style.width = svg.style.height = '0';
+    svg.innerHTML = Object.entries(MICONS)
+      .map(([k, body]) => '<symbol id="mi-' + k + '" viewBox="0 0 24 24" fill="none">' + body + '</symbol>')
+      .join('');
+    document.documentElement.appendChild(svg);
+  })();
+
+  /* Markup for one icon, so the class and the aria-hidden cannot drift between
+     call sites. The headings in both builds use the same helper. */
+  const micon = name => '<svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-' + name + '"/></svg>';
+
   const STYLES = [
     ['primary',   'Primary'],
     ['secondary', 'Secondary'],
@@ -24,7 +96,7 @@
      widths — 145.8px and 89.8px at 56px — and reflowed the row on every
      toggle. "Leading" and "trailing" are DOM order, which the flex row maps
      to reading order, so RTL mirrors without any physical flipping. */
-  const ICON = '<iconify-icon icon="lucide:search"></iconify-icon>';
+  const ICON = micon('search');
 
   const CONFIGS = [
     ['text',     'Text only',      label => '<span>' + label + '</span>'],
@@ -582,7 +654,13 @@
     }
     const label = host.querySelector('.jelly-label');
     const kids = [...label.children];
-    const icons = kids.filter(k => k.tagName === 'ICONIFY-ICON');
+    /* Matched on the class, not the tag name. This used to read
+       tagName === 'ICONIFY-ICON'; when the icons became inline Micons the
+       test silently found none, so every configuration with an icon reported
+       its width as text-only and the table filled with ✗ — a 20px shortfall
+       at 56px. The class is what the stylesheet sizes, so the two now agree
+       by construction. */
+    const icons = kids.filter(k => k.classList.contains('mi'));
     const text = kids.find(k => k.tagName === 'SPAN');
     const iconW = icons.reduce((a, k) => a + k.getBoundingClientRect().width, 0);
     const textW = text ? text.getBoundingClientRect().width : 0;

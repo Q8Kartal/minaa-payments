@@ -406,14 +406,18 @@
     font-family: var(--font-bold); font-size: var(--display-xs); line-height: var(--display-xs-lh);
     margin: var(--space-0);
   }
-  .panel-title iconify-icon {
+  .panel-title .mi {
     /* Secondary 600. The icon marks where a section starts; the heading beside
        it carries the words, so the mark can take the second colour without
        competing with the copy. */
-    color: var(--secondary); font-size: var(--text-xl);
+    color: var(--secondary);
     flex: none;
-    block-size: var(--display-xs-lh);      /* one line of the heading */
-    display: flex; align-items: center;    /* glyph centred within that line */
+    /* A box one line tall and one icon wide. The Micon carries its own 24-unit
+       viewBox, so preserveAspectRatio draws the artwork at the box's smaller
+       dimension and centres it on the heading's first line — no offset to
+       compute, and it stays centred if the heading wraps. */
+    inline-size: var(--text-xl);
+    block-size: var(--display-xs-lh);
   }
 
   .panel-note {
@@ -532,13 +536,17 @@
     display: inline-flex; align-items: center; gap: var(--space-100);
     transform: translateX(calc(var(--space-050) * var(--p) * var(--dir)));
   }
-  /* Reserve the icon's box up front. iconify hydrates lazily, so until its SVG
-     arrives the element measured 0 wide and the button was born narrow and
-     jumped when scrolled into view — measured: the RTL 40px button read 57.9px
-     off-screen and 89.9px in view. 1em resolves against the icon's own
-     font-size, which is a type token, so the width stays token-derived. */
-  .jelly-label iconify-icon,
-  jelly-icon-button > iconify-icon {
+  /* Reserve the icon's box up front. This mattered acutely under iconify,
+     which hydrated lazily: until its SVG arrived the element measured 0 wide,
+     so the button was born narrow and jumped when scrolled into view —
+     measured, the RTL 40px button read 57.9px off-screen and 89.9px in view.
+     The Micons sprite is inline and has no such gap, but the box stays
+     declared: it is what makes the measured widths in the table below
+     reproducible rather than dependent on paint order. 1em resolves against
+     the icon's own font-size, which is a type token, so the width stays
+     token-derived. */
+  .jelly-label .mi,
+  jelly-icon-button > .mi {
     flex: none; inline-size: 1em; block-size: 1em;
   }
 
@@ -546,10 +554,10 @@
      spread actually reaches it, from the same origin and radius as the fill.
      A global fade left mid-progress labels halfway between both colours and
      illegible over either one. --t is written per part by the paint pass.
-     iconify-icon is a custom element, so background-clip:text can't be used;
-     colouring each part directly keeps the icons rendering from currentColor. */
+     background-clip:text cannot carry this, so each part is coloured directly
+     — which is also what keeps the Micons painting from currentColor. */
   .jelly-label > *,
-  jelly-icon-button > iconify-icon {     /* icon buttons carry a bare icon, no label wrapper */
+  jelly-icon-button > .mi {     /* icon buttons carry a bare icon, no label wrapper */
     color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--t, 0) * 100%));
   }
 
@@ -559,14 +567,14 @@
   jelly-button.s40 { --jelly-button-height: 40px; --jelly-button-padding-inline: var(--space-200); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-md); }
   /* Icon box = the type token for that size, so the icon contributes a token
      width to the sum above rather than a raw number. */
-  jelly-button.s56 iconify-icon, jelly-button.s48 iconify-icon { font-size: var(--text-xl); }
-  jelly-button.s40 iconify-icon { font-size: var(--text-md); }
+  jelly-button.s56 .mi, jelly-button.s48 .mi { font-size: var(--text-xl); }
+  jelly-button.s40 .mi { font-size: var(--text-md); }
 
   jelly-icon-button.s56 { --jelly-icon-button-size: 56px; }
   jelly-icon-button.s48 { --jelly-icon-button-size: 48px; }
   jelly-icon-button.s40 { --jelly-icon-button-size: 40px; }
-  jelly-icon-button.s56 iconify-icon, jelly-icon-button.s48 iconify-icon { font-size: 20px; }
-  jelly-icon-button.s40 iconify-icon { font-size: 16px; }
+  jelly-icon-button.s56 .mi, jelly-icon-button.s48 .mi { font-size: 20px; }
+  jelly-icon-button.s40 .mi { font-size: 16px; }
 
   /* Variants — Primary/700 and Secondary/600 exactly as the approved states.
      Primary swaps to Secondary; Secondary swaps to Primary; the quiet styles

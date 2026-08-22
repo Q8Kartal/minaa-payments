@@ -6,16 +6,14 @@
 <title>مكتبة الأزرار – Minaã</title>
 <!-- The three faces are 394KB of the page and are only discovered once the
      stylesheet parses, which on a phone is the slowest thing here. Preloading
-     starts them with the document instead. Preconnect opens the two
-     third-party sockets early: Jelly is a module plus a chunk, and iconify is
-     a script plus a call to its API for the icon set. -->
+     starts them with the document instead. Preconnect opens Jelly's socket
+     early, since it is a module plus a chunk. The icons used to need two
+     more sockets and a script: they are Minaa's own now, inlined as a
+     sprite in buttons.js, so nothing is fetched for them at all. -->
 <link rel="preload" href="fonts/29LTIdrisRound-Regular.woff2"   as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/29LTIdrisRound-Medium.woff2"    as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/29LTIdrisRound-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preconnect" href="https://jelly-ui.com" crossorigin>
-<link rel="preconnect" href="https://code.iconify.design" crossorigin>
-<link rel="preconnect" href="https://api.iconify.design" crossorigin>
-<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
 <!-- Jelly UI owns the soft-body physics. Nothing here reimplements its motion;
      the colour reveal is layered on top of the properties it already exposes. -->
 <script type="module" src="https://jelly-ui.com/package.js"></script>
@@ -23,7 +21,7 @@
      serves both with max-age=600, so without it a deploy can hand a visitor new
      markup against ten-minute-old styling, or nothing at all until the cache
      expires. The HTML itself is revalidated, so the version travels with it. -->
-<link rel="stylesheet" href="buttons.css?v=20260815b">
+<link rel="stylesheet" href="buttons.css?v=20260822c">
 <script>
   /* Every visible string for this build. The CSS and the behaviour live in
      buttons.css and buttons.js and are shared with the English build, so a fix
@@ -68,7 +66,7 @@
     },
   };
 </script>
-<script src="buttons.js?v=20260815b" defer></script>
+<script src="buttons.js?v=20260822c" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -107,7 +105,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:square-mouse-pointer"></iconify-icon> الزر</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-button"/></svg> الزر</h2>
         <p class="panel-note">العنصر الأساسي: كبسولة تتّسع لمحتواها، بجسم Jelly لَيّن.
            كل ما يلي يغيّر متغيّراً واحداً فقط من هذا الزر.</p>
       </div>
@@ -116,7 +114,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:layout-grid"></iconify-icon> الزر مع أيقونة أمامية أو خلفية</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-config"/></svg> الزر مع أيقونة أمامية أو خلفية</h2>
         <p class="panel-note">أربعة تكوينات للمحتوى. المظهر <b>Primary</b> والحجم <b>48px</b> ثابتان،
            والمتغيّر الوحيد هو وجود الأيقونة وموضعها. كل تكوين يملك عرضه الخاص — لا مساحة محجوزة لأيقونة غائبة.</p>
       </div>
@@ -125,7 +123,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:circle-dot"></iconify-icon> زر الأيقونة</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-iconbutton"/></svg> زر الأيقونة</h2>
         <p class="panel-note">عائلة مستقلّة، لا تكوين من تكوينات الزر: عنصر
            <span dir="ltr">jelly-icon-button</span> دائري ضلعه = ارتفاع الزر، ويلزمه اسم بديل لأنه بلا نص.</p>
       </div>
@@ -134,7 +132,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:palette"></iconify-icon> المظاهر</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-appearance"/></svg> المظاهر</h2>
         <p class="panel-note">خمسة مظاهر. الحجم <b>48px</b> وتكوين المحتوى (أيقونة أمامية) ثابتان،
            والمتغيّر الوحيد هو اللون. <b>Primary</b> للإجراء الرئيسي و<b>Secondary</b> للزر الثانوي —
            والاثنان علامة تسلسل لا أهمية. و<b>Outline</b> و<b>Ghost</b> لإجراء مساند أقل بروزاً.</p>
@@ -144,7 +142,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:ruler-dimension-line"></iconify-icon> الأحجام</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-size"/></svg> الأحجام</h2>
         <p class="panel-note">ثلاثة أحجام معتمدة. المظهر <b>Primary</b> وتكوين المحتوى ثابتان،
            والمتغيّر الوحيد هو الارتفاع — ومعه الحشو الأفقي وحجم النص والأيقونة.</p>
       </div>
@@ -153,7 +151,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:rows-3"></iconify-icon> مجموعات الأزرار</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-group"/></svg> مجموعات الأزرار</h2>
         <p class="panel-note">أزرار متجاورة تفصلها <b>space-150</b>. الإجراء الأساسي أوّلاً في اتجاه
            القراءة، ولا يزيد الأساسي عن واحد في المجموعة. اللون هنا يعبّر عن
            <b>التسلسل لا عن الأهمية</b>: الأزرق <span dir="ltr">Primary 700</span> للإجراء الرئيسي،
@@ -164,7 +162,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:activity"></iconify-icon> التفاعل وسلوك Jelly</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-interaction"/></svg> التفاعل وسلوك Jelly</h2>
         <p class="panel-note">حالة التفاعل منفصلة تماماً عن التكوين: التمرير والضغط والتركيز
            لا تغيّر محتوى الزر ولا عرضه.</p>
       </div>
@@ -195,7 +193,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:bell"></iconify-icon> التنبيهات — Feedback</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-feedback"/></svg> التنبيهات — Feedback</h2>
         <p class="panel-note">أزرار تُطلق <span dir="ltr">jelly-toaster</span> عبر
            <span dir="ltr">jellyToast()</span>. الأزرار نفسها متطابقة — نفس المظهر والحجم والتكوين —
            والمتغيّر الوحيد هو <b>النبرة</b>. الشريط بالأزرق ونصّه كريمي، والنبرة على النقطة
@@ -207,7 +205,7 @@
 
     <section class="panel span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:arrow-right-left"></iconify-icon> الاتجاه — RTL و LTR</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-direction"/></svg> الاتجاه — RTL و LTR</h2>
         <p class="panel-note">المقارنة الاتجاهية الوحيدة في الصفحة. نفس المظهر ونفس الحجم ونفس التكوين،
            والمتغيّر هو الاتجاه: الأيقونة الأمامية تتبع بداية القراءة، والمسافات لا تتغيّر.</p>
       </div>
@@ -216,7 +214,7 @@
 
     <section class="panel measure span-full">
       <div class="panel-head">
-        <h2 class="panel-title"><iconify-icon icon="lucide:ruler"></iconify-icon> الأبعاد والمسافات المتحقَّقة</h2>
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-verified"/></svg> الأبعاد والمسافات المتحقَّقة</h2>
         <p class="panel-note">مقروءة من الأمثلة المعروضة أعلاه لحظة العرض، لا من ملف التنسيق.
            العرض المتوقّع = حشو + أيقونات + فجوات + نص.</p>
       </div>

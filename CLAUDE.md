@@ -27,6 +27,26 @@ See `DESIGN.md` for the full system. Essentials:
   - Each `@font-face` claims `font-weight: 100 900` **deliberately**. Registered at a single weight, any rule asking for 700/800/900 makes the browser fake a bolder face by smearing the glyphs — which merges Arabic strokes and fills the counters, mangling the script on phones. Claiming the range makes every weight request resolve to that face exactly, with nothing to synthesise. `html { font-synthesis: none }` is the backstop.
   - No Fontstand, so **no per-domain licensing, no 403 on unregistered origins, no 10,000 pageview meter, and `file://` works**.
 - **Logo:** Blue seagull-on-bollard logomark — the official `Artboard 17.svg`, embedded as an SVG data URI in the `<img>` inside `.logo-wrap` (no text lockup)
+- **Icons — Micons, ours, and no third party.** The library is the Figma file
+  `BlltPtiVnS9ULiuMVKo2oM` (page `108:30`), 18 categories. The button-library
+  pages inline them as a `<symbol>` sprite in `buttons.js`, referenced with
+  `<svg class="mi"><use href="#mi-NAME"/></svg>`; both builds share the one
+  sprite, so an icon cannot differ between Arabic and English.
+  - **Choose by tier, in order: `brand/*` first, then `-solid`, then `-line`.**
+    If nothing in `brand` fits the subject, that gap is worth filling in the
+    library rather than settling. The tier never overrides meaning — the glyph
+    must reflect what the section is actually about, and matching on the
+    component's *name* is not the same as matching the subject.
+  - **Decide the tier for a whole set, not per icon.** One solid mark among
+    outline neighbours reads visibly heavier and breaks the row.
+  - Paths are re-coloured to `currentColor` on export, so icons inherit the
+    surrounding text colour and the existing colour rules keep working.
+    Strokes are 1.5 on a 24-unit grid — never rescale the stroke.
+  - The pages used lucide via iconify's CDN until 2026-08-22. That is gone:
+    no script, no `preconnect`, nothing fetched for icons. Do not reintroduce
+    it. Anything measuring icons must match on `.mi`, not on a tag name — the
+    measure pass tested `tagName === 'ICONIFY-ICON'` and silently scored every
+    icon button as text-only when the icons became inline SVG.
 
 ### Before committing any UI — run these three checks
 Every design-system violation in this project so far came from one of three
