@@ -112,7 +112,7 @@
      and a fix lands in both at once. */
   const T = window.MINAA_BUTTONS_STRINGS;
 
-  const LABEL = { ltr: 'Button', rtl: 'كابسة' };
+  const LABEL = { ltr: 'Button', rtl: 'دقمة' };
 
   /* One button of a given configuration, variant and size. */
   function button(config, variantCls, size, dir) {
