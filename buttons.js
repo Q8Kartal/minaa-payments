@@ -299,6 +299,19 @@
     const attach = () => {
       const root = toaster.shadowRoot;
       if (!root) return false;
+
+      /* The stack between toasts is Jelly's `.rail { gap: 10px }` — measured,
+         and 10 is not a step on the Minaã scale. Everything else on the pill
+         is bound from buttons.css through ::part(toast), but .rail carries no
+         part attribute, so no outside selector can reach it. One rule injected
+         into the shadow root is the only way in. It reads the token off the
+         host, so the value still comes from the scale and not from here. */
+      if (!root.querySelector('[data-minaa-rail]')) {
+        const rule = document.createElement('style');
+        rule.setAttribute('data-minaa-rail', '');
+        rule.textContent = '.rail{gap:var(--space-150)}';
+        root.appendChild(rule);
+      }
       new MutationObserver(records => {
         for (const r of records)
           for (const node of r.addedNodes)

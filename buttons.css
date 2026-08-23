@@ -367,7 +367,22 @@
   /* Jelly rings the pill in a dark grey and puts the dismiss glyph in grey on a
      darker grey disc. Neither is a Minaã colour, and the pill needs no stroke —
      it already separates from the page by fill and shadow. */
-  jelly-toaster::part(toast) { border: none; }
+  /* Jelly hardcodes the pill's own spacing — measured on the rendered toast:
+     gap 11px, padding-block 11px, padding-inline 14px, and .rail gap 10px.
+     None of 10, 11 or 14 is a step on the Minaã scale, and it exposes no
+     custom property for any of them, so they are bound here instead. The
+     shadow root is somebody else's stylesheet but it paints on our page, so
+     the no-raw-values rule reaches inside it.
+
+     11 → space-150 and 14 → space-200 are the nearest steps; the pill gains
+     4px of width and 2px of height by it. .rail carries no part attribute and
+     cannot be reached from here at all — buttons.js binds that one. */
+  jelly-toaster::part(toast) {
+    border: none;
+    gap: var(--space-150);
+    padding-block: var(--space-150);
+    padding-inline: var(--space-200);
+  }
   /* No dismiss control. The toast leaves on its own timer, and the disc the ×
      sat on was a second circle competing with the tone mark for the same small
      pill. Removing it costs early dismissal; it does not cost the message,

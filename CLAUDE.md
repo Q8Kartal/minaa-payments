@@ -177,6 +177,21 @@ top bar and icon rail.
 - **localStorage origin:** Data saved in one browser/context won't appear in another (different file path = different origin). Use Export/Import JSON to transfer data between browsers
 - **Logo:** the official `Artboard 17.svg`, embedded as an SVG **data URI** (~2.4 KB). Stays crisp at any size; the invoice reuses the same element and inverts it to white
 - **Web components:** styling the host does not reach inside. Use the component's own attributes (`shape`, `block`, `variant`), its `--jelly-*` custom properties, or `::part()`. Two bugs this caused: `el.disabled = x` silently no-ops (use `toggleAttribute`), and `width:100%` stretches only the host (use `block`)
+- **A shadow root is not exempt from the spacing scale.** Jelly hardcodes its
+  own padding and gaps, and exposes no custom property for them — the toast
+  measured `gap: 11px`, `padding-block: 11px`, `padding-inline: 14px` and
+  `.rail { gap: 10px }`, none of which is a step on our scale. It renders on
+  our page, so it is ours to bind. `::part()` reaches anything carrying a
+  `part` attribute; for anything that does not — `.rail` has none — inject one
+  rule into the shadow root and let it read the token off the host, so the
+  value still comes from the scale rather than from a number in JS.
+  - **Measure the settled element, not the animating one.** Jelly animates a
+    toast in at `scale(0.9)`, so a mid-flight box is 39.6px tall instead of 44
+    and its neighbour gaps read 16.4px instead of 12. Filter to
+    `transform === 'matrix(1, 0, 0, 1, 0, 0)'` before believing a number. A
+    screenshot taken a moment early "shows" a spacing bug that is not there.
+  - Sub-pixel offsets round badly: the gap measured 11px until it was read as
+    a float (130.09 − 98.09 = 12.00). Round the difference, never the operands.
 - **RTL:** always use logical properties (`padding-inline`, `margin-inline-start`, `text-align: start/end`). Physical sides flip wrongly — this produced a real spacing bug in the rates strip
 - **Direction is fixed, never adaptive.** This page is the **Arabic RTL version at all times** (`<html lang="ar" dir="rtl">`). An English payment name must not flip its card, field, alignment or icon order to LTR — Latin text keeps its own character order via the bidi algorithm, and that is enough.
   - **Never use `unicode-bidi: plaintext`.** It derives direction from the first strong character, which is exactly the content-based detection this rule forbids. It was on `.pay-name` and flipped English rows to LTR.
