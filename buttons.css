@@ -368,13 +368,36 @@
      darker grey disc. Neither is a Minaã colour, and the pill needs no stroke —
      it already separates from the page by fill and shadow. */
   jelly-toaster::part(toast) { border: none; }
-  /* The × is Minaã Red. It sits on a cream disc rather than straight on the
-     blue: measured, red on Primary 700 is 1.59:1 and all but disappears, while
-     red on cream is 3.57:1 and clears the 3:1 a control needs. */
-  jelly-toaster::part(close) {
-    background: var(--cream);
-    color: var(--secondary);
+  /* No dismiss control. The toast leaves on its own timer, and the disc the ×
+     sat on was a second circle competing with the tone mark for the same small
+     pill. Removing it costs early dismissal; it does not cost the message,
+     which Jelly also announces politely with a spoken tone prefix. */
+  jelly-toaster::part(close) { display: none; }
+
+  /* The dot became the tone mark. buttons.js clears its inline background and
+     puts the Micon inside it; this gives that glyph a box to sit in. Cream on
+     every tone, so the mark and the copy read as one thing. */
+  jelly-toaster::part(dot) {
+    inline-size: var(--text-xl);
+    block-size: var(--text-xl);
+    border-radius: 0;
+    color: var(--cream);
+    flex: none;
+    display: flex;
+    align-items: center;
   }
+
+  /* One card colour per tone, hung on the part name buttons.js appends.
+     These are the bright semantic steps as specified. Measured against cream:
+     Blue 5.55:1 passes AA, but Green 600 is 2.75:1, Orange 500 2.83:1 and
+     Yellow 400 only 1.75:1 — all below the 4.5:1 body copy needs. The deep
+     steps already in the tokens above clear it at the same hues (Green 800
+     6.35:1, Yellow 700 4.59:1, Orange 700 5.43:1) and are a one-word change
+     per line if legibility is chosen over saturation. */
+  jelly-toaster::part(tone-info)    { background: var(--primary); }
+  jelly-toaster::part(tone-success) { background: var(--success); }
+  jelly-toaster::part(tone-warning) { background: var(--warning); }
+  jelly-toaster::part(tone-danger)  { background: var(--error);   }
 
   /* ── Section panels — top-level containers, so they align to the grid ── */
   /* The panel owns the rhythm between its blocks instead of each block

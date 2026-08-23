@@ -200,6 +200,15 @@ top bar and icon rail.
 ---
 
 ## File Structure
+
+> **The button library is a component, not a foundation.** It was originally
+> filed under Foundations in Figma, which was a mistake — foundations are
+> colour, type, spacing and grid; a button is built *from* those. The pages
+> therefore read **Components** in the eyebrow, and a separate Components
+> project in Figma is where they will live. Do not "correct" that eyebrow back
+> to Foundations because the Figma file it currently sits in is still called
+> Minaã — Foundations; the label leads the move, it does not lag it.
+
 ```
 minaa-payments.html   ← The entire app (HTML + CSS + JS + SVG logo)
 buttons.html          ← Button library, Arabic RTL build

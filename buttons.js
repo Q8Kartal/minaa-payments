@@ -41,6 +41,20 @@
     direction: '<path d="M12 2.75C12.8888 2.75 13.6094 3.47054 13.6094 4.35938V21.25H10.3906V4.35938C10.3906 3.47054 11.1112 2.75 12 2.75Z" stroke="currentColor" stroke-width="1.5"/><path d="M5.00365 5.97339H10.375V10.5266H5.00366C4.57716 10.5266 4.36391 10.5266 4.17388 10.4444C3.98384 10.3621 3.83784 10.2067 3.54586 9.89582L3.28606 9.61923C2.67664 8.97039 2.37193 8.64597 2.37193 8.24998C2.37193 7.854 2.67664 7.52958 3.28606 6.88074L3.54586 6.60415C3.83784 6.29328 3.98384 6.13784 4.17388 6.05561C4.36391 5.97339 4.57716 5.97339 5.00365 5.97339Z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><path d="M18.9963 15.0797L13.625 15.0797L13.625 10.5266L18.9963 10.5266C19.4228 10.5266 19.6361 10.5266 19.8261 10.6088C20.0162 10.691 20.1622 10.8464 20.4541 11.1573L20.7139 11.4339C21.3234 12.0827 21.6281 12.4072 21.6281 12.8031C21.6281 13.1991 21.3234 13.5236 20.7139 14.1724L20.4541 14.449C20.1622 14.7599 20.0162 14.9153 19.8261 14.9975C19.6361 15.0797 19.4228 15.0797 18.9963 15.0797Z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>',
     /* arrows/maxi-7-solid */
     verified: '<path d="M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2ZM7.18262 12.8379C6.7685 12.834 6.42977 13.167 6.42578 13.5811C6.42202 13.9951 6.75484 14.334 7.16895 14.3379L8.58789 14.3506L6.46875 16.4707C6.17586 16.7636 6.17586 17.2393 6.46875 17.5322C6.76161 17.8247 7.23651 17.8248 7.5293 17.5322L9.64844 15.4121L9.66211 16.8311C9.66602 17.2452 10.0048 17.578 10.4189 17.5742C10.8331 17.5703 11.1659 17.2315 11.1621 16.8174L11.1318 13.6113C11.1278 13.2031 10.7978 12.8725 10.3896 12.8682L7.18262 12.8379Z" fill="currentColor"/>',
+    /* The four toast marks. These replace Jelly's coloured dot: a dot can only
+       say "something happened", and it says it in colour alone. The glyph says
+       which of the four it is, and keeps saying it to anyone who cannot tell
+       the hues apart. Tier order holds — warning and danger are brand, info
+       and success are solid, none outline. */
+    /* interface/info-2-solid */
+    toastInfo: '<path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM11.9951 14.0918C11.4431 14.092 10.9953 14.5398 10.9951 15.0918C10.9951 15.644 11.443 16.0916 11.9951 16.0918H12.0039C12.5562 16.0918 13.0039 15.6441 13.0039 15.0918C13.0037 14.5397 12.5561 14.0918 12.0039 14.0918H11.9951ZM11.9951 7.25C11.5811 7.2502 11.2451 7.58591 11.2451 8V12.5391C11.2451 12.9531 11.5811 13.2889 11.9951 13.2891C12.4093 13.2891 12.7451 12.9533 12.7451 12.5391V8C12.7451 7.58579 12.4093 7.25 11.9951 7.25Z" fill="currentColor"/>',
+    /* interface/done-2-solid */
+    toastSuccess: '<path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM15.5303 9.46973C15.2374 9.17683 14.7626 9.17683 14.4697 9.46973L11 12.9395L9.53027 11.4697C9.23738 11.1768 8.76262 11.1768 8.46973 11.4697C8.17683 11.7626 8.17683 12.2374 8.46973 12.5303L10.4697 14.5303C10.7626 14.8232 11.2374 14.8232 11.5303 14.5303L15.5303 10.5303C15.8232 10.2374 15.8232 9.76262 15.5303 9.46973Z" fill="currentColor"/>',
+    /* brand/warning — exported at #EC4120, not the usual #E8411D, so the
+       re-colour to currentColor is spelled out rather than assumed. */
+    toastWarning: '<path d="M23.4238 18.3068L22.0809 15.7352L17.8083 7.52918L16.8621 5.70251L14.872 1.88197C14.7546 1.65649 14.6194 1.46647 14.4687 1.27393C14.1518 0.866031 13.7662 0.551875 13.3296 0.328925C12.5296 -0.0764373 11.6676 -0.109373 10.8476 0.245319C10.4443 0.420132 10.0898 0.676017 9.77064 1.00791C9.48255 1.31193 9.24986 1.65649 9.05042 2.04412L7.53019 4.95006L4.66704 10.4706L0.554016 18.3422C-0.0465379 19.4924 -0.203879 20.8403 0.308033 22.069C0.622714 22.8265 1.17451 23.4169 1.85706 23.7285C2.23379 23.9008 2.63047 23.9768 3.03823 23.9996H21.0017C21.4249 23.9692 21.8305 23.883 22.2094 23.7006C23.2909 23.1635 23.9623 21.9804 23.9978 20.6376C24.0222 19.8117 23.8072 19.0085 23.4238 18.3118V18.3068ZM10.3645 7.3417C10.3645 6.85273 10.5529 6.39163 10.8499 6.05974C10.9806 5.91533 11.1202 5.81399 11.2753 5.72025C11.7141 5.45423 12.3125 5.4517 12.7468 5.73292C12.933 5.85199 13.1014 5.9888 13.2432 6.18895C13.4626 6.49804 13.631 6.89833 13.631 7.31383V13.635C13.631 14.1163 13.4382 14.5977 13.1368 14.927C12.4521 15.6744 11.3573 15.6035 10.7501 14.7902C10.4886 14.4406 10.3557 13.9972 10.3557 13.5311L10.3601 7.34677L10.3645 7.3417ZM12 21.3394C10.9341 21.3394 10.072 20.3538 10.072 19.1352C10.072 17.9166 10.9341 16.9311 12 16.9311C13.0659 16.9311 13.928 17.9166 13.928 19.1352C13.928 20.3538 13.0659 21.3394 12 21.3394Z" fill="currentColor"/>',
+    /* brand/danger — exported at #EB3F1D, same reason. */
+    toastDanger: '<path d="M22.2202 4.90514L20.8919 3.56126L18.2188 0.878261C17.8176 0.475889 17.1948 0.146245 16.6399 0.0450593C16.4602 0.0118577 16.2946 0 16.1078 0L7.02283 0.00158103C6.37565 0.00158103 5.5172 0.357312 5.06 0.81502L4.37734 1.49881L1.28017 4.61818L0.90968 5.00395C0.353151 5.58261 0.0425674 6.42213 0 7.22925V16.7565L0.0583331 17.1763C0.11036 17.5565 0.251463 17.8988 0.439074 18.2292C0.633781 18.5731 0.86869 18.8601 1.14538 19.1399L2.41846 20.4277L3.54492 21.5708L5.17115 23.2134C5.72295 23.6727 6.43634 24 7.16156 24H16.0794C16.7621 24 17.6 23.6466 18.0722 23.1731L18.892 22.3502L20.5734 20.6506L22.232 18.9715C22.4496 18.751 22.6119 18.4996 22.7649 18.2348C23.0282 17.7794 23.1551 17.2806 23.1984 16.7518L23.2 7.06561C23.1275 6.24743 22.794 5.48538 22.2202 4.90435V4.90514ZM14.2277 5.00079C14.2601 4.94229 14.3318 4.88775 14.4154 4.88933L15.1477 4.90751L15.6301 4.92095L16.1117 4.92648C16.2465 4.92806 16.3908 4.93202 16.5177 5.00316C16.7022 5.10672 16.7597 5.34071 16.662 5.52332L15.7775 7.17075C15.7357 7.24901 15.6364 7.28696 15.5592 7.29091C15.4843 7.29486 15.3739 7.25929 15.3329 7.18814L14.9088 6.45376L14.2191 5.22609C14.1789 5.15415 14.1931 5.06561 14.2285 5L14.2277 5.00079ZM17.4101 10.0245C17.3557 10.9138 17.0608 11.8095 16.6021 12.5708C16.4089 12.8901 16.1874 13.1731 15.936 13.4506C15.6506 13.7652 15.3298 14.034 14.979 14.2727L14.5123 14.5597C14.1308 14.7621 13.7453 14.9265 13.3291 15.0435C12.961 15.147 12.6291 15.3407 12.5361 15.7257L12.4959 15.9628L12.4943 17.6253C12.4943 17.751 12.518 17.8688 12.5873 17.97C12.6961 18.1296 12.868 18.2601 13.0674 18.2625L14.3878 18.2743C14.789 18.2783 15.1666 18.7336 15.0775 19.1826C15.005 19.5162 14.7535 19.7715 14.413 19.8174H8.78701C8.33138 19.7565 8.03498 19.3241 8.128 18.8743C8.20446 18.5526 8.47169 18.3202 8.80198 18.268H10.1429C10.4763 18.2079 10.7081 17.9391 10.7025 17.5984V15.9004C10.7017 15.9004 10.6828 15.7636 10.6828 15.7636C10.604 15.4822 10.399 15.2538 10.1373 15.1304L9.76369 15.0119C8.74602 14.6885 7.87181 14.147 7.17181 13.3336C6.61607 12.6877 6.21326 11.9304 6.00752 11.1012C5.93263 10.7992 5.87824 10.5075 5.85301 10.1976L5.84119 10.0561V9.41581L5.8538 9.16522L5.9074 8.64901L6.05008 7.57866L6.39614 5.11621C6.4324 4.8585 6.62553 4.7004 6.88409 4.7004L12.5219 4.70198C12.7757 4.74466 12.9247 4.99051 12.8569 5.23241L12.7828 5.41265L11.7391 7.80395C11.706 7.88063 11.6706 7.94704 11.6974 8.03083C11.7423 8.16838 11.8889 8.22134 12.0205 8.15731L13.5656 7.41186C13.6728 7.35968 13.7918 7.37708 13.8919 7.43241C13.9763 7.47905 14.0362 7.57945 14.0504 7.69012C14.0638 7.79289 14.0393 7.88221 14.0125 7.98419L13.6231 9.45771C13.6011 9.54071 13.6444 9.62688 13.6996 9.66798C13.7634 9.71542 13.8612 9.73597 13.9392 9.6917L15.4575 8.8332L16.8685 8.01976C16.9867 7.95178 17.1318 7.95652 17.2429 8.03083C17.3131 8.07747 17.3801 8.16996 17.3832 8.26087L17.4108 9.09644L17.4077 10.0253L17.4101 10.0245Z" fill="currentColor"/>',
     /* interface/search-5-line — the one outline face on the page, and chosen
        as such. This icon is not a section marker: it sits inside the example
        buttons at 16-20px, where a solid magnifier collapses into a filled disc
@@ -222,6 +236,82 @@
     el.querySelector('.jelly-label > span').textContent = label;
     el.addEventListener('click', () => jellyToast(message, { tone }));
   });
+
+  /* ── Dressing Jelly's toasts ─────────────────────────────────────────────
+     Jelly builds every toast identically: part="toast", a coloured dot, the
+     text, and a dismiss button. There is no tone on the element — the only
+     thing that differs between the four is which custom property the dot's
+     inline background points at. So a stylesheet has nothing to hook a
+     per-tone card colour onto, and we add the hook here.
+
+     Read the tone from that custom property rather than from the spoken
+     prefix beside it. The prefix is Jelly's English "Success:" / "Error:",
+     which is fine for a screen reader but is a string we do not own; the
+     property name is structural and identical in both builds.
+
+     Then append a second part name. `part` is a space-separated list, so the
+     element answers to both ::part(toast) and ::part(tone-success), and the
+     rules that already target `toast` keep applying untouched.
+
+     The dot itself becomes the icon: its inline background is cleared and the
+     Micon goes inside it, drawing from currentColor so the colour still comes
+     from a token in the stylesheet rather than from anything written here. */
+  const TOAST_TONE = {
+    azure: 'info', mint: 'success', amber: 'warning', rose: 'danger',
+  };
+  const TOAST_ICON = {
+    info: 'toastInfo', success: 'toastSuccess',
+    warning: 'toastWarning', danger: 'toastDanger',
+  };
+
+  /* Jelly writes the dot's inline background *after* it appends the toast, so
+     reading it during the mutation callback races that write and comes back
+     empty — measured: firing all four dressed exactly one of them. Hence the
+     retry across frames rather than a single read. Two frames is enough in
+     practice; the cap stops a toast we cannot classify from spinning forever,
+     and such a toast simply keeps Jelly's own dot. */
+  function dressToast(toast, tries) {
+    if (!toast || toast.dataset.dressed) return;
+    const dot = toast.querySelector('.dot');
+    if (!dot) return;
+
+    const key = (dot.getAttribute('style') || '').match(/--jelly-color-background-(\w+)/);
+    const tone = key && TOAST_TONE[key[1]];
+    if (!tone) {
+      if ((tries || 0) < 5) requestAnimationFrame(() => dressToast(toast, (tries || 0) + 1));
+      return;
+    }
+
+    toast.dataset.dressed = '1';
+    toast.setAttribute('part', toast.getAttribute('part') + ' tone-' + tone);
+    dot.style.background = 'none';
+    dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" ' +
+                    'focusable="false">' + MICONS[TOAST_ICON[tone]] + '</svg>';
+  }
+
+  /* The toaster builds its rail lazily, and a toast is added long after this
+     file runs, so the observer is attached once the shadow root exists and
+     then left in place. Toasts fired from anywhere get dressed, not only the
+     four specimen buttons above. */
+  (function watchToasts() {
+    const toaster = document.querySelector('jelly-toaster');
+    if (!toaster) return;
+    const attach = () => {
+      const root = toaster.shadowRoot;
+      if (!root) return false;
+      new MutationObserver(records => {
+        for (const r of records)
+          for (const node of r.addedNodes)
+            if (node.nodeType === 1) {
+              if (node.classList.contains('toast')) dressToast(node);
+              node.querySelectorAll && node.querySelectorAll('.toast').forEach(dressToast);
+            }
+      }).observe(root, { childList: true, subtree: true });
+      root.querySelectorAll('.toast').forEach(dressToast);
+      return true;
+    };
+    if (!attach()) customElements.whenDefined('jelly-toaster').then(attach);
+  })();
 
   /* Counted from the DOM rather than written down, so the figure cannot drift
      away from the page the way the old "90 components" line had. Scoped to the
