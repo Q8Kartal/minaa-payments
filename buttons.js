@@ -285,8 +285,16 @@
     toast.dataset.dressed = '1';
     toast.setAttribute('part', toast.getAttribute('part') + ' tone-' + tone);
     dot.style.background = 'none';
-    dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" ' +
-                    'focusable="false">' + MICONS[TOAST_ICON[tone]] + '</svg>';
+    /* width and height are spelled out, and they are not decoration. An <svg>
+       carrying only a viewBox has an intrinsic size of auto; Chrome resolves
+       that against the parent box, Safari collapses it to zero when the svg is
+       a flex item — which is exactly what it was, since ::part(dot) laid the
+       dot out with flex. The icons rendered on desktop and vanished on iPhone.
+       100% of a box whose side is a token is still token-derived, so nothing
+       raw enters here. */
+    dot.innerHTML = '<svg viewBox="0 0 24 24" width="100%" height="100%" ' +
+                    'fill="none" aria-hidden="true" focusable="false" ' +
+                    'style="display:block">' + MICONS[TOAST_ICON[tone]] + '</svg>';
   }
 
   /* The toaster builds its rail lazily, and a toast is added long after this

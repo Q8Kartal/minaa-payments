@@ -397,9 +397,11 @@
     block-size: var(--text-xl);
     border-radius: 0;
     color: var(--cream);
+    /* flex:none keeps the dot from being squeezed as a child of the toast row.
+       It is deliberately NOT display:flex itself: laying the glyph out as a
+       flex item is what made Safari collapse it to nothing. The svg fills this
+       box at 100% instead, which needs no inner layout at all. */
     flex: none;
-    display: flex;
-    align-items: center;
   }
 
   /* One card colour per tone, hung on the part name buttons.js appends.
