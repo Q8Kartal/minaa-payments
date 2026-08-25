@@ -32,11 +32,23 @@
     --text-sm: 14px;  --text-sm-lh: 20px;
     --text-md: 16px;  --text-md-lh: 24px;
     --text-lg: 18px;  --text-lg-lh: 28px;
-    --text-xl: 20px;
+    /* The line height was missing here while lg and md had theirs, so the one
+       type step the buttons use at 56px had no pair to bind to. 30px is the
+       Foundations value — text style Text xl/Medium is 20/30. */
+    --text-xl: 20px;  --text-xl-lh: 30px;
     --display-xs: 24px; --display-xs-lh: 32px;
     --display-sm: 32px; --display-sm-lh: 40px;
     --display-md: 40px; --display-md-lh: 44px;   /* Figma text style Display md */
     --display-lg: 48px; --display-lg-lh: 60px;
+
+    /* ── Button component metrics ────────────────────────────────────────
+       These mirror the Figma collection `Minaa Button / Metrics` one for one,
+       and they are deliberately NOT aliases of the type scale even though the
+       numbers coincide today. An icon box is a component dimension, not a
+       type size: if the type scale is revised, the icon must not move with it.
+       Figma: `Button icon size/20` and `Button icon size/16`. */
+    --button-icon-size-20: 20px;   /* leading/trailing icon at sizes 56 and 48 */
+    --button-icon-size-16: 16px;   /* leading/trailing icon at size 40 */
 
     /* ── Colour — the Minaã Colour variables ─────────────────────────────
        Named after the Foundations steps they come from, so a value can be
@@ -575,6 +587,13 @@
   .jelly-label {
     display: inline-flex; align-items: center; gap: var(--space-100);
     transform: translateX(calc(var(--space-050) * var(--p) * var(--dir)));
+    /* Declared here rather than on the host: the label is slotted into Jelly's
+       shadow root, which sets line-height 1 on its inner button, and an
+       inherited value only loses to a direct declaration. .jelly-label is
+       light DOM — we build it — so this reaches the rendered text. The size
+       rules below supply the token; align-items keeps the taller line box
+       centred, so the button's own height does not move. */
+    line-height: var(--button-label-lh);
   }
   /* Reserve the icon's box up front. This mattered acutely under iconify,
      which hydrated lazily: until its SVG arrived the element measured 0 wide,
@@ -601,20 +620,30 @@
     color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--t, 0) * 100%));
   }
 
-  /* Sizes — bound to Jelly's own metric properties, values from the Figma set */
-  jelly-button.s56 { --jelly-button-height: 56px; --jelly-button-padding-inline: var(--space-300); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-xl); }
-  jelly-button.s48 { --jelly-button-height: 48px; --jelly-button-padding-inline: var(--space-250); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-lg); }
-  jelly-button.s40 { --jelly-button-height: 40px; --jelly-button-padding-inline: var(--space-200); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-md); }
-  /* Icon box = the type token for that size, so the icon contributes a token
-     width to the sum above rather than a raw number. */
-  jelly-button.s56 .mi, jelly-button.s48 .mi { font-size: var(--text-xl); }
-  jelly-button.s40 .mi { font-size: var(--text-md); }
+  /* Sizes — bound to Jelly's own metric properties, values from the Figma set.
+     Each size also carries its label's line height, because Jelly does not:
+     measured, the slotted label inherited line-height 1 from inside the shadow
+     root and rendered 20/20, 18/18, 16/16 while Foundations specifies 20/30,
+     18/28, 16/24. The pair is now declared here and applied on .jelly-label,
+     which is light DOM and therefore ours to set. */
+  jelly-button.s56 { --jelly-button-height: 56px; --jelly-button-padding-inline: var(--space-300); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-xl); --button-label-lh: var(--text-xl-lh); }
+  jelly-button.s48 { --jelly-button-height: 48px; --jelly-button-padding-inline: var(--space-250); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-lg); --button-label-lh: var(--text-lg-lh); }
+  jelly-button.s40 { --jelly-button-height: 40px; --jelly-button-padding-inline: var(--space-200); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-md); --button-label-lh: var(--text-md-lh); }
+  /* Icon box = the button's own icon metric, not the type token it used to
+     borrow. Both read 20px and 16px today, so nothing moves — but an icon is a
+     component dimension and must not follow the type scale if that is revised. */
+  jelly-button.s56 .mi, jelly-button.s48 .mi { font-size: var(--button-icon-size-20); }
+  jelly-button.s40 .mi { font-size: var(--button-icon-size-16); }
 
   jelly-icon-button.s56 { --jelly-icon-button-size: 56px; }
   jelly-icon-button.s48 { --jelly-icon-button-size: 48px; }
   jelly-icon-button.s40 { --jelly-icon-button-size: 40px; }
-  jelly-icon-button.s56 .mi, jelly-icon-button.s48 .mi { font-size: 20px; }
-  jelly-icon-button.s40 .mi { font-size: 16px; }
+  /* These two were the last raw values on the page — a literal 20px and 16px
+     that survived the spacing sweep because they are sizes, not spacing. Same
+     component metric as the Button family above, so the two families cannot
+     drift apart. */
+  jelly-icon-button.s56 .mi, jelly-icon-button.s48 .mi { font-size: var(--button-icon-size-20); }
+  jelly-icon-button.s40 .mi { font-size: var(--button-icon-size-16); }
 
   /* Variants — Primary/700 and Secondary/600 exactly as the approved states.
      Primary swaps to Secondary; Secondary swaps to Primary; the quiet styles

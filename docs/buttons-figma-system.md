@@ -8,7 +8,7 @@ not intention. Anything not written here has not been approved.
 
 - **Live reference:** <https://q8kartal.github.io/minaa-payments/buttons.html>
   (Arabic RTL) and `buttons-en.html` (English LTR)
-- **Current phase:** Phase 1 complete, awaiting approval for Phase 2
+- **Current phase:** Phase 2 complete, awaiting approval for Phase 3
 - **Last updated:** 2026-08-25
 
 ---
@@ -85,8 +85,8 @@ published** (text styles cover the need; not in scope to change).
 |---|---|---|---|
 | 0 | Audit and source-of-truth | nothing | ✅ complete |
 | 1 | Button variable cleanup | Figma variables only | ✅ **complete** |
-| 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ⏳ awaiting approval |
-| 3 | Content Row + RTL/LTR | Figma only | not started — fresh context |
+| 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete** |
+| 3 | Content Row + RTL/LTR | Figma only | ⏳ awaiting approval — fresh context |
 | 4 | Button + Icon Button sets | Figma only | not started — fresh context |
 | 5 | Disabled | web **and** Figma together | not started |
 | 6 | Motion | Figma only | not started |
@@ -138,12 +138,19 @@ Every alias target holds an identical value in all three Spacing modes
 | `Button icon size/16` | `4711:864` | `420d2547…` | 16 | `WIDTH_HEIGHT` |
 | `Button stroke width/Outline` | `4711:865` | `8411861c…` | 1.5 | `STROKE_FLOAT` |
 
-**Judgement call, open to reversal:** heights and icon sizes were created as raw
-numbers rather than aliases of `space-500` / `space-600` / `space-250`. A
-spacing scale governs gaps and padding; a component height is not a spacing
-step, and aliasing would make button height move if a spacing step ever changed.
-56 and 1.5 have no spacing equivalent at all, so aliasing part of the set would
-also be inconsistent.
+**Decided — component metrics stay raw, and this is settled.** Heights, icon
+sizes and the outline stroke width are **not** aliased to `space-500` /
+`space-600` / `space-250` / `space-200`, even though 40, 48, 20 and 16 match
+those steps numerically.
+
+Rationale: these are **component dimensions, not spacing steps**. A button's
+height must not move if the Spacing scale is revised later — matching numbers
+today is a coincidence, not a dependency. Aliasing part of the set would also be
+structurally inconsistent, because 56 and 1.5 have no Spacing equivalent at all.
+
+The same reasoning governs the web side: `--button-icon-size-20` and
+`--button-icon-size-16` are their own tokens and are deliberately not aliases of
+`--text-xl` / `--text-md`, which is what they used to borrow.
 
 ### Deprecated — preserved, not deleted
 
@@ -198,6 +205,65 @@ Foundation colours: `Colors/Primary/700` `4006:127` `#0062AD` ·
 `Colors/Neutral/100` `4006:264` `#FBF0DC`
 
 ---
+
+## 5b. Phase 2 — web alignment, completed
+
+**Files changed:** `buttons.css` (the shared stylesheet, so both builds move
+together and cannot drift), `buttons.html` and `buttons-en.html` (asset version
+only, `?v=20260824b` → `?v=20260825a`). **`buttons.js` was not touched.**
+
+### Tokens introduced
+
+| Token | Value | Replaces | Figma counterpart |
+|---|---|---|---|
+| `--text-xl-lh` | `30px` | *nothing — it did not exist* | `Text xl/Medium` line height |
+| `--button-icon-size-20` | `20px` | literal `20px`, and `--text-xl` where borrowed | `Button icon size/20` |
+| `--button-icon-size-16` | `16px` | literal `16px`, and `--text-md` where borrowed | `Button icon size/16` |
+| `--button-label-lh` | per size | *new* — set on each size rule, applied on `.jelly-label` | — |
+
+### Before → after, measured
+
+| Size | Label before | Label after | Icon before | Icon after |
+|---|---|---|---|---|
+| 56 | 20 / **20** | 20 / **30** | 20px (via `--text-xl`) | 20px (via `--button-icon-size-20`) |
+| 48 | 18 / **18** | 18 / **28** | 20px | 20px |
+| 40 | 16 / **16** | 16 / **24** | 16px | 16px |
+
+Icon Buttons: 56 → 20px, 48 → 20px, 40 → 16px, before and after — the two
+literals are gone.
+
+### Where the line height had to go, and why
+
+Setting it on the host does **not** reach the label. Jelly sets `line-height: 1`
+on its inner button inside the shadow root, and the label inherits that; an
+inherited value is only beaten by a direct declaration. `.jelly-label` is
+**light DOM** — the page builds it — so the declaration goes there, fed by
+`--button-label-lh` from each size rule. Verified on the rendered span, not
+assumed from the cascade.
+
+### Verification
+
+Both builds, measured on the rendered DOM after Jelly upgraded:
+
+- Label 20/30, 18/28, 16/24 ✅ · icons 20/20/16 ✅
+- **Every button width and height byte-identical to before** — 60.39, 88.39,
+  90.36, 90.71, 92, 98.66, 103.46, 105.58, 116.39, 74.13 (AR) and 77.58, 88.39,
+  89.63, 95, 105.58, 108.81, 114.46, 117.75, 133.58, 89.4 (EN); heights 56/48/40
+- 32 examples, stat card reads 32, measurement table **25 ✓ / 0 ✗**
+- 32/32 configurations: no clipping, no overflow, **centre offset 0.00px**
+  across text-only, leading, trailing, two-icon and Icon Button
+- No console errors, no failed requests, no horizontal page scroll
+- Responsive at **1280 / 768 / 375** — identical values, table still 25 ✓ / 0 ✗
+
+**Interaction — partially verified, stated honestly.** Pointer wiring engages
+and cleans up (`__engaged`, `__tracking`, canvas present, both reset on leave),
+but `--p` stays 0 under synthetic events because Jelly derives it from *measured*
+deformation, which a dispatched `PointerEvent` does not produce. The Browser
+pane was not displayable in this environment, so **no screenshots and no real
+mouse input were possible**. The diff touches no interaction code — only
+`line-height` and icon `font-size` — but hover, press, release, focus, touch and
+the colour reveal remain **unconfirmed by direct observation** and should be
+checked by hand before pushing.
 
 ## 6. Figma motion vs production Jelly — never conflate these
 
