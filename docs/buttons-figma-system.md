@@ -8,8 +8,8 @@ not intention. Anything not written here has not been approved.
 
 - **Live reference:** <https://q8kartal.github.io/minaa-payments/buttons.html>
   (Arabic RTL) and `buttons-en.html` (English LTR)
-- **Current phase:** Phase 2 complete — technically and manually verified on PC
-  and mobile, deployed and live. Awaiting approval for Phase 3.
+- **Current phase:** Phase 3 built and verified in Figma. Awaiting Ahmad's
+  manual inspection and approval before Phase 4.
 - **Last updated:** 2026-08-25
 
 ---
@@ -87,8 +87,8 @@ published** (text styles cover the need; not in scope to change).
 | 0 | Audit and source-of-truth | nothing | ✅ **complete** |
 | 1 | Button variable cleanup | Figma variables only | ✅ **complete** |
 | 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete — technically and manually verified** |
-| 3 | Content Row + RTL/LTR | Figma only | ⏳ **awaiting approval** — fresh context |
-| 4 | Button + Icon Button sets | Figma only | not started — fresh context |
+| 3 | Content Row + RTL/LTR | Figma only | ✅ **built and verified — awaiting manual approval** |
+| 4 | Button + Icon Button sets | Figma only | ⏳ **awaiting approval** — fresh context |
 | 5 | Disabled | web **and** Figma together | not started |
 | 6 | Motion | Figma only | not started |
 | 7 | Documentation page + developer note | Figma only | not started |
@@ -287,6 +287,96 @@ This is the pattern to keep: emulation and computed DOM prove geometry and
 tokens; only a real device and a real hand prove behaviour. A 375px Chromium
 viewport once passed a build that was broken on iPhone.
 
+## 5c. Phase 3 — internal Content Row, built
+
+**File:** Minaa Components `AmFwwk4TOdYR4HLbQO16t1` · **Page:** `Buttons` `1:18`
+
+### Component set
+
+| | |
+|---|---|
+| Name | `_Button / Content Row` |
+| Node ID | `20:134` |
+| Key | `bea20892d98a23da88399ecbd65944f4b28a7b13` |
+| Variants | 6 |
+| Default | `Direction=RTL, Size=56` |
+
+The leading underscore is Figma's native hidden-from-publishing marker: the set
+stays usable inside this file but is excluded from the published library, which
+is what an internal helper should be. The established Minaã library uses flat
+names (`Button`, `Button RTL`, `Icon Button`) with no namespacing, so the
+`Button / ` prefix is new — kept because it groups the helper with the family
+it serves. **Open to renaming; nothing references it yet.**
+
+### Variant node IDs
+
+| Variant | ID | Variant | ID |
+|---|---|---|---|
+| `Direction=RTL, Size=56` | `20:50` | `Direction=LTR, Size=56` | `20:92` |
+| `Direction=RTL, Size=48` | `20:64` | `Direction=LTR, Size=48` | `20:106` |
+| `Direction=RTL, Size=40` | `20:78` | `Direction=LTR, Size=40` | `20:120` |
+
+### Properties
+
+| Property | Type | Default |
+|---|---|---|
+| `Direction` | VARIANT | **RTL** (LTR available) |
+| `Size` | VARIANT | 56 (48, 40) |
+| `Label#23:14` | TEXT | `دقمة` |
+| `Leading Icon#23:21` | BOOLEAN | `true` |
+| `Trailing Icon#23:28` | BOOLEAN | `false` |
+| `Leading Icon Swap#23:35` | INSTANCE_SWAP | `Micons/interface/search-5-line` |
+| `Trailing Icon Swap#23:42` | INSTANCE_SWAP | same |
+
+Default icon key `505e0958f66f8315f5a550bef24664260baa24f8` — the icon inside
+every example button on the live page, so the Figma default mirrors production.
+
+### Token mapping — no raw values
+
+| Size | Text style | Resolved | Icon variable | Resolved |
+|---|---|---|---|---|
+| 56 | `Text xl/Medium` `53c6b85e…` | 20 / 30 | `Button icon size/20` `4711:863` | 20 |
+| 48 | `Text lg/Medium` `d0da150c…` | 18 / 28 | `Button icon size/20` | 20 |
+| 40 | `Text md/Medium` `30190bd6…` | 16 / 24 | `Button icon size/16` `4711:864` | 16 |
+
+Gap on all six: `Button space/8` `4335:861` → alias `space-100` → 8.
+Label fill: `Colors/Primary/700` `42d90a35…` — a **placeholder**; the outer
+Button owns colour from Phase 4. Icons keep their library colour, untouched.
+
+### Verification — all 18 requirements
+
+Six variants ✅ · RTL default ✅ · text styles correct on all three sizes ✅ ·
+icon dimensions bound to Button Metrics and rendering 20/20/16 ✅ · gap bound
+to `Button space/8` = 8 on all six ✅ · zero raw spacing, font-size, line-height
+or icon-size ✅ · LTR order Leading→Label→Trailing ✅ · RTL order
+Trailing→Label→Leading ✅ · both booleans work in both directions ✅ · both
+icons on together ✅ · **both off leaves no reserved space — width 23 = label
+width exactly** ✅ · label override survives Size *and* Direction changes ✅ ·
+both swaps work, icon stays an instance with its size binding intact ✅ · no
+icon detached, all main components `Micons/*` ✅ · all rows hug (AUTO/AUTO) ✅ ·
+all centred ✅ · nothing unrelated changed ✅
+
+Scope proof — Foundations after: Primitives 163, Typography 29, Spacing 14,
+Button Metrics 18, Grid 6, Icons 3; 35 text styles; 55 paint styles; Buttons
+page 844 nodes, 3 sets. Components file: 0 local collections, 0 local styles,
+`Buttons` page holds exactly one node. A scratch instance was created for the
+functional tests and removed.
+
+### Deviations and limitations
+
+- **Figma exposes no paragraph-direction property** on a text node. Direction is
+  carried entirely by layer order, which is what was asked for. Each variant
+  also sets `textAlignHorizontal` (RIGHT for RTL, LEFT for LTR) to record
+  intent, though on a hug-width text node it has no visual effect.
+- **`INSTANCE_SWAP` default must be a node id, not a component key** in this
+  Figma version. Passing the key throws *"Property value is incompatible with
+  component property type"*. `preferredValues` still takes a key. Isolated by
+  probe; TEXT and BOOLEAN accept normal values.
+- **Label colour is a placeholder**, not a decision. Phase 4 replaces it.
+- Default size is **56**, matching the sibling sets' ordering in Foundations.
+  Production's base size is **48** — worth revisiting if the default should
+  mirror production instead.
+
 ## 6. Figma motion vs production Jelly — never conflate these
 
 Every motion artefact in Figma must carry this distinction explicitly.
@@ -336,6 +426,25 @@ Phase 7, limited to that button-related statement only.
 - The full matrix (126 variants once Disabled lands) slows the variant picker.
   Accepted in exchange for explicitness.
 - Figma and production line heights currently disagree. Scheduled for Phase 2.
+- **Creating a variable is not the same as publishing it.** Phase 1's six new
+  variables were `UNPUBLISHED` and could not be imported into the Components
+  file at all — Phase 3 was blocked until Ahmad published the Foundations
+  library. The Plugin API cannot publish; it is a UI action. **After any phase
+  that adds or changes a variable, the library must be republished before a
+  consuming file can use it.** The six aliased `Button space/*` also read
+  `CHANGED` until then, meaning consumers still had the pre-alias copy.
+- The Minaã Foundations and Micons libraries were **not attached** to the
+  Components file initially — only community UI kits were. Both are attached
+  now. Without them a designer sees no Micons in the instance-swap picker.
+
+### Conventions in the existing library that the plan disagrees with
+
+The Foundations `Buttons` page already has `Button`, `Button RTL` and
+`Icon Button`, each 30 variants, using **`Style`** (not "Appearance") and
+**`State = Default / Hover`** (not Rest/Active), and treating direction as a
+**separate `Button RTL` set** rather than a nested property. Phase 4 must
+settle whether the new system adopts those names or supersedes them. Recorded,
+not decided.
 
 ---
 
