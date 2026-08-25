@@ -8,8 +8,9 @@ not intention. Anything not written here has not been approved.
 
 - **Live reference:** <https://q8kartal.github.io/minaa-payments/buttons.html>
   (Arabic RTL) and `buttons-en.html` (English LTR)
-- **Current phase:** Phase 3 built and verified in Figma. Awaiting Ahmad's
-  manual inspection and approval before Phase 4.
+- **Current phase:** Phase 3 complete and approved. Awaiting approval for
+  Phase 4, which starts in a fresh context with this file as its source of
+  truth.
 - **Last updated:** 2026-08-25
 
 ---
@@ -87,7 +88,7 @@ published** (text styles cover the need; not in scope to change).
 | 0 | Audit and source-of-truth | nothing | ✅ **complete** |
 | 1 | Button variable cleanup | Figma variables only | ✅ **complete** |
 | 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete — technically and manually verified** |
-| 3 | Content Row + RTL/LTR | Figma only | ✅ **built and verified — awaiting manual approval** |
+| 3 | Content Row + RTL/LTR | Figma only | ✅ **complete — approved by Ahmad** |
 | 4 | Button + Icon Button sets | Figma only | ⏳ **awaiting approval** — fresh context |
 | 5 | Disabled | web **and** Figma together | not started |
 | 6 | Motion | Figma only | not started |
@@ -319,15 +320,23 @@ measurements were not touched.
 the read-only `getPublishStatusAsync`, which reports publication state and says
 nothing about the hidden flag.
 
-Ahmad set the flag by hand — the Assets menu showed *"Show when publishing"*,
-which is what a hidden component offers. The underscore was then removed and
-the set renamed to `Button / Content Row`. The key survived the rename
-(`bea20892…`, unchanged) and publish status stayed `UNPUBLISHED` either side.
+**Renaming a component set CLEARS the flag.** Measured, not assumed: Ahmad set
+it by hand, the rename was applied, and afterwards the Assets menu offered
+*"Hide when publishing"* again — meaning the component had become visible. He
+re-applied it and the menu now reads *"Show when publishing"*.
 
-**This state cannot be verified or restored programmatically.** If the flag is
-ever cleared, no script can detect it or put it back; it has to be re-applied
-in the UI. That is recorded in the component description too, so the next
-person finds it there rather than here.
+I expected the rename to leave it alone and said so as an expectation rather
+than a fact, which is the only reason it was caught: I asked him to re-check
+instead of declaring it verified. **Anything that renames this set must assume
+the flag is lost and ask for it to be re-applied.**
+
+The key survived the rename (`bea20892…`, unchanged) and publish status read
+`UNPUBLISHED` either side — so publish status is no signal for this at all.
+
+**This state cannot be verified or restored programmatically.** No script can
+detect the flag or put it back; it is a UI action only. The component
+description carries the same warning, so the next person finds it on the
+component rather than only here.
 
 The leading underscore is Figma's native hidden-from-publishing marker: the set
 stays usable inside this file but is excluded from the published library, which
@@ -336,13 +345,21 @@ names (`Button`, `Button RTL`, `Icon Button`) with no namespacing, so the
 `Button / ` prefix is new — kept because it groups the helper with the family
 it serves. **Open to renaming; nothing references it yet.**
 
-### Variant node IDs
+### Variant node IDs and final layout
 
-| Variant | ID | Variant | ID |
-|---|---|---|---|
-| `Direction=RTL, Size=56` | `20:50` | `Direction=LTR, Size=56` | `20:92` |
-| `Direction=RTL, Size=48` | `20:64` | `Direction=LTR, Size=48` | `20:106` |
-| `Direction=RTL, Size=40` | `20:78` | `Direction=LTR, Size=40` | `20:120` |
+Set box 233×124. Columns 48 · 56 · 40, RTL row on top.
+
+| Variant | ID | x, y | Type | Icon |
+|---|---|---|---|---|
+| `Direction=RTL, Size=48` **(default)** | `20:64` | 24, 24 | 18/28 | `Button icon size/20` → 20 |
+| `Direction=RTL, Size=56` | `20:50` | 91, 24 | 20/30 | `Button icon size/20` → 20 |
+| `Direction=RTL, Size=40` | `20:78` | 158, 24 | 16/24 | `Button icon size/16` → 16 |
+| `Direction=LTR, Size=48` | `20:106` | 24, 70 | 18/28 | `Button icon size/20` → 20 |
+| `Direction=LTR, Size=56` | `20:92` | 91, 70 | 20/30 | `Button icon size/20` → 20 |
+| `Direction=LTR, Size=40` | `20:120` | 158, 70 | 16/24 | `Button icon size/16` → 16 |
+
+Gap on all six: `Button space/8`. Approved by Ahmad: default `RTL / 48`,
+column order `48, 56, 40`, the compact 2×3 arrangement, and the icon scaling.
 
 ### Properties
 
@@ -467,9 +484,8 @@ functional tests and removed.
   `Trailing Icon`, `Leading Icon Swap`, `Trailing Icon Swap`, `Direction`,
   `Size`. The `#23:14`-style suffixes are Figma's internal property ids, part
   of the API key only, and never shown in the properties panel.
-- A test instance sits below the set on the same page, named
-  *"Test instance — select me to see the properties panel"*, for manual
-  inspection. Delete it once Phase 3 is approved.
+- The temporary test instance (`39:226`) was removed on approval. The `Buttons`
+  page now holds **exactly one node**: the component set.
 - **The properties panel itself cannot be screenshotted** — `get_screenshot`
   renders document nodes, not Figma's application UI. The panel contents are
   reported as data instead.
