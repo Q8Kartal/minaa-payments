@@ -8,7 +8,8 @@ not intention. Anything not written here has not been approved.
 
 - **Live reference:** <https://q8kartal.github.io/minaa-payments/buttons.html>
   (Arabic RTL) and `buttons-en.html` (English LTR)
-- **Current phase:** Phase 2 complete, awaiting approval for Phase 3
+- **Current phase:** Phase 2 complete — technically and manually verified on PC
+  and mobile, deployed and live. Awaiting approval for Phase 3.
 - **Last updated:** 2026-08-25
 
 ---
@@ -83,10 +84,10 @@ published** (text styles cover the need; not in scope to change).
 
 | # | Phase | Modifies | Status |
 |---|---|---|---|
-| 0 | Audit and source-of-truth | nothing | ✅ complete |
+| 0 | Audit and source-of-truth | nothing | ✅ **complete** |
 | 1 | Button variable cleanup | Figma variables only | ✅ **complete** |
-| 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete** |
-| 3 | Content Row + RTL/LTR | Figma only | ⏳ awaiting approval — fresh context |
+| 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete — technically and manually verified** |
+| 3 | Content Row + RTL/LTR | Figma only | ⏳ **awaiting approval** — fresh context |
 | 4 | Button + Icon Button sets | Figma only | not started — fresh context |
 | 5 | Disabled | web **and** Figma together | not started |
 | 6 | Motion | Figma only | not started |
@@ -255,15 +256,36 @@ Both builds, measured on the rendered DOM after Jelly upgraded:
 - No console errors, no failed requests, no horizontal page scroll
 - Responsive at **1280 / 768 / 375** — identical values, table still 25 ✓ / 0 ✗
 
-**Interaction — partially verified, stated honestly.** Pointer wiring engages
-and cleans up (`__engaged`, `__tracking`, canvas present, both reset on leave),
-but `--p` stays 0 under synthetic events because Jelly derives it from *measured*
-deformation, which a dispatched `PointerEvent` does not produce. The Browser
-pane was not displayable in this environment, so **no screenshots and no real
-mouse input were possible**. The diff touches no interaction code — only
-`line-height` and icon `font-size` — but hover, press, release, focus, touch and
-the colour reveal remain **unconfirmed by direct observation** and should be
-checked by hand before pushing.
+### Manual verification — closed by Ahmad, both platforms
+
+Automated checking could not reach the interaction layer. The Browser pane was
+not displayable in this environment, so there were **no screenshots and no real
+mouse input**, and `--p` stays 0 under synthetic events because Jelly derives it
+from *measured* deformation that a dispatched `PointerEvent` does not produce.
+The pointer wiring was confirmed to engage and clean up (`__engaged`,
+`__tracking`, canvas present, both reset on leave), but that is wiring, not
+behaviour.
+
+Ahmad closed the gap by hand — **PC on the local preview, and mobile on the
+deployed pages** — and reported no noticeable difference or regression:
+
+| Check | PC (local) | Mobile (deployed) |
+|---|---|---|
+| Arabic RTL page | ✅ passed | ✅ passed |
+| English LTR page | ✅ passed | ✅ passed |
+| Hover, press, release, colour reveal | ✅ passed | ✅ passed |
+| Keyboard focus | ✅ passed | n/a |
+| Icon Buttons | ✅ passed | ✅ passed |
+| Toast triggers | ✅ passed | ✅ passed |
+| Language switch | ✅ passed | ✅ passed |
+| Typography and vertical alignment | ✅ passed | ✅ passed |
+| Responsive mobile layout | — | ✅ passed |
+
+**No noticeable visual or interaction regression on either platform.**
+
+This is the pattern to keep: emulation and computed DOM prove geometry and
+tokens; only a real device and a real hand prove behaviour. A 375px Chromium
+viewport once passed a build that was broken on iPhone.
 
 ## 6. Figma motion vs production Jelly — never conflate these
 
