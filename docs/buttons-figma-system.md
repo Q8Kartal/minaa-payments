@@ -52,7 +52,42 @@ published** (text styles cover the need; not in scope to change).
   known divergence between Figma and production, and it is scheduled, not
   accepted.
 
-### Architecture — agreed in principle, not yet built
+### Phase 4 architecture — APPROVED 2026-08-25
+
+Ahmad approved the **new architecture over the legacy Foundations structure**.
+The legacy sets are reference, not template.
+
+| Decision | Approved | Rejected |
+|---|---|---|
+| Appearance property | **`Appearance`** | `Style` (legacy) |
+| State property | **`Rest` / `Active` / `Focus`** | `Default` / `Hover` (legacy) |
+| Direction | **exposed nested property** from `Button / Content Row` | a separate `Button RTL` set (legacy) |
+| Disabled | **not in Phase 4** | — |
+
+**Why each:**
+
+- **`Appearance`, not `Style`.** The five values are colour treatments, and the
+  live page already calls the section *Appearances*. "Style" in Figma also
+  collides with text and paint styles, which are a different concept.
+- **`Rest` / `Active` / `Focus`, not `Default` / `Hover`.** These follow the
+  CSS the buttons actually run on: `--fill-rest` and `--fill-active`. Hover and
+  press are **not** separate states — `--p` is one continuous 0→1 value computed
+  from measured deformation, and `pointerenter` and `pointerdown` drive the same
+  path, so both resolve to `Active`. `Focus` is genuinely discrete:
+  `setP(el, 1)` with the origin at centre. Naming states `Default`/`Hover` would
+  encode a distinction the implementation does not make.
+- **Direction stays nested and exposed.** A separate `Button RTL` set doubles
+  every future change and lets the two drift. Nesting keeps one set, and the
+  reading order is guaranteed by layer structure inside the Content Row rather
+  than inferred from the label text.
+- **Legacy sets are untouchable.** `Button` `4335:1142`, `Button RTL`
+  `4335:1428` and `Icon Button` `4335:1594` on the Foundations `Buttons` page
+  stay exactly as they are — visual reference only. Not modified, renamed,
+  deleted or rebuilt. They also still carry the 966 variable bindings.
+- **Disabled is deferred**, unchanged: it must land in the web library and
+  Figma together, in its own phase, so the two cannot diverge.
+
+### Architecture — the reasoning behind the above
 
 - **Button** and **Icon Button** are separate families. The live page states it:
   "4 + 1 · Icon Button is its own family".
@@ -89,7 +124,7 @@ published** (text styles cover the need; not in scope to change).
 | 1 | Button variable cleanup | Figma variables only | ✅ **complete** |
 | 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete — technically and manually verified** |
 | 3 | Content Row + RTL/LTR | Figma only | ✅ **complete — approved by Ahmad** |
-| 4 | Button + Icon Button sets | Figma only | ⏳ **awaiting approval** — fresh context |
+| 4 | Button + Icon Button sets | Figma only | ⏳ **architecture approved, implementation awaiting approval** — fresh context |
 | 5 | Disabled | web **and** Figma together | not started |
 | 6 | Motion | Figma only | not started |
 | 7 | Documentation page + developer note | Figma only | not started |
@@ -550,14 +585,21 @@ Phase 7, limited to that button-related statement only.
   Components file initially — only community UI kits were. Both are attached
   now. Without them a designer sees no Micons in the instance-swap picker.
 
-### Conventions in the existing library that the plan disagrees with
+### Conventions in the existing library — SETTLED
 
-The Foundations `Buttons` page already has `Button`, `Button RTL` and
-`Icon Button`, each 30 variants, using **`Style`** (not "Appearance") and
-**`State = Default / Hover`** (not Rest/Active), and treating direction as a
-**separate `Button RTL` set** rather than a nested property. Phase 4 must
-settle whether the new system adopts those names or supersedes them. Recorded,
-not decided.
+The Foundations `Buttons` page has `Button` `4335:1142`, `Button RTL`
+`4335:1428` and `Icon Button` `4335:1594`, each 30 variants, using `Style` and
+`State = Default / Hover`, with direction as a separate set.
+
+**Resolved 2026-08-25: the new system supersedes them.** See the approved
+decisions in §2. The legacy sets remain in place as visual reference and are
+not to be modified, renamed, deleted or rebuilt — they also still hold most of
+the 966 bindings on the button metrics.
+
+This is the one place the new system deliberately breaks with the existing
+library rather than matching it, so it is worth being able to point at the
+reason: the legacy names describe a button that behaves differently from the
+one in production.
 
 ---
 
