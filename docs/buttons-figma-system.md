@@ -295,7 +295,7 @@ viewport once passed a build that was broken on iPhone.
 
 | | |
 |---|---|
-| Name | `_Button / Content Row` — **rename to `Button / Content Row` is blocked**, see below |
+| Name | `Button / Content Row` |
 | Node ID | `20:134` |
 | Key | `bea20892d98a23da88399ecbd65944f4b28a7b13` |
 | Variants | 6, laid out 2×3 |
@@ -313,14 +313,21 @@ spacing uses the real scale — padding `space-300` = 24, gap `space-200` = 16 �
 as plain values, since x/y cannot carry a variable binding. Component
 measurements were not touched.
 
-**"Hide when publishing" cannot be set through the Plugin API.**
+**"Hide when publishing" cannot be set — or read — through the Plugin API.**
 `hiddenFromPublishing`, `isHiddenFromPublishing` and `publishHidden` all throw
 *"no such property on COMPONENT_SET node"*; the only publish-related member is
-the read-only `getPublishStatusAsync`. The leading underscore is therefore the
-only mechanism available to keep this helper out of the published library, and
-the rename to `Button / Content Row` is **held** — renaming without the native
-property would publish the helper. Either Ahmad toggles "Hide when publishing"
-by hand in the Figma UI and then it can be renamed, or the underscore stays.
+the read-only `getPublishStatusAsync`, which reports publication state and says
+nothing about the hidden flag.
+
+Ahmad set the flag by hand — the Assets menu showed *"Show when publishing"*,
+which is what a hidden component offers. The underscore was then removed and
+the set renamed to `Button / Content Row`. The key survived the rename
+(`bea20892…`, unchanged) and publish status stayed `UNPUBLISHED` either side.
+
+**This state cannot be verified or restored programmatically.** If the flag is
+ever cleared, no script can detect it or put it back; it has to be re-applied
+in the UI. That is recorded in the component description too, so the next
+person finds it there rather than here.
 
 The leading underscore is Figma's native hidden-from-publishing marker: the set
 stays usable inside this file but is excluded from the published library, which
