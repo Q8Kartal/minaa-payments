@@ -340,8 +340,54 @@ every example button on the live page, so the Figma default mirrors production.
 | 40 | `Text md/Medium` `30190bd6…` | 16 / 24 | `Button icon size/16` `4711:864` | 16 |
 
 Gap on all six: `Button space/8` `4335:861` → alias `space-100` → 8.
-Label fill: `Colors/Primary/700` `42d90a35…` — a **placeholder**; the outer
-Button owns colour from Phase 4. Icons keep their library colour, untouched.
+Label and icon ink: `Colors/Primary/700` `42d90a35…` — a **placeholder**; the
+outer Button owns colour from Phase 4.
+
+### Icon construction — a wrapper, and why it has to be one
+
+Each icon is a **frame** carrying the token, holding a **rescaled Micon
+instance**:
+
+```
+Leading Icon   FRAME   width/height bound to Button icon size/20 | /16
+└─ icon        INSTANCE  Micons/interface/search-5-line, rescale(target/24)
+```
+
+They cannot be the same node. **Binding a variable to an instance's width
+performs a resize, and Micons cannot be resized** — their children carry
+`MIN/MIN` constraints, so a resize crops the artwork instead of scaling it.
+Measured: at a 20px box the search glyph kept its 24-grid geometry (ellipse
+17.45, stroke 1.5) and its handle, which reaches x 20.45, was cut off.
+`rescale()` scales correctly (ellipse 14.54, stroke 1.25 — the same proportion
+the web gets from an SVG viewBox), but **re-binding the variable afterwards
+reverts the geometry**, because applying a variable is a resize.
+
+So the wrapper carries the binding and the instance carries the scale.
+
+### Two defects found after the first build, and fixed
+
+Both were caught by Ahmad looking at the render, not by my checks:
+
+1. **Icons were cropped.** I verified the box measured 20×20 and never checked
+   what drew inside it. `clipsContent` on the Micon masked it — the render
+   bounds also read 20×20, because clipping clamps them. The art sizes were the
+   only honest signal.
+2. **Icons were the library red beside a blue label**, which read as two
+   unrelated things. Both now take the same ink.
+
+### Known limitation — swapping an icon crops it
+
+**Verified, not assumed.** Swapping to `Micons/interface/done-solid` at a 20px
+box leaves the art at 20 units — resized, not scaled — where a correctly scaled
+icon would be 16.67. It renders ~20% oversized, and any Micon whose art reaches
+the 24-grid edge is clipped outright.
+
+There is no fix inside this component: Figma sizes a swapped instance to the one
+it replaced, and Micons cannot be resized. **The real fix belongs to the Icons
+library** — set the Micons components' children to `SCALE` constraints, which
+makes every Micon resizable everywhere and benefits the whole system. Until
+then, a designer who swaps an icon must rescale it by hand. Out of scope here;
+Micons must not be modified during the Buttons work.
 
 ### Verification — all 18 requirements
 
@@ -372,7 +418,10 @@ functional tests and removed.
   Figma version. Passing the key throws *"Property value is incompatible with
   component property type"*. `preferredValues` still takes a key. Isolated by
   probe; TEXT and BOOLEAN accept normal values.
-- **Label colour is a placeholder**, not a decision. Phase 4 replaces it.
+- **Label and icon colour are a placeholder**, not a decision. Phase 4 replaces
+  both.
+- **Micons cannot be resized** — see the limitation above. This will constrain
+  Phase 4 too, wherever an icon has to appear at a size other than 24.
 - Default size is **56**, matching the sibling sets' ordering in Foundations.
   Production's base size is **48** — worth revisiting if the default should
   mirror production instead.
