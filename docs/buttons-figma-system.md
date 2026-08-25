@@ -295,11 +295,32 @@ viewport once passed a build that was broken on iPhone.
 
 | | |
 |---|---|
-| Name | `_Button / Content Row` |
+| Name | `_Button / Content Row` — **rename to `Button / Content Row` is blocked**, see below |
 | Node ID | `20:134` |
 | Key | `bea20892d98a23da88399ecbd65944f4b28a7b13` |
-| Variants | 6 |
-| Default | `Direction=RTL, Size=56` |
+| Variants | 6, laid out 2×3 |
+| Default | **`Direction=RTL, Size=48`** — 48 is production's base size |
+
+**The default variant is decided by canvas position, not child order.** Proven:
+reordering children left `Size` default at 56; moving RTL/48 to top-left changed
+it to 48 immediately, and moving it back reverted it. So the grid must put the
+intended default in the top-left cell.
+
+That forces a trade-off. Columns run **48, 56, 40** rather than 56, 48, 40,
+because 48 has to be leftmost to be the default. Rows are consistent with each
+other and RTL is the top row, so RTL is also the default direction. Presentation
+spacing uses the real scale — padding `space-300` = 24, gap `space-200` = 16 —
+as plain values, since x/y cannot carry a variable binding. Component
+measurements were not touched.
+
+**"Hide when publishing" cannot be set through the Plugin API.**
+`hiddenFromPublishing`, `isHiddenFromPublishing` and `publishHidden` all throw
+*"no such property on COMPONENT_SET node"*; the only publish-related member is
+the read-only `getPublishStatusAsync`. The leading underscore is therefore the
+only mechanism available to keep this helper out of the published library, and
+the rename to `Button / Content Row` is **held** — renaming without the native
+property would publish the helper. Either Ahmad toggles "Hide when publishing"
+by hand in the Figma UI and then it can be renamed, or the underscore stays.
 
 The leading underscore is Figma's native hidden-from-publishing marker: the set
 stays usable inside this file but is excluded from the published library, which
@@ -375,19 +396,29 @@ Both were caught by Ahmad looking at the render, not by my checks:
 2. **Icons were the library red beside a blue label**, which read as two
    unrelated things. Both now take the same ink.
 
-### Known limitation — swapping an icon crops it
+### Instance swap is safe — an earlier claim here was wrong
 
-**Verified, not assumed.** Swapping to `Micons/interface/done-solid` at a 20px
-box leaves the art at 20 units — resized, not scaled — where a correctly scaled
-icon would be 16.67. It renders ~20% oversized, and any Micon whose art reaches
-the 24-grid edge is clipped outright.
+An earlier revision of this file recorded that swapping an icon crops it. **That
+was incorrect and is retracted.** It rested on an assumed natural art extent for
+`done-solid` of 20 units, which was never measured; the real extent is 24, so
+"scaled" and "resized" both predicted the same number and the wrong one was
+chosen.
 
-There is no fix inside this component: Figma sizes a swapped instance to the one
-it replaced, and Micons cannot be resized. **The real fix belongs to the Icons
-library** — set the Micons components' children to `SCALE` constraints, which
-makes every Micon resizable everywhere and benefits the whole system. Until
-then, a designer who swaps an icon must rescale it by hand. Out of scope here;
-Micons must not be modified during the Buttons work.
+Re-tested with a discriminating icon — `search-5-line`, whose ellipse is 17.45
+inside a 24 grid and therefore predicts **14.54 if scaled** and **17.45 if
+resized**. Across all six variants:
+
+| Box | Ellipse measured | Scaled predicts | Resized predicts | Verdict |
+|---|---|---|---|---|
+| 20px (sizes 56, 48) | **14.54** | 14.54 | 17.45 | scaled ✅ |
+| 16px (size 40) | **11.63** | 11.63 | 17.45 | scaled ✅ |
+
+Figma carries the existing instance's scale onto the swapped one. All six kept
+their size bindings, none detached, aspect stayed 1:1, and every render sat
+inside its box. **Swapping icons is safe at every size and in both directions.**
+
+The underlying constraint still holds and still matters: a Micon cannot be
+*resized*, only rescaled — which is why the wrapper exists.
 
 ### Verification — all 18 requirements
 
@@ -422,9 +453,19 @@ functional tests and removed.
   both.
 - **Micons cannot be resized** — see the limitation above. This will constrain
   Phase 4 too, wherever an icon has to appear at a size other than 24.
-- Default size is **56**, matching the sibling sets' ordering in Foundations.
-  Production's base size is **48** — worth revisiting if the default should
-  mirror production instead.
+- Default size is **48**, matching production's base size. Achieved by placing
+  RTL/48 in the top-left cell, because position — not child order — decides the
+  default variant.
+- **Designer-facing property names are clean**: `Label`, `Leading Icon`,
+  `Trailing Icon`, `Leading Icon Swap`, `Trailing Icon Swap`, `Direction`,
+  `Size`. The `#23:14`-style suffixes are Figma's internal property ids, part
+  of the API key only, and never shown in the properties panel.
+- A test instance sits below the set on the same page, named
+  *"Test instance — select me to see the properties panel"*, for manual
+  inspection. Delete it once Phase 3 is approved.
+- **The properties panel itself cannot be screenshotted** — `get_screenshot`
+  renders document nodes, not Figma's application UI. The panel contents are
+  reported as data instead.
 
 ## 6. Figma motion vs production Jelly — never conflate these
 
