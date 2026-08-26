@@ -21,7 +21,7 @@
      serves both with max-age=600, so without it a deploy can hand a visitor new
      markup against ten-minute-old styling, or nothing at all until the cache
      expires. The HTML itself is revalidated, so the version travels with it. -->
-<link rel="stylesheet" href="buttons.css?v=20260825a">
+<link rel="stylesheet" href="buttons.css?v=20260826a">
 <script>
   /* Every visible string for this build. The CSS and the behaviour live in
      buttons.css and buttons.js and are shared with the English build, so a fix
@@ -45,6 +45,11 @@
       ghost: 'مظهر شبحي',      ghostNote: 'نفس الفيزياء، لون مختلف',
       icon: 'زر أيقونة',        iconNote: 'نفس الاستجابة',
     },
+    disabled: {
+      icon:    'زر أيقونة',
+      compare: 'مفعّل ومعطّل جنبًا إلى جنب',
+      compareNote: 'نفس الحجم ونفس العرض — اللون وحده يتغيّر',
+    },
     dirs: {
       rtl: 'RTL — عربي',       rtlNote: 'الأيقونة إلى اليمين',
       ltr: 'LTR — English',    ltrNote: 'الأيقونة إلى اليسار',
@@ -66,7 +71,7 @@
     },
   };
 </script>
-<script src="buttons.js?v=20260825a" defer></script>
+<script src="buttons.js?v=20260826a" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -187,6 +192,26 @@
           <li><b>اللمس:</b> يُستخدم ضغط الإصبع عندما يوفّره الجهاز؛ وإلا يتقدّم ما دام الإصبع مُلامساً.</li>
           <li><b>لوحة المفاتيح:</b> التنقّل بـ <span dir="ltr">Tab</span> يُظهر اللون كاملاً، ويزول عند مغادرة التركيز.</li>
           <li>العرض لا يتأثّر بأي من ذلك: التلوين يُرسم على لوحة <span dir="ltr">canvas</span> ولا يحرّك التخطيط.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-disabled"/></svg> معطّل</h2>
+        <p class="panel-note">المظاهر الخمسة كلها تؤول إلى زوج محايد واحد. الزر غير المتاح
+           يتوقّف عن حمل مظهره — هذه هي الإشارة، وهي المعالجة الوحيدة التي تصمد
+           مع المظاهر الهادئة.</p>
+      </div>
+
+      <div class="examples" id="ex-disabled"></div>
+
+      <div class="note">
+        <ul>
+          <li><b>التعبئة</b> محايد 200، و<b>النص والأيقونة</b> محايد 700 — <b dir="ltr">4.57:1</b>. المحدّد يحتفظ بإطاره بمحايد 700.</li>
+          <li><b>الشفافية قيست ورُفضت.</b> عند <b dir="ltr">0.38</b> يهبط النص إلى <b dir="ltr">1.78:1</b> في الأساسي و<b dir="ltr">1.64:1</b> في الثانوي، وتهبط المحدّد والشبحي والشبحي الثانوي إلى <b dir="ltr">1.03:1</b> مقابل الصفحة — أي تصبح غير مرئية.</li>
+          <li><b>يبقى قابلاً للتركيز.</b> الحالة تُحمل عبر <span dir="ltr">aria-disabled</span> لا عبر خاصية <span dir="ltr">disabled</span> في Jelly، التي تفرض شفافية <span dir="ltr">0.55</span> وتُخرج الزر من ترتيب التنقّل. الزر المعطّل الذي لا تصله لوحة المفاتيح لا يمكن اكتشافه.</li>
+          <li><b>خامل فعلياً لا شكلاً.</b> مُستبعد من ربط الفيزياء، فلا يمكن لـ <b dir="ltr">--p</b> أن يغادر الصفر؛ ويُمنع التفعيل في طور الالتقاط للمؤشر و<span dir="ltr">Enter</span> و<span dir="ltr">Space</span>. ويبقى <span dir="ltr">Tab</span> و<span dir="ltr">Escape</span> يعملان.</li>
         </ul>
       </div>
     </section>

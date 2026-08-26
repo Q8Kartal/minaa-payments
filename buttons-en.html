@@ -21,7 +21,7 @@
      serves both with max-age=600, so without it a deploy can hand a visitor new
      markup against ten-minute-old styling, or nothing at all until the cache
      expires. The HTML itself is revalidated, so the version travels with it. -->
-<link rel="stylesheet" href="buttons.css?v=20260825a">
+<link rel="stylesheet" href="buttons.css?v=20260826a">
 <script>
   /* Every visible string for this build. The CSS and the behaviour live in
      buttons.css and buttons.js and are shared with the Arabic build, so a fix
@@ -45,6 +45,11 @@
       ghost: 'Ghost appearance',  ghostNote: 'Same physics, different colour',
       icon:  'Icon button',       iconNote:  'Same response',
     },
+    disabled: {
+      icon:    'Icon button',
+      compare: 'Enabled and disabled, side by side',
+      compareNote: 'Same size, same width — only the colour changes',
+    },
     dirs: {
       rtl: 'RTL — عربي',     rtlNote: 'Icon on the right',
       ltr: 'LTR — English',  ltrNote: 'Icon on the left',
@@ -67,7 +72,7 @@
     },
   };
 </script>
-<script src="buttons.js?v=20260825a" defer></script>
+<script src="buttons.js?v=20260826a" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -189,6 +194,26 @@
           <li><b>Touch:</b> finger pressure is used where the device actually reports it; otherwise progress advances while the finger stays down.</li>
           <li><b>Keyboard:</b> tabbing to a button shows the colour in full, and it clears when focus leaves.</li>
           <li>Width is unaffected by any of it: the colour is painted on a <span>canvas</span> and cannot move the layout.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel span-full">
+      <div class="panel-head">
+        <h2 class="panel-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-disabled"/></svg> Disabled</h2>
+        <p class="panel-note">All five appearances collapse onto one neutral pair. A button
+           that is unavailable stops carrying its appearance — that is the signal, and it is
+           the only treatment that survives on the quiet styles.</p>
+      </div>
+
+      <div class="examples" id="ex-disabled"></div>
+
+      <div class="note">
+        <ul>
+          <li><b>Fill</b> Neutral 200, <b>label and icon</b> Neutral 700 — <b>4.57:1</b>. Outline keeps its rim, in Neutral 700.</li>
+          <li><b>Opacity was measured and rejected.</b> At 0.38 the label falls to <b>1.78:1</b> (Primary) and <b>1.64:1</b> (Secondary), and Outline, Ghost and Ghost Secondary drop to <b>1.03:1</b> against the page — invisible.</li>
+          <li><b>Still focusable.</b> The state is carried by <span>aria-disabled</span>, not Jelly's <span>disabled</span> attribute, which would force opacity 0.55 and drop the button to <span>tabIndex -1</span>. A disabled control the keyboard cannot reach is undiscoverable.</li>
+          <li><b>Inert, not merely styled.</b> Excluded from the physics wiring, so <b>--p</b> can never leave 0; activation is blocked in the capture phase for pointer, Enter and Space. Tab and Escape still work.</li>
         </ul>
       </div>
     </section>

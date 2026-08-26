@@ -8,11 +8,12 @@ not intention. Anything not written here has not been approved.
 
 - **Live reference:** <https://q8kartal.github.io/minaa-payments/buttons.html>
   (Arabic RTL) and `buttons-en.html` (English LTR)
-- **Current phase:** **Phase 4 COMPLETE — approved by Ahmad 2026-08-26 after
-  manual testing of both families passed.** `Button` (90 variants) and
-  `Icon Button` (45) are the only nodes on the Components `Buttons` page. Both
-  are **UNPUBLISHED — Ahmad publishes the library by hand.** See §5d.
-  Phases 0–4 complete. Phase 5 not started.
+- **Current phase:** **Phase 5 COMPLETE — approved by Ahmad 2026-08-26 after
+  visual confirmation.** Disabled landed in the web library and Figma in the
+  same change. `Button` **120 variants**, `Icon Button` **60** — the only nodes
+  on the Components `Buttons` page. **The Components library needs republishing
+  by hand** after the Phase 5 additions. See §5e.
+  Phases 0–5 complete. Phase 6 (Motion) not started.
 - **Last updated:** 2026-08-26
 
 ---
@@ -34,8 +35,9 @@ Micons components ✅ · Primitives (colour) ✅ · Spacing ✅ ·
 not in scope to change).
 
 Note the Micons file now also owns a **local** `Icon Color` variable collection
-(`VariableCollectionId:311:5` in that file). It is published and consumed
-remotely; it is **not** part of Foundations and needs no Foundations change.
+(`VariableCollectionId:311:5` in that file), **four modes since Phase 5**. It is
+published and consumed remotely; it is **not** part of Foundations and needs no
+Foundations change.
 
 ---
 
@@ -168,8 +170,13 @@ The Micons library now solves this at the source:
 | In Minaa Components | imported as `VariableCollectionId:de25ac2c…/311:3`, `remote: true` |
 | Structure | **one** variable, **three** modes |
 | Variable | `icon-color`, key `dbe40dbc727d1b62b8cc406648bac94de14b40e1` |
-| Modes | `icon-default` `311:0` (collection default) · `icon-brand` `311:1` · `icon-brand-secondary` `311:2` |
-| Resolves to | `Colors/Neutral/100` #FBF0DC · `Colors/Primary/700` #0062AD · `Colors/Secondary/600` #E8411D |
+| Modes | `icon-default` `311:0` (collection default) · `icon-brand` `311:1` · `icon-brand-secondary` `311:2` · **`icon-disabled` `330:0`** (added in Phase 5) |
+| Resolves to | `Colors/Neutral/100` #FBF0DC · `Colors/Primary/700` #0062AD · `Colors/Secondary/600` #E8411D · **`Colors/Neutral/700` #895A30** |
+
+`icon-disabled` aliases the primitive `Colors/Neutral/700` **directly**, while the
+other three go through the Foundations *Icons* semantic layer. Deliberate: there
+is no `icon-disabled` in that collection and creating one would mean modifying
+Foundations, which is out of scope. Approved on that basis — not a mistake.
 
 Every one of the **1,895** Micon main components carries an explicit
 `icon-brand-secondary` pin, which is why they read red by default.
@@ -227,7 +234,7 @@ paints are all disabled (`visible: false`) and never render.
 | 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete — technically and manually verified** |
 | 3 | Content Row + RTL/LTR | Figma only | ✅ **complete — approved by Ahmad** |
 | 4 | Button + Icon Button sets | Figma only | ✅ **complete — approved by Ahmad 2026-08-26.** Option C, 135 variants, 0 audit failures, manual testing passed. **Not yet published** |
-| 5 | Disabled | web **and** Figma together | not started |
+| 5 | Disabled | web **and** Figma together | ✅ **complete — approved by Ahmad 2026-08-26.** Neutral treatment, 4th `State` value, +45 variants. See §5e |
 | 6 | Motion | Figma only | not started |
 | 7 | Documentation page + developer note | Figma only | not started |
 | 8 | Code Connect | infrastructure | not started |
@@ -758,6 +765,112 @@ review and removed afterwards.
 - **Publish the Components library by hand.** The Plugin API cannot publish, and
   both sets read `UNPUBLISHED`. Until then no other file can consume them.
 
+## 5e. Phase 5 — Disabled, in the web library and Figma together
+
+Built and approved 2026-08-26. This is the phase the file always said had to land
+on both sides at once, and it did.
+
+### The treatment — one neutral pair, and why not opacity
+
+All five appearances collapse onto **fill `Colors/Neutral/200`** with **label and
+icon `Colors/Neutral/700`**; Outline keeps its rim, also Neutral 700. A button
+that is unavailable stops carrying its appearance at all — that is the signal.
+
+The deferred proposal (opacity 0.38 over the rest colours) was **measured and
+rejected**. Against the page ground `#FDF9F0`:
+
+| Appearance | label at rest | at 0.38 | body vs page at 0.38 |
+|---|---|---|---|
+| Primary | 5.55:1 | **1.78:1** | 1.83:1 |
+| Secondary | 3.57:1 | **1.64:1** | 1.69:1 |
+| Outline / Ghost / Ghost Secondary | 5.55 / 5.55 / 3.57:1 | 1.78 / 1.78 / 1.64:1 | **1.03:1** |
+
+Group opacity composites the label *and* the fill against the page, so internal
+contrast collapses too; even 0.6 tops out at 2.62:1. The three quiet appearances
+are already only 1.07:1 against the page at full strength, so fading them leaves
+nothing. Neutral 200 behind Neutral 700 gives **4.57:1**, and every value stays a
+Foundations step. WCAG 1.4.3 exempts disabled controls — these are house numbers,
+not a compliance gate.
+
+### Web — `buttons.css`, `buttons.js`, both builds
+
+`--cream-700: #895A30` added (Neutral 200 already existed as `--cream-200`).
+Asset version bumped to **`?v=20260826a`** in both HTML files.
+
+**Jelly's native `disabled` attribute is deliberately not used.** Measured on the
+live component, setting it forces `opacity: 0.55`, sets the inner button
+`disabled` and drops it to `tabIndex -1`. A disabled control the keyboard cannot
+reach is undiscoverable, and its fade would compound with the neutral colours.
+Note also there is **no `disabled` property on the prototype** — only the
+attribute is observed, which is exactly why `el.disabled = x` no-ops.
+
+Instead: `aria-disabled="true"` on the host **and** on the inner shadow button
+(the element assistive technology actually reads — the host alone is not
+announced), the control stays focusable, and activation is blocked in the
+**capture phase** with `stopImmediatePropagation` for click, Enter and Space.
+Tab and Escape pass through, or the button becomes a keyboard trap.
+
+**Exclusion from `CONTROLS` is the mechanism, not a safety net.** Measured:
+`pointer-events: none` does **not** stop a dispatched event — a synthetic
+`pointerenter` still reached the host — so excluding disabled buttons from the
+physics wiring is the only thing that actually keeps `--p` at 0.
+
+**Focus ring, closing the Phase 4 accessibility gap:** 3px solid Primary/700 at
+3px offset, on every button, disabled included. It cannot be written as
+`jelly-button:focus-visible` — Jelly delegates focus into its shadow button and
+that inner element is the one that matches, never the host — so a class is set in
+the focus handler using the same test the colour reveal already uses.
+
+Verified on both builds: five appearances all reading fill `#F7E0B6` / ink
+`#895A30`, Outline the only one with a stroke; host opacity 1; inner `disabled`
+false with `tabIndex 0`; `--p` 0 and `__engaged` never set while enabled buttons
+still track; **0** activations through on a disabled button against 1 on an
+enabled one; Tab not blocked; no console errors. A `Disabled` panel was added to
+both language builds using `Micons/interface/ban-solid` — solid, because the
+panel icons are a solid set.
+
+### Figma — `Disabled` as the 4th `State` value
+
+`Button` 90 → **120**, `Icon Button` 45 → **60**. Defaults preserved, grids
+rebuilt (rows = Appearance × State, so Disabled joins as a 4th row per
+appearance and `Primary / 48 / Rest / RTL` stays top-left).
+
+Icon ink uses the new **`icon-disabled`** mode (§2b). Final verification on live
+instances **with Trailing Icon switched on**, all 20 appearance × state
+combinations, both slots: Primary and Secondary cream throughout; Outline and
+Ghost **#0062AD** at Rest; Ghost Secondary **#E8411D** at Rest; every Active and
+Focus cream; every Disabled **#895A30**. **0 failures**, confirmed visually by
+Ahmad.
+
+### The defect this phase produced, and the lesson
+
+Adding the mode to Micons and republishing was not enough. The Components file
+kept a **stale copy** of `Icon Color`, so the mode set against the new reference
+did nothing. Accepting the library update then fixed that — and **broke all 135
+Phase 4 variants**: the update re-pointed every icon path to a new variable
+reference and **orphaned every explicit variable mode set against the old one**.
+With no live mode, the icons silently inherited the Micons library's own pin and
+rendered red — red on the blue Primary pill, red where Ghost should be blue,
+red-on-red on Secondary.
+
+Nothing warns you. The components keep their modes; the modes just stop applying.
+Fixed by re-applying the correct mode to all **300** icon slots against the live
+reference.
+
+**Two verification failures made this worse, and both are avoidable:**
+
+1. An audit that compared *mode keys* against a collection id reported 225
+   failures — flagging the healthy variants and clearing the broken ones. It
+   checked that a mode was set, not what colour resulted.
+2. A `resolveForConsumer` reading taken while two references coexisted returned
+   the *stale* answer and was reported as correct. Ahmad's screenshots were right
+   and the instrument was wrong.
+
+**Resolve the rendered colour, on a visible node, and look at it.** A read
+artefact to know: auditing main components alone reports false failures on
+`Trailing Icon`, because that slot is hidden by default and Figma does not expose
+a hidden instance's children — it only verifies once switched on.
+
 ## 6. Figma motion vs production Jelly — never conflate these
 
 Every motion artefact in Figma must carry this distinction explicitly.
@@ -821,6 +934,22 @@ Phase 7, limited to that button-related statement only.
 - **`combineAsVariants` leaves the set frame at its pre-layout size.** After
   repositioning variants, resize the set or its frame will not bound its own
   children — invisible to a numeric audit, obvious in a screenshot (§5d).
+- **Accepting a library update orphans explicit variable modes.** The highest-cost
+  lesson of Phase 5. Updating a consumed library re-points variable references;
+  any `explicitVariableModes` set against the old reference silently stops
+  applying and the node inherits the source library's own pin. Nothing warns you
+  — it broke all 135 Phase 4 variants' icon ink at once. **After any Micons or
+  Foundations library update, re-apply and re-verify every explicit mode.**
+- **Publishing the source library is only half of it.** The consuming file must
+  also *accept* the update, in the UI. Until it does it keeps a stale copy, and a
+  mode set against the fresh reference does nothing. The Plugin API can neither
+  publish nor accept.
+- **A mode key is not a colour.** Auditing `explicitVariableModes` proves a mode
+  is set, not what renders — an audit built that way flagged the healthy variants
+  and cleared the broken ones. Resolve the colour, on a **visible** node: a
+  hidden slot (`Trailing Icon` by default) does not expose its children, so it
+  reports false failures until switched on. And when the render and the API
+  disagree, the render is right.
 - `arrowround-03-line` carries an **unpainted** `24*24` helper vector displaced
   to (24, 24.5), inflating its reported bounds to `2,2 → 48,48.5` inside a 24×24
   frame. It has no paint and **renders correctly**; only bounds-based maths is

@@ -60,7 +60,8 @@
     --secondary:     #E8411D;   /* Secondary 600 — Minaã Red */
     --cream-50:      #FDF9F0;   /* Neutral 50  */
     --cream:         #FBF0DC;   /* Neutral 100 — Minaã Cream */
-    --cream-200:     #F7E0B6;   /* Neutral 200 */
+    --cream-200:     #F7E0B6;   /* Neutral 200 — disabled fill */
+    --cream-700:     #895A30;   /* Neutral 700 — disabled ink */
 
     /* Semantic — success / warning / error, never brand, never decoration.
        The ✓ in the measurement table uses Green 700 rather than the signature
@@ -657,6 +658,57 @@
                --stroke: var(--primary); --stroke-width: 1.5px; }
   .ghost     { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
   .ghostsec  { --fill-rest: var(--cream); --fill-active: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
+
+  /* ── Disabled — one neutral treatment, not a faded appearance ────────────
+     A button that is unavailable stops carrying its appearance at all: all five
+     collapse onto the same neutral pair. That is the honest signal, and it is
+     the only treatment that survives on the quiet styles.
+
+     Group opacity was measured and rejected. At the proposed 0.38, against the
+     page ground #FDF9F0, the label falls from 5.55:1 to 1.78:1 (Primary) and
+     1.64:1 (Secondary), and Outline / Ghost / Ghost Secondary drop to 1.03:1
+     against the page — their body is already only 1.07:1 at full strength, so
+     fading it leaves nothing to see. Neutral 200 behind Neutral 700 gives
+     4.57:1 and every value stays a Foundations step.
+
+     Jelly's own `disabled` attribute is deliberately NOT used. Measured on the
+     live component, it forces opacity 0.55, sets the inner button disabled and
+     drops it to tabIndex -1 — a disabled control the keyboard cannot reach is
+     undiscoverable, and its fade would compound with these colours. The state
+     is carried by aria-disabled instead; the control stays focusable and
+     activation is blocked in the capture phase in buttons.js. */
+  jelly-button[aria-disabled="true"],
+  jelly-icon-button[aria-disabled="true"] {
+    --fill-rest:    var(--cream-200);   /* Neutral 200 */
+    --label-rest:   var(--cream-700);   /* Neutral 700 */
+    /* --p never rises, because disabled buttons are excluded from CONTROLS and
+       so are never wired. The active pair is pinned to the same values anyway,
+       so no future change to that wiring can bleed an appearance colour back
+       into a disabled button. */
+    --fill-active:  var(--cream-200);
+    --label-active: var(--cream-700);
+    cursor: not-allowed;
+  }
+  /* Scoped to Outline alone: the other four never set --stroke, and setting it
+     here would hand every disabled button a rim it does not have when enabled. */
+  jelly-button.outline[aria-disabled="true"],
+  jelly-icon-button.outline[aria-disabled="true"] { --stroke: var(--cream-700); }
+
+  /* ── Focus ring ─────────────────────────────────────────────────────────
+     Logged as an accessibility gap in Phase 4 and closed here: the library had
+     no visible focus indicator at all. It cannot be written as
+     `jelly-button:focus-visible` — Jelly delegates focus into its shadow
+     button, and that inner element is the one that matches, never the host. So
+     the ring is driven by a class the focus handler sets, the same test
+     buttons.js already uses for the colour reveal. Disabled buttons keep it:
+     they stay in the tab order by design. The host carries the radius token so
+     the outline follows the pill instead of boxing it. */
+  jelly-button.is-focused,
+  jelly-icon-button.is-focused {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: var(--jelly-button-radius);
+  }
 
   /* ── Feedback triggers — the one place a button carries a semantic hue ───
      Everywhere else the five appearances hold and semantic colour stays off

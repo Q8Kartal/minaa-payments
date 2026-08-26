@@ -35,6 +35,9 @@
     group: '<rect x="2" y="2" width="8.95523" height="8.95523" rx="3" fill="currentColor"/><rect x="2" y="13.0448" width="8.95523" height="8.95523" rx="3" fill="currentColor"/><rect x="13.0448" y="2" width="8.95523" height="8.95523" rx="4.47762" fill="currentColor"/><rect x="13.0448" y="13.0448" width="8.95523" height="8.95523" rx="3" fill="currentColor"/>',
     /* education/reward-63-solid */
     interaction: '<rect x="3.25" y="15.1184" width="17.5" height="6.13158" rx="3.06579" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><rect x="7.68359" y="2.75" width="8.63333" height="2.71053" rx="1.35526" stroke="currentColor" stroke-width="1.5"/><path d="M4.14648 16.0131L8.36266 11.864C8.74468 11.488 8.95982 10.9745 8.95982 10.4385V5.48682" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.8535 16.0131L15.6373 11.864C15.2553 11.488 15.0402 10.9745 15.0402 10.4385V5.48682" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+    /* interface/ban-solid — solid, because the panel icons are a solid set and
+       one outline mark among them reads visibly lighter and breaks the row */
+    disabled: '<path d="M19.833 5.78711C21.1884 7.4936 22 9.65145 22 12C22 17.5228 17.5228 22 12 22C9.37497 22 6.98722 20.9874 5.20312 19.333L19.833 5.78711ZM12 2C14.634 2 17.0284 3.02012 18.8145 4.68457L4.18262 18.2334C2.8176 16.5238 2 14.3578 2 12C2 6.47715 6.47715 2 12 2Z" fill="currentColor"/>',
     /* date-time/alarm-bell-6-solid */
     feedback: '<path d="M6.24978 9.27176V8.71875C6.24978 5.40504 8.93607 2.71875 12.2498 2.71875C15.5635 2.71875 18.2498 5.40504 18.2498 8.71875V9.94624C18.2498 11.1612 18.7324 12.3264 19.5915 13.1855L19.9229 13.5169C21.5193 15.1133 20.6736 17.8453 18.4546 18.2606C14.1884 19.0591 9.81114 19.0591 5.54499 18.2606C3.32593 17.8453 2.48026 15.1133 4.07662 13.5169L4.78466 12.8089C5.72276 11.8708 6.24978 10.5984 6.24978 9.27176Z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><path d="M9.25 18.3125V18.5313C9.25 20.05 10.4812 21.2813 12 21.2813C13.5188 21.2813 14.75 20.05 14.75 18.5313V18.3125" stroke="currentColor" stroke-width="1.5"/><path d="M18.5918 2.71875L20.9783 5.10524" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.41016 2.71875L3.02367 5.10524" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
     /* transportation/deliverycar-solid */
@@ -140,13 +143,16 @@
 
   const LABEL = { ltr: 'Button', rtl: 'دقمة' };
 
-  /* One button of a given configuration, variant and size. */
-  function button(config, variantCls, size, dir) {
+  /* One button of a given configuration, variant and size.
+     `disabled` writes aria-disabled rather than Jelly's own `disabled`
+     attribute — see the Disabled block in buttons.css for why. */
+  function button(config, variantCls, size, dir, disabled) {
+    const aria = disabled ? ' aria-disabled="true"' : '';
     if (config === 'icononly')
-      return '<jelly-icon-button shape="circle" label="' + T.search + '" data-config="icononly" ' +
+      return '<jelly-icon-button shape="circle" label="' + T.search + '" data-config="icononly"' + aria + ' ' +
              'class="' + variantCls + ' s' + size + '">' + ICON + '</jelly-icon-button>';
     const build = CONFIGS.find(c => c[0] === config)[2];
-    return '<jelly-button dir="' + dir + '" data-config="' + config + '" ' +
+    return '<jelly-button dir="' + dir + '" data-config="' + config + '"' + aria + ' ' +
            'class="' + variantCls + ' s' + size + '">' +
            '<span class="jelly-label">' + build(LABEL[dir]) + '</span></jelly-button>';
   }
@@ -213,6 +219,20 @@
     specimen(T.states.ghost, button('leading', 'ghost', BASE_SIZE, DIR),    T.states.ghostNote),
     specimen(T.states.icon,  button('icononly', BASE_STYLE, BASE_SIZE, DIR), T.states.iconNote),
   ].join(''));
+
+  /* ── Disabled ───────────────────────────────────────────────────────────
+     The row is the argument: all five appearances collapse onto the same
+     neutral pair, so what the button was stops mattering once it is
+     unavailable. The last specimen puts an enabled and a disabled button side
+     by side, which is the only way to judge whether the difference reads. */
+  fill('ex-disabled',
+    STYLES.map(([cls, name]) =>
+      specimen(name, button('leading', cls, BASE_SIZE, DIR, true))).join('') +
+    specimen(T.disabled.icon, button('icononly', BASE_STYLE, BASE_SIZE, DIR, true)) +
+    specimen(T.disabled.compare,
+      '<span class="group">' + button('text', BASE_STYLE, BASE_SIZE, DIR) +
+      button('text', BASE_STYLE, BASE_SIZE, DIR, true) + '</span>',
+      T.disabled.compareNote));
 
   /* Both directions, always in the same order, so the two builds show the same
      comparison rather than each flattering its own. */
@@ -373,7 +393,16 @@
      when Jelly springs back, intensity falls and the spread retracts along
      the same path. One response, one source of truth.
      ═════════════════════════════════════════════════════════════════════ */
-  const CONTROLS = [...document.querySelectorAll('jelly-button, jelly-icon-button')];
+  const ALL_BUTTONS = [...document.querySelectorAll('jelly-button, jelly-icon-button')];
+  /* Disabled buttons are kept out of CONTROLS, so the physics below is never
+     wired to them and --p can never leave 0.
+
+     This is the mechanism, not a belt-and-braces extra. Measured on the live
+     component: pointer-events:none does NOT stop a dispatched event — a
+     synthetic pointerenter still reached the host — so excluding them here is
+     the only thing that actually keeps a disabled button inert. */
+  const CONTROLS = ALL_BUTTONS.filter(el => el.getAttribute('aria-disabled') !== 'true');
+  const DISABLED = ALL_BUTTONS.filter(el => el.getAttribute('aria-disabled') === 'true');
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
   /* Reading the deformation */
   const SAMPLE_STEP   = 6;      // pixel stride when reading the blob
@@ -671,6 +700,35 @@
       setP(el, 1); paint(el, 1, { x: 0, y: 0 });
     });
     el.addEventListener('blur', () => { setP(el, 0); clearReveal(el); });
+  });
+
+  /* ── Focus ring — every button, enabled or not ──────────────────────────
+     Separate from the loop above because disabled buttons are deliberately not
+     in CONTROLS, yet must still show focus: they stay in the tab order on
+     purpose. The ring cannot be written as `jelly-button:focus-visible` in CSS
+     — Jelly delegates focus into its shadow button and that inner element is
+     the one that matches, never the host — so the class is set here using the
+     same test the colour reveal already uses. */
+  ALL_BUTTONS.forEach(el => {
+    el.addEventListener('focus', () => {
+      const inner = el.shadowRoot && el.shadowRoot.querySelector('button');
+      if ((inner || el).matches(':focus-visible')) el.classList.add('is-focused');
+    });
+    el.addEventListener('blur', () => el.classList.remove('is-focused'));
+  });
+
+  /* ── Disabled — activation blocked in the capture phase ─────────────────
+     Capture phase and stopImmediatePropagation, so nothing downstream ever
+     sees the activation — Jelly's own handlers included. Only Enter and Space
+     are swallowed on keydown; Tab, Escape and the arrow keys must keep working
+     or the button becomes a keyboard trap. */
+  DISABLED.forEach(el => {
+    const block = e => {
+      if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    };
+    ['click', 'keydown', 'pointerdown'].forEach(t => el.addEventListener(t, block, true));
   });
 
   /* On resize the resting shape has changed, so the old baseline would read as
@@ -1008,6 +1066,15 @@
     customElements.whenDefined('jelly-icon-button')
   ]).then(() => {
     CONTROLS.forEach(el => setP(el, 0));
+    /* The inner shadow button is the element assistive technology actually
+       reads — the host alone would not be announced — so it carries
+       aria-disabled too. It has to wait for the upgrade: before Jelly runs
+       there is no shadow root to reach into. Note this deliberately does NOT
+       set `disabled`, which would drop it to tabIndex -1. */
+    DISABLED.forEach(el => {
+      const inner = el.shadowRoot && el.shadowRoot.querySelector('button');
+      if (inner) inner.setAttribute('aria-disabled', 'true');
+    });
     setTimeout(measure, 300);
   });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
