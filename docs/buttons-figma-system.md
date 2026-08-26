@@ -8,10 +8,12 @@ not intention. Anything not written here has not been approved.
 
 - **Live reference:** <https://q8kartal.github.io/minaa-payments/buttons.html>
   (Arabic RTL) and `buttons-en.html` (English LTR)
-- **Current phase:** Phase 3 complete and approved. Awaiting approval for
-  Phase 4, which starts in a fresh context with this file as its source of
-  truth.
-- **Last updated:** 2026-08-25
+- **Current phase:** **Phase 4 COMPLETE — approved by Ahmad 2026-08-26 after
+  manual testing of both families passed.** `Button` (90 variants) and
+  `Icon Button` (45) are the only nodes on the Components `Buttons` page. Both
+  are **UNPUBLISHED — Ahmad publishes the library by hand.** See §5d.
+  Phases 0–4 complete. Phase 5 not started.
+- **Last updated:** 2026-08-26
 
 ---
 
@@ -21,13 +23,19 @@ not intention. Anything not written here has not been approved.
 |---|---|---|---|
 | Foundations | `iV0IGAxiWCCjwyIbc6w74W` | `Buttons` `4246:1302` | Existing button components. **Not to be modified.** |
 | Foundations | same | variables | Holds `Minaa Button / Metrics` — the only collection this work may write to |
-| Components | `AmFwwk4TOdYR4HLbQO16t1` | `Buttons` `1:18` | Empty. Target for Phases 3–7 |
+| Components | `AmFwwk4TOdYR4HLbQO16t1` | `Buttons` `1:18` | Holds `Button` `91:680` and `Icon Button` `92:842` — nothing else. Target for Phases 4–7 |
 | Micons | `BlltPtiVnS9ULiuMVKo2oM` | `108:30` | Icon library. Read-only |
 
 Library availability, verified by key import into the Components file:
 Micons components ✅ · Primitives (colour) ✅ · Spacing ✅ ·
-`Minaa Button / Metrics` ✅ · text styles ✅ · **Typography *variables* ❌ not
-published** (text styles cover the need; not in scope to change).
+`Minaa Button / Metrics` ✅ · text styles ✅ ·
+**`Icon Color` ✅ published from `Minaa - Icons`** (re-verified 2026-08-26; see
+§2b) · **Typography *variables* ❌ not published** (text styles cover the need;
+not in scope to change).
+
+Note the Micons file now also owns a **local** `Icon Color` variable collection
+(`VariableCollectionId:311:5` in that file). It is published and consumed
+remotely; it is **not** part of Foundations and needs no Foundations change.
 
 ---
 
@@ -52,7 +60,7 @@ published** (text styles cover the need; not in scope to change).
   known divergence between Figma and production, and it is scheduled, not
   accepted.
 
-### Phase 4 architecture — APPROVED 2026-08-25
+### Phase 4 architecture — APPROVED 2026-08-25, **Direction revised 2026-08-26**
 
 Ahmad approved the **new architecture over the legacy Foundations structure**.
 The legacy sets are reference, not template.
@@ -61,8 +69,13 @@ The legacy sets are reference, not template.
 |---|---|---|
 | Appearance property | **`Appearance`** | `Style` (legacy) |
 | State property | **`Rest` / `Active` / `Focus`** | `Default` / `Hover` (legacy) |
-| Direction | **exposed nested property** from `Button / Content Row` | a separate `Button RTL` set (legacy) |
+| Direction | **top-level variant axis on `Button`** (Option C) | exposed nested property (probed, defective); a separate `Button RTL` set (legacy) |
+| Content structure | **direct children of each Button variant** | a nested `Button / Content Row` instance |
+| Icon ink | **`Icon Color` mode set on each icon instance root** | per-path paint overrides; modes on Foundations `Icons` |
 | Disabled | **not in Phase 4** | — |
+
+**Direction was originally approved as an exposed nested property. That was
+revised on 2026-08-26 after probing — see §2a.** The rest of the table stands.
 
 **Why each:**
 
@@ -76,10 +89,11 @@ The legacy sets are reference, not template.
   path, so both resolve to `Active`. `Focus` is genuinely discrete:
   `setP(el, 1)` with the origin at centre. Naming states `Default`/`Hover` would
   encode a distinction the implementation does not make.
-- **Direction stays nested and exposed.** A separate `Button RTL` set doubles
-  every future change and lets the two drift. Nesting keeps one set, and the
-  reading order is guaranteed by layer structure inside the Content Row rather
-  than inferred from the label text.
+- **Direction is a variant axis on `Button`, not a nested exposed property.**
+  A separate `Button RTL` *set* is still rejected — two sets double every future
+  change and let them drift. One set with a Direction axis is edited once.
+  Reading order is guaranteed by layer order inside each variant, never by bidi:
+  bidi orders glyphs within a text run and has no opinion about icon layer order.
 - **Legacy sets are untouchable.** `Button` `4335:1142`, `Button RTL`
   `4335:1428` and `Icon Button` `4335:1594` on the Foundations `Buttons` page
   stay exactly as they are — visual reference only. Not modified, renamed,
@@ -91,27 +105,115 @@ The legacy sets are reference, not template.
 
 - **Button** and **Icon Button** are separate families. The live page states it:
   "4 + 1 · Icon Button is its own family".
-- Button variant axes: Appearance (5) × Size (3) × State. Direction, icon
-  visibility, icon swaps and label are **properties**, not axes.
-- **Direction** lives on a nested `Button / Content Row` and is surfaced as an
-  exposed nested property, so it does not double the matrix. Structure, not
-  bidi, guarantees reading order — bidi orders glyphs within a text run and has
-  no opinion about icon layer order.
+- Button variant axes: **Appearance (5) × Size (3) × State (3) × Direction (2)
+  = 90**. Icon visibility, icon swaps and label are **properties**, not axes.
+  Icon Button: Appearance (5) × Size (3) × State (3) = **45**, no Direction —
+  a centred single icon has no reading order.
+- **Direction** is a variant axis. Layer order inside each variant carries it:
   - LTR: Leading → Label → Trailing
   - RTL: Trailing → Label → Leading (Minaã is Arabic-first; RTL is the default)
+- **All nine designer-facing properties sit on the `Button` set itself** —
+  `Appearance`, `Size`, `State`, `Direction`, `Label`, `Leading Icon`,
+  `Trailing Icon`, `Leading Icon Swap`, `Trailing Icon Swap`. The five content
+  properties are wired with `componentPropertyReferences`
+  (`characters` / `visible` / `mainComponent`). There is **no nested component
+  instance anywhere in the Button**.
 - **State naming follows the CSS**: `--fill-rest` / `--fill-active` →
   `Rest` / `Active`. Hover and press are **not** separate states: `--p` is one
   continuous 0→1 value computed from measured deformation, and `pointerenter`
   and `pointerdown` drive the same path. Focus is genuinely discrete —
   `setP(el, 1)` with the origin at centre.
 
+### 2a. Why Direction became an axis — the probe that decided it
+
+Two architectures were built as throwaway probes and measured. Both are now
+deleted; the evidence is recorded here and in `pre-phase-4-investigation.md`.
+
+**The Plugin API offers no selective nested-property exposure.** There is one
+control — `isExposedInstance: boolean` — and `componentProperties` includes
+`VARIANT` entries, so exposing `Direction` necessarily also exposes the nested
+`Size`. The leak and the feature are the same switch. `componentPropertyReferences`
+covers only `visible` / `characters` / `mainComponent`; there is no variant key.
+`layoutMode` has no reversed form and `itemReverseZIndex` is z-order only, so
+reading order can come only from layer order.
+
+**Option A** (three size-locked Direction-only Content Rows) removed the `Size`
+leak and passed property survival, but **failed the no-clipping requirement**:
+in the RTL Leading slot a swapped Micon was not rescaled — inner group at
+`2 / 20` instead of `1.67 / 16.67`, art 22×22 inside a 20×20 box. Reproduced on
+two independent instances, persistent, and **absent on direct non-nested
+instances of the identical component**. Nesting was the cause.
+
+**Option C** (direct children, Direction as an axis) scaled correctly in every
+configuration tested — 8 round-trip steps × 3 instances, both slots, both
+directions, all three sizes, aspect 1.0, no detachment. It also exposes exactly
+the nine properties with **zero** nested instances, and mirrors production
+markup, which matters for Phase 8 Code Connect.
+
+Accepted cost: 90 Button variants instead of 45 (135 with Icon Button; 180 once
+Disabled lands). Reliability and structural correctness were judged more
+important than matrix size.
+
+### 2b. Icon ink — SOLVED by the Micons `Icon Color` collection
+
+Verified 2026-08-26 against the **published** library.
+
+An instance swap **discards per-path paint overrides** — proven, including a
+swap to the *same* component. So ink can never be painted onto icon paths.
+The Micons library now solves this at the source:
+
+| | |
+|---|---|
+| Collection | `Icon Color` — key `de25ac2c90026845965c15e7547e953dba1b8e41`, **published from `Minaa - Icons`** |
+| In Minaa Components | imported as `VariableCollectionId:de25ac2c…/311:3`, `remote: true` |
+| Structure | **one** variable, **three** modes |
+| Variable | `icon-color`, key `dbe40dbc727d1b62b8cc406648bac94de14b40e1` |
+| Modes | `icon-default` `311:0` (collection default) · `icon-brand` `311:1` · `icon-brand-secondary` `311:2` |
+| Resolves to | `Colors/Neutral/100` #FBF0DC · `Colors/Primary/700` #0062AD · `Colors/Secondary/600` #E8411D |
+
+Every one of the **1,895** Micon main components carries an explicit
+`icon-brand-secondary` pin, which is why they read red by default.
+
+**The mechanism: set the `Icon Color` mode on each icon instance root.** It is
+stored as `explicitVariableModes` — a first-class node property, **not** a paint
+override — which is exactly why a swap cannot discard it. Measured: the mode and
+the resolved colour held through every swap, in all three colours, on fresh and
+already-swapped instances, across Size, Direction, Appearance and State round
+trips, through Boolean hide/show, and through reparenting and wrapper
+reconfiguration.
+
+**Parent-frame inheritance does not work** and must not be used: a fresh icon
+instance carries the main component's explicit pin and stays red inside a parent
+set to `icon-default`. It works only after clearing each icon's own mode, which
+costs more actions than setting it. **Set the mode on the instance root.**
+
+Ink mapping for Phase 4 — icons take the label colour:
+
+| Appearance | Rest | Active | Focus |
+|---|---|---|---|
+| Primary | `icon-default` | `icon-default` | `icon-default` |
+| Secondary | `icon-default` | `icon-default` | `icon-default` |
+| Outline | **`icon-brand`** | `icon-default` | `icon-default` |
+| Ghost | **`icon-brand`** | `icon-default` | `icon-default` |
+| Ghost Secondary | **`icon-brand-secondary`** | `icon-default` | `icon-default` |
+
+Across the 90 Button variants: `icon-brand` on 12, `icon-brand-secondary` on 6,
+`icon-default` on 72 — 180 slot assignments. Icon Button (45, one slot): 3 / 3 /
+3 / 36.
+
+**No change to the Foundations `Icons` collection is required**, and no Micons
+hygiene pass is required. Library-wide rescan after the fix: 1,895 components,
+**0 visible raw paints**, 0 using any other variable; the 579 remaining raw
+paints are all disabled (`visible: false`) and never render.
+
 ### Deferred, not decided
 
 - **Disabled** — proposed as opacity 0.38 over the appearance's rest colours,
   no Jelly tracking, `pointer-events: none`. Must land in the web library and
   Figma in the same change. Not approved.
-- **Button colour aliases** (21, one set per appearance) and whether they need
-  their own button-scoped collection. Not approved.
+- ~~**Button colour aliases** (21, one set per appearance)~~ — **no longer
+  needed.** Icon ink is solved by `Icon Color` modes (§2b) and label/fill ink is
+  bound directly to Foundations colours per variant. Dropped, not deferred.
 - **Code Connect** — needs a repository connection that does not exist yet.
 
 ---
@@ -124,7 +226,7 @@ The legacy sets are reference, not template.
 | 1 | Button variable cleanup | Figma variables only | ✅ **complete** |
 | 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete — technically and manually verified** |
 | 3 | Content Row + RTL/LTR | Figma only | ✅ **complete — approved by Ahmad** |
-| 4 | Button + Icon Button sets | Figma only | ⏳ **architecture approved, implementation awaiting approval** — fresh context |
+| 4 | Button + Icon Button sets | Figma only | ✅ **complete — approved by Ahmad 2026-08-26.** Option C, 135 variants, 0 audit failures, manual testing passed. **Not yet published** |
 | 5 | Disabled | web **and** Figma together | not started |
 | 6 | Motion | Figma only | not started |
 | 7 | Documentation page + developer note | Figma only | not started |
@@ -324,6 +426,21 @@ tokens; only a real device and a real hand prove behaviour. A 375px Chromium
 viewport once passed a build that was broken on iPhone.
 
 ## 5c. Phase 3 — internal Content Row, built
+
+> **DELETED 2026-08-26, on Ahmad's instruction, after Phase 4 closed.**
+> Option C builds the Button from direct children, so the Content Row was never
+> nested inside it and ended Phase 4 with no consumers. Before deletion it was
+> proven unused: publish status **`UNPUBLISHED`** (so no other file could import
+> it) and **0 instances of any of its six variants across all three pages of the
+> Components file**, from 242 instances scanned. `Button / Content Row`
+> `20:134`, key `bea20892d98a23da88399ecbd65944f4b28a7b13`, 6 variants — gone.
+>
+> **Everything below is kept deliberately as the record of what it proved**, and
+> those lessons are live in Phase 4: the icon wrapper pattern (a frame carries
+> the size binding, the Micon instance carries `rescale`), that `clipsContent`
+> hides cropping from every bounds measurement, that `INSTANCE_SWAP` defaults
+> take a node id, and that the default variant follows top-left grid position.
+> Do not treat this section as describing anything that still exists.
 
 **File:** Minaa Components `AmFwwk4TOdYR4HLbQO16t1` · **Page:** `Buttons` `1:18`
 
@@ -525,6 +642,122 @@ functional tests and removed.
   renders document nodes, not Figma's application UI. The panel contents are
   reported as data instead.
 
+## 5d. Phase 4 — `Button` and `Icon Button`, built
+
+**File:** Minaa Components `AmFwwk4TOdYR4HLbQO16t1` · **Page:** `Buttons` `1:18`
+Built 2026-08-26. **Not published.** The page now holds exactly three nodes.
+
+| Set | Node ID | Key | Variants | Properties | Frame |
+|---|---|---|---|---|---|
+| `Button` | `91:680` | `75b0d1a3eee44b00eff1813362eb63542b819804` | **90** | 9 | 1473×1644 |
+| `Icon Button` | `92:842` | `1e34a9e14ba013f2d7a419866df082391c0be420` | **45** | 4 | 268×1364 |
+
+Defaults, decided by top-left grid position as Phase 3 proved:
+`Button` → **`Appearance=Primary, Size=48, State=Rest, Direction=RTL`**;
+`Icon Button` → **`Appearance=Primary, Size=48, State=Rest`**.
+
+Grids: `Button` rows = Appearance × State (15), columns = Size × Direction (6),
+column order `48-RTL, 48-LTR, 56-RTL, 56-LTR, 40-RTL, 40-LTR` so 48/RTL/Rest
+lands top-left. `Icon Button` rows = Appearance × State (15), columns = Size (3).
+Presentation padding 24 as a plain value — x/y cannot carry a binding.
+
+### Properties
+
+`Button`: `Appearance` · `Size` · `State` · `Direction` (variants) ·
+`Label#91:0` TEXT · `Leading Icon#91:91` BOOLEAN **true** ·
+`Trailing Icon#91:182` BOOLEAN **false** · `Leading Icon Swap#91:273` ·
+`Trailing Icon Swap#91:364`. **450 `componentPropertyReferences` wired**
+(90 × 5). `Icon Button`: `Appearance` · `Size` · `State` · `Icon Swap#92:0`,
+45 references.
+
+`preferredValues` on every swap: `search-5-line`, `emailsend-5-line`,
+`love-line` — the three verified against all three `Icon Color` modes. This is a
+hint, not a restriction; a designer can still pick any Micon.
+
+### Token binding — zero raw values
+
+Height → `Button height/56|48|40` · padding-inline → `Button space/24|20|16` ·
+gap → `Button space/8` · all four radii → `Button radius/Full` · icon box →
+`Button icon size/20|16` · Outline stroke → `Colors/Primary/700` at
+`Button stroke width/Outline`. Label type → `Text xl|lg|md /Medium`.
+Fills and label ink bound to `Colors/Primary/700`, `Colors/Secondary/600`,
+`Colors/Neutral/100`.
+
+**A uniform `strokeWeight` binding is stored by Figma as the four
+`stroke*Weight` sides, not as `strokeWeight`.** An audit that looks for
+`boundVariables.strokeWeight` reports a false failure — this cost one
+false-alarm cycle here.
+
+### Verification — 0 failures
+
+Every one of the **135** variants was asserted, not sampled: all nine/four
+property definitions; every binding present and pointing at the *expected*
+variable; fill and label ink correct per Appearance × State; `Icon Color` mode
+correct per Appearance × State on every icon slot; text style correct per size;
+icon wrappers bound and `clipsContent: false`; icon instances undetached with
+`scaleFactor` 0.8333 / 0.6667; heights exactly 56/48/40; Icon Button square;
+hug width; child order matching Direction; no stroke on non-Outline appearances.
+**Result: 0 failures.**
+
+Functional test on live instances (removed afterwards): custom Arabic+Latin label
+survived 12 steps; both booleans survived; both icon swaps survived; ink tracked
+Appearance and State throughout — cream on Primary, **blue** on Outline/Ghost
+Rest, **red** on Ghost Secondary Rest, cream on every Active and Focus; Direction
+reordered correctly; widths 228×48 → 251×56 → 198×40 and back. Icon Button:
+square 48/40, ink tracked, swap survived, round trip closed.
+
+Default-state widths measured: leading icon only **89**, both icons **117**,
+**no icons 61 = label 21 + padding 40 exactly** — both icons off reserves no
+space, reproducing the Phase 3 requirement.
+
+### Scope proof
+
+Components `Buttons` page: **2** nodes — `Button` and `Icon Button`, nothing
+else. (It read 3 until `Button / Content Row` was deleted at Phase 4 close;
+see §5c.) Components file local collections **0**, paint styles **0**, text
+styles **0**. Foundations
+identical to the Phase 3 baseline: `Buttons` page 844 nodes and the three legacy
+30-variant sets; Primitives 163, Typography 29, Spacing 14, Button Metrics 18,
+Grid 6, **Icons 3 (still one mode)**; 55 paint styles, 35 text styles. Micons
+untouched.
+
+### Manual testing — passed, and Phase 4 closed
+
+Ahmad tested both families by hand on 2026-08-26 and **both passed**. Automated
+checks prove geometry, bindings and modes; only a real hand proves behaviour —
+the same division Phase 2 established.
+
+During that review Figma reported *"The properties and values of this variant
+are conflicting"* when `Appearance` or `Direction` was changed on a variant
+**selected inside the set**, with no visual change. Investigated: **nothing was
+damaged** — 90/90 and 45/45 combinations still unique, 0 integrity failures,
+identities still matching their rendered fill, ink, icon mode, text style,
+height and layer order. Two behaviours were being seen at once, and both are
+correct:
+
+1. **Changing a variant property on a main component relabels it, it does not
+   restyle it.** Each variant's look is authored. The dropdown moves the variant
+   to a different cell of the matrix.
+2. **A complete matrix has no free cell to move into**, so any such change
+   necessarily collides with an existing variant and Figma refuses it. **That
+   refusal is why nothing broke.** A partially-built set would have accepted the
+   change and silently left a hole.
+
+**Appearance, Size, State and Direction must be driven on an instance**, never
+on the variants inside the set. Two temporary instances were created for the
+review and removed afterwards.
+
+### Closed at Phase 4
+
+- ✅ Manual testing passed, both families.
+- ✅ `Button / Content Row` proven unused and deleted (§5c).
+- ✅ Temporary manual-test instances removed; the page holds only the two sets.
+
+### Still open — Ahmad's action
+
+- **Publish the Components library by hand.** The Plugin API cannot publish, and
+  both sets read `UNPUBLISHED`. Until then no other file can consume them.
+
 ## 6. Figma motion vs production Jelly — never conflate these
 
 Every motion artefact in Figma must carry this distinction explicitly.
@@ -569,10 +802,29 @@ Phase 7, limited to that button-related statement only.
 
 - Cross-file variable usage cannot be proven from the Plugin API. Deprecate
   before deleting, always.
-- Exposed nested properties are lost if a designer swaps the nested instance —
-  lock the Content Row instance inside each variant.
-- The full matrix (126 variants once Disabled lands) slows the variant picker.
-  Accepted in exchange for explicitness.
+- ~~Exposed nested properties are lost if a designer swaps the nested
+  instance~~ — **moot under Option C**: the Button contains no nested component
+  instance and exposes nothing.
+- The full matrix slows the variant picker. Under Option C: **90 Button + 45
+  Icon Button = 135 today, 180 once Disabled lands.** (The old "126" figure
+  belonged to the nested Option A shape — 60 + 60 + 6 helper variants — and no
+  longer applies.) Accepted in exchange for explicitness and reliability.
+- **An instance swap discards per-path paint overrides.** Never colour an icon
+  by painting its paths; set the `Icon Color` mode on the instance root (§2b).
+- **"The properties and values of this variant are conflicting" is expected**
+  when a variant property is changed on a component *inside* a complete set —
+  there is no free cell to move into, so Figma refuses. It signals completeness,
+  not corruption, and nothing is damaged. Drive Appearance / Size / State /
+  Direction on an **instance**. See §5d.
+- **A uniform `strokeWeight` binding is stored as the four `stroke*Weight`
+  sides.** Auditing `boundVariables.strokeWeight` yields a false failure (§5d).
+- **`combineAsVariants` leaves the set frame at its pre-layout size.** After
+  repositioning variants, resize the set or its frame will not bound its own
+  children — invisible to a numeric audit, obvious in a screenshot (§5d).
+- `arrowround-03-line` carries an **unpainted** `24*24` helper vector displaced
+  to (24, 24.5), inflating its reported bounds to `2,2 → 48,48.5` inside a 24×24
+  frame. It has no paint and **renders correctly**; only bounds-based maths is
+  affected. Logged as a Micons tidiness defect, not a rendering one.
 - Figma and production line heights currently disagree. Scheduled for Phase 2.
 - **Creating a variable is not the same as publishing it.** Phase 1's six new
   variables were `UNPUBLISHED` and could not be imported into the Components
