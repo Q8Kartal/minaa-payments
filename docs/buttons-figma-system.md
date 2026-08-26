@@ -8,13 +8,14 @@ not intention. Anything not written here has not been approved.
 
 - **Live reference:** <https://q8kartal.github.io/minaa-payments/buttons.html>
   (Arabic RTL) and `buttons-en.html` (English LTR)
-- **Current phase:** **Phase 5 COMPLETE — approved by Ahmad 2026-08-26 after
-  visual confirmation.** Disabled landed in the web library and Figma in the
-  same change. `Button` **120 variants**, `Icon Button` **60** — the only nodes
-  on the Components `Buttons` page. **The Components library needs republishing
-  by hand** after the Phase 5 additions. See §5e.
-  Phases 0–5 complete. Phase 6 (Motion) not started.
-- **Last updated:** 2026-08-26
+- **Current phase:** **Phase 6 COMPLETE — closed 2026-08-27.** Motion is wired
+  (GENTLE, Rest→Active, 45 variants) and the Buttons page now carries two
+  documentation frames built on Foundations tokens: **`Motion`** and
+  **`Jelly — Motion Specification`**. See §5f.
+  Phases 0–6 complete. Phase 7 (Documentation page + developer note) not started.
+- **The Components library needs republishing by hand** — the Phase 6 reactions
+  and descriptions left both sets reading `CHANGED`.
+- **Last updated:** 2026-08-27
 
 ---
 
@@ -235,7 +236,7 @@ paints are all disabled (`visible: false`) and never render.
 | 3 | Content Row + RTL/LTR | Figma only | ✅ **complete — approved by Ahmad** |
 | 4 | Button + Icon Button sets | Figma only | ✅ **complete — approved by Ahmad 2026-08-26.** Option C, 135 variants, 0 audit failures, manual testing passed. **Not yet published** |
 | 5 | Disabled | web **and** Figma together | ✅ **complete — approved by Ahmad 2026-08-26.** Neutral treatment, 4th `State` value, +45 variants. See §5e |
-| 6 | Motion | Figma only | not started |
+| 6 | Motion | Figma only | ✅ **complete — closed 2026-08-27.** GENTLE on 45 Rest variants; `Motion` and `Jelly — Motion Specification` frames. See §5f |
 | 7 | Documentation page + developer note | Figma only | not started |
 | 8 | Code Connect | infrastructure | not started |
 
@@ -871,6 +872,75 @@ artefact to know: auditing main components alone reports false failures on
 `Trailing Icon`, because that slot is hidden by default and Figma does not expose
 a hidden instance's children — it only verifies once switched on.
 
+## 5f. Phase 6 — Motion, and the Jelly specification
+
+Closed 2026-08-27. Figma only; no repository code changed.
+
+### Reactions
+
+`Rest → Active` on **`ON_HOVER` and `ON_PRESS`**, `SMART_ANIMATE`, easing
+**`GENTLE`**, duration `0.3s`, on the **45 Rest variants** (30 Button, 15 Icon
+Button) — **90 reactions, zero with any other easing**. Distribution asserted:
+`Rest 45 · Active 0 · Focus 0 · Disabled 0`.
+
+Both triggers, because production drives `pointerenter` and `pointerdown` down
+the same path and it makes touch prototypes work. `Focus` gets none — Figma has
+no focus trigger. `Disabled` gets none, deliberately.
+
+GENTLE was chosen by Ahmad from a live three-preset comparison. **The duration
+and the preset are not derived from anything** — production has no equivalent
+number. That is stated on the artefact itself.
+
+### Two documentation frames, on Foundations tokens
+
+| Frame | Node | Size |
+|---|---|---|
+| `Motion` | `153:926` | 1440 × 1610 |
+| `Jelly — Motion Specification` | `155:909` | 1440 × 5286 |
+
+Both follow the Foundations **Spacing page** pattern: 1440 section on
+`Colors/Neutral/100` with `space-1000` padding and `space-600` rhythm → white
+card at radius 16 with `space-600` padding → `Display sm/ExtraBold` headings,
+`Text lg/Regular` body → `Primary/50` + `Primary/100` note callouts and
+`Neutral/50` + `Neutral/200` data panels at radius 8.
+
+Audit: **0 raw fills · 0 raw strokes · 0 unbound padding · 0 unbound gaps · 0
+text without a style · 0 text with a raw fill · 0 emoji or Unicode symbols · 0
+non-auto-layout frames.** No icons are used — the house documentation pattern
+does not use them in headings, and inventing that convention was the wrong call.
+
+### The specification is deliberately technology-neutral
+
+`Jelly — Motion Specification` names **no** language, framework, file, package,
+selector, CSS property or function. An earlier draft did all of those things and
+was rebuilt: a handoff pinned to one repository's file structure rots the moment
+that structure moves, and the design-system website will own the
+platform-specific guides.
+
+What it carries instead: purpose and perceptual character · a four-point
+invariant contract (measured not timed, never self-completing, origin at the
+real contact point, no layout effect) · platform-neutral pseudocode · state
+behaviour · input requirements including cancellation and reduced motion · what
+may be tuned versus what must not change · nine acceptance criteria and a
+nine-step verification checklist · and an explicit statement that each platform
+may implement differently but must satisfy the same contract.
+
+The tuning constants survive as **reference values under descriptive names of
+their own** — area growth at full ≈ +14%, centroid travel at full ≈ 10px, lean
+factor ≈ 2, core share ≈ 0.88, baseline ease ≈ 0.08, still threshold ≈ 0.004,
+still frames ≈ 12 — labelled tunable starting points, not required constants.
+
+### Could not be bound to a system value
+
+**`Radius/*` is not published.** `Radius/radius-8` and `radius-16` exist in
+Foundations Primitives and the Spacing page binds them, but a consuming file
+cannot import them — so 18 layers carry a raw radius matching the house values.
+`Colors/Base/white` is unpublished too; `Colors/Neutral/0` was used instead.
+
+Root cause: **only 69 of 163 Primitives variables are published, and they are
+all colours.** The `Radius/*`, `Spacing/*` and `Typography/*` groups inside
+Primitives are unpublished. Publishing the `Radius` group would close this.
+
 ## 6. Figma motion vs production Jelly — never conflate these
 
 Every motion artefact in Figma must carry this distinction explicitly.
@@ -880,9 +950,14 @@ Every motion artefact in Figma must carry this distinction explicitly.
   fixed curve.
 - **Production behaviour** — `--p` is recomputed every frame from the button's
   *measured* area change and centroid shift. The colour spreads radially from
-  the real contact point, painted on a canvas so it cannot affect layout. Touch
-  uses real pressure where the device reports it. Progress **never completes on
-  its own**.
+  the real contact point, painted on a canvas so it cannot affect layout.
+  Progress **never completes on its own**.
+  - ~~"Touch uses real pressure where the device reports it."~~ **Corrected
+    2026-08-27.** The string `pressure` appears **zero** times in `buttons.js`;
+    our code never reads `PointerEvent.pressure`. It derives `--p` from the
+    measured deformation of Jelly's canvas, whatever produced that deformation.
+    Any pressure sensitivity would be internal to Jelly and is **not verifiable
+    from this repository**. Do not claim pressure support.
 
 A Figma spring can suggest the feel. It is not the specification, and must
 never be presented as one.
@@ -892,6 +967,24 @@ easing curves, generated CSS `@keyframes`), `export_video` (MP4 only),
 shader tools, and standard interactive components. **"Code layers" could not be
 verified** — no API surface was found; do not plan around them. `--ease-spring`
 in the briefing document is CSS-variable syntax, not a Figma concept.
+
+**Corrected and extended 2026-08-27, from Phase 6:**
+
+- **`export_video` renders an authored Figma Motion *timeline*, not a prototype
+  interaction** — and the Plugin API exposes **no timeline authoring surface at
+  all** (zero matches for timeline / keyframe / animation in the typings).
+  Timelines are UI-only.
+- **A returned MP4 is not evidence of animation.** Exporting a set with zero
+  reactions and no timeline still produced a 2.03s, 439 KB file — a held still.
+- **Prototype springs cannot be captured to video.** They are interaction-driven,
+  and `AFTER_DELAY` — the only auto-advancing trigger — is **rejected** on a
+  variant reaction. So there is no way to make the transition play itself.
+- **Only named spring presets exist.** `CUSTOM_SPRING` with a `springConfig` is
+  rejected: *"Unrecognized key(s) in object: 'springConfig'"*. The three presets
+  expose no mass, stiffness or damping through the API, so a Figma spring cannot
+  be tuned toward Jelly even approximately.
+- **There is no focus trigger.** `Focus` can never be demonstrated in a Figma
+  prototype, only shown as a static variant.
 
 ---
 
@@ -950,6 +1043,19 @@ Phase 7, limited to that button-related statement only.
   hidden slot (`Trailing Icon` by default) does not expose its children, so it
   reports false failures until switched on. And when the render and the API
   disagree, the render is right.
+- **Most of Primitives is unpublished.** Only **69 of 163** variables are
+  published, and they are all colours. `Radius/*`, `Spacing/*` and
+  `Typography/*` inside Primitives — and `Colors/Base/white` — cannot be
+  imported by a consuming file, even though Foundations' own pages bind them.
+  Anything built outside Foundations must either use the published `Spacing`
+  collection, substitute (`Colors/Neutral/0` for white), or accept a raw value
+  and say so. **Publishing the `Radius` group would remove the only raw values
+  in the Phase 6 documentation frames.**
+- **`prefers-reduced-motion` is not implemented** anywhere in `buttons.css` or
+  `buttons.js` — zero occurrences. Logged as an accessibility gap alongside the
+  focus ring closed in Phase 5. `Jelly — Motion Specification` states it as a
+  **requirement** with a conformance note that the original web build does not
+  yet satisfy it.
 - `arrowround-03-line` carries an **unpainted** `24*24` helper vector displaced
   to (24, 24.5), inflating its reported bounds to `2,2 → 48,48.5` inside a 24×24
   frame. It has no paint and **renders correctly**; only bounds-based maths is
