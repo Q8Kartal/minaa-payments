@@ -2827,7 +2827,7 @@ class Ne extends L {
     const e = this.thumbs;
     if (!e)
       return !1;
-    const i = this.ctx, s = this.cssW / 2, r = this.cssH / 2, o = this.trackW, l = this.trackH || this.sizeConfig.track, d = this.resolveColor(`var(--jelly-track, ${b["background-neutral"]})`), h = this.resolveColor(`var(--jelly-accent, ${b["background-accent"]})`);
+    const i = this.ctx, s = this.cssW / 2, r = this.cssH / 2, o = this.trackW, l = this.trackH || this.sizeConfig.track, d = this.resolveColor(`var(--jelly-track, ${b["background-neutral"]})`), h = this.resolveColor(`var(--jelly-accent, ${b["background-accent"]})`), MINAA_KNOB = this.resolveColor(`var(--jelly-range-knob, var(--jelly-slider-knob, var(--jelly-accent, ${b["background-accent"]})))`);
     let a = !0;
     for (let u = 0; u < 2; u++) {
       this.reducedMotion ? (this.x[u] = this.target[u], this.xVelocity[u] = 0) : [this.x[u], this.xVelocity[u]] = E(this.x[u], this.xVelocity[u], this.target[u], 310, 22, t);
@@ -2842,7 +2842,7 @@ class Ne extends L {
       this.pressScaleVelocity[u] += x * t, this.pressScale[u] += this.pressScaleVelocity[u] * t;
       const y = 1 + C * 0.32, w = y * this.pressScale[u], S = 1 / Math.sqrt(y) * this.pressScale[u];
       this.paintBody(e[u], {
-        fill: h,
+        fill: MINAA_KNOB,
         cx: this.x[u],
         scaleX: w,
         scaleY: S,

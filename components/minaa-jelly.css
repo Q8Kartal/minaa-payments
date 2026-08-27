@@ -431,7 +431,10 @@ jelly-radio-group {
    slider read as the same control family rather than two similar ones. */
 jelly-range {
   --jelly-range-track-height: var(--space-100);
-  --jelly-range-thumb-size:   var(--space-300);
+  --jelly-range-thumb-size:   var(--control-knob);
+  /* Added by the fork, and falling back through --jelly-slider-knob so one
+     value drives both controls — the specification gives them the same knob. */
+  --jelly-range-knob: var(--m-thumb);
   color: var(--m-ink);
 }
 
@@ -571,22 +574,13 @@ jelly-textarea:focus-within::part(ring) {
 }
 
 /* ── The knob ──────────────────────────────────────────────────────────────
-   The specification puts a Secondary 600 knob on a Primary 700 fill. Jelly's
-   SLIDER cannot express that: track, fill and knob are one canvas blob, its
-   DOM track is display:none, and testing every candidate token showed only
-   --jelly-accent moves the knob — taking the fill with it. That one is handled
-   in minaa-jelly.js by revealing the native range input's own thumb.
-
-   RANGE is different and better: it exposes part="knob" on two real 24x24
-   elements, so it needs no trick at all. Found by listing the shadow tree
-   rather than assuming both components were built the same way. */
-jelly-range::part(knob) {
-  background: var(--m-thumb);
-  border: 0;
-  border-radius: var(--radius-full);
-  width: var(--control-knob);
-  height: var(--control-knob);
-}
+   Both controls paint their knob from the fork's token now, so neither needs
+   a CSS override. An earlier version coloured jelly-range's part="knob" — the
+   two real elements it exposes — and that turned out to be the wrong layer:
+   Jelly ALSO paints knobs on its canvas from --jelly-accent, so the red DOM
+   element sat on top of a blue canvas one and the difference showed as a blue
+   halo around each knob. Colouring at source removes the halo and lets the
+   knob deform, because it is the same blob the physics moves. */
 
 jelly-select::part(trigger) {
   border: var(--control-stroke) solid var(--m-stroke);

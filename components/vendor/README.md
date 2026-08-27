@@ -25,7 +25,8 @@ and failed the moment anyone touched it.
 
 ## The diff
 
-One change so far, in the slider's paint function:
+Two changes, one per control, both the same shape — in the slider's paint
+function and again in the range's:
 
 ```js
 // before — one colour paints the filled track AND the knob
@@ -72,3 +73,11 @@ expects are recorded in the Minaã Components Figma file, page `Components`.
 | Marker | Component | Token added |
 |---|---|---|
 | `MINAA_KNOB` | slider | `--jelly-slider-knob` |
+| `MINAA_KNOB` | range | `--jelly-range-knob`, falling back through `--jelly-slider-knob` so one value drives both |
+
+Range needed the same change for a reason worth recording: it *does* expose
+`part="knob"` on two real elements, so colouring those looked like the clean
+fix — but Jelly **also** paints knobs on its canvas from `--jelly-accent`. The
+red DOM element ended up sitting on a blue canvas one, and the mismatch showed
+as a blue halo around each knob. Exposing a `part` does not mean that part is
+what you can see.
