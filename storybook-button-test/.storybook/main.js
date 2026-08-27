@@ -22,5 +22,9 @@ export default {
     { from: '../../buttons.css', to: '/buttons.css' },
     { from: '../../buttons.js', to: '/buttons.js' },
     { from: '../../fonts', to: '/fonts' },
+    /* The same passphrase gate the two library pages use, so there is one
+       copy of it and one hash to change. It no-ops off the published host,
+       which is why localhost stays unprompted. */
+    { from: '../../gate.js', to: '/gate.js' },
   ],
 };

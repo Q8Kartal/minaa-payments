@@ -47,7 +47,16 @@
 
     
     <link href="./sb-addons/common-manager-bundle.js" rel="modulepreload" />
-       
+      <!-- Gates the Storybook shell. Injected by Storybook at build time rather than
+     edited into the generated index.html, which the next build would overwrite.
+
+     The story iframe is gated separately in preview-head.html. Both are the
+     same origin, so unlocking either releases the other through the storage
+     event — one prompt, not two. -->
+
+<meta name="robots" content="noindex, nofollow">
+<script src="./gate.js?v=20260827a"></script>
+ 
 
     <style>
       #storybook-root[hidden] {

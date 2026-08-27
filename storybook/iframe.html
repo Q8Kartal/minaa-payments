@@ -560,6 +560,12 @@
      — it would send the browser to the domain root and 404 every asset.
      Relative paths are correct in both. -->
 
+<!-- Gates the story iframe, which is directly reachable by URL and so cannot
+     rely on the shell being gated. Shares the unlock with the shell through
+     localStorage and the storage event. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./gate.js?v=20260827a"></script>
+
 <link rel="preload" href="./fonts/29LTIdrisRound-Regular.woff2"   as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./fonts/29LTIdrisRound-Medium.woff2"    as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./fonts/29LTIdrisRound-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>

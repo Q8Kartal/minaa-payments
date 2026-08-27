@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Button library – Minaã</title>
+<!-- Not public yet. `noindex` keeps it out of search results, which is how a
+     casual visitor would otherwise arrive; gate.js asks for a passphrase
+     before the page paints. Neither is security — the repository is public,
+     so the gate only covers the rendered page. See the header of gate.js.
+     Loaded blocking and ahead of everything else, deliberately: a deferred
+     gate would let the page paint first. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="gate.js?v=20260827a"></script>
 <!-- The three faces are 394KB of the page and are only discovered once the
      stylesheet parses, which on a phone is the slowest thing here. Preloading
      starts them with the document instead. Preconnect opens Jelly's socket
