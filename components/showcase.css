@@ -139,6 +139,20 @@ body {
   line-height: var(--text-lg-lh);
 }
 
+/* An attribute or token named inside a sentence. Without this it fell to the
+   browser's default `monospace` at the full 18px of the paragraph, which read
+   as a different typeface at a different size mid-line. It is still code, so
+   it stays monospace — but a deliberate one, stepped down to sit on the same
+   baseline as the prose around it. */
+.entry-note code,
+.foot code {
+  padding: 0 var(--space-050);           /* 4 */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-md);             /* 16, against 18px prose */
+  background: var(--cream);              /* Neutral 100 */
+  border-radius: var(--radius-4);
+}
+
 /* ── The live demo ───────────────────────────────────────────────────────── */
 
 .demo {
@@ -223,6 +237,15 @@ body {
   /* Code is a technical run: it reads left-to-right whatever the page does. */
   direction: ltr;
   text-align: start;
+}
+
+/* The <code> inside carries the UA stylesheet's own `font-family: monospace`,
+   which beats inheritance from the <pre> — so without this the block renders
+   in the browser's default mono at a different size instead of the stack set
+   above. Measured, not assumed. */
+.code pre code {
+  font: inherit;
+  color: inherit;
 }
 
 .copy {
