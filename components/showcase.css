@@ -104,10 +104,29 @@ body {
 
 /* ── A catalogue entry ───────────────────────────────────────────────────── */
 
+/* ── An entry is two columns ────────────────────────────────────────────────
+   Prose and code on the left, the live demo on the right.
+
+   It was one column, and the result measured badly: the text was capped at a
+   readable 498px while the demo card stretched the full 1032, so an entry
+   demonstrating a single switch put a 171x30 control in a 1032x158 card —
+   97% empty. Reading measure and demo width are different requirements and
+   stacking them forces one to be wrong. Side by side, each gets what it
+   needs and the column edge gives the page a spine. */
 .entry {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+  column-gap: var(--space-800);          /* 64 */
+  align-items: start;
   padding-block-start: var(--space-800); /* 64 */
   border-block-start: 1px solid var(--cream-200);   /* Neutral 200 hairline */
 }
+
+.entry-text { grid-column: 1; }
+
+/* Spans however many rows the left column takes, so the demo stays beside the
+   prose rather than being pushed under it. */
+.entry > .demo { grid-column: 2; grid-row: 1 / span 20; }
 
 .entry + .entry { margin-block-start: var(--space-800); }
 
@@ -156,6 +175,11 @@ body {
 /* ── The live demo ───────────────────────────────────────────────────────── */
 
 .demo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-500);                 /* 40 */
+  min-height: 260px;
   padding: var(--space-600);             /* 48 */
   background: var(--white);              /* Neutral 0 */
   border-radius: var(--radius-24);
@@ -212,6 +236,92 @@ body {
 .specimen.field jelly-textarea,
 .specimen.field jelly-slider,
 .specimen.field jelly-range { width: 100%; }
+
+/* ── The theming demo ───────────────────────────────────────────────────────
+   A composed preview rather than a lone control, because <jelly-theme> does
+   nothing you can see on one element — it re-tints a whole subtree, so the
+   demo has to BE a subtree. Deliberately not built from <jelly-card>: that
+   component is out of scope for this library, so the surface here is a plain
+   element carrying our own tokens. */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-400);                 /* 32 */
+  align-items: center;
+}
+
+.ctl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-200);                 /* 16 */
+}
+
+.ctl-name {
+  font-family: var(--font-medium);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+}
+
+.swatches { display: flex; gap: var(--space-100); }        /* 8 */
+
+.sw {
+  width: var(--space-300);               /* 24 */
+  height: var(--space-300);
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 1px var(--cream-200);
+  cursor: pointer;
+}
+
+.sw-primary   { background: var(--primary); }    /* Primary 700   */
+.sw-secondary { background: var(--secondary); }  /* Secondary 600 */
+.sw-success   { background: var(--success); }    /* Green 600     */
+.sw-warning   { background: var(--warning); }    /* Yellow 400    */
+
+.sw[aria-pressed="true"] { border-color: var(--white); box-shadow: 0 0 0 2px var(--primary); }
+.sw:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+
+.preview {
+  display: grid;
+  gap: var(--space-300);                 /* 24 */
+  padding: var(--space-400);             /* 32 */
+  background: var(--jelly-color-background-surface, var(--cream-50));
+  border: 1px solid var(--jelly-color-border-default, var(--cream-200));
+  border-radius: var(--radius-16);
+  /* Reads the bridged tokens rather than ours directly, so when the provider
+     above is re-tinted or switched to dark this surface follows it. That is
+     the point of the demo: the whole subtree moves, not just the controls. */
+  color: var(--jelly-color-foreground-default, var(--text));
+}
+
+.preview-title {
+  margin: 0;
+  font-family: var(--font-bold);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg-lh);
+}
+
+.preview-sub {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--text-md-lh);
+  color: var(--jelly-color-foreground-muted, var(--text));
+}
+
+.preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-400);                 /* 32 */
+  align-items: center;
+}
+
+.demo-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+}
 
 /* ── Code ────────────────────────────────────────────────────────────────── */
 
@@ -318,12 +428,29 @@ body {
 
 /* ── Small screens ───────────────────────────────────────────────────────── */
 
+/* Two columns need roughly 400 of prose plus 64 of gutter plus a demo wide
+   enough to hold a field. Below that the split stops helping and the entry
+   goes back to one column. */
+@media (max-width: 900px) {
+  .entry {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-400);           /* 32 */
+  }
+  .entry-text,
+  .entry > .demo { grid-column: 1; }
+  .entry > .demo { grid-row: auto; }
+  .demo { min-height: 0; }
+}
+
 @media (max-width: 720px) {
   .wrap { padding-block: var(--space-500) var(--space-800); }
   .masthead h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
   .masthead { margin-block-end: var(--space-600); }
-  .demo { padding: var(--space-300); }        /* 24 */
+  .demo { padding: var(--space-300); gap: var(--space-400); }   /* 24 / 32 */
   .entry { padding-block-start: var(--space-600); }
   .entry + .entry { margin-block-start: var(--space-600); }
   .row { gap: var(--space-300); }
+  .preview { padding: var(--space-300); }
+  .controls { gap: var(--space-200); }
+  .ctl { gap: var(--space-150); }
 }

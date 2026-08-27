@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260827e"></script>
+<script src="../gate.js?v=20260827f"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -20,8 +20,8 @@
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260827e">
-<link rel="stylesheet" href="showcase.css?v=20260827e">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260827f">
+<link rel="stylesheet" href="showcase.css?v=20260827f">
 </head>
 
 <!-- mode="light" deliberately, not "auto".
@@ -59,28 +59,70 @@
 
   <!-- ── 01 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-01">
+    <div class="entry-text">
     <p class="entry-num">Theming · 01</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-theme"/></svg> &lt;jelly-theme&gt;</h2>
     <p class="entry-note">The provider that makes every other entry on this page Minaã.
        It scopes the complete token set to its subtree, and canvas-painted components
        resolve those tokens at draw time — which is why the bridge is applied here rather
        than on <code>:root</code> alone. Held at <b>light</b>: Minaã has no dark ramp yet.</p>
+    </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen">
-          <jelly-switch checked>Inherits the Minaã accent</jelly-switch>
-          <figcaption>No variant — falls through to the theme accent</figcaption>
-        </figure>
+      <!-- data-controls marks page furniture: these drive the demo but are not
+           part of using the component, so the generated snippet skips them. -->
+      <div class="controls" data-controls>
+        <div class="ctl">
+          <span class="ctl-name">mode</span>
+          <jelly-segmented id="theme-mode" label="Theme mode">
+            <jelly-segment value="auto">auto</jelly-segment>
+            <jelly-segment value="light" selected>light</jelly-segment>
+            <jelly-segment value="dark">dark</jelly-segment>
+          </jelly-segmented>
+        </div>
+        <div class="ctl">
+          <span class="ctl-name">accent</span>
+          <!-- Swatches from our own palette rather than a free colour field.
+               The provider accepts any CSS colour, but a showcase that invites
+               an arbitrary hue is inviting a design-system violation. -->
+          <div class="swatches" id="theme-accent" role="group" aria-label="Accent">
+            <button type="button" class="sw sw-primary"   aria-label="Primary 700"  aria-pressed="true"></button>
+            <button type="button" class="sw sw-secondary" aria-label="Secondary 600" aria-pressed="false"></button>
+            <button type="button" class="sw sw-success"   aria-label="Green 600"     aria-pressed="false"></button>
+            <button type="button" class="sw sw-warning"   aria-label="Yellow 400"    aria-pressed="false"></button>
+          </div>
+        </div>
       </div>
+
+      <!-- A provider nested inside the page's own provider, scoped to just this
+           preview. That is the component's whole purpose, so the demo is the
+           mechanism rather than a picture of it. -->
+      <jelly-theme id="theme-demo" mode="light">
+        <div class="preview">
+          <p class="preview-title">Workspace controls</p>
+          <p class="preview-sub">Preview the scoped theme</p>
+          <jelly-slider value="62" label="Capacity"></jelly-slider>
+          <jelly-slider value="88" label="Utilisation"></jelly-slider>
+          <div class="preview-row">
+            <jelly-checkbox checked>Sync</jelly-checkbox>
+            <jelly-switch checked>Notifications</jelly-switch>
+          </div>
+        </div>
+      </jelly-theme>
+
+      <p class="demo-note" data-controls>Switching to <b>dark</b> paints Jelly's own dark
+         tokens, not ours — Minaã has no dark ramp yet, which is exactly what that setting
+         makes visible.</p>
     </div>
   </section>
 
   <!-- ── 04 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-04">
+    <div class="entry-text">
     <p class="entry-num">Forms · 04</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-checkbox"/></svg> &lt;jelly-checkbox&gt;</h2>
     <p class="entry-note">A form-associated checkbox with checked and mixed states. The mark is
        Neutral 100 on the Primary 700 fill, the same pairing every brand-filled control uses.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen"><jelly-checkbox>Unchecked</jelly-checkbox><figcaption>Rest</figcaption></figure>
@@ -98,12 +140,14 @@
 
   <!-- ── 05 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-05">
+    <div class="entry-text">
     <p class="entry-num">Forms · 05</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-input"/></svg> &lt;jelly-input&gt;</h2>
     <p class="entry-note">A single-line field. Focus lifts and rings the membrane, and each keystroke
        ripples the surface at the caret. The focus indicator is Jelly's own, painted on its canvas and
        tinted Primary 700 by the bridge — <b>not</b> the 3px solid ring the Buttons page specifies.
        The two libraries do not agree on this yet; the difference is recorded rather than hidden.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen field"><jelly-input label="Warehouse name" placeholder="Warehouse name"></jelly-input><figcaption>Empty</figcaption></figure>
@@ -118,11 +162,13 @@
 
   <!-- ── 06 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-06">
+    <div class="entry-text">
     <p class="entry-num">Forms · 06</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-label"/></svg> &lt;jelly-label&gt;</h2>
     <p class="entry-note">Pairs with any control through <code>for</code>: clicking focuses the target
        and the text becomes its accessible name. Prefer this over the <code>label</code> attribute
        whenever the name should be visible.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <div class="stack">
@@ -139,11 +185,13 @@
 
   <!-- ── 07 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-07">
+    <div class="entry-text">
     <p class="entry-num">Forms · 07</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-otp"/></svg> &lt;jelly-otp&gt;</h2>
     <p class="entry-note">One box per digit, with typing, backspace, arrow and paste handling.
        Boxes are radius-16 rather than the capsule the text field uses, so a code reads as
        discrete cells rather than one continuous run.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen"><jelly-otp length="6" label="One-time code"></jelly-otp><figcaption>Six digits</figcaption></figure>
@@ -156,10 +204,12 @@
 
   <!-- ── 08 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-08">
+    <div class="entry-text">
     <p class="entry-num">Forms · 08</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radio"/></svg> &lt;jelly-radio&gt;</h2>
     <p class="entry-note">Radios sharing a <code>name</code> under the same root form a group with
        roving tabindex and direction-aware arrow keys. The dot is Neutral 100 on Primary 700.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen"><jelly-radio name="pay" value="monthly" checked>Monthly</jelly-radio><figcaption>Selected</figcaption></figure>
@@ -172,10 +222,12 @@
 
   <!-- ── 09 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-09">
+    <div class="entry-text">
     <p class="entry-num">Forms · 09</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radiogroup"/></svg> &lt;jelly-radio-group&gt;</h2>
     <p class="entry-note">A labelled container that carries the legend, the layout and the size for
        its radios — including ones slotted in later.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <jelly-radio-group label="Payment type" direction="vertical">
@@ -189,10 +241,12 @@
 
   <!-- ── 10 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-10">
+    <div class="entry-text">
     <p class="entry-num">Forms · 10</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-range"/></svg> &lt;jelly-range&gt;</h2>
     <p class="entry-note">Two knobs picking a low/high interval, each carrying its own focus and ARIA.
        Track and thumb share the slider's geometry so the two read as one family.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen field"><jelly-range min="0" max="1000" low="150" high="750" step="10" label="Rent"></jelly-range><figcaption>0–1000, step 10</figcaption></figure>
@@ -202,11 +256,13 @@
 
   <!-- ── 11 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-11">
+    <div class="entry-text">
     <p class="entry-num">Forms · 11</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-segmented&gt;</h2>
     <p class="entry-note">A capsule track of mutually exclusive options with a pill that slides, leans
        and stretches between segments. <code>roles</code> chooses whether it announces as a radiogroup
        or a tablist — the look is identical, the semantics are not.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen">
@@ -223,10 +279,12 @@
 
   <!-- ── 12 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-12">
+    <div class="entry-text">
     <p class="entry-num">Forms · 12</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-select"/></svg> &lt;jelly-select&gt;</h2>
     <p class="entry-note">A combobox whose trigger and option panel are both soft-body surfaces; the
        panel unfolds out of the field and flips above it when the viewport has no room below.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen field">
@@ -247,10 +305,12 @@
 
   <!-- ── 13 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-13">
+    <div class="entry-text">
     <p class="entry-num">Forms · 13</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-slider"/></svg> &lt;jelly-slider&gt;</h2>
     <p class="entry-note">A single value on a track, backed by a hidden native range input so it still
        participates in a form and answers to the keyboard.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen field"><jelly-slider value="60" label="Occupancy"></jelly-slider><figcaption>0–100</figcaption></figure>
@@ -264,10 +324,12 @@
 
   <!-- ── 14 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-14">
+    <div class="entry-text">
     <p class="entry-num">Forms · 14</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-switch"/></svg> &lt;jelly-switch&gt;</h2>
     <p class="entry-note">A draggable switch whose thumb stretches like a liquid drop and whose colour
        crossfades between off and on. Off is Neutral 200, on is Primary 700.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen"><jelly-switch>Off</jelly-switch><figcaption>Rest</figcaption></figure>
@@ -284,10 +346,12 @@
 
   <!-- ── 15 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-15">
+    <div class="entry-text">
     <p class="entry-num">Forms · 15</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-textarea"/></svg> &lt;jelly-textarea&gt;</h2>
     <p class="entry-note">Multi-line text that auto-grows between a minimum and maximum height while the
        membrane follows. Radius-24 rather than the field capsule, because a growing box cannot stay a capsule.</p>
+    </div>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen field"><jelly-textarea label="Note" placeholder="Anything the team should know"></jelly-textarea><figcaption>Empty</figcaption></figure>
@@ -308,8 +372,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260827e"></script>
-<script src="micons.js?v=20260827e"></script>
-<script src="showcase.js?v=20260827e" defer></script>
+<script src="minaa-jelly.js?v=20260827f"></script>
+<script src="micons.js?v=20260827f"></script>
+<script src="showcase.js?v=20260827f" defer></script>
 </body>
 </html>

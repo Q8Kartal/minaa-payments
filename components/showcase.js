@@ -83,7 +83,12 @@
 
   function snippetFor(demo) {
     const roots = [...demo.querySelectorAll('*')].filter(
-      (el) => el.tagName.toLowerCase().startsWith('jelly-') && !hasJellyAncestor(el, demo)
+      (el) => el.tagName.toLowerCase().startsWith('jelly-')
+        && !hasJellyAncestor(el, demo)
+        /* Anything marked data-controls drives the demo but is not part of
+           using the component. Showing it would tell a reader to type page
+           furniture. */
+        && !el.closest('[data-controls]')
     );
     return roots.map((el) => serialise(el, 0)).join('\n');
   }
@@ -134,16 +139,53 @@
 
       box.appendChild(copy);
       box.appendChild(pre);
-      entry.appendChild(box);
+      /* Into the prose column, so the entry stays two columns and the code
+         sits under the description it belongs to rather than under the demo. */
+      (entry.querySelector('.entry-text') || entry).appendChild(box);
     });
   }
 
+  /* ── The theming demo's live controls ───────────────────────────────────
+     <jelly-theme> is the one component whose behaviour cannot be shown by
+     looking at it, so the demo is driveable. Both controls write the real
+     attributes the component documents — nothing here reaches inside it. */
+  function wireThemeDemo() {
+    const provider = document.getElementById('theme-demo');
+    if (!provider) return;
+
+    const mode = document.getElementById('theme-mode');
+    if (mode) {
+      mode.addEventListener('change', () => {
+        const v = mode.value || 'light';
+        provider.setAttribute('mode', v);
+      });
+    }
+
+    const swatches = document.getElementById('theme-accent');
+    if (swatches) {
+      swatches.addEventListener('click', (e) => {
+        const btn = e.target.closest('.sw');
+        if (!btn) return;
+        /* The colour is read back off the rendered swatch rather than written
+           into the markup, so the palette stays in the stylesheet and no hex
+           is duplicated into HTML or JS. */
+        const colour = getComputedStyle(btn).backgroundColor;
+        provider.setAttribute('accent', colour);
+        swatches.querySelectorAll('.sw').forEach((b) =>
+          b.setAttribute('aria-pressed', String(b === btn)));
+      });
+    }
+  }
+
+  function start() { buildCode(); wireThemeDemo(); }
+
   if (window.customElements) {
     Promise.all(
-      ['jelly-checkbox', 'jelly-input', 'jelly-switch'].map((t) => customElements.whenDefined(t))
-    ).then(() => setTimeout(buildCode, 0)).catch(buildCode);
+      ['jelly-checkbox', 'jelly-input', 'jelly-switch', 'jelly-segmented']
+        .map((t) => customElements.whenDefined(t))
+    ).then(() => setTimeout(start, 0)).catch(start);
   }
   /* If Jelly never arrives — offline, or its origin is down — the page still
      has to document itself, so the snippets are built regardless. */
-  setTimeout(buildCode, 2500);
+  setTimeout(start, 2500);
 })();
