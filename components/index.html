@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260827a"></script>
+<script src="../gate.js?v=20260827b"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -20,8 +20,8 @@
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260827a">
-<link rel="stylesheet" href="showcase.css?v=20260827a">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260827b">
+<link rel="stylesheet" href="showcase.css?v=20260827b">
 </head>
 
 <!-- mode="light" deliberately, not "auto".
@@ -101,8 +101,9 @@
     <p class="entry-num">Forms · 05</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-input"/></svg> &lt;jelly-input&gt;</h2>
     <p class="entry-note">A single-line field. Focus lifts and rings the membrane, and each keystroke
-       ripples the surface at the caret. The focus ring is the same 3px Primary 700 at a 3px offset
-       the Buttons page specifies.</p>
+       ripples the surface at the caret. The focus indicator is Jelly's own, painted on its canvas and
+       tinted Primary 700 by the bridge — <b>not</b> the 3px solid ring the Buttons page specifies.
+       The two libraries do not agree on this yet; the difference is recorded rather than hidden.</p>
     <div class="demo" data-demo>
       <div class="row">
         <figure class="specimen field"><jelly-input label="Warehouse name" placeholder="Warehouse name"></jelly-input><figcaption>Empty</figcaption></figure>
@@ -304,7 +305,7 @@
 </div>
 </jelly-theme>
 
-<script src="micons.js?v=20260827a"></script>
-<script src="showcase.js?v=20260827a" defer></script>
+<script src="micons.js?v=20260827b"></script>
+<script src="showcase.js?v=20260827b" defer></script>
 </body>
 </html>

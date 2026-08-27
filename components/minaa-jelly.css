@@ -285,20 +285,34 @@ jelly-theme {
   --jelly-menu-font-size:          var(--text-md);
 }
 
-/* ── Focus ──────────────────────────────────────────────────────────────────
-   The same indicator the Buttons page specifies: 3px Primary 700 at a 3px
-   offset, following the control's own silhouette. Jelly delegates focus into
-   a shadow element, so the host never matches :focus-visible — which is why
-   this is written against :focus-within rather than :focus-visible, and why
-   the Buttons page sets a class from script instead. */
-jelly-input:focus-within,
-jelly-textarea:focus-within,
-jelly-select:focus-within,
-jelly-otp:focus-within {
-  outline: 3px solid var(--primary);
-  outline-offset: 3px;
-  border-radius: var(--jelly-input-radius);
-}
+/* ── Focus — deliberately NOT drawn here ────────────────────────────────────
+   An earlier version of this file put a 3px Primary 700 outline at a 3px
+   offset on :focus-within for input, textarea, select and otp, to match the
+   indicator the Buttons page specifies. It was wrong three ways at once, and
+   all three were visible on screen:
+
+     · One radius for every control. The rule used --jelly-input-radius, which
+       is 9999px, so a 452x96 textarea got a STADIUM drawn around a rectangle
+       and the ring bulged far past the field on both sides.
+     · A second ring. Jelly already draws its own focus indicator, and the
+       bridge above has already tinted it — the focused OTP digit measures
+       `outline: color(srgb 0 0.384314 0.678431 / 0.5) solid 4px`, which is
+       Minaã Blue. Adding ours produced two concentric rings on the select.
+     · The wrong element. On OTP, :focus-within matches the whole group, so a
+       capsule was drawn around all six digits while Jelly correctly ringed
+       only the focused one.
+
+   The fix is to draw nothing. Jelly's own indicator is on the right element,
+   at the right radius, in the right colour, because the token bridge feeds it
+   --jelly-color-border-focus and --jelly-ring.
+
+   KNOWN DIFFERENCE, recorded rather than papered over: Jelly's ring is 4px at
+   50% alpha, where the Buttons page specifies 3px solid at a 3px offset. The
+   two libraries do not match on this yet. Reconciling them is a design
+   decision — either Jelly's ring is overridden for every component, or the
+   Buttons specification is widened to accept it — and it should not be made
+   by quietly stacking a second outline on top, which is exactly what produced
+   the bugs above. */
 
 /* iOS Safari paints autofilled fields yellow, which overrides the surface
    colour and is the one place the bridge visibly loses. */
