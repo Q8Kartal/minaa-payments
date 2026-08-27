@@ -94,6 +94,10 @@
   --control-icon-20: 20px;
   --control-icon-16: 16px;
   --control-stroke: 1.5px;
+  /* The tick and dash inside a checkbox. A MARK is not a BORDER: the field
+     stroke is 1.5 and this is 3, and conflating them is what made the tick
+     render as a hairline. The Figma specification draws it at 3 on a 20 box. */
+  --control-mark-stroke: 3px;
   /* The slider and range knob. 24 coincides with space-300 and is deliberately
      NOT written as one: a knob is a component dimension, and if the spacing
      scale is ever revised the knob must not move with it. Same reasoning as
@@ -379,13 +383,22 @@ jelly-checkbox {
   --jelly-on:                      var(--m-check-box);
   --jelly-accent:                  var(--m-check-box);
   --jelly-color-background-accent: var(--m-check-box);
-  --jelly-fill:                    var(--m-check-box);
+  /* --jelly-fill is the UNCHECKED box, --jelly-on the checked one. Setting both
+     to the checked colour made an empty checkbox indistinguishable from a
+     ticked one. The specification only draws the checked state, so the empty
+     box reuses the off colour already decided for the switch track rather than
+     inventing a new one. */
+  --jelly-fill:                    var(--m-track-off);
   --jelly-checkbox-mark:         var(--m-check-mark);
   --jelly-checkbox-size:         var(--control-icon-20);
   --jelly-checkbox-gap:          var(--space-100);
   --jelly-checkbox-radius:       var(--radius-4);
   --jelly-checkbox-font-size:    var(--text-md);
-  --jelly-checkbox-stroke-width: var(--control-stroke);
+  /* The MARK, not a border. This was set to --control-stroke (1.5px, the field
+     edge) and rendered as a hairline. Jelly's own defaults are 3.1 / 3.4 / 3.7
+     scaled per size and its mark already carries stroke-linecap: round, so the
+     rounded ends come free — only the weight was wrong. */
+  --jelly-checkbox-stroke-width: var(--control-mark-stroke);
   color: var(--m-toggle-label);
 }
 
