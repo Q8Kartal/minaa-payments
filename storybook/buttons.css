@@ -1,0 +1,826 @@
+  /* ── Type — self-hosted, no Fontstand ───────────────────────────────────
+     29LT ships each weight as its own file, and the page keeps them as three
+     family names so weight is still chosen by swapping family.
+
+     Each face is declared across the whole 100-900 range on purpose. Registered
+     at a single weight, any rule asking for 700 would have made the browser
+     fake a bolder face by smearing the glyphs, which merges Arabic strokes and
+     fills the counters. Claiming the range means every weight request resolves
+     to this face exactly, with nothing left to synthesise. */
+  @font-face {
+    font-family: "29LT Idris Round Regular";
+    src: url("fonts/29LTIdrisRound-Regular.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "29LT Idris Round Medium";
+    src: url("fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "29LT Idris Round ExtraBold";
+    src: url("fonts/29LTIdrisRound-ExtraBold.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    /* ── Type ───────────────────────────────────────────────────────────── */
+    --font-regular: "29LT Idris Round Regular", sans-serif;
+    --font-medium:  "29LT Idris Round Medium",  sans-serif;
+    --font-bold:    "29LT Idris Round ExtraBold", sans-serif;
+
+    --text-sm: 14px;  --text-sm-lh: 20px;
+    --text-md: 16px;  --text-md-lh: 24px;
+    --text-lg: 18px;  --text-lg-lh: 28px;
+    /* The line height was missing here while lg and md had theirs, so the one
+       type step the buttons use at 56px had no pair to bind to. 30px is the
+       Foundations value — text style Text xl/Medium is 20/30. */
+    --text-xl: 20px;  --text-xl-lh: 30px;
+    --display-xs: 24px; --display-xs-lh: 32px;
+    --display-sm: 32px; --display-sm-lh: 40px;
+    --display-md: 40px; --display-md-lh: 44px;   /* Figma text style Display md */
+    --display-lg: 48px; --display-lg-lh: 60px;
+
+    /* ── Button component metrics ────────────────────────────────────────
+       These mirror the Figma collection `Minaa Button / Metrics` one for one,
+       and they are deliberately NOT aliases of the type scale even though the
+       numbers coincide today. An icon box is a component dimension, not a
+       type size: if the type scale is revised, the icon must not move with it.
+       Figma: `Button icon size/20` and `Button icon size/16`. */
+    --button-icon-size-20: 20px;   /* leading/trailing icon at sizes 56 and 48 */
+    --button-icon-size-16: 16px;   /* leading/trailing icon at size 40 */
+
+    /* ── Colour — the Minaã Colour variables ─────────────────────────────
+       Named after the Foundations steps they come from, so a value can be
+       checked against the page it came from rather than taken on trust. */
+    --primary:       #0062AD;   /* Primary 700 — Minaã Blue */
+    --primary-300:   #A1CFFF;   /* Primary 300 — control tracks, never text */
+    --primary-100:   #E2F0FF;
+    --primary-tint:  #F2F8FF;   /* Primary 50  */
+    --secondary:     #E8411D;   /* Secondary 600 — Minaã Red */
+    --cream-50:      #FDF9F0;   /* Neutral 50  */
+    --cream:         #FBF0DC;   /* Neutral 100 — Minaã Cream */
+    --cream-200:     #F7E0B6;   /* Neutral 200 — disabled fill */
+    --cream-700:     #895A30;   /* Neutral 700 — disabled ink */
+
+    /* Semantic — success / warning / error, never brand, never decoration.
+       The ✓ in the measurement table uses Green 700 rather than the signature
+       Green 600: measured against the white card, Green 600 gives 3.11:1 and
+       does not clear 4.5:1 for text that small, while Green 700 gives 4.97:1.
+       Same logic that makes Minaã Blue the 700 step of its own scale. */
+    --success-text:  #158200;   /* Green 700  — the step that stays legible */
+    --success:       #05AA00;   /* Green 600  — Minaã Green */
+    --warning:       #E5B11F;   /* Yellow 400 — Minaã Yellow */
+    --error:         #E56E1F;   /* Orange 500 — Minaã Orange */
+
+    /* The deep step of each hue, used as the pressed fill so the colour reveal
+       reads as the same colour deepening rather than changing family. */
+    --primary-900:   #00437B;
+    --success-deep:  #146600;   /* Green 800  */
+    --warning-deep:  #94630E;   /* Yellow 700 */
+    --error-deep:    #A14712;   /* Orange 700 */
+
+    --card:   #FFFFFF;
+    /* One ink for every word on the page: Primary 700, at full strength.
+       Captions and labels are small, but they are still copy — they name what
+       you are looking at — so they read like a paragraph rather than like an
+       aside. Hierarchy comes from size and weight, never from fading the text.
+       The three role names are kept because they say what each run of copy is
+       for, and because a future theme may want to move them apart again. */
+    --text:   #0062AD;   /* Primary 700 — headings and body */
+    --muted:  #0062AD;   /* Primary 700 — paragraphs */
+    --faint:  #0062AD;   /* Primary 700 — captions and small labels */
+    --border: rgba(0,98,173,.14);
+
+    --shadow-card:  0 2px 10px rgba(22,22,22,.05);
+    --shadow-float: 0 30px 80px -20px rgba(0,67,123,.18), 0 10px 30px rgba(22,22,22,.06);
+
+    /* ── Spacing — the official 14-step scale ───────────────────────────── */
+    --space-0: 0;      --space-025: 2px;  --space-050: 4px;  --space-075: 6px;
+    --space-100: 8px;  --space-150: 12px; --space-200: 16px; --space-250: 20px;
+    --space-300: 24px; --space-400: 32px; --space-500: 40px; --space-600: 48px;
+    --space-800: 64px; --space-1000: 80px;
+
+    /* ── Interaction ────────────────────────────────────────────────────────
+       The Figma prototype plays a 550ms Smart Animate. Nothing here replays
+       it: --p is read from Jelly's live deformation, so there is no duration,
+       no easing and no timer anywhere on this page. The ramp variables that
+       used to live here went with the timed version. */
+  }
+
+  * { box-sizing: border-box; }
+
+  /* Belt and braces. The @font-face range above already leaves nothing to
+     synthesise, so this only matters if a face fails to load and a fallback
+     without real weights takes over. */
+  html { font-synthesis: none; }
+
+  /* Text that Jelly creates itself — toast copy, for one — lives inside its
+     shadow root and is set from these tokens, so an inherited font-family on
+     the host never reaches it. Measured: toasts were rendering in
+     ui-rounded / SF Pro Rounded while the rest of the page was Idris Round.
+     Set once at the root so every Jelly component that writes its own text
+     inherits the brand face. Mono is left alone; nothing here is code. */
+  :root {
+    --jelly-font-display: var(--font-medium);
+    --jelly-font-text:    var(--font-regular);
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-regular);
+    color: var(--text);
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(0,98,173,.06), transparent 60%),
+      radial-gradient(900px 500px at 10% 110%, rgba(232,65,29,.05), transparent 55%),
+      var(--cream);
+    min-height: 100vh;
+    /* Steps, not a slide. Both ends of the old clamp were tokens, but 2.5vw
+       between them lands wherever the viewport says — 29.45px here, on no step
+       of the scale at all. The Spacing collection carries a value per mode
+       rather than a formula, so the page margin steps with the breakpoints the
+       way --grid-margin already does. */
+    padding: var(--space-400);
+  }
+
+  /* ═══ PAGE LAYOUT SYSTEM ══════════════════════════════════════════════════
+     Same shell + fixed-wide grid as the app. There is no 88px icon rail on
+     this page, so the shell caps at 1296px rather than 1296 + 88.
+     ═════════════════════════════════════════════════════════════════════ */
+  .shell {
+    max-width: 1296px;
+    margin: 0 auto;
+    background: var(--cream-50);
+    border-radius: 28px;
+    box-shadow: var(--shadow-float);
+    /* The one clip on the page: it keeps the rounded corners and stops Jelly's
+       oversized canvases reaching the document. It is far enough from any
+       button — panel padding plus the column margin — that no bulge is ever
+       cut here, which is exactly why clipping closer in did not work. */
+    overflow: clip;
+  }
+
+  .main-col {
+    --grid-columns: 12;
+    --grid-gutter:  var(--space-200);   /* 16px at m and above */
+    --grid-margin:  var(--space-400);   /* 32px at m and above */
+
+    padding: var(--grid-margin);
+    display: flex; flex-direction: column; gap: var(--space-400);
+    min-width: 0;
+  }
+
+  /* Every aligned container tracks the same three custom properties. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    gap: var(--grid-gutter);
+  }
+  .span-full { grid-column: 1 / -1; }
+  .stat-card { grid-column: span 3; }          /* 4 across at 12 columns */
+
+  /* ── Top bar ──────────────────────────────────────────────────────────── */
+  /* A grid rather than a wrapping row, so the corner is a place rather than a
+     side effect. As a flex row it bottom-aligned and wrapped, which dropped the
+     language switch 180px down the header and left it sitting under the heading
+     instead of across from it. The columns hold at every width; only the chip
+     moves. The inset from the shell edge is the column's own --grid-margin, so
+     the switch sits inside the same protected margin as everything else. */
+  .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "greet meta";
+    align-items: start;
+    gap: var(--space-300);
+  }
+  .greeting { grid-area: greet; }
+  .greeting .eyebrow {
+    font-family: var(--font-bold); font-size: var(--text-md); line-height: var(--text-md-lh);
+    color: var(--secondary); margin: 0;
+  }
+  .greeting h1 {
+    font-family: var(--font-bold); font-size: var(--display-lg); line-height: var(--display-lg-lh);
+    margin: var(--space-050) 0 0;
+  }
+  .greeting p {
+    font-size: var(--text-lg); line-height: var(--text-lg-lh);
+    color: var(--muted); margin: var(--space-150) 0 0; max-width: 62ch;
+  }
+  /* Language switch — the Translation icon from the Minaã icon library
+     (Icons file, node 5:173), which is already two glyphs: AR is the upper-left
+     bubble, EN the lower-right. Colouring them separately lets the icon say
+     both things at once — which language you are reading, and what pressing it
+     will do. The current one takes Primary, the other Secondary, which is the
+     documented pairing for an active state against a supporting one.
+
+     It holds the corner alone. This used to be a stack that also carried the
+     Figma reference chip, which is why it was a flex column; with the chip
+     gone there is nothing left to group, so it is just the switch. */
+  .topbar-meta { grid-area: meta; justify-self: end; }
+  /* Two buttons, not one, and no circle around them: each glyph of the icon is
+     its own control, and they overlap exactly as they do in the source icon so
+     they still read as one pair.
+
+     The hit area is the painted glyph rather than a box. Both buttons cover the
+     same square, so a box would make the upper one swallow the lower's clicks;
+     instead the buttons pass pointer events through and the paths accept them,
+     which hit-tests the real bubble silhouettes. */
+  .lang-pair {
+    position: relative;
+    /* space-800. The previous 44px was off the scale outright — a touch-target
+       number borrowed from a guideline rather than taken from the system. */
+    inline-size: var(--space-800); block-size: var(--space-800);
+    flex: none;
+  }
+  .lang-part {
+    position: absolute; inset: 0;
+    margin: 0; padding: var(--space-0); border: 0; background: none;
+    pointer-events: none;                  /* the paths take the hits */
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lang-part svg { display: block; inline-size: 100%; block-size: 100%; overflow: visible; }
+  /* The artwork is not the hit area — the letters are cut out of it, so it has
+     holes. The unpainted .lang-hit twin below carries every event instead. */
+  .lang-part path:not(.lang-hit) { pointer-events: none; }
+  .lang-hit {
+    fill: none;
+    /* `all` hit-tests the fill region whether or not it is painted, which is
+       what makes an invisible silhouette clickable. `auto` would not: it only
+       answers where there is paint, which is the bug this fixes. */
+    pointer-events: all;
+    cursor: pointer;
+    /* The press belongs to the button, not the scroller. Left at auto, a touch
+       starting on the glyph was claimed for scrolling and arrived back as
+       pointercancel, which is what made it unreliable on a phone. */
+    touch-action: none;
+  }
+  /* The squash is on the group, not the paths. AR is three paths — the bubble
+     and its two marks — so transforming a path moved the bubble and left the
+     marks behind, tearing the glyph apart on every press. The group carries all
+     of them as one body. EN is a single path and never showed the fault.
+
+     transform-box stays at its default view-box, so the percentage origin
+     resolves against the 24-unit square both glyphs share — the same square as
+     the button, which is what makes the contact point map straight through. */
+  .lang-part g {
+    /* Squash toward the finger. The origin is written per press, so the shape
+       gives way where it is actually touched rather than around its middle. */
+    transform-origin: var(--ox, 50%) var(--oy, 50%);
+    transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--sx, 1), var(--sy, 1));
+    will-change: transform;
+  }
+  .lang-part:focus-visible path, .lang-part:focus-visible .lang-hit { outline: none; }
+  .lang-part:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+
+  /* Blue is where you are, red is where the other button will take you.
+     :not(.lang-hit) matters — these selectors outrank .lang-hit{fill:none}, so
+     without it the invisible hit twin would be painted in full and cover the
+     letters it was added to make clickable. */
+  html[dir="rtl"] .lang-part[data-lang="ar"] path:not(.lang-hit) { fill: var(--primary); }
+  html[dir="rtl"] .lang-part[data-lang="en"] path:not(.lang-hit) { fill: var(--secondary); }
+  html[dir="ltr"] .lang-part[data-lang="ar"] path:not(.lang-hit) { fill: var(--secondary); }
+  html[dir="ltr"] .lang-part[data-lang="en"] path:not(.lang-hit) { fill: var(--primary); }
+  /* ── Stat cards ───────────────────────────────────────────────────────── */
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    padding: var(--space-250); box-shadow: var(--shadow-card);
+  }
+  /* The figure is the one thing on the card that is not prose, so it takes
+     Secondary 600 — hierarchy, not alarm. Its caption stays Primary 700. */
+  .stat-card b {
+    display: block; font-family: var(--font-bold);
+    font-size: var(--display-xs); line-height: var(--display-xs-lh);
+    color: var(--secondary);
+  }
+  .stat-card span { display: block; font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); margin-top: var(--space-050); }
+
+  /* ── Controls panel ───────────────────────────────────────────────────── */
+  .controls {
+    background: var(--primary-tint); border: 1px solid var(--primary-100); border-radius: 18px;
+    padding: var(--space-250);
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-300);
+  }
+  .controls { font-size: var(--text-md); line-height: var(--text-md-lh); }
+  .controls .hint { font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--faint); margin-inline-start: auto; }
+  /* Wraps and shrinks. Held rigid it measured 291px inside a 277px bar on a
+     phone and pushed 33px out — the slider alone asks for 166px, and a label
+     and a readout do not fit beside it at that width. */
+  .controls .scrub {
+    display: inline-flex; align-items: center; gap: var(--space-150);
+    flex-wrap: wrap; min-width: 0;
+  }
+  .controls .scrub jelly-slider { flex: 1 1 auto; min-width: 0; }
+  .controls .scrub output {
+    font-family: var(--font-bold); font-size: var(--text-sm); line-height: var(--text-sm-lh);
+    min-width: 40px; color: var(--secondary);
+  }
+
+  /* The page's own controls are Jelly's too — a showcase that used the OS
+     checkbox and range would be arguing against itself. Jelly resolves its
+     theme tokens at draw time, so tinting --jelly-color-background-accent is
+     what carries the Minaã palette onto a canvas-painted control; there is no
+     CSS surface to style directly. */
+  jelly-switch, jelly-slider {
+    /* Which token paints what was established by probing, not by reading names:
+       -accent is the on/filled colour, -neutral the rest of the track, and
+       -background-white the thumb. Jelly's defaults are a near-black track and
+       an off-white thumb, neither of which belongs in this palette.
+
+       The track takes Primary 300. It carries no text, so the contrast floor
+       that keeps 300 away from copy does not apply — here the pale step is
+       doing the job it is actually for. It cannot be --faint any more: that
+       token now resolves to Primary 700 along with the rest of the type. */
+    --jelly-color-background-neutral: var(--primary-300);
+    /* The thumb is Secondary 600 — the moving part is the one that reports
+       state, so it takes the colour that marks a change rather than the cream
+       that reads as a surface. */
+    --jelly-color-background-white: var(--secondary);
+    --jelly-color-foreground-on-accent: var(--cream);
+  }
+  jelly-switch {
+    /* On is Primary 700, off is Primary 300 (the shared -neutral above). The
+       state is carried by the track's own weight, so it reads at a glance
+       without depending on the knob's position alone. */
+    --jelly-color-background-accent: var(--primary);
+    /* The slotted label is painted by the shadow root, so an inherited `color`
+       loses to it. Probed: --jelly-color-foreground-muted is the one that
+       reaches it, and its default is an off-palette grey. */
+    --jelly-color-foreground-muted: var(--text);
+    --jelly-switch-gap: var(--space-100);
+    --jelly-switch-font-size: var(--text-md);
+    font-family: var(--font-regular);
+    cursor: pointer;
+  }
+  /* The scrubber is a debug affordance, not a payment action — red, matching
+     the readout beside it. */
+  jelly-slider { --jelly-color-background-accent: var(--secondary); }
+
+  /* ── Toaster ────────────────────────────────────────────────────────────
+     Which token paints what was probed, not guessed: the pill reads
+     --jelly-color-background-surface, its text --jelly-color-foreground-default,
+     and each tone's dot is an inline var() onto one of Jelly's palette hues.
+     Jelly's own pill is near-black, which has no place in this palette.
+
+     The pill is Minaã Blue with cream copy — 5.67:1, comfortably past AA — and
+     the tone rides the dot in the approved semantic colours. Semantic hues are
+     never brand and never decoration, so they stay on the dot rather than
+     flooding the pill. The dot is not the only carrier of tone either: Jelly
+     puts a spoken prefix ("Success:", "Error:") in the toast, so meaning
+     survives without colour. */
+  jelly-toaster {
+    --jelly-color-background-surface:    var(--primary);
+    --jelly-color-foreground-default:    var(--cream);
+    --jelly-color-background-azure:      var(--cream);      /* info    */
+    --jelly-color-background-mint:       var(--success);    /* success */
+    --jelly-color-background-amber:      var(--warning);    /* warning */
+    --jelly-color-background-rose:       var(--error);      /* danger  */
+    --jelly-toast-font-size: var(--text-sm);
+    font-family: var(--font-regular);
+  }
+  /* Jelly rings the pill in a dark grey and puts the dismiss glyph in grey on a
+     darker grey disc. Neither is a Minaã colour, and the pill needs no stroke —
+     it already separates from the page by fill and shadow. */
+  /* Jelly hardcodes the pill's own spacing — measured on the rendered toast:
+     gap 11px, padding-block 11px, padding-inline 14px, and .rail gap 10px.
+     None of 10, 11 or 14 is a step on the Minaã scale, and it exposes no
+     custom property for any of them, so they are bound here instead. The
+     shadow root is somebody else's stylesheet but it paints on our page, so
+     the no-raw-values rule reaches inside it.
+
+     11 → space-150 and 14 → space-200 are the nearest steps; the pill gains
+     4px of width and 2px of height by it. .rail carries no part attribute and
+     cannot be reached from here at all — buttons.js binds that one. */
+  jelly-toaster::part(toast) {
+    border: none;
+    gap: var(--space-150);
+    padding-block: var(--space-150);
+    padding-inline: var(--space-200);
+  }
+  /* No dismiss control. The toast leaves on its own timer, and the disc the ×
+     sat on was a second circle competing with the tone mark for the same small
+     pill. Removing it costs early dismissal; it does not cost the message,
+     which Jelly also announces politely with a spoken tone prefix. */
+  jelly-toaster::part(close) { display: none; }
+
+  /* The dot became the tone mark. buttons.js clears its inline background and
+     puts the Micon inside it; this gives that glyph a box to sit in. Cream on
+     every tone, so the mark and the copy read as one thing. */
+  jelly-toaster::part(dot) {
+    inline-size: var(--text-xl);
+    block-size: var(--text-xl);
+    border-radius: 0;
+    color: var(--cream);
+    /* flex:none keeps the dot from being squeezed as a child of the toast row.
+       It is deliberately NOT display:flex itself: laying the glyph out as a
+       flex item is what made Safari collapse it to nothing. The svg fills this
+       box at 100% instead, which needs no inner layout at all. */
+    flex: none;
+  }
+
+  /* One card colour per tone, hung on the part name buttons.js appends.
+     These are the bright semantic steps as specified. Measured against cream:
+     Blue 5.55:1 passes AA, but Green 600 is 2.75:1, Orange 500 2.83:1 and
+     Yellow 400 only 1.75:1 — all below the 4.5:1 body copy needs. The deep
+     steps already in the tokens above clear it at the same hues (Green 800
+     6.35:1, Yellow 700 4.59:1, Orange 700 5.43:1) and are a one-word change
+     per line if legibility is chosen over saturation. */
+  jelly-toaster::part(tone-info)    { background: var(--primary); }
+  jelly-toaster::part(tone-success) { background: var(--success); }
+  jelly-toaster::part(tone-warning) { background: var(--warning); }
+  jelly-toaster::part(tone-danger)  { background: var(--error);   }
+
+  /* ── Section panels — top-level containers, so they align to the grid ── */
+  /* The panel owns the rhythm between its blocks instead of each block
+     carrying a margin. Two gaps, and the difference between them is the
+     hierarchy: space-100 inside the head, because the note labels the title,
+     and space-300 between the head, the controls, the examples and the notes,
+     because those are separate levels.
+
+     Flat markup could only express one of those gaps, which is how a negative
+     margin ended up here compensating for it — and how the blocks in the
+     interaction section ended up 0px apart, with no spacing decision at all.
+     Nesting the head is the fix; arithmetic on margins is not. */
+  .panel {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    padding: var(--space-400); box-shadow: var(--shadow-card);
+    min-width: 0;
+    display: flex; flex-direction: column; gap: var(--space-300);
+  }
+  .panel-head { display: flex; flex-direction: column; gap: var(--space-100); }
+  /* The icon belongs to the first line of the heading, not to the block. On
+     `center` it sat halfway down a heading that wrapped, which put it beside
+     the gap between the two lines with text on neither side of it — visible
+     only on the English build, where "Button with leading or trailing icon" is
+     the one title long enough to wrap. Aligning to the start and giving the
+     icon a box exactly one line tall centres it on that first line whether the
+     heading wraps or not. */
+  .panel-title {
+    display: flex; align-items: flex-start; gap: var(--space-100);
+    font-family: var(--font-bold); font-size: var(--display-xs); line-height: var(--display-xs-lh);
+    margin: var(--space-0);
+  }
+  .panel-title .mi {
+    /* Secondary 600. The icon marks where a section starts; the heading beside
+       it carries the words, so the mark can take the second colour without
+       competing with the copy. */
+    color: var(--secondary);
+    flex: none;
+    /* A box one line tall and one icon wide. The Micon carries its own 24-unit
+       viewBox, so preserveAspectRatio draws the artwork at the box's smaller
+       dimension and centres it on the heading's first line — no offset to
+       compute, and it stays centred if the heading wraps. */
+    inline-size: var(--text-xl);
+    block-size: var(--display-xs-lh);
+  }
+
+  .panel-note {
+    margin: var(--space-0);
+    max-width: 68ch;
+    font-size: var(--text-md); line-height: var(--text-md-lh); color: var(--muted);
+  }
+  .panel-note b { font-family: var(--font-medium); color: var(--text); }
+
+  /* An isolated LTR run for a measurement, so "56 px" cannot be reordered into
+     "px 56" by the surrounding RTL. Inline only — the block keeps its own
+     direction and alignment. See the metric() helper for the measurement. */
+  .metric { direction: ltr; unicode-bidi: isolate; }
+
+  /* ── Examples ───────────────────────────────────────────────────────────
+     A row of specimens instead of a matrix. Each carries its own caption, so
+     a section can vary one thing and say which thing it varied. It wraps on
+     its own, which is why this page no longer needs a stacking breakpoint.
+
+     Deliberately not clipped: Jelly draws its body on a canvas ~45px wider
+     than the button per side so the bulge has room, and clipping here cut
+     20px off a pressed button on a phone. The clip lives on .shell, far
+     enough away to cost nothing. */
+  .examples {
+    display: flex; flex-wrap: wrap;
+    gap: var(--space-300) var(--space-500);
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .specimen {
+    margin: 0;
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: var(--space-150);
+  }
+  /* The caption names the specimen — it is the only thing telling you which
+     configuration you are looking at, so it reads as content, not as an aside. */
+  .specimen figcaption {
+    font-size: var(--text-sm); line-height: var(--text-sm-lh); color: var(--muted);
+  }
+  .specimen .cap-note {
+    display: block; color: var(--faint);
+  }
+  /* A group is the one place buttons sit together, so it is the one place the
+     space between them is part of the specimen. */
+  .group { display: inline-flex; align-items: center; gap: var(--space-150); flex-wrap: wrap; }
+
+  /* ── Notes ────────────────────────────────────────────────────────────── */
+  .note {
+    background: var(--cream-50); border: 1px solid var(--cream-200); border-radius: 18px;
+    padding: var(--space-400);
+    font-size: var(--text-md); line-height: var(--text-md-lh);
+  }
+  .note b { font-family: var(--font-bold); }
+  .note ul { margin: 0; padding-inline-start: var(--space-300); }
+  .note li { margin-bottom: var(--space-100); }
+  .note li:last-child { margin-bottom: 0; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     THE BUTTON — Jelly UI owns the movement, Minaã owns the colour.
+
+     Jelly paints the pill on a <canvas part="jelly">; the inner
+     button[part="button"] is transparent. So the colour reveal cannot be a
+     DOM overlay — it would sit flat on top of a body that is deforming
+     underneath, which is exactly the "two separate animations" to avoid.
+     Instead the reveal is fed into --jelly-fill, the property Jelly already
+     paints from. Verified: changing it repaints the canvas live, and
+     color-mix() survives all the way into the canvas fill.
+
+     Everything below binds to Jelly's own custom properties. Nothing here
+     reimplements its physics.
+     ═════════════════════════════════════════════════════════════════════ */
+  jelly-button, jelly-icon-button {
+    --p: 0;                       /* progress, written by input, never by a timer */
+    --dir: 1;                     /* +1 in LTR, -1 in RTL — for the content advance */
+    --jelly-button-radius: 999px;
+    /* Jelly paints the resting body. The active colour is composited into that
+       same silhouette by the overlay, so the spread has a real origin and
+       direction instead of the whole pill changing at once. */
+    --jelly-fill:  var(--fill-rest);
+    --jelly-label: var(--label-rest);
+    /* Weight comes from the family, never from font-weight: the three weights
+       are three separate faces, and every @font-face claims 100–900 so the
+       browser can never fake a heavier one by smearing the glyphs.
+
+       Medium, not ExtraBold. Tried heavier and reverted: the label holds
+       against a filled pill either way, and the heavier face is wider, so
+       every button grew ~5px and a row of them started competing with the
+       section heading above it. */
+    font-family: var(--font-medium);
+    touch-action: manipulation;
+  }
+  jelly-button:dir(rtl), jelly-icon-button:dir(rtl) { --dir: -1; }
+
+  /* Intrinsic width — the button hugs its content and nothing else.
+         no icons: padding + text + padding
+         icons:    padding + icon + gap + text + gap + icon + padding
+     All three terms are tokens, so the width is a consequence of the metrics
+     rather than a number anyone picks. A longer label makes a wider button and
+     an icon pair makes a wider one still, in Arabic exactly as in English.
+
+     The 168px came from Jelly itself: --jelly-button-min-width defaults to
+     168px and lands as min-width on its inner button, which is why every
+     button measured exactly that regardless of its label. Releasing it to
+     space-0 is what restores intrinsic sizing — a host-level rule cannot,
+     because the floor is inside the shadow root. */
+  jelly-button {
+    --jelly-button-min-width: var(--space-0);
+    inline-size: fit-content;
+  }
+
+  /* Content advances one space-050 in the reading direction as p rises.
+     Jelly exposes a single --jelly-button-padding-inline for both sides, so
+     the offset is a transform on the slotted content rather than asymmetric
+     padding — still bound to a token, and it rides the deformation. */
+  .jelly-label {
+    display: inline-flex; align-items: center; gap: var(--space-100);
+    transform: translateX(calc(var(--space-050) * var(--p) * var(--dir)));
+    /* Declared here rather than on the host: the label is slotted into Jelly's
+       shadow root, which sets line-height 1 on its inner button, and an
+       inherited value only loses to a direct declaration. .jelly-label is
+       light DOM — we build it — so this reaches the rendered text. The size
+       rules below supply the token; align-items keeps the taller line box
+       centred, so the button's own height does not move. */
+    line-height: var(--button-label-lh);
+  }
+  /* Reserve the icon's box up front. This mattered acutely under iconify,
+     which hydrated lazily: until its SVG arrived the element measured 0 wide,
+     so the button was born narrow and jumped when scrolled into view —
+     measured, the RTL 40px button read 57.9px off-screen and 89.9px in view.
+     The Micons sprite is inline and has no such gap, but the box stays
+     declared: it is what makes the measured widths in the table below
+     reproducible rather than dependent on paint order. 1em resolves against
+     the icon's own font-size, which is a type token, so the width stays
+     token-derived. */
+  .jelly-label .mi,
+  jelly-icon-button > .mi {
+    flex: none; inline-size: 1em; block-size: 1em;
+  }
+
+  /* The label is not crossfaded on progress — each part is repainted when the
+     spread actually reaches it, from the same origin and radius as the fill.
+     A global fade left mid-progress labels halfway between both colours and
+     illegible over either one. --t is written per part by the paint pass.
+     background-clip:text cannot carry this, so each part is coloured directly
+     — which is also what keeps the Micons painting from currentColor. */
+  .jelly-label > *,
+  jelly-icon-button > .mi {     /* icon buttons carry a bare icon, no label wrapper */
+    color: color-mix(in srgb, var(--label-rest), var(--label-active) calc(var(--t, 0) * 100%));
+  }
+
+  /* Sizes — bound to Jelly's own metric properties, values from the Figma set.
+     Each size also carries its label's line height, because Jelly does not:
+     measured, the slotted label inherited line-height 1 from inside the shadow
+     root and rendered 20/20, 18/18, 16/16 while Foundations specifies 20/30,
+     18/28, 16/24. The pair is now declared here and applied on .jelly-label,
+     which is light DOM and therefore ours to set. */
+  jelly-button.s56 { --jelly-button-height: 56px; --jelly-button-padding-inline: var(--space-300); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-xl); --button-label-lh: var(--text-xl-lh); }
+  jelly-button.s48 { --jelly-button-height: 48px; --jelly-button-padding-inline: var(--space-250); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-lg); --button-label-lh: var(--text-lg-lh); }
+  jelly-button.s40 { --jelly-button-height: 40px; --jelly-button-padding-inline: var(--space-200); --jelly-button-gap: var(--space-100); --jelly-button-font-size: var(--text-md); --button-label-lh: var(--text-md-lh); }
+  /* Icon box = the button's own icon metric, not the type token it used to
+     borrow. Both read 20px and 16px today, so nothing moves — but an icon is a
+     component dimension and must not follow the type scale if that is revised. */
+  jelly-button.s56 .mi, jelly-button.s48 .mi { font-size: var(--button-icon-size-20); }
+  jelly-button.s40 .mi { font-size: var(--button-icon-size-16); }
+
+  jelly-icon-button.s56 { --jelly-icon-button-size: 56px; }
+  jelly-icon-button.s48 { --jelly-icon-button-size: 48px; }
+  jelly-icon-button.s40 { --jelly-icon-button-size: 40px; }
+  /* These two were the last raw values on the page — a literal 20px and 16px
+     that survived the spacing sweep because they are sizes, not spacing. Same
+     component metric as the Button family above, so the two families cannot
+     drift apart. */
+  jelly-icon-button.s56 .mi, jelly-icon-button.s48 .mi { font-size: var(--button-icon-size-20); }
+  jelly-icon-button.s40 .mi { font-size: var(--button-icon-size-16); }
+
+  /* Variants — Primary/700 and Secondary/600 exactly as the approved states.
+     Primary swaps to Secondary; Secondary swaps to Primary; the quiet styles
+     fill with their own accent and flip the label to cream. */
+  .primary   { --fill-rest: var(--primary);   --fill-active: var(--secondary); --label-rest: var(--cream);     --label-active: var(--cream); }
+  .secondary { --fill-rest: var(--secondary); --fill-active: var(--primary);   --label-rest: var(--cream);     --label-active: var(--cream); }
+  .outline   { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream);
+               /* Our own names: --jelly-ring is Jelly's focus ring and is set on
+                  every button, so keying the outline off it striped all five
+                  variants. The stroke is drawn from the silhouette, not by CSS. */
+               --stroke: var(--primary); --stroke-width: 1.5px; }
+  .ghost     { --fill-rest: var(--cream); --fill-active: var(--primary);   --label-rest: var(--primary);   --label-active: var(--cream); }
+  .ghostsec  { --fill-rest: var(--cream); --fill-active: var(--secondary); --label-rest: var(--secondary); --label-active: var(--cream); }
+
+  /* ── Disabled — one neutral treatment, not a faded appearance ────────────
+     A button that is unavailable stops carrying its appearance at all: all five
+     collapse onto the same neutral pair. That is the honest signal, and it is
+     the only treatment that survives on the quiet styles.
+
+     Group opacity was measured and rejected. At the proposed 0.38, against the
+     page ground #FDF9F0, the label falls from 5.55:1 to 1.78:1 (Primary) and
+     1.64:1 (Secondary), and Outline / Ghost / Ghost Secondary drop to 1.03:1
+     against the page — their body is already only 1.07:1 at full strength, so
+     fading it leaves nothing to see. Neutral 200 behind Neutral 700 gives
+     4.57:1 and every value stays a Foundations step.
+
+     Jelly's own `disabled` attribute is deliberately NOT used. Measured on the
+     live component, it forces opacity 0.55, sets the inner button disabled and
+     drops it to tabIndex -1 — a disabled control the keyboard cannot reach is
+     undiscoverable, and its fade would compound with these colours. The state
+     is carried by aria-disabled instead; the control stays focusable and
+     activation is blocked in the capture phase in buttons.js. */
+  jelly-button[aria-disabled="true"],
+  jelly-icon-button[aria-disabled="true"] {
+    --fill-rest:    var(--cream-200);   /* Neutral 200 */
+    --label-rest:   var(--cream-700);   /* Neutral 700 */
+    /* --p never rises, because disabled buttons are excluded from CONTROLS and
+       so are never wired. The active pair is pinned to the same values anyway,
+       so no future change to that wiring can bleed an appearance colour back
+       into a disabled button. */
+    --fill-active:  var(--cream-200);
+    --label-active: var(--cream-700);
+    cursor: not-allowed;
+  }
+  /* Scoped to Outline alone: the other four never set --stroke, and setting it
+     here would hand every disabled button a rim it does not have when enabled. */
+  jelly-button.outline[aria-disabled="true"],
+  jelly-icon-button.outline[aria-disabled="true"] { --stroke: var(--cream-700); }
+
+  /* ── Focus ring ─────────────────────────────────────────────────────────
+     Logged as an accessibility gap in Phase 4 and closed here: the library had
+     no visible focus indicator at all. It cannot be written as
+     `jelly-button:focus-visible` — Jelly delegates focus into its shadow
+     button, and that inner element is the one that matches, never the host. So
+     the ring is driven by a class the focus handler sets, the same test
+     buttons.js already uses for the colour reveal. Disabled buttons keep it:
+     they stay in the tab order by design. The host carries the radius token so
+     the outline follows the pill instead of boxing it. */
+  jelly-button.is-focused,
+  jelly-icon-button.is-focused {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: var(--jelly-button-radius);
+  }
+
+  /* ── Feedback triggers — the one place a button carries a semantic hue ───
+     Everywhere else the five appearances hold and semantic colour stays off
+     brand components. Here the button IS the legend for the tone it fires, so
+     the hue is doing the explaining rather than decorating. Pressed fill is the
+     deep step of the same hue, so the reveal deepens instead of changing family.
+
+     Labels are cream throughout. Measured against the resting fill: info 5.55,
+     success 2.75, warning 1.75, danger 2.83 — only info clears the 4.5 AA
+     threshold for text this size. Kept at Ahmad's request to judge on screen;
+     Primary 950 labels would give 4.90 / 7.72 / 4.77 on the same three fills. */
+  #ex-toast [data-tone] { --label-rest: var(--cream); --label-active: var(--cream); }
+  #ex-toast [data-tone="info"]    { --fill-rest: var(--primary); --fill-active: var(--primary-900); }
+  #ex-toast [data-tone="success"] { --fill-rest: var(--success); --fill-active: var(--success-deep); }
+  #ex-toast [data-tone="warning"] { --fill-rest: var(--warning); --fill-active: var(--warning-deep); }
+  #ex-toast [data-tone="danger"]  { --fill-rest: var(--error);   --fill-active: var(--error-deep); }
+
+  /* ── Live measurement readout ─────────────────────────────────────────── */
+  .measure table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); line-height: var(--text-sm-lh); }
+  .measure th, .measure td { text-align: start; padding: var(--space-100) var(--space-150); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .measure th { font-family: var(--font-bold); color: var(--text); }
+  .measure td { color: var(--faint); }
+  .measure tr:last-child td { border-bottom: none; }
+  .measure .ok   { color: var(--success-text); font-family: var(--font-bold); }
+  /* min-width:0 or the scroll container refuses to shrink below its table and
+     widens the panel instead of scrolling — it was pushing the grid out by 3px
+     on a phone rather than scrolling the 8 columns it is there to scroll. */
+  .measure .scroll { overflow-x: auto; min-width: 0; }
+
+  /* ── Options ──────────────────────────────────────────────────────────── */
+  /* There is deliberately no "hide icons" option. Icon presence is a
+     configuration, authored per button, not a state toggled at runtime. */
+  /* Jelly draws the body on a canvas, so there is no reveal element to outline.
+     Instead the trace mode rings the host so the deformation is easy to watch. */
+  body.trace jelly-button, body.trace jelly-icon-button { outline: 1px dashed var(--secondary); outline-offset: 2px; }
+
+  /* ═══ BREAKPOINTS — the documented grid, reassigned from one source ═════ */
+
+  /* The 820px stacking breakpoint went with the matrix. Specimen rows wrap on
+     their own, so there is nothing left that needs a width to be told about. */
+
+  @media (max-width: 1023px) {          /* s / xs — 6 columns */
+    .main-col {
+      --grid-columns: 6;
+      --grid-gutter: var(--space-150);   /* 12px */
+      --grid-margin: var(--space-200);   /* 16px */
+      /* Steps down with the margin. Left at space-400 it kept 32px between
+         sections while the page margin halved to 16px, so the rhythm sloped:
+         the gutter said small screen and the stack said large one. */
+      gap: var(--space-300);
+    }
+    .stat-card { grid-column: span 3; }  /* 2 across */
+    /* 48 → 40 → 32 down the page title. It used to drop 48 → 32 → 24, which
+       made the title on a phone half the size it is on a desktop and left it
+       reading as a caption rather than as the name of the page. Measured at
+       430px: the widest of the two builds is "Button library" at 223px in
+       294px of space, so even 48px would fit — the old steps were cautious
+       about a constraint that was not there. */
+    .greeting h1 { font-size: var(--display-md); line-height: var(--display-md-lh); }
+  }
+  @media (max-width: 767px) {
+    .panel { padding: var(--space-300); }
+    /* A 40px column gap inside a 278px panel spent a seventh of the width on
+       air and pushed specimens onto extra rows. Steps down with the panel. */
+    .examples { gap: var(--space-250) var(--space-300); }
+    body { padding: var(--space-200); }   /* steps with --grid-margin */
+
+    /* Only the four content configurations get columns. They are a set of
+       four meant to be compared against each other, and a wrapping row packed
+       three onto the first line and stranded the fourth. Two equal columns
+       pair them 2 + 2 so every specimen sits in the same slot.
+
+       Deliberately scoped to this one row: everywhere else the specimen count
+       differs (three sizes, three states, five appearances) and forcing two
+       columns there strands a lone specimen instead of fixing one. Those rows
+       wrap on their own and should keep doing so. */
+    #ex-config { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    /* One group per row. A group is itself a row of buttons, so two groups
+       side by side put four buttons on one line with two captions underneath
+       and no way to tell where the first group ended — the reader has to guess
+       which explanation belongs to which pair. Given the full width, each
+       group sits above its own caption and the pairing is unambiguous. */
+    #ex-group { display: grid; grid-template-columns: minmax(0, 1fr); }
+
+    /* Three then two: the solid appearances on one line, the two ghosts on the
+       next, so the pairing you compare is the pairing you see. Five specimens
+       in three columns fall 3 + 2 on their own.
+
+       The column gap steps down to space-250 here for a measured reason: three
+       96px specimens plus two 24px gaps need 336px and the row is 333px, so at
+       space-300 the third wrapped. 20px gaps leave 97px per column and the
+       buttons keep their own width — the gap gave way, not the buttons. */
+    #ex-appearance {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-250);
+    }
+
+    /* The three sizes belong on one line — they are a progression, and a
+       progression split across two rows stops reading as one. The English
+       labels make these the widest specimens on the page: 118 + 106 + 89 =
+       313px against a row of 333px at 430px, so only space-100 leaves them
+       room. Left as flex rather than forced into a grid: below about 426px
+       the three simply do not fit at any gap, and flex wraps them instead of
+       pushing them off the edge. */
+    #ex-size { column-gap: var(--space-100); }
+  }
+  @media (max-width: 479px) {           /* xxs — 2 columns */
+    .main-col { --grid-columns: 2; }
+    .stat-card { grid-column: span 1; } /* 2 across */
+    body { padding: var(--space-100); }
+    .shell { border-radius: 20px; }
+    .greeting h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
+  }

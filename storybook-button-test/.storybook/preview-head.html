@@ -1,0 +1,29 @@
+<!-- Copied from the <head> of buttons-en.html. Nothing differs: same fonts,
+     same Jelly module, same stylesheet.
+
+     Paths are relative to this document (the preview iframe), never absolute.
+     A leading slash resolves to the server root, which is correct on
+     localhost but wrong under a project path like /minaa-payments/storybook/
+     — it would send the browser to the domain root and 404 every asset.
+     Relative paths are correct in both. -->
+
+<link rel="preload" href="./fonts/29LTIdrisRound-Regular.woff2"   as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonts/29LTIdrisRound-Medium.woff2"    as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonts/29LTIdrisRound-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- Jelly itself. This is the real component library the production page
+     loads — jelly-button and jelly-icon-button are defined by this module,
+     not by anything in this folder. -->
+<link rel="preconnect" href="https://jelly-ui.com" crossorigin>
+<script type="module" src="https://jelly-ui.com/package.js"></script>
+
+<!-- The real stylesheet, unmodified, straight from the project root. -->
+<link rel="stylesheet" href="./buttons.css">
+
+<style>
+  /* Storybook's canvas only. Gives the specimen the page's own paper colour
+     so contrast reads the same as the reference, and stops the hidden
+     scaffolding the adapter needs from taking up any space. */
+  body { background: var(--paper, #FDF9F0); }
+  #minaa-scaffold { display: none !important; }
+</style>
