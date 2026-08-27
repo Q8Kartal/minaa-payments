@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260828d"></script>
+<script src="../gate.js?v=20260828f"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -15,13 +15,16 @@
 <link rel="preload" href="../fonts/29LTIdrisRound-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preconnect" href="https://jelly-ui.com" crossorigin>
 
-<!-- Jelly itself: the real component library, unmodified. -->
-<script type="module" src="https://jelly-ui.com/package.js"></script>
+<!-- SPIKE: Jelly vendored from https://jelly-ui.com/dist/jelly.js (MIT, by
+     bmson.com), with one addition — a `--jelly-slider-knob` token so the knob
+     can differ from the filled track. The physics is untouched. Diff and
+     rationale in vendor/README.md. Revert to the hosted package.js to undo. -->
+<script type="module" src="vendor/jelly.js?v=20260828f"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260828d">
-<link rel="stylesheet" href="showcase.css?v=20260828d">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260828f">
+<link rel="stylesheet" href="showcase.css?v=20260828f">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -375,8 +378,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260828d"></script>
-<script src="micons.js?v=20260828d"></script>
-<script src="showcase.js?v=20260828d" defer></script>
+<script src="minaa-jelly.js?v=20260828f"></script>
+<script src="micons.js?v=20260828f"></script>
+<script src="showcase.js?v=20260828f" defer></script>
 </body>
 </html>

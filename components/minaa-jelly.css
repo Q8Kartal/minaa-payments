@@ -437,6 +437,12 @@ jelly-range {
 
 jelly-slider {
   --jelly-slider-track-height: var(--space-100);
+  /* Added by the fork. Jelly upstream paints the filled track and the knob
+     from one --jelly-accent; this token separates them, with a fallback to
+     the accent so the change is invisible to anyone not setting it. The knob
+     is now drawn by paintBody, the same soft-body renderer as the rest of the
+     control, so it deforms instead of sitting on top as a rigid circle. */
+  --jelly-slider-knob: var(--m-thumb);
   color: var(--m-ink);
 }
 

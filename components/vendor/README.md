@@ -1,0 +1,74 @@
+# Jelly UI — vendored, with a small deliberate diff
+
+`jelly.js` is Jelly UI, MIT-licensed, by [bmson.com](https://bmson.com),
+downloaded verbatim from `https://jelly-ui.com/dist/jelly.js`.
+
+**The physics is untouched.** Not one spring constant, damping figure or paint
+routine has been changed. The diff adds tokens and nothing else.
+
+## Why it is vendored at all
+
+Because four things the Minaã specification asks for turned out to be
+structurally unreachable from outside the library, and each one had to be
+bolted on from the page instead:
+
+| What the specification wants | What Jelly offers | The bolt-on it forced |
+|---|---|---|
+| A stroke on every field | No border concept — only a transparent focus ring | `::part(ring)` repurposed as a permanent edge |
+| A stroke on the OTP digits | No `part` attributes at all | A rule injected into the shadow root |
+| A 56px segmented control | A size scale of 36 / 44 / 52 and no height token | Forced host height plus an injected pill min-height |
+| A Secondary 600 knob on a Primary 700 fill | One `--jelly-accent` painting both | **A rigid overlay knob, which visibly desynced from the deforming blob during a drag** |
+
+The last one is why this exists. The overlay was measurably correct at rest and
+wrong in motion, which is the worst kind of wrong: it passed every static check
+and failed the moment anyone touched it.
+
+## The diff
+
+One change so far, in the slider's paint function:
+
+```js
+// before — one colour paints the filled track AND the knob
+C = this.resolveColor(`var(--jelly-accent, …)`);
+…
+this.paintBody(e, { fill: C, … });
+
+// after — the knob resolves its own token, falling back to the accent
+C          = this.resolveColor(`var(--jelly-accent, …)`),
+MINAA_KNOB = this.resolveColor(`var(--jelly-slider-knob, var(--jelly-accent, …))`);
+…
+this.paintBody(e, { fill: MINAA_KNOB, … });
+```
+
+`paintBody` is Jelly's soft-body renderer, so the knob now **deforms with the
+blob** instead of sitting on top of it as a rigid circle.
+
+The fallback matters: anyone who does not set `--jelly-slider-knob` gets
+exactly the previous behaviour. The change is invisible upstream, which is what
+makes it safe to re-apply and reasonable to offer back to the project.
+
+## Rules for changing this file
+
+1. **Add tokens, change nothing else.** Every edit must have a fallback that
+   preserves stock behaviour. That is what keeps the diff re-appliable when
+   Jelly updates, and keeps it contributable upstream.
+2. **Never touch the simulation.** The spring constants at the top of the file
+   are the entire value of the library. If a change requires editing them, it
+   is the wrong change.
+3. **Mark every edit** with an identifier containing `MINAA` so the whole diff
+   can be found with one search.
+4. **Prefer the fork to a bolt-on.** A token here is better than a shadow-root
+   injection in `minaa-jelly.js`; when the fork can express something, delete
+   the injection.
+
+## Updating
+
+Re-download `dist/jelly.js`, search the old copy for `MINAA` to list the edits,
+and re-apply them. Then re-run the component checks — the colours the page
+expects are recorded in the Minaã Components Figma file, page `Components`.
+
+## Current diff inventory
+
+| Marker | Component | Token added |
+|---|---|---|
+| `MINAA_KNOB` | slider | `--jelly-slider-knob` |
