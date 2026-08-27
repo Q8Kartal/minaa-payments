@@ -1,41 +1,51 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   minaa-jelly.css — the token bridge.
+   minaa-jelly.css — the token bridge, in two modes.
 
-   Jelly ships its own design language. This file replaces it with ours, and
-   it is the only place that does: every component in the library inherits
-   Minaã identity from here rather than being restyled one at a time.
+   Jelly ships its own design language. This file replaces it with ours, and it
+   is the only place that does: every component in the library inherits Minaã
+   identity from here rather than being restyled one at a time.
 
-   WHY A PROVIDER AND NOT :root
-   The API reference is explicit that <jelly-theme> "scopes the complete token
-   set through its shadow-host stylesheet, and canvas-painted components
-   resolve those inherited tokens at draw time". Several Jelly components
-   paint to a canvas rather than to DOM, so a bare :root override is not
-   guaranteed to reach them. Setting the tokens on the provider element is the
-   documented path, and a document rule on <jelly-theme> outranks the :host
-   rule the provider sets on itself. Both are written below: :root so ordinary
-   DOM inherits, jelly-theme so the canvas components resolve ours.
+   ── HOW THE TWO MODES WORK ────────────────────────────────────────────────
+   There is a SEMANTIC LAYER (--m-*) between Minaã's palette and Jelly's
+   tokens. Every --jelly-* assignment below references a --m-* value, never a
+   palette step directly. That means the light/dark switch is authored ONCE —
+   in the four small blocks that define --m-* — instead of being duplicated
+   across every component rule. Adding a component costs one mapping, not two.
 
-   WHAT THIS FILE DOES NOT DO
-   Jelly does not tokenise everything. Some internals are hardcoded with no
-   custom property and no `part` to reach them — `.rail { gap: 10px }` on the
-   toaster is the known case, already recorded in CLAUDE.md. Where that
-   happens the fix is a rule injected into that component's shadow root, and
-   it belongs beside that component, not here. This file only covers what
-   Jelly actually exposes.
+   The four blocks are the three theme states plus their override:
 
-   Every colour below names the Foundations step it comes from, so the next
-   reader can verify a value against the page it came from rather than take it
-   on trust. A colour can be a real Minaã colour and still be the wrong step.
+     1. :root, jelly-theme                     light, the default
+     2. @media (prefers-color-scheme: dark)    the OS is dark and nothing
+        jelly-theme:not([mode="light"])        has forced light — this is what
+                                               mode="auto" resolves to
+     3. jelly-theme[mode="dark"]               forced dark, whatever the OS says
+     4. jelly-theme[mode="light"]              forced light, whatever the OS says
+
+   3 and 4 come after 2 on purpose: equal specificity, so source order decides,
+   and an explicit choice must beat the OS in both directions.
+
+   ── WHY A PROVIDER AND NOT :root ──────────────────────────────────────────
+   <jelly-theme> "scopes the complete token set through its shadow-host
+   stylesheet, and canvas-painted components resolve those inherited tokens at
+   draw time". Several Jelly components paint to a canvas, so a bare :root
+   override is not guaranteed to reach them. Both are written: :root so
+   ordinary DOM inherits, jelly-theme so the canvas components resolve ours.
+
+   ── WHERE THE VALUES CAME FROM ────────────────────────────────────────────
+   Not invented here. Every colour below is read off the Minaã Components
+   file, page `Components` (190:2952), where both modes are drawn as bound
+   specimens. If the two disagree, that page is right and this file is stale.
+
+   ── WHAT THIS FILE DOES NOT DO ────────────────────────────────────────────
+   Jelly does not tokenise everything. Where an internal is hardcoded on an
+   element carrying no `part`, the fix is a rule injected into that shadow
+   root — those live in minaa-jelly.js and are listed there.
    ═════════════════════════════════════════════════════════════════════════ */
 
-/* ── The Minaã tokens ──────────────────────────────────────────────────────
-   Same names as buttons.css on purpose: the two pages speak one vocabulary,
-   so a value learned on one is the same value on the other. */
+/* ── Minaã palette ─────────────────────────────────────────────────────────
+   Named after the Foundations steps they come from, so a value can be checked
+   against the page it came from rather than taken on trust. */
 :root {
-  /* Type — each weight is its own family. Weight is selected by swapping
-     font-family, never by font-weight; registering a face at one weight and
-     asking for another makes the browser fake it, which merges Arabic strokes
-     and fills the counters. */
   --font-regular: "29LT Idris Round Regular", sans-serif;
   --font-medium:  "29LT Idris Round Medium", sans-serif;
   --font-bold:    "29LT Idris Round ExtraBold", sans-serif;
@@ -48,30 +58,23 @@
   --display-sm: 32px; --display-sm-lh: 40px;
   --display-md: 40px; --display-md-lh: 44px;
 
-  /* Colour — the Minaã Colour variables, by Foundations step */
-  --primary:      #0062AD;   /* Primary 700 — Minaã Blue */
-  --primary-900:  #00437B;   /* Primary 900 — pressed fill */
-  --primary-600:  #007FDA;   /* Primary 600 */
-  --primary-300:  #A1CFFF;   /* Primary 300 — control tracks, never text */
-  --primary-100:  #E2F0FF;   /* Primary 100 */
-  --primary-tint: #F2F8FF;   /* Primary 50  */
-  --secondary:    #E8411D;   /* Secondary 600 — Minaã Red */
-  --white:        #FFFFFF;   /* Neutral 0   */
-  --cream-50:     #FDF9F0;   /* Neutral 50  — the paper */
-  --cream:        #FBF0DC;   /* Neutral 100 — Minaã Cream */
-  --cream-200:    #F7E0B6;   /* Neutral 200 — disabled fill, hairlines */
-  --cream-700:    #895A30;   /* Neutral 700 — disabled ink */
+  --primary-300: #A1CFFF;   /* Primary 300  — light-mode fields and tracks */
+  --primary-600: #007FDA;   /* Primary 600  */
+  --primary:     #0062AD;   /* Primary 700  — Minaã Blue */
+  --primary-900: #00437B;   /* Primary 900  — dark-mode page and fields */
+  --primary-950: #00264B;   /* Primary 950  — dark-mode card */
+  --secondary:   #E8411D;   /* Secondary 600 — Minaã Red */
+  --white:       #FFFFFF;   /* Neutral 0    */
+  --cream-50:    #FDF9F0;   /* Neutral 50   — light-mode card */
+  --cream:       #FBF0DC;   /* Neutral 100  — Minaã Cream */
+  --cream-200:   #F7E0B6;   /* Neutral 200  */
+  --cream-700:   #895A30;   /* Neutral 700  */
 
   /* Semantic — success / warning / error. Never brand, never decoration. */
   --success:      #05AA00;   /* Green 600  */
-  --success-text: #158200;   /* Green 700  — the step that stays legible */
+  --success-text: #158200;   /* Green 700  */
   --warning:      #E5B11F;   /* Yellow 400 */
   --error:        #E56E1F;   /* Orange 500 */
-
-  /* One ink for every word: Primary 700 at full strength. Hierarchy comes
-     from size and weight, never from fading the text. */
-  --text:   #0062AD;
-  --border: rgba(0, 98, 173, .14);
 
   /* Spacing — the official 14-step scale. Never write a raw px for padding,
      gap, item spacing or layout spacing; bind to a step. */
@@ -80,17 +83,11 @@
   --space-300: 24px; --space-400: 32px; --space-500: 40px; --space-600: 48px;
   --space-800: 64px; --space-1000: 80px;
 
-  /* Radius — the Foundations Radius group. Unpublished in Figma, so these are
-     raw values matching the house steps rather than imported tokens. */
-  --radius-4:  4px;
-  --radius-8:  8px;
-  --radius-16: 16px;
-  --radius-24: 24px;
+  --radius-4: 4px; --radius-8: 8px; --radius-16: 16px; --radius-24: 24px;
   --radius-full: 9999px;
 
   /* Control metrics — component dimensions, deliberately NOT aliases of the
-     spacing scale even where the numbers coincide. A control height is not a
-     gap: if the spacing scale is revised, these must not move with it. */
+     spacing scale even where the numbers coincide. */
   --control-h-56: 56px;
   --control-h-48: 48px;
   --control-h-40: 40px;
@@ -102,27 +99,222 @@
   --shadow-float: 0 30px 80px -20px rgba(0, 67, 123, .18), 0 10px 30px rgba(22, 22, 22, .06);
 }
 
-:root {
-  font-family: var(--font-regular);
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SEMANTIC LAYER — the only thing that changes between modes.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+:root,
+jelly-theme {
+  --m-page:        var(--cream);        /* Neutral 100 */
+  --m-card:        var(--cream-50);     /* Neutral 50  */
+  --m-field:       var(--primary-300);  /* Primary 300 */
+  --m-stroke:      var(--secondary);    /* Secondary 600 */
+  --m-ink:         var(--primary);      /* Primary 700 — labels and prose */
+  --m-placeholder: var(--primary);      /* Primary 700 — before writing */
+  --m-value:       var(--secondary);    /* Secondary 600 — while and after writing */
+  --m-accent:      var(--primary);      /* Primary 700 — filled tracks, radio ring */
+  --m-on-accent:   var(--cream);        /* Neutral 100 — text and marks on accent */
+  --m-track-off:   var(--primary-300);  /* Primary 300 */
+  --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
+  --m-check-box:   var(--primary-300);  /* Primary 300 */
+  --m-check-mark:  var(--secondary);    /* Secondary 600 */
+  --m-seg-track:   var(--primary-300);  /* Primary 300 */
+  --m-seg-pill:    var(--secondary);    /* Secondary 600 */
+  --m-seg-label:   var(--primary);      /* Primary 700 — unselected */
+
+  /* Labels on the two controls Ahmad coloured first. In dark these are the
+     one place the set is not self-consistent — see the dark block. */
+  --m-toggle-label: var(--primary);     /* Primary 700 */
+  --m-hairline:    var(--cream-200);   /* Neutral 200 */
+}
+
+/* mode="auto" resolves to this when the operating system is dark. Written as
+   :not([mode="light"]) so a subtree that has forced light is not dragged into
+   dark by the OS. */
+@media (prefers-color-scheme: dark) {
+  :root,
+  jelly-theme:not([mode="light"]) {
+    --m-page:        var(--primary-900);
+    --m-card:        var(--primary-950);
+    --m-field:       var(--primary-900);
+    --m-stroke:      var(--secondary);
+    --m-ink:         var(--cream);
+    --m-placeholder: var(--primary-300);
+    --m-value:       var(--cream);
+    --m-accent:      var(--primary);
+    --m-on-accent:   var(--cream);
+    --m-track-off:   var(--cream);
+    --m-thumb:       var(--secondary);
+    --m-check-box:   var(--secondary);
+    --m-check-mark:  var(--cream);
+    --m-seg-track:   var(--secondary);
+    --m-seg-pill:    var(--primary);
+    --m-seg-label:   var(--cream);
+    --m-toggle-label: var(--secondary);
+  --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
+  }
+}
+
+/* Forced dark, whatever the OS says. */
+jelly-theme[mode="dark"] {
+  --m-page:        var(--primary-900);
+  --m-card:        var(--primary-950);
+  --m-field:       var(--primary-900);
+  --m-stroke:      var(--secondary);
+  --m-ink:         var(--cream);
+  --m-placeholder: var(--primary-300);
+  --m-value:       var(--cream);
+  --m-accent:      var(--primary);
+  --m-on-accent:   var(--cream);
+  --m-track-off:   var(--cream);
+  --m-thumb:       var(--secondary);
+  --m-check-box:   var(--secondary);
+  --m-check-mark:  var(--cream);
+  --m-seg-track:   var(--secondary);
+  --m-seg-pill:    var(--primary);
+  --m-seg-label:   var(--cream);
+  --m-toggle-label: var(--secondary);
+  --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
+}
+
+/* Forced light, whatever the OS says. Must come last so it wins back from the
+   media query above. */
+jelly-theme[mode="light"] {
+  --m-page:        var(--cream);
+  --m-card:        var(--cream-50);
+  --m-field:       var(--primary-300);
+  --m-stroke:      var(--secondary);
+  --m-ink:         var(--primary);
+  --m-placeholder: var(--primary);
+  --m-value:       var(--secondary);
+  --m-accent:      var(--primary);
+  --m-on-accent:   var(--cream);
+  --m-track-off:   var(--primary-300);
+  --m-thumb:       var(--secondary);
+  --m-check-box:   var(--primary-300);
+  --m-check-mark:  var(--secondary);
+  --m-seg-track:   var(--primary-300);
+  --m-seg-pill:    var(--secondary);
+  --m-seg-label:   var(--primary);
+  --m-toggle-label: var(--primary);
+  --m-hairline:    var(--cream-200);   /* Neutral 200 */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE BRIDGE — Jelly's eleven global colour tokens.
+   Every one references the semantic layer, so none of this repeats per mode.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+:root,
+jelly-theme {
+  --jelly-color-background-accent:  var(--m-accent);
+  --jelly-color-background-azure:   var(--primary-600);
+  --jelly-color-background-surface: var(--m-card);
+  --jelly-color-background-muted:   var(--m-page);
+  --jelly-color-background-neutral: var(--m-track-off);
+  --jelly-color-background-white:   var(--m-field);
+
+  --jelly-color-border-default: var(--m-stroke);
+  --jelly-color-border-focus:   var(--m-accent);
+
+  /* No black type anywhere in Minaã. Jelly's default foreground is near-black,
+     which is the single most visible thing this bridge corrects. */
+  --jelly-color-foreground-default:   var(--m-value);
+  --jelly-color-foreground-muted:     var(--m-placeholder);
+  --jelly-color-foreground-on-accent: var(--m-on-accent);
+
+  /* Three more foregrounds Jelly ships that the documented list of eleven does
+     not mention. Left alone they stay at Jelly's own values — measured as
+     oklch(0.2609 0.0238 267.11), a near-black — which breaks "no black type"
+     anywhere the library reaches for them. Found by listing every --jelly-*
+     property resolving on a component, not by reading the API page. */
+  --jelly-color-foreground-on-white:    var(--m-value);
+  --jelly-color-foreground-on-neutral:  var(--m-ink);
+  --jelly-color-foreground-on-emphasis: var(--m-on-accent);
+
+  --jelly-font-text:    var(--font-regular);
+  --jelly-font-display: var(--font-bold);
+
+  /* Two more structural surfaces that were still resolving to Jelly's own
+     oklch values. Its decorative hues — rose, mint, amber — are deliberately
+     left alone: they are only reachable through `variant`, which nothing here
+     sets, and repainting a colour called "mint" in Minaã Blue would be a
+     worse lie than leaving it unused. If a variant is ever wanted, it needs a
+     Minaã name and a Foundations decision, not a silent remap. */
+  --jelly-color-background-default:          var(--m-card);
+  --jelly-color-background-neutral-emphasis: var(--m-accent);
+
+  --jelly-radius: var(--radius-8);
+}
+
+/* ── The shared control tokens must sit ON the components ──────────────────
+   --jelly-track and its neighbours are NOT provider-level tokens, even though
+   they read like it. Jelly declares them on each component's own :host, and
+   an explicit declaration beats an inherited one — so setting them on
+   jelly-theme silently loses, exactly as the sizing tokens did.
+
+   Measured: with these on the provider, --jelly-track on jelly-segmented
+   resolved to `color-mix(in srgb, #FBF0DC 88%, #E8411D)`, Jelly's own derived
+   value, and the dark segmented track painted #F9DBC5 — a pale peach that
+   appears nowhere in Minaã. The colour was correct in the token and wrong on
+   the screen, which is the only kind of failure that matters.
+
+   Listed against the whole library so a component added later cannot arrive
+   using Jelly's derivation instead of ours. */
+jelly-accordion, jelly-alert, jelly-badge, jelly-breadcrumbs, jelly-button,
+jelly-card, jelly-checkbox, jelly-chip, jelly-collapsible, jelly-dialog,
+jelly-divider, jelly-drawer, jelly-icon-button, jelly-input, jelly-kbd,
+jelly-label, jelly-menu, jelly-menu-item, jelly-option, jelly-otp,
+jelly-pagination, jelly-popover, jelly-progress, jelly-radio,
+jelly-radio-group, jelly-range, jelly-resizable, jelly-segment,
+jelly-segmented, jelly-select, jelly-skeleton, jelly-slider, jelly-spinner,
+jelly-switch, jelly-tab-panel, jelly-tabs, jelly-textarea, jelly-tooltip {
+  --jelly-accent:   var(--m-accent);
+  --jelly-track:    var(--m-track-off);
+  --jelly-ring:     var(--m-accent);
+  --jelly-on:       var(--m-accent);
+  --jelly-off:      var(--m-track-off);
+  --jelly-label:    var(--m-ink);
+  --jelly-label-on: var(--m-on-accent);
+  --jelly-divider:  var(--m-stroke);
+}
+
+/* --jelly-fill and --jelly-pill are NOT in the list above, because they do not
+   mean the same thing on every component and setting them globally paints the
+   wrong thing somewhere.
+
+   Measured: with --jelly-fill set to the accent for the whole library, the
+   input, textarea and select surfaces all painted #0062AD instead of the
+   Primary 900 the specification asks for — Jelly uses that token as the FIELD
+   SURFACE there, and as the FILLED TRACK on a slider. One name, two jobs.
+
+   So it is assigned by what the component actually uses it for. */
+jelly-input, jelly-textarea, jelly-select, jelly-otp {
+  --jelly-fill: var(--m-field);
+  /* Jelly's field rule is literally `color: var(--jelly-label)`, so on these
+     four components that token is the VALUE ink — the text you have typed —
+     not the label beside the control. Read out of the shadow stylesheet, not
+     inferred from the name, which would have got it backwards. */
+  --jelly-label: var(--m-value);
+}
+
+jelly-slider, jelly-range, jelly-switch, jelly-progress {
+  --jelly-fill: var(--m-accent);
 }
 
 /* ── The brand face, forced onto every Jelly host ──────────────────────────
-   The rule above is NOT enough, and measuring is the only way to find that
-   out. Jelly declares `font-family` explicitly in each component's `:host`
-   block, and an explicit declaration always beats an inherited value — so
-   inheriting from :root loses. Measured on this page before the rule below
-   existed: switch, checkbox, segmented and radio rendered in `ui-rounded`,
-   and input, select and textarea in `system-ui`, while the page around them
-   was Idris Round. Only slider inherited correctly, which is exactly the kind
-   of partial success that makes this bug easy to miss.
+   :root { font-family } is NOT enough. Jelly declares font-family explicitly
+   in each component's :host block, and an explicit declaration always beats
+   an inherited value. Measured before this rule existed: switch, checkbox,
+   segmented and radio rendered in ui-rounded, and input, select and textarea
+   in system-ui, while the page around them was Idris. Only slider inherited
+   correctly, which is what made it easy to miss.
 
-   Targeting the host element from the document fixes it: outer-document rules
-   outrank a shadow root's own `:host` rules whatever their specificity. The
-   text Jelly draws inside then inherits from the host as normal.
+   Targeting the host from the document fixes it: outer-document rules outrank
+   a shadow root's own :host rules whatever their specificity. */
+:root { font-family: var(--font-regular); }
+html { font-synthesis: none; }
 
-   The whole library is listed, not just the components used today, so a
-   component added later cannot arrive wearing the wrong face. This is the
-   same defect CLAUDE.md records for toasts. */
 jelly-theme, jelly-accordion, jelly-alert, jelly-badge, jelly-breadcrumbs,
 jelly-button, jelly-card, jelly-checkbox, jelly-chip, jelly-collapsible,
 jelly-dialog, jelly-divider, jelly-drawer, jelly-icon-button, jelly-input,
@@ -135,82 +327,27 @@ jelly-tooltip {
   font-family: var(--font-regular);
 }
 
-html { font-synthesis: none; }
-
 /* ═══════════════════════════════════════════════════════════════════════════
-   THE BRIDGE — Jelly's eleven global colour tokens, plus radius.
+   PER-COMPONENT TOKENS
 
-   These eleven carry the entire identity. Everything below them is sizing.
+   These sit ON THE COMPONENTS, not on :root or jelly-theme, and getting that
+   wrong once made the whole sizing layer inert without a single visible error.
+   Jelly declares each component's tokens on THAT COMPONENT'S :host with its
+   own computed values, and an explicit declaration beats an inherited one.
+   Measured while they were on :root: --jelly-select-font-size resolved to
+   15.5px rather than the 18px asked for, segmented to 14.5px, the radio group
+   legend to 13.5px and the OTP digits to 22px. Nine painted nodes were off the
+   Minaã type scale and nothing warned.
+
+   Colour here still comes from the semantic layer, so none of it repeats
+   per mode.
    ═════════════════════════════════════════════════════════════════════════ */
-
-:root,
-jelly-theme {
-  /* Backgrounds */
-  --jelly-color-background-accent:  var(--primary);      /* Primary 700 — the brand action colour */
-  --jelly-color-background-azure:   var(--primary-600);  /* Primary 600 — Jelly's second accent, kept in family */
-  --jelly-color-background-surface: var(--cream-50);     /* Neutral 50  — our paper */
-  --jelly-color-background-muted:   var(--cream);        /* Neutral 100 — Minaã Cream */
-  --jelly-color-background-neutral: var(--cream-200);    /* Neutral 200 */
-  --jelly-color-background-white:   var(--white);        /* Neutral 0   */
-
-  /* Borders */
-  --jelly-color-border-default: var(--cream-200);        /* Neutral 200 — the hairline */
-  --jelly-color-border-focus:   var(--primary);          /* Primary 700 — matches the 3px focus ring */
-
-  /* Foreground. No black type anywhere in Minaã: every word is Primary 700,
-     at 100% / 72% / 50%. Jelly's default foreground is near-black, which is
-     the single most visible thing this bridge corrects. */
-  --jelly-color-foreground-default:   var(--primary);              /* Primary 700 */
-  --jelly-color-foreground-muted:     rgba(0, 98, 173, .72);       /* Primary 700 @ 72% */
-  --jelly-color-foreground-on-accent: var(--cream);                /* Neutral 100 — cream on brand fills */
-
-  /* Jelly's shared control tokens */
-  --jelly-accent: var(--primary);
-  --jelly-fill:   var(--primary);
-  --jelly-track:  var(--cream-200);      /* Neutral 200 — an unfilled track */
-  --jelly-pill:   var(--white);
-  --jelly-ring:   var(--primary);
-  --jelly-on:     var(--primary);
-  --jelly-off:    var(--cream-200);
-  --jelly-label:    var(--primary);
-  --jelly-label-on: var(--cream);
-  --jelly-divider:  var(--cream-200);
-
-  --jelly-radius: var(--radius-8);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   SIZING — Jelly's per-component tokens bound to our scale.
-
-   This is where the Buttons page had to inject rules into shadow roots to fix
-   off-scale internals. Most of that is unnecessary here: Jelly exposes the
-   numbers as tokens, so the spacing scale can simply be assigned.
-   ═════════════════════════════════════════════════════════════════════════ */
-
-/* ── WHY THESE ARE ON THE COMPONENTS AND NOT ON :root ──────────────────────
-   The colour block above works from an ancestor because Jelly declares the
-   global colour tokens on the <jelly-theme> PROVIDER, and a document rule on
-   that element outranks the provider's own :host rule.
-
-   The per-component tokens are different, and getting this wrong made the
-   whole sizing layer inert without a single visible error. Jelly declares
-   each component's own tokens on THAT COMPONENT'S :host — with its own
-   computed values — and an explicit declaration always beats an inherited
-   one. Setting them on :root or on jelly-theme means they inherit down and
-   lose. Measured while they were on :root: --jelly-select-font-size resolved
-   to 15.5px on the select, not the 18px this file asked for; segmented came
-   out at 14.5px, the radio group legend at 13.5px and the OTP digits at 22px.
-   Nine painted nodes were off the Minaã type scale and nothing warned.
-
-   This is the same cascade rule that broke font-family earlier in this file.
-   Declaring a Jelly token anywhere other than on the component that consumes
-   it is the mistake to watch for. */
 
 jelly-button {
   --jelly-button-height:         var(--control-h-48);
-  --jelly-button-padding-inline: var(--space-250);   /* 20 */
-  --jelly-button-gap:            var(--space-100);   /* 8  */
-  --jelly-button-font-size:      var(--text-lg);     /* 18 */
+  --jelly-button-padding-inline: var(--space-250);
+  --jelly-button-gap:            var(--space-100);
+  --jelly-button-font-size:      var(--text-lg);
   --jelly-button-radius:         var(--radius-full);
 }
 
@@ -221,103 +358,131 @@ jelly-icon-button {
   --jelly-icon-button-font-size: var(--text-lg);
 }
 
+/* The checkbox box is NOT the accent in light mode — it is Primary 300 with a
+   Secondary 600 mark, and it flips to a Secondary 600 box with a Neutral 100
+   mark in dark. Overriding the global accent locally is how a component
+   departs from it without disturbing anything else. */
 jelly-checkbox {
+  /* The checked box is painted from --jelly-on. Found by listing every
+     --jelly-* property on the element that resolved to Primary 700 and
+     cross-checking against the token names Jelly's own shadow stylesheet
+     references — guessing at --jelly-accent and --jelly-fill first did
+     nothing, because neither is what this component reads.
+
+     A switch uses --jelly-on for its track and wants the accent there, so this
+     is a checkbox-only override, not a change to the shared value. */
+  --jelly-on:                      var(--m-check-box);
+  --jelly-accent:                  var(--m-check-box);
+  --jelly-color-background-accent: var(--m-check-box);
+  --jelly-fill:                    var(--m-check-box);
+  --jelly-checkbox-mark:         var(--m-check-mark);
   --jelly-checkbox-size:         var(--control-icon-20);
-  --jelly-checkbox-gap:          var(--space-100);   /* 8  */
+  --jelly-checkbox-gap:          var(--space-100);
   --jelly-checkbox-radius:       var(--radius-4);
-  --jelly-checkbox-font-size:    var(--text-md);     /* 16 */
+  --jelly-checkbox-font-size:    var(--text-md);
   --jelly-checkbox-stroke-width: var(--control-stroke);
-  --jelly-checkbox-mark:         var(--cream);       /* Neutral 100 on the brand fill */
+  color: var(--m-toggle-label);
 }
 
 jelly-input {
   --jelly-input-radius:         var(--radius-full);
-  --jelly-input-padding-inline: var(--space-250);    /* 20 */
-  --jelly-input-font-size:      var(--text-lg);      /* 18 */
+  --jelly-input-padding-inline: var(--space-250);
+  --jelly-input-font-size:      var(--text-lg);
 }
 
 jelly-label {
-  --jelly-label-font-size: var(--text-md);           /* 16 */
-  --jelly-label-gap:       var(--space-100);         /* 8  */
+  --jelly-label-font-size: var(--text-md);
+  --jelly-label-gap:       var(--space-100);
+  color: var(--m-ink);
 }
 
 jelly-otp {
-  --jelly-otp-width:     var(--space-600);           /* 48 */
+  --jelly-otp-width:     var(--space-600);
   --jelly-otp-height:    var(--control-h-56);
-  --jelly-otp-gap:       var(--space-100);           /* 8  */
+  --jelly-otp-gap:       var(--space-100);
   --jelly-otp-radius:    var(--radius-16);
-  --jelly-otp-font-size: var(--text-xl);             /* 20 */
-  --jelly-otp-accent:    var(--primary);
+  --jelly-otp-font-size: var(--text-xl);
+  --jelly-otp-accent:    var(--m-stroke);
 }
 
 jelly-radio {
   --jelly-radio-size:      var(--control-icon-20);
-  --jelly-radio-gap:       var(--space-100);         /* 8  */
-  --jelly-radio-font-size: var(--text-md);           /* 16 */
-  --jelly-radio-dot-size:  var(--space-100);         /* 8  */
-  --jelly-radio-dot-color: var(--cream);             /* Neutral 100 on the brand fill */
+  --jelly-radio-gap:       var(--space-100);
+  --jelly-radio-font-size: var(--text-md);
+  --jelly-radio-dot-size:  var(--space-100);
+  --jelly-radio-dot-color: var(--m-thumb);
+  color: var(--m-ink);
 }
 
 jelly-radio-group {
-  --jelly-radio-group-row-gap:      var(--space-150);   /* 12 */
-  --jelly-radio-group-column-gap:   var(--space-300);   /* 24 */
-  --jelly-radio-group-legend-gap:   var(--space-150);   /* 12 */
-  --jelly-radio-group-legend-color: var(--primary);
-  --jelly-radio-group-font-size:    var(--text-md);     /* 16 */
+  --jelly-radio-group-row-gap:      var(--space-150);
+  --jelly-radio-group-column-gap:   var(--space-300);
+  --jelly-radio-group-legend-gap:   var(--space-150);
+  --jelly-radio-group-legend-color: var(--m-ink);
+  --jelly-radio-group-font-size:    var(--text-md);
 }
 
 /* One track height across both, so a dual-thumb range and a single-value
    slider read as the same control family rather than two similar ones. */
 jelly-range {
-  --jelly-range-track-height: var(--space-100);      /* 8  */
-  --jelly-range-thumb-size:   var(--space-300);      /* 24 */
+  --jelly-range-track-height: var(--space-100);
+  --jelly-range-thumb-size:   var(--space-300);
+  color: var(--m-ink);
 }
 
 jelly-slider {
-  --jelly-slider-track-height: var(--space-100);     /* 8  */
+  --jelly-slider-track-height: var(--space-100);
+  color: var(--m-ink);
 }
 
+/* Segmented is the one component whose two modes swap which colour carries
+   selection: a Secondary 600 pill on a Primary 300 track in light, a Primary
+   700 pill on a Secondary 600 track in dark. */
 jelly-segmented {
-  --jelly-segmented-padding:        var(--space-050); /* 4  */
-  --jelly-segmented-padding-inline: var(--space-200); /* 16 */
-  --jelly-segmented-gap:            var(--space-050); /* 4  */
-  --jelly-segmented-font-size:      var(--text-md);   /* 16 */
-  --jelly-segmented-min-width:      var(--space-1000);/* 80 */
+  /* The track is painted from --jelly-track, not from a surface token — that
+     was measured, not assumed. --jelly-pill carries the sliding selection. */
+  --jelly-track:                    var(--m-seg-track);
+  --jelly-pill:                     var(--m-seg-pill);
+  --jelly-color-background-surface: var(--m-seg-track);
+  --jelly-segmented-padding:        var(--space-050);
+  --jelly-segmented-padding-inline: var(--space-200);
+  --jelly-segmented-gap:            var(--space-050);
+  --jelly-segmented-font-size:      var(--text-md);
+  --jelly-segmented-min-width:      var(--space-1000);
+  color: var(--m-seg-label);
 }
 
 jelly-select {
   --jelly-select-radius:             var(--radius-full);
-  --jelly-select-padding-inline:     var(--space-250);/* 20 */
-  --jelly-select-gap:                var(--space-100);/* 8  */
-  --jelly-select-font-size:          var(--text-lg);  /* 18 */
+  --jelly-select-padding-inline:     var(--space-250);
+  --jelly-select-gap:                var(--space-100);
+  --jelly-select-font-size:          var(--text-lg);
   --jelly-select-chevron-size:       var(--control-icon-20);
-  --jelly-select-row-height:         var(--space-500);/* 40 */
-  --jelly-select-row-padding-inline: var(--space-200);/* 16 */
+  --jelly-select-row-height:         var(--space-500);
+  --jelly-select-row-padding-inline: var(--space-200);
   --jelly-select-row-radius:         var(--radius-8);
 }
 
 jelly-switch {
-  --jelly-switch-width:     var(--space-600);         /* 48 */
-  --jelly-switch-height:    var(--space-300);         /* 24 */
-  --jelly-switch-gap:       var(--space-100);         /* 8  */
-  --jelly-switch-font-size: var(--text-md);           /* 16 */
-  --jelly-switch-thumb-on:  var(--cream);             /* Neutral 100 */
-  --jelly-switch-thumb-off: var(--white);             /* Neutral 0   */
+  --jelly-switch-width:     var(--space-600);
+  --jelly-switch-height:    var(--space-300);
+  --jelly-switch-gap:       var(--space-100);
+  --jelly-switch-font-size: var(--text-md);
+  /* Both thumbs are Secondary 600 — the thumb does not change with state, the
+     track does. */
+  --jelly-switch-thumb-on:  var(--m-thumb);
+  --jelly-switch-thumb-off: var(--m-thumb);
+  color: var(--m-toggle-label);
 }
 
 jelly-textarea {
   --jelly-textarea-radius:         var(--radius-24);
-  --jelly-textarea-padding-inline: var(--space-250);  /* 20 */
-  --jelly-textarea-padding-block:  var(--space-200);  /* 16 */
-  --jelly-textarea-font-size:      var(--text-lg);    /* 18 */
+  --jelly-textarea-padding-inline: var(--space-250);
+  --jelly-textarea-padding-block:  var(--space-200);
+  --jelly-textarea-font-size:      var(--text-lg);
   /* min-height and max-height are deliberately NOT set. Overriding them pinned
-     the field to the max whether it had content or not — both an empty and a
-     filled textarea measured 452x240, with the inner element carrying an
-     explicit height:240px. Jelly grows the field from its own measurement of
-     the content, and feeding it our numbers fought that logic rather than
-     configuring it. Its defaults are left to do the work; if a specific
-     minimum is ever needed, use the `rows` attribute, which is the input Jelly
-     actually measures from. */
+     the field to the maximum whether it had content or not — empty and filled
+     both measured 452x240. Jelly grows the field from its own measurement. */
 }
 
 /* Overlay surfaces. Declared on the components that own a panel as well as on
@@ -326,73 +491,50 @@ jelly-textarea {
 jelly-menu,
 jelly-select {
   --jelly-menu-radius:              var(--radius-16);
-  --jelly-menu-padding:             var(--space-100); /* 8  */
-  --jelly-menu-item-height:         var(--space-500); /* 40 */
-  --jelly-menu-item-padding-inline: var(--space-200); /* 16 */
+  --jelly-menu-padding:             var(--space-100);
+  --jelly-menu-item-height:         var(--space-500);
+  --jelly-menu-item-padding-inline: var(--space-200);
   --jelly-menu-item-radius:         var(--radius-8);
-  --jelly-menu-font-size:           var(--text-md);   /* 16 */
+  --jelly-menu-font-size:           var(--text-md);
+}
+
+/* ── Weight carries writing state ──────────────────────────────────────────
+   From the specification: BEFORE writing is Regular, WHILE AND AFTER writing
+   is Medium. Minaã registers each weight as its own family with synthesis off,
+   so this is a family swap, not a font-weight — asking for 500 would silently
+   resolve to Regular and the distinction would vanish.
+
+   ::placeholder is the only reliable hook for "empty", since the value itself
+   carries no state to select on. */
+jelly-input::part(input),
+jelly-textarea::part(textarea) {
+  font-family: var(--font-medium);
+}
+
+jelly-input::part(input)::placeholder,
+jelly-textarea::part(textarea)::placeholder {
+  font-family: var(--font-regular);
+  color: var(--m-placeholder);
+  opacity: 1;
 }
 
 /* ── Focus — deliberately NOT drawn here ────────────────────────────────────
-   An earlier version of this file put a 3px Primary 700 outline at a 3px
-   offset on :focus-within for input, textarea, select and otp, to match the
-   indicator the Buttons page specifies. It was wrong three ways at once, and
-   all three were visible on screen:
+   An earlier version put a 3px outline on :focus-within for the four field
+   components. It was wrong three ways: one radius for every control, so a
+   452x96 textarea got a stadium drawn around a rectangle; a second ring, since
+   Jelly already draws its own and the bridge has already tinted it; and the
+   wrong element, since :focus-within on OTP matches the whole group while
+   Jelly correctly rings only the focused digit.
 
-     · One radius for every control. The rule used --jelly-input-radius, which
-       is 9999px, so a 452x96 textarea got a STADIUM drawn around a rectangle
-       and the ring bulged far past the field on both sides.
-     · A second ring. Jelly already draws its own focus indicator, and the
-       bridge above has already tinted it — the focused OTP digit measures
-       `outline: color(srgb 0 0.384314 0.678431 / 0.5) solid 4px`, which is
-       Minaã Blue. Adding ours produced two concentric rings on the select.
-     · The wrong element. On OTP, :focus-within matches the whole group, so a
-       capsule was drawn around all six digits while Jelly correctly ringed
-       only the focused one.
-
-   The fix is to draw nothing. Jelly's own indicator is on the right element,
-   at the right radius, in the right colour, because the token bridge feeds it
-   --jelly-color-border-focus and --jelly-ring.
-
-   KNOWN DIFFERENCE, recorded rather than papered over: Jelly's ring is 4px at
-   50% alpha, where the Buttons page specifies 3px solid at a 3px offset. The
-   two libraries do not match on this yet. Reconciling them is a design
-   decision — either Jelly's ring is overridden for every component, or the
-   Buttons specification is widened to accept it — and it should not be made
-   by quietly stacking a second outline on top, which is exactly what produced
-   the bugs above. */
-
-/* ── Weight, which does not survive the crossing ───────────────────────────
-   Minaã registers EACH WEIGHT AS ITS OWN FAMILY — Regular, Medium and
-   ExtraBold are three families, not three weights of one — and every
-   @font-face claims font-weight: 100 900 so the browser never synthesises a
-   bolder face. That is deliberate: synthesised bold merges Arabic strokes and
-   fills the counters.
-
-   The consequence here is that Jelly's emphasis SILENTLY DISAPPEARS. It asks
-   for numeric weights — measured on this page: 640 on the OTP digits, 650 on
-   the radio group legend, 800 on the label's required marker — and every one
-   of them resolves to whichever family is set, unchanged. Nothing looks
-   broken; the hierarchy just flattens.
-
-   So each place Jelly means "heavier" is mapped to the family that IS heavier,
-   and the numeric weight is reset to normal so nothing is left asking for a
-   face that cannot arrive. Only elements Jelly exposes as parts can be reached
-   from here; the rest are in minaa-jelly.js and listed there. */
-jelly-radio-group::part(legend) {
-  font-family: var(--font-medium);
-  font-weight: normal;
-}
-
-jelly-label::part(label) {
-  font-family: var(--font-medium);
-  font-weight: normal;
-}
+   KNOWN DIFFERENCE: Jelly's ring is 4px at 50% alpha where the Buttons page
+   specifies 3px solid at a 3px offset. The two libraries do not agree yet, and
+   reconciling them is a design decision — not something to settle by stacking
+   a second outline on top. */
 
 /* iOS Safari paints autofilled fields yellow, which overrides the surface
    colour and is the one place the bridge visibly loses. */
 jelly-input::part(input):-webkit-autofill,
 jelly-textarea::part(textarea):-webkit-autofill {
-  -webkit-text-fill-color: var(--primary);
-  -webkit-box-shadow: 0 0 0 1000px var(--white) inset;
+  -webkit-text-fill-color: var(--m-value);
+  -webkit-box-shadow: 0 0 0 1000px var(--m-field) inset;
 }

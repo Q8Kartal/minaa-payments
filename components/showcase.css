@@ -38,8 +38,10 @@
 
 body {
   margin: 0;
-  background: var(--cream-50);           /* Neutral 50 — the paper */
-  color: var(--text);                    /* Primary 700 */
+  /* The chrome reads the same semantic layer the components do, so the page
+     and the controls on it can never disagree about which mode they are in. */
+  background: var(--m-page);
+  color: var(--m-ink);
   font-family: var(--font-regular);
   font-size: var(--text-md);
   line-height: var(--text-md-lh);
@@ -95,7 +97,7 @@ body {
 
 .facts li {
   padding: var(--space-075) var(--space-200);   /* 6 / 16 */
-  background: var(--cream);              /* Neutral 100 */
+  background: var(--m-card);
   border-radius: var(--radius-full);
   font-family: var(--font-medium);
   font-size: var(--text-sm);
@@ -119,7 +121,7 @@ body {
   column-gap: var(--space-800);          /* 64 */
   align-items: start;
   padding-block-start: var(--space-800); /* 64 */
-  border-block-start: 1px solid var(--cream-200);   /* Neutral 200 hairline */
+  border-block-start: 1px solid var(--m-hairline);
 }
 
 .entry-text { grid-column: 1; }
@@ -168,7 +170,7 @@ body {
   padding: 0 var(--space-050);           /* 4 */
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--text-md);             /* 16, against 18px prose */
-  background: var(--cream);              /* Neutral 100 */
+  background: var(--m-page);
   border-radius: var(--radius-4);
 }
 
@@ -181,7 +183,7 @@ body {
   gap: var(--space-500);                 /* 40 */
   min-height: 260px;
   padding: var(--space-600);             /* 48 */
-  background: var(--white);              /* Neutral 0 */
+  background: var(--m-card);
   border-radius: var(--radius-24);
   box-shadow: var(--shadow-card);
 
@@ -271,7 +273,7 @@ body {
   padding: 0;
   border: 2px solid transparent;
   border-radius: var(--radius-full);
-  box-shadow: 0 0 0 1px var(--cream-200);
+  box-shadow: 0 0 0 1px var(--m-hairline);
   cursor: pointer;
 }
 
@@ -281,20 +283,20 @@ body {
 .sw-primary   { background: var(--primary); }    /* Primary 700   */
 .sw-secondary { background: var(--secondary); }  /* Secondary 600 */
 
-.sw[aria-pressed="true"] { border-color: var(--white); box-shadow: 0 0 0 2px var(--primary); }
-.sw:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.sw[aria-pressed="true"] { border-color: var(--m-card); box-shadow: 0 0 0 2px var(--m-accent); }
+.sw:focus-visible { outline: 3px solid var(--m-accent); outline-offset: 3px; }
 
 .preview {
   display: grid;
   gap: var(--space-300);                 /* 24 */
   padding: var(--space-400);             /* 32 */
-  background: var(--jelly-color-background-surface, var(--cream-50));
-  border: 1px solid var(--jelly-color-border-default, var(--cream-200));
+  background: var(--m-card);
+  border: 1px solid var(--m-stroke);
   border-radius: var(--radius-16);
   /* Reads the bridged tokens rather than ours directly, so when the provider
      above is re-tinted or switched to dark this surface follows it. That is
      the point of the demo: the whole subtree moves, not just the controls. */
-  color: var(--jelly-color-foreground-default, var(--text));
+  color: var(--m-ink);
 }
 
 .preview-title {
@@ -308,7 +310,7 @@ body {
   margin: 0;
   font-size: var(--text-md);
   line-height: var(--text-md-lh);
-  color: var(--jelly-color-foreground-muted, var(--text));
+  color: var(--m-placeholder);
 }
 
 .preview-row {
@@ -329,7 +331,7 @@ body {
 .code {
   position: relative;
   margin-block-start: var(--space-300);  /* 24 */
-  background: var(--cream);              /* Neutral 100 */
+  background: var(--m-page);
   border-radius: var(--radius-16);
   overflow: hidden;
 }
@@ -344,7 +346,7 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--text-sm);
   line-height: var(--text-md-lh);
-  color: var(--primary);
+  color: var(--m-ink);
   /* Code is a technical run: it reads left-to-right whatever the page does. */
   direction: ltr;
   text-align: start;
@@ -366,16 +368,16 @@ body {
   padding: var(--space-075) var(--space-200);
   font-family: var(--font-medium);
   font-size: var(--text-sm);
-  color: var(--primary);
-  background: var(--white);
-  border: 1px solid var(--cream-200);
+  color: var(--m-ink);
+  background: var(--m-card);
+  border: 1px solid var(--m-hairline);
   border-radius: var(--radius-full);
   cursor: pointer;
 }
 
-.copy:hover { background: var(--primary-tint); }        /* Primary 50 */
-.copy:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
-.copy[data-done="1"] { background: var(--primary); color: var(--cream); border-color: var(--primary); }
+.copy:hover { background: var(--m-page); }
+.copy:focus-visible { outline: 3px solid var(--m-accent); outline-offset: 3px; }
+.copy[data-done="1"] { background: var(--m-accent); color: var(--m-on-accent); border-color: var(--m-accent); }
 
 /* ── Contents rail ───────────────────────────────────────────────────────── */
 
@@ -388,7 +390,7 @@ body {
   gap: var(--space-050);                 /* 4 */
   margin-block-end: var(--space-800);
   padding-block: var(--space-150);
-  background: color-mix(in srgb, var(--cream-50) 92%, transparent);
+  background: color-mix(in srgb, var(--m-page) 92%, transparent);
   backdrop-filter: blur(8px);
 }
 
@@ -397,24 +399,24 @@ body {
   border-radius: var(--radius-full);
   font-family: var(--font-medium);
   font-size: var(--text-sm);
-  color: var(--primary);
+  color: var(--m-ink);
   text-decoration: none;
 }
 
-.toc a:hover { background: var(--cream); }
-.toc a:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.toc a:hover { background: var(--m-card); }
+.toc a:focus-visible { outline: 3px solid var(--m-accent); outline-offset: 2px; }
 
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 
 .foot {
   margin-block-start: var(--space-1000);
   padding-block-start: var(--space-400);
-  border-block-start: 1px solid var(--cream-200);
+  border-block-start: 1px solid var(--m-hairline);
   font-size: var(--text-sm);
   line-height: var(--text-sm-lh);
 }
 
-.foot a { color: var(--primary); }
+.foot a { color: var(--m-ink); }
 
 /* ── Icons ───────────────────────────────────────────────────────────────── */
 

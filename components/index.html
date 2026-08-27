@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260827g"></script>
+<script src="../gate.js?v=20260828a"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -20,23 +20,21 @@
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260827g">
-<link rel="stylesheet" href="showcase.css?v=20260827g">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260828a">
+<link rel="stylesheet" href="showcase.css?v=20260828a">
 </head>
 
-<!-- mode="light" deliberately, not "auto".
+<!-- mode="auto" — it follows the operating system and flips live when the
+     OS setting changes, on Windows, iOS and Android alike.
 
-     Minaã Foundations has ONE mode. The Primitives collection is 163
-     variables under a single "Values" mode — there is no dark ramp. Jelly
-     ships dark mode and mode="auto" would follow the visitor's OS, at which
-     point Jelly paints its OWN dark tokens and the identity this page exists
-     to demonstrate quietly breaks.
-
-     Forcing light is not a preference, it is the honest consequence of a
-     palette that does not have a dark half yet. Building one is a Foundations
-     decision and does not belong in a component showcase. -->
+     This was pinned to "light" until now for an honest reason: Minaã had no
+     dark ramp, so auto would have resolved to Jelly's own dark tokens and
+     the identity would have quietly broken. That is fixed. Both modes are
+     now authored in the Minaã Components file, page `Components`, and the
+     dark half needs no new Foundations variables — it is built from the deep
+     end of the existing Primary ramp, 900 and 950, with Neutral 100 as ink. -->
 <body>
-<jelly-theme mode="light">
+<jelly-theme mode="auto">
 <div class="wrap">
 
   <header class="masthead">
@@ -65,7 +63,8 @@
     <p class="entry-note">The provider that makes every other entry on this page Minaã.
        It scopes the complete token set to its subtree, and canvas-painted components
        resolve those tokens at draw time — which is why the bridge is applied here rather
-       than on <code>:root</code> alone. Held at <b>light</b>: Minaã has no dark ramp yet.</p>
+       than on <code>:root</code> alone. The page runs at <b>auto</b>, so it follows your
+       operating system and flips live when you change it.</p>
     </div>
     <div class="demo" data-demo>
       <!-- data-controls marks page furniture: these drive the demo but are not
@@ -112,9 +111,10 @@
         </div>
       </jelly-theme>
 
-      <p class="demo-note" data-controls>Switching to <b>dark</b> paints Jelly's own dark
-         tokens, not ours — Minaã has no dark ramp yet, which is exactly what that setting
-         makes visible.</p>
+      <p class="demo-note" data-controls>All three settings now paint Minaã. <b>dark</b> is the
+         deep end of the Primary ramp — 900 for the field, 950 for the surface — with cream as
+         the ink; <b>auto</b> resolves to whichever your operating system is using. This preview
+         is scoped, so changing it here leaves the rest of the page alone.</p>
     </div>
   </section>
 
@@ -375,8 +375,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260827g"></script>
-<script src="micons.js?v=20260827g"></script>
-<script src="showcase.js?v=20260827g" defer></script>
+<script src="minaa-jelly.js?v=20260828a"></script>
+<script src="micons.js?v=20260828a"></script>
+<script src="showcase.js?v=20260828a" defer></script>
 </body>
 </html>
