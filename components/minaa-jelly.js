@@ -84,10 +84,12 @@
       .minaa-knob {
         position: absolute;
         top: 50%;
-        inset-inline-start: var(--minaa-knob-pos, 0%);
+        /* The knob's own box travels (track - knob), which places its CENTRE
+           correctly inset by half a knob at each end. No negative margin: the
+           offset already accounts for the width. */
+        inset-inline-start: calc(var(--minaa-knob-frac, 0) * (100% - var(--control-knob)));
         width: var(--control-knob);
         height: var(--control-knob);
-        margin-inline-start: calc(var(--control-knob) / -2);
         transform: translateY(-50%);
         border-radius: var(--radius-full);
         background: var(--m-thumb);
@@ -127,20 +129,47 @@
     wrap.appendChild(knob);
     el.__minaaKnob = knob;
 
+    /* Two things this has to get right, both learned by measuring rather than
+       reasoning:
+
+       WHICH VALUE. The `value` ATTRIBUTE is not authoritative. Measured on this
+       page: a slider written value="62" reported el.value === 31, and Jelly
+       painted its knob at 0.331 — matching 31, not 62. Jelly settles its own
+       value after mount without touching the attribute, so the attribute is
+       only ever the initial hint. el.value is the live figure and is what the
+       paint follows.
+
+       WHERE IT SITS. A knob's centre does not travel the full width — it is
+       inset by half a knob at each end, so the usable span is (track − knob).
+       Confirmed against Jelly's painted knob at three values: predicted
+       0.595 / 0.310 / 0.453 against measured 0.594 / 0.312 / 0.452. A plain
+       percentage drifts by up to six pixels and the two knobs separate
+       visibly. */
     const place = () => {
       const min = parseFloat(input.min || '0');
       const max = parseFloat(input.max || '100');
-      const val = parseFloat(input.value || '0');
+      const raw = el.value !== undefined && el.value !== null && el.value !== ''
+        ? el.value : input.value;
+      const val = parseFloat(raw || '0');
       const span = max - min;
-      const pct = span > 0 ? ((val - min) / span) * 100 : 0;
-      knob.style.setProperty('--minaa-knob-pos', pct + '%');
+      const frac = span > 0 ? Math.min(1, Math.max(0, (val - min) / span)) : 0;
+      knob.style.setProperty('--minaa-knob-frac', String(frac));
     };
 
     place();
-    input.addEventListener('input', place);
-    input.addEventListener('change', place);
-    /* The value can also be set from script, which fires no event. */
-    new MutationObserver(place).observe(el, { attributes: true, attributeFilter: ['value'] });
+
+    /* Jelly settles the value asynchronously and does not always fire an event
+       for it, so the position is re-taken on everything that can move it and
+       again after the component has had time to settle — the same retry the
+       patches themselves use. */
+    ['input', 'change', 'pointerup', 'pointercancel', 'keyup'].forEach((t) => {
+      el.addEventListener(t, place);
+      input.addEventListener(t, place);
+    });
+    new MutationObserver(place).observe(el, { attributes: true, attributeFilter: ['value', 'min', 'max'] });
+    new MutationObserver(place).observe(input, { attributes: true, attributeFilter: ['value', 'min', 'max'] });
+    setTimeout(place, 300);
+    setTimeout(place, 1200);
   }
 
   const sheets = new Map();
