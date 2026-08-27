@@ -135,6 +135,13 @@ jelly-theme {
      one place the set is not self-consistent — see the dark block. */
   --m-toggle-label: var(--primary);     /* Primary 700 */
   --m-hairline:    var(--cream-200);   /* Neutral 200 */
+  /* Disabled. Dark is specified in the Figma file (box Primary 900, mark
+     Primary 950, label Primary 900). Light is NOT specified there, so it
+     reuses the disabled pair the Buttons page already documents —
+     Neutral 200 fill with Neutral 700 ink — rather than inventing one. */
+  --m-disabled-box:   var(--cream-200);   /* Neutral 200 */
+  --m-disabled-mark:  var(--cream-700);   /* Neutral 700 */
+  --m-disabled-label: var(--cream-700);   /* Neutral 700 */
 }
 
 /* mode="auto" resolves to this when the operating system is dark. Written as
@@ -161,6 +168,9 @@ jelly-theme {
     --m-seg-label:   var(--cream);
     --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
+  --m-disabled-box:   var(--primary-900);
+  --m-disabled-mark:  var(--primary-950);
+  --m-disabled-label: var(--primary-900);
   }
 }
 
@@ -184,6 +194,9 @@ jelly-theme[mode="dark"] {
   --m-seg-label:   var(--cream);
   --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
+  --m-disabled-box:   var(--primary-900);
+  --m-disabled-mark:  var(--primary-950);
+  --m-disabled-label: var(--primary-900);
 }
 
 /* Forced light, whatever the OS says. Must come last so it wins back from the
@@ -207,6 +220,13 @@ jelly-theme[mode="light"] {
   --m-seg-label:   var(--primary);
   --m-toggle-label: var(--primary);
   --m-hairline:    var(--cream-200);   /* Neutral 200 */
+  /* Disabled. Dark is specified in the Figma file (box Primary 900, mark
+     Primary 950, label Primary 900). Light is NOT specified there, so it
+     reuses the disabled pair the Buttons page already documents —
+     Neutral 200 fill with Neutral 700 ink — rather than inventing one. */
+  --m-disabled-box:   var(--cream-200);   /* Neutral 200 */
+  --m-disabled-mark:  var(--cream-700);   /* Neutral 700 */
+  --m-disabled-label: var(--cream-700);   /* Neutral 700 */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -400,6 +420,26 @@ jelly-checkbox {
      rounded ends come free — only the weight was wrong. */
   --jelly-checkbox-stroke-width: var(--control-mark-stroke);
   color: var(--m-toggle-label);
+}
+
+/* ── Disabled ──────────────────────────────────────────────────────────────
+   Jelly's own treatment is `opacity: .5` on the host, which washes whatever is
+   underneath toward the page colour and produced the grey box the Figma file
+   does not contain. The specification uses COLOUR rather than transparency —
+   in dark, a Primary 900 box with a Primary 950 mark, quiet because it recedes
+   into the surface rather than because it is faded.
+
+   The opacity is therefore cancelled and the colours carry the state on their
+   own. `pointer-events: none` is left alone: it is Jelly's, it is correct, and
+   nothing here should make a disabled control clickable again. */
+jelly-checkbox[disabled] {
+  opacity: 1;
+  --jelly-fill:                    var(--m-disabled-box);
+  --jelly-on:                      var(--m-disabled-box);
+  --jelly-accent:                  var(--m-disabled-box);
+  --jelly-color-background-accent: var(--m-disabled-box);
+  --jelly-checkbox-mark:           var(--m-disabled-mark);
+  color:                           var(--m-disabled-label);
 }
 
 jelly-input {
