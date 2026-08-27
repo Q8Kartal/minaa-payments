@@ -94,6 +94,11 @@
   --control-icon-20: 20px;
   --control-icon-16: 16px;
   --control-stroke: 1.5px;
+  /* The slider and range knob. 24 coincides with space-300 and is deliberately
+     NOT written as one: a knob is a component dimension, and if the spacing
+     scale is ever revised the knob must not move with it. Same reasoning as
+     the control heights above. */
+  --control-knob: 24px;
 
   --shadow-card:  0 2px 10px rgba(22, 22, 22, .05);
   --shadow-float: 0 30px 80px -20px rgba(0, 67, 123, .18), 0 10px 30px rgba(22, 22, 22, .06);
@@ -557,6 +562,24 @@ jelly-textarea::part(ring) {
 jelly-input:focus-within::part(ring),
 jelly-textarea:focus-within::part(ring) {
   border-color: var(--m-accent);
+}
+
+/* ── The knob ──────────────────────────────────────────────────────────────
+   The specification puts a Secondary 600 knob on a Primary 700 fill. Jelly's
+   SLIDER cannot express that: track, fill and knob are one canvas blob, its
+   DOM track is display:none, and testing every candidate token showed only
+   --jelly-accent moves the knob — taking the fill with it. That one is handled
+   in minaa-jelly.js by revealing the native range input's own thumb.
+
+   RANGE is different and better: it exposes part="knob" on two real 24x24
+   elements, so it needs no trick at all. Found by listing the shadow tree
+   rather than assuming both components were built the same way. */
+jelly-range::part(knob) {
+  background: var(--m-thumb);
+  border: 0;
+  border-radius: var(--radius-full);
+  width: var(--control-knob);
+  height: var(--control-knob);
 }
 
 jelly-select::part(trigger) {

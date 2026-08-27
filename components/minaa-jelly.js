@@ -70,7 +70,78 @@
       .segment {
         min-height: var(--space-500);
       }`,
+
+    /* jelly-slider paints track, fill and knob as ONE canvas blob — its DOM
+       track is display:none, and testing every candidate token showed only
+       --jelly-accent moves the knob, taking the fill with it. The
+       specification wants a Secondary 600 knob on a Primary 700 fill, which
+       that construction cannot express.
+
+       The knob is therefore added as a real element (see SLIDER KNOB below),
+       and this rule only makes room for it. jelly-range needs none of it — it
+       already exposes part="knob", handled in the stylesheet. */
+    'jelly-slider': `
+      .minaa-knob {
+        position: absolute;
+        top: 50%;
+        inset-inline-start: var(--minaa-knob-pos, 0%);
+        width: var(--control-knob);
+        height: var(--control-knob);
+        margin-inline-start: calc(var(--control-knob) / -2);
+        transform: translateY(-50%);
+        border-radius: var(--radius-full);
+        background: var(--m-thumb);
+        pointer-events: none;
+      }`,
   };
+
+  /* ── SLIDER KNOB ──────────────────────────────────────────────────────────
+     A real element rather than the native input's ::-webkit-slider-thumb.
+
+     The native thumb was the first attempt and was abandoned for a specific
+     reason: getComputedStyle on a vendor pseudo-element returns the host
+     input's own box, not the thumb's, so there is no way to VERIFY it is
+     painting the right colour at the right size. Shipping something that
+     cannot be measured is how the missing field stroke survived three audits.
+     A real element can be measured, and it behaves the same in every browser
+     rather than needing a -webkit- and a -moz- spelling.
+
+     This mirrors what jelly-range already does with part="knob", so the two
+     controls end up built the same way.
+
+     The knob is decoration only: pointer-events stays off and the native input
+     keeps the semantics, the keyboard and the form value. Jelly still owns the
+     interaction and the blob underneath still deforms — but this knob is a
+     rigid circle, so at the peak of a drag the painted blob squashes while the
+     knob on top does not. A real difference from the physics, chosen
+     deliberately over having the wrong colour. */
+  function enhanceSlider(el) {
+    if (el.__minaaKnob || !el.shadowRoot) return;
+    const wrap = el.shadowRoot.querySelector('[part="wrap"]') || el.shadowRoot;
+    const input = el.shadowRoot.querySelector('input[type="range"]');
+    if (!wrap || !input) return;
+
+    const knob = document.createElement('span');
+    knob.className = 'minaa-knob';
+    knob.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(knob);
+    el.__minaaKnob = knob;
+
+    const place = () => {
+      const min = parseFloat(input.min || '0');
+      const max = parseFloat(input.max || '100');
+      const val = parseFloat(input.value || '0');
+      const span = max - min;
+      const pct = span > 0 ? ((val - min) / span) * 100 : 0;
+      knob.style.setProperty('--minaa-knob-pos', pct + '%');
+    };
+
+    place();
+    input.addEventListener('input', place);
+    input.addEventListener('change', place);
+    /* The value can also be set from script, which fires no event. */
+    new MutationObserver(place).observe(el, { attributes: true, attributeFilter: ['value'] });
+  }
 
   const sheets = new Map();
 
@@ -103,6 +174,7 @@
       el.shadowRoot.appendChild(style);
     }
     el.__minaaPatched = true;
+    if (tag === 'jelly-slider') enhanceSlider(el);
   }
 
   function patchAll() {
