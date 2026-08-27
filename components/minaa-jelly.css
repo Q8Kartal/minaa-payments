@@ -419,7 +419,15 @@ jelly-checkbox {
      scaled per size and its mark already carries stroke-linecap: round, so the
      rounded ends come free — only the weight was wrong. */
   --jelly-checkbox-stroke-width: var(--control-mark-stroke);
-  color: var(--m-toggle-label);
+  /* The LABEL, and it has to be this token rather than `color`. Jelly paints
+     it with `.label { color: var(--jelly-label) }`, an explicit declaration
+     inside the shadow root, which an inherited `color` on the host can never
+     beat. The line here used to be `color`, so it was inert, and the label
+     quietly fell through to --m-ink: cream in dark, where the specification
+     draws Secondary 600. Checkbox and switch are the only two controls the
+     file treats that way; radio, slider, range and segmented really are
+     --m-ink and are left alone. */
+  --jelly-label: var(--m-toggle-label);
 }
 
 /* ── Disabled ──────────────────────────────────────────────────────────────
@@ -439,7 +447,7 @@ jelly-checkbox[disabled] {
   --jelly-accent:                  var(--m-disabled-box);
   --jelly-color-background-accent: var(--m-disabled-box);
   --jelly-checkbox-mark:           var(--m-disabled-mark);
-  color:                           var(--m-disabled-label);
+  --jelly-label:                   var(--m-disabled-label);
 }
 
 jelly-input {
@@ -551,7 +559,8 @@ jelly-switch {
      track does. */
   --jelly-switch-thumb-on:  var(--m-thumb);
   --jelly-switch-thumb-off: var(--m-thumb);
-  color: var(--m-toggle-label);
+  /* Via --jelly-label, not `color`: see jelly-checkbox above. */
+  --jelly-label: var(--m-toggle-label);
 }
 
 jelly-textarea {
