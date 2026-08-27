@@ -82,9 +82,10 @@ Audited **2026-08-07** against *Minaã – Foundations*
 | **Typography** | `Font Family/*`, `Font Weight/*`, `Size/*`, `Line Height/*`, `Paragraph Spacing/*` | ✅ yes (node `4008:3625`) | **Verified — all 11 steps match** |
 | **Text styles** | `Text xs/sm/md/lg/xl` × Regular/Medium/ExtraBold; `Display xs…2xl` | ✅ yes | **Verified — names and values match** |
 | **Spacing** (official) | `space-0` … `space-1000` (14) | ✅ yes | **Authored 2026-08-07 — matches Atlassian exactly, all 3 modes** |
-| `Radius`, `Widths` | — | n/a | **Empty (0 variables)** — not yet defined in Figma |
+| **Radius** (group inside `Primitives`) | `radius-0`, `-2`, `-4`, `-8`, `-16`, `-24`, `-9999` (7) | ✅ yes | **Verified 2026-08-27 — 7 variables exist and are bound by Foundations' own pages. They are NOT published, so a consuming file cannot import them.** |
+| **Widths** | — | n/a | **Verified 2026-08-27 — no `Widths` collection or token group exists.** Width tokens live elsewhere: `grid-max-width-fixed-wide` (1296) and `grid-max-width-fixed-narrow` (864) in `Grid`, and `Button stroke width/Outline` (1.5) in `Minaã Button / Metrics`. |
 | **Containers** | `container-max-width-desktop`, `container-padding-*` | ❌ no | Unverified — not bound on any node |
-| **Minaã Button / Metrics** | `Button space/*`, `Button radius/Full`, `Button font size/*` | ❌ no | Unverified — not bound on any node |
+| **Minaã Button / Metrics** | `Button space/*`, `Button radius/Full`, `Button font size/*`, `Button height/*`, `Button icon size/*`, `Button stroke width/Outline` (18) | ✅ yes | **Verified 2026-08-27 — 966 bindings. The previous "not bound on any node" was wrong.** |
 
 ### Why some values are unreadable
 `get_variable_defs` returns only variables **bound to the node being queried**.

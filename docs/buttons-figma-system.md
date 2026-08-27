@@ -223,6 +223,16 @@ paints are all disabled (`visible: false`) and never render.
   needed.** Icon ink is solved by `Icon Color` modes (§2b) and label/fill ink is
   bound directly to Foundations colours per variant. Dropped, not deferred.
 - **Code Connect** — needs a repository connection that does not exist yet.
+  Re-examined 2026-08-27 and **left on hold, not cancelled.** Three reasons it
+  would not pay for itself today: it binds the components to specific file paths
+  in a repository Phase 7 deliberately wrote the documentation to outlive; there
+  is no component API to mirror, since production is a stylesheet plus a script
+  that self-attaches to markup, not a component with props; and the property
+  models do not line up — Figma has `State` as a four-value axis while production
+  has no authored state at all, so a mapping would have to invent a prop that
+  does not exist. Revisit when the design-system website brings a real component
+  library and a permanent home. **Ahmad has not ruled on this — it is a
+  recommendation awaiting his decision, not a closed question.**
 
 ---
 
@@ -234,11 +244,11 @@ paints are all disabled (`visible: false`) and never render.
 | 1 | Button variable cleanup | Figma variables only | ✅ **complete** |
 | 2 | Web alignment — raw icon px → tokens; line heights → 30/28/24 | repo only | ✅ **complete — technically and manually verified** |
 | 3 | Content Row + RTL/LTR | Figma only | ✅ **complete — approved by Ahmad** |
-| 4 | Button + Icon Button sets | Figma only | ✅ **complete — approved by Ahmad 2026-08-26.** Option C, 135 variants, 0 audit failures, manual testing passed. **Not yet published** |
+| 4 | Button + Icon Button sets | Figma only | ✅ **complete — approved by Ahmad 2026-08-26.** Option C, 135 variants, 0 audit failures, manual testing passed. **Published by Ahmad 2026-08-26**, verified available to consumer files |
 | 5 | Disabled | web **and** Figma together | ✅ **complete — approved by Ahmad 2026-08-26.** Neutral treatment, 4th `State` value, +45 variants. See §5e |
 | 6 | Motion | Figma only | ✅ **complete — closed 2026-08-27.** GENTLE on 45 Rest variants; `Motion` and `Jelly — Motion Specification` frames. See §5f |
-| 7 | Documentation page + developer note | Figma only | not started |
-| 8 | Code Connect | infrastructure | not started |
+| 7 | Buttons page as a reconstruction specification | Figma + repo docs | ✅ **complete — approved by Ahmad 2026-08-27.** 13 sections, 18 tables, 0 raw values; 5 open items recorded. See §5g |
+| 8 | Code Connect | infrastructure | **on hold — revisit only when there is a component API and a permanent repository.** See §2 *Deferred* |
 
 Every phase needs explicit approval before it begins and ends with an evidence
 report. **No phase begins automatically.**
@@ -940,6 +950,159 @@ cannot import them — so 18 layers carry a raw radius matching the house values
 Root cause: **only 69 of 163 Primitives variables are published, and they are
 all colours.** The `Radius/*`, `Spacing/*` and `Typography/*` groups inside
 Primitives are unpublished. Publishing the `Radius` group would close this.
+
+## 5g. Phase 7 — the Buttons page as a reconstruction specification
+
+Closed 2026-08-27. Figma plus three repository documents. **No component,
+variant, property, reaction, variable, token or production file was changed.**
+
+### The objective was corrected mid-phase
+
+Phase 7 began as eight usage sections. Ahmad reframed it: the page must be a
+**complete, self-contained specification** that lets a new human designer,
+developer or agent rebuild both families and an equivalent production
+implementation *without* opening the reference page or this repository.
+
+The acceptance test, in his words: if the components, the code, the repository
+and the live page were hidden, the documentation alone must be enough to rebuild
+the Figma components and an equivalent production implementation, then verify
+that both match.
+
+That test is why the page names **no repository, no deployed address, no
+filename, no package and no framework** — the same discipline §5f applied to the
+Jelly specification, now applied to the whole page.
+
+### Thirteen sections
+
+| Section | Node | Size |
+|---|---|---|
+| `01 — Overview` | `171:905` | 1440 × 1638 |
+| `02 — Component architecture` | `171:956` | 1440 × 1914 |
+| `03 — Property model` | `171:1027` | 1440 × 2070 |
+| `04 — Tokens and resolved values` | `172:902` | 1440 × 2106 |
+| `05 — State matrix` | `172:1041` | 1440 × 1834 |
+| `06 — Construction procedure` | `172:1208` | 1440 × 2442 |
+| `07 — Usage guidance` | `174:902` | 1440 × 2504 |
+| `08 — Runtime and behavioural contract` | `174:991` | 1440 × 2110 |
+| `09 — Prototype motion in Figma` | `153:926` | 1440 × 1610 |
+| `10 — Jelly — motion specification` | `155:909` | 1440 × 5864 |
+| `11 — Accessibility and contrast` | `174:1090` | 1440 × 1812 |
+| `12 — Verification and parity checklist` | `175:902` | 1440 × 2698 |
+| `13 — Known limitations and open items` | `175:969` | 1440 × 1390 |
+
+The two Phase 6 frames were **renumbered into this sequence** — `Motion` became
+`09` and `Jelly — Motion Specification` became `10` — with their content
+unaltered. `10` later gained an implementation-lifecycle subsection (attach,
+update, resize, cancel, settle, clean up), which is why §5f records it at 5286
+and it now measures 5864.
+
+### Every statement is labelled
+
+**Verified construction fact · requirement · recommendation · known limitation.**
+This is the mechanism that makes the page safe to rebuild from: a reader can tell
+what was measured from what is intended, and never has to guess which is which.
+
+### Four product rules were removed or corrected
+
+An early draft invented rules nobody had approved. Ahmad caught all four:
+
+- ~~"exactly one Primary per view"~~ — **removed.**
+- ~~"width is never set"~~ — corrected: **Hug is the default, Fill Container is
+  allowed** where the layout requires a full-width or equal-width control. It is
+  a supported configuration, not a workaround.
+- ~~"Secondary carries equal structural weight"~~ — **removed.**
+- The destruction rule was cut back to the approved form only — no brand hue
+  represents destruction, errors are semantic Orange — with the invented wording
+  and confirmation-dialog claims **removed**.
+
+The lesson is the one §8 already carries: documentation is design work, and
+inventing a rule while writing it down is still inventing a rule.
+
+### Audit
+
+**0 raw fills · 0 raw strokes · 0 unbound padding · 0 unbound gaps · 0 text
+without a style · 0 text with a raw fill · 0 banned symbols.** 18 tables.
+**65 raw corner radii** — the unpublished `Radius` group again (§5f).
+
+Variables: `Colors/Primary/700` ×780 · `Neutral/200` ×154 · `Neutral/50` ×52 ·
+`Primary/50` ×18 · `Primary/100` ×18 · `Neutral/100` ×13 · `Neutral/0` ×13 ·
+`space-200` ×305 · `space-100` ×52 · `space-600` ×39 · `space-400` ×34 ·
+`space-300` ×31 · `space-1000` ×13.
+
+Text styles: `Text sm/Regular` ×357 · `Text md/Regular` ×194 ·
+`Text xl/ExtraBold` ×65 · `Text md/Medium` ×56 · `Text sm/ExtraBold` ×55 ·
+`Text lg/Regular` ×23 · `Display sm/ExtraBold` ×13 · `Display xs/Regular` ×13 ·
+`Text md/ExtraBold` ×4.
+
+Components confirmed untouched at close: Button 120 variants / 9 properties,
+Icon Button 60 / 4, 45 Rest variants carrying 90 GENTLE reactions and no others.
+
+### `DESIGN.md` — Radius and Widths verified, Containers left alone
+
+The audit row claiming `Radius` and `Widths` were *"empty (0 variables)"* was
+wrong. Replaced by three verified rows:
+
+- **`Radius`** — 7 variables exist inside Primitives and Foundations' own pages
+  bind them, but the group is **not published**, so a consuming file cannot
+  import them. This is the root cause of every raw radius in §5f and §5g.
+- **`Widths`** — no such collection or group exists. Width tokens live elsewhere:
+  `grid-max-width-fixed-wide` / `-narrow` in `Grid`, and
+  `Button stroke width/Outline` in `Minaa Button / Metrics`.
+- **`Minaa Button / Metrics`** — was recorded as *"not bound on any node"*;
+  it carries **966 bindings**.
+
+The **Containers** row was left untouched, as instructed — it remains unverified.
+
+### Four corrections applied after review
+
+1. **Focus variant count.** §13 said 30. Audited all 180 variants for a focus
+   ring by four mechanisms — outside stroke, effect, ring-named child, stroke on
+   a non-Outline appearance — and found **zero by every mechanism**. The
+   requirement covers both families, so the documented count is **45: 30 Button
+   and 15 Icon Button**.
+2. **`Disabled + Focus` recorded as an architectural limitation** in §11 and §13.
+   §08 requires a disabled control to stay keyboard-focusable and §11 requires it
+   to show the ring, but `State` is a single mutually exclusive property, so no
+   variant can express both. Documented, not redesigned.
+3. *"Publishing cannot be automated"* → **"Publishing is manual in the current
+   workflow."** The absolute claim was never tested.
+4. The universal claim that **every** library update silently orphans icon colour
+   modes was replaced by a re-verification requirement scoped to *library
+   operations that can affect variable-mode assignments*, with accepting an
+   update named as the observed case. The quantifier is gone in both directions —
+   it no longer says every update breaks them, nor that a quiet update is safe
+   unchecked.
+
+### Five open items, recorded on the page as §13
+
+None is closed by editing documentation:
+
+1. All **45** Focus variants omit the required 3px `Primary/700` ring at 3px
+   offset. *Component change.*
+2. Neither family provides a mechanism for **directional glyphs** — mirroring
+   slot order does not mirror the glyph, and Icon Button has no Direction axis.
+   *Icon architecture.*
+3. **Reduced motion** is required by §08 and unimplemented in the web build.
+   *Implementation task.*
+4. **Nine colour combinations measure 3.57:1** against a 4.5:1 requirement —
+   every pairing placing pale ink on `Secondary/600`. *Colour decision.*
+5. **`Disabled` and `Focus` cannot be represented together.** *Component change —
+   an added axis or a separate focus overlay, decided deliberately.*
+
+Items 1 and 5 are entangled: adding the ring to 45 Focus variants still leaves
+the disabled-and-focused case unrepresentable.
+
+### Companion documents in this repository
+
+| File | Role |
+|---|---|
+| `docs/buttons-documentation-sections.md` | Readable index mirroring the 13 sections, so the page can be reviewed without Figma |
+| `docs/buttons-reconstruction-audit.md` | The pre-rewrite audit — verified construction facts, discrepancies, contrast measurements |
+
+**The Figma page is the artefact; both files are companions.** If they disagree,
+the page is what ships.
+
+---
 
 ## 6. Figma motion vs production Jelly — never conflate these
 
