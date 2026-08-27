@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260827f"></script>
+<script src="../gate.js?v=20260827g"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -20,8 +20,8 @@
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260827f">
-<link rel="stylesheet" href="showcase.css?v=20260827f">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260827g">
+<link rel="stylesheet" href="showcase.css?v=20260827g">
 </head>
 
 <!-- mode="light" deliberately, not "auto".
@@ -81,14 +81,17 @@
         </div>
         <div class="ctl">
           <span class="ctl-name">accent</span>
-          <!-- Swatches from our own palette rather than a free colour field.
-               The provider accepts any CSS colour, but a showcase that invites
-               an arbitrary hue is inviting a design-system violation. -->
+          <!-- BRAND HUES ONLY. The provider accepts any CSS colour, and an
+               earlier version of this control offered Green 600 and Yellow 400
+               alongside them. That was wrong: those are semantic colours —
+               success and warning — and the system says they are never brand
+               and never decoration. Offering them as a theme accent is exactly
+               the decorative use the rule forbids, and a showcase teaches
+               whatever it demonstrates. Primary and Secondary are the only two
+               hues that legitimately carry the brand. -->
           <div class="swatches" id="theme-accent" role="group" aria-label="Accent">
-            <button type="button" class="sw sw-primary"   aria-label="Primary 700"  aria-pressed="true"></button>
+            <button type="button" class="sw sw-primary"   aria-label="Primary 700"   aria-pressed="true"></button>
             <button type="button" class="sw sw-secondary" aria-label="Secondary 600" aria-pressed="false"></button>
-            <button type="button" class="sw sw-success"   aria-label="Green 600"     aria-pressed="false"></button>
-            <button type="button" class="sw sw-warning"   aria-label="Yellow 400"    aria-pressed="false"></button>
           </div>
         </div>
       </div>
@@ -372,8 +375,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260827f"></script>
-<script src="micons.js?v=20260827f"></script>
-<script src="showcase.js?v=20260827f" defer></script>
+<script src="minaa-jelly.js?v=20260827g"></script>
+<script src="micons.js?v=20260827g"></script>
+<script src="showcase.js?v=20260827g" defer></script>
 </body>
 </html>

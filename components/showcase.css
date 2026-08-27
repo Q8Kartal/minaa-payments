@@ -275,10 +275,11 @@ body {
   cursor: pointer;
 }
 
+/* Brand hues only. Green, Yellow and Orange are semantic — success, warning,
+   error — and the system reserves them from brand and decorative use, which
+   an accent swatch is. */
 .sw-primary   { background: var(--primary); }    /* Primary 700   */
 .sw-secondary { background: var(--secondary); }  /* Secondary 600 */
-.sw-success   { background: var(--success); }    /* Green 600     */
-.sw-warning   { background: var(--warning); }    /* Yellow 400    */
 
 .sw[aria-pressed="true"] { border-color: var(--white); box-shadow: 0 0 0 2px var(--primary); }
 .sw:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
