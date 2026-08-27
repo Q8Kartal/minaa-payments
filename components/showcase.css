@@ -1,0 +1,306 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   showcase.css — the page around the components.
+
+   The components themselves are styled entirely by minaa-jelly.css. Nothing
+   here touches a jelly-* element; this file is the catalogue that presents
+   them. Keeping the two apart is the point: the bridge is the reusable
+   artefact and must not accumulate page furniture.
+
+   Documentation furniture is design work and gets the same treatment as a
+   component — no raw px in a padding, margin or gap, no hex outside the token
+   block, every colour named by its Foundations step.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: "29LT Idris Round Regular";
+  src: url("../fonts/29LTIdrisRound-Regular.woff2") format("woff2");
+  /* Claimed deliberately. Registered at a single weight, any rule asking for
+     700/800/900 makes the browser fake a bolder face by smearing the glyphs,
+     which merges Arabic strokes and fills the counters. Claiming the range
+     makes every weight request resolve to this face exactly. */
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "29LT Idris Round Medium";
+  src: url("../fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "29LT Idris Round ExtraBold";
+  src: url("../fonts/29LTIdrisRound-ExtraBold.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--cream-50);           /* Neutral 50 — the paper */
+  color: var(--text);                    /* Primary 700 */
+  font-family: var(--font-regular);
+  font-size: var(--text-md);
+  line-height: var(--text-md-lh);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shell ───────────────────────────────────────────────────────────────── */
+
+.wrap {
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-inline: var(--space-300);      /* 24 */
+  padding-block: var(--space-800) var(--space-1000);
+}
+
+/* ── Masthead ────────────────────────────────────────────────────────────── */
+
+.masthead { margin-block-end: var(--space-1000); }   /* 80 */
+
+.eyebrow {
+  margin: 0 0 var(--space-100);
+  font-family: var(--font-bold);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.masthead h1 {
+  margin: 0 0 var(--space-200);
+  font-family: var(--font-bold);
+  font-size: var(--display-md);
+  line-height: var(--display-md-lh);
+  letter-spacing: -.01em;
+}
+
+.masthead p {
+  margin: 0;
+  max-width: 62ch;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg-lh);
+}
+
+/* The count strip — facts about the page, not decoration. */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-100);                 /* 8 */
+  margin-block-start: var(--space-300);  /* 24 */
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  padding: var(--space-075) var(--space-200);   /* 6 / 16 */
+  background: var(--cream);              /* Neutral 100 */
+  border-radius: var(--radius-full);
+  font-family: var(--font-medium);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+}
+
+/* ── A catalogue entry ───────────────────────────────────────────────────── */
+
+.entry {
+  padding-block-start: var(--space-800); /* 64 */
+  border-block-start: 1px solid var(--cream-200);   /* Neutral 200 hairline */
+}
+
+.entry + .entry { margin-block-start: var(--space-800); }
+
+.entry-num {
+  margin: 0 0 var(--space-150);
+  font-family: var(--font-bold);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.entry-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-150);                 /* 12 */
+  margin: 0 0 var(--space-150);
+  font-family: var(--font-bold);
+  font-size: var(--display-xs);
+  line-height: var(--display-xs-lh);
+}
+
+.entry-title .mi { width: var(--space-300); height: var(--space-300); }  /* 24 */
+
+.entry-note {
+  margin: 0 0 var(--space-400);          /* 32 */
+  max-width: 68ch;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg-lh);
+}
+
+/* ── The live demo ───────────────────────────────────────────────────────── */
+
+.demo {
+  padding: var(--space-600);             /* 48 */
+  background: var(--white);              /* Neutral 0 */
+  border-radius: var(--radius-24);
+  box-shadow: var(--shadow-card);
+
+  /* Jelly gives every soft-body component a BLEED CANVAS wider than the
+     control, so the blob has room to deform past its own box — a 279px slider
+     gets a 1032px canvas. The extra area is transparent, but it still counts
+     toward scrollWidth, and on a 375px screen that produced 657px of
+     horizontal page overflow. Measured, not guessed: the host, the track and
+     the input all reported 279 while `part="jelly"` reported 1032.
+
+     `clip` rather than `hidden` on purpose. `hidden` would make this a scroll
+     container, which changes how position:sticky and anchored panels resolve
+     inside it; `clip` just cuts the paint. Only the empty bleed is lost — the
+     deformation happens at the control, well inside the card. */
+  overflow-x: clip;
+}
+
+/* Specimens sit in a row that wraps, each labelled with what varies. Same
+   figure/figcaption pattern the Buttons page uses, so a reader moving between
+   the two pages is reading the same thing. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-400);                 /* 32 */
+}
+
+.row + .row { margin-block-start: var(--space-500); }   /* 40 */
+
+.stack { display: flex; flex-direction: column; gap: var(--space-200); }
+
+.specimen {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-150);                 /* 12 */
+  margin: 0;
+}
+
+.specimen figcaption {
+  font-family: var(--font-medium);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+}
+
+/* A field specimen needs its control to fill the column rather than hug.
+   Jelly gives several of these a fixed intrinsic width — select is 210/240/280
+   by size, and slider defaults to 240 — so filling has to be asked for. */
+.specimen.field { align-self: stretch; flex: 1 1 260px; }
+.specimen.field jelly-input,
+.specimen.field jelly-select,
+.specimen.field jelly-textarea,
+.specimen.field jelly-slider,
+.specimen.field jelly-range { width: 100%; }
+
+/* ── Code ────────────────────────────────────────────────────────────────── */
+
+.code {
+  position: relative;
+  margin-block-start: var(--space-300);  /* 24 */
+  background: var(--cream);              /* Neutral 100 */
+  border-radius: var(--radius-16);
+  overflow: hidden;
+}
+
+.code pre {
+  margin: 0;
+  padding: var(--space-300);             /* 24 */
+  padding-inline-end: var(--space-1000); /* 80 — room for the copy button */
+  overflow-x: auto;
+  /* The one place a non-brand family is correct: this is code, and Minaã has
+     no monospace face. Brand type here would misrepresent what is on screen. */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-sm);
+  line-height: var(--text-md-lh);
+  color: var(--primary);
+  /* Code is a technical run: it reads left-to-right whatever the page does. */
+  direction: ltr;
+  text-align: start;
+}
+
+.copy {
+  position: absolute;
+  inset-block-start: var(--space-150);
+  inset-inline-end: var(--space-150);
+  padding: var(--space-075) var(--space-200);
+  font-family: var(--font-medium);
+  font-size: var(--text-sm);
+  color: var(--primary);
+  background: var(--white);
+  border: 1px solid var(--cream-200);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.copy:hover { background: var(--primary-tint); }        /* Primary 50 */
+.copy:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.copy[data-done="1"] { background: var(--primary); color: var(--cream); border-color: var(--primary); }
+
+/* ── Contents rail ───────────────────────────────────────────────────────── */
+
+.toc {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-050);                 /* 4 */
+  margin-block-end: var(--space-800);
+  padding-block: var(--space-150);
+  background: color-mix(in srgb, var(--cream-50) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.toc a {
+  padding: var(--space-050) var(--space-150);
+  border-radius: var(--radius-full);
+  font-family: var(--font-medium);
+  font-size: var(--text-sm);
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.toc a:hover { background: var(--cream); }
+.toc a:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.foot {
+  margin-block-start: var(--space-1000);
+  padding-block-start: var(--space-400);
+  border-block-start: 1px solid var(--cream-200);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+}
+
+.foot a { color: var(--primary); }
+
+/* ── Icons ───────────────────────────────────────────────────────────────── */
+
+.mi {
+  width: var(--control-icon-20);
+  height: var(--control-icon-20);
+  flex: none;
+  /* Paths export as currentColor, so an icon takes the colour of the text
+     beside it and the colour rules keep working untouched. */
+  color: currentColor;
+}
+
+/* ── Small screens ───────────────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .wrap { padding-block: var(--space-500) var(--space-800); }
+  .masthead h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
+  .masthead { margin-block-end: var(--space-600); }
+  .demo { padding: var(--space-300); }        /* 24 */
+  .entry { padding-block-start: var(--space-600); }
+  .entry + .entry { margin-block-start: var(--space-600); }
+  .row { gap: var(--space-300); }
+}
