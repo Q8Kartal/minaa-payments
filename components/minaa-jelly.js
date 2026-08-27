@@ -30,10 +30,45 @@
      `font-family: inherit` would not do — the input sets its own explicitly,
      and that beats inheritance. */
   const PATCHES = {
+    /* jelly-otp exposes ZERO parts — verified by querying [part] inside its
+       shadow root and getting an empty list — so neither ::part() nor a custom
+       property can reach its digit boxes. Two things have to be corrected on
+       them, and both read their value off the host so nothing is hardcoded
+       here:
+
+         font   the boxes render at ui-rounded weight 640, which in our type
+                system is a double miss: the wrong face, and a numeric weight
+                that cannot resolve because each Minaã weight is its own family
+                with synthesis off.
+
+         stroke the specification gives every digit a 1.5px Secondary 600 edge.
+                Jelly draws none — its fields have no border concept at all,
+                only a transparent focus ring — so the edge is added here.
+                Every other field gets the same treatment through ::part(ring),
+                which this component does not offer. */
     'jelly-otp': `
       input {
         font-family: var(--font-medium);
         font-weight: normal;
+        border: var(--control-stroke) solid var(--m-stroke);
+        box-sizing: border-box;
+      }
+      input:focus {
+        border-color: var(--m-accent);
+      }`,
+
+    /* jelly-segmented draws its pill from `.segment`, which hardcodes
+       `padding-block: 0` with no token behind it and carries no part. The pill
+       therefore collapses to its line box — 28px — and the track came out 44
+       tall where the specification draws it 56, leaving it visibly shorter
+       than the 56px fields beside it.
+
+       A minimum height on the pill is the smallest correction that restores
+       the proportion, and it reads space-500 off the host rather than writing
+       40 into this file. */
+    'jelly-segmented': `
+      .segment {
+        min-height: var(--space-500);
       }`,
   };
 

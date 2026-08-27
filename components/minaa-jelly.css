@@ -439,12 +439,24 @@ jelly-slider {
    selection: a Secondary 600 pill on a Primary 300 track in light, a Primary
    700 pill on a Secondary 600 track in dark. */
 jelly-segmented {
+  /* 56, to sit level with the 56px fields beside it. Jelly's own size scale
+     is 36 / 44 / 52 — measured by cycling the attribute — so the height the
+     specification asks for is not reachable through `size`, and there is no
+     height token. Setting it on the host is the remaining option, and it
+     behaves: the canvas tracked the resize and the pill came out at 40, which
+     is the figure the specification draws. Paired with the min-height on
+     `.segment` in minaa-jelly.js, without which the pill collapses to its
+     line box and floats in the taller track. */
+  height: var(--control-h-56);
+
   /* The track is painted from --jelly-track, not from a surface token — that
      was measured, not assumed. --jelly-pill carries the sliding selection. */
   --jelly-track:                    var(--m-seg-track);
   --jelly-pill:                     var(--m-seg-pill);
   --jelly-color-background-surface: var(--m-seg-track);
-  --jelly-segmented-padding:        var(--space-050);
+  /* 8, not 4. The specification draws the track 56 tall with a 40 pill inside;
+     at 4 the control came out 44 and read tight against the pill. */
+  --jelly-segmented-padding:        var(--space-100);
   --jelly-segmented-padding-inline: var(--space-200);
   --jelly-segmented-gap:            var(--space-050);
   --jelly-segmented-font-size:      var(--text-md);
@@ -516,6 +528,43 @@ jelly-textarea::part(textarea)::placeholder {
   font-family: var(--font-regular);
   color: var(--m-placeholder);
   opacity: 1;
+}
+
+/* ── The field stroke ──────────────────────────────────────────────────────
+   The specification gives every field a 1.5px Secondary 600 outline, and it is
+   the most recognisable thing about the design. JELLY HAS NO BORDER CONCEPT:
+   its input stylesheet paints a fill edge to edge and the only edge element is
+   `.ring`, declared `border: var(--jelly-ring-width) solid transparent` — a
+   focus ring that is invisible at rest. No token produces the outline, so it
+   cannot come from the bridge alone.
+
+   It is drawn here instead, on the ring element itself, which is already the
+   right shape, already follows the control's radius, and is already positioned
+   by Jelly. `inset: 0` pulls it from Jelly's 4px inset out to the edge where
+   the specification puts it.
+
+   Focus still reads: the resting stroke is the Secondary 600 edge, and
+   :focus-within swaps it to the accent, so focusing a field changes the colour
+   of an edge that is always present rather than summoning a second one. That
+   was the mistake the earlier focus rule made. */
+jelly-input::part(ring),
+jelly-textarea::part(ring) {
+  inset: 0;
+  border-width: var(--control-stroke);
+  border-color: var(--m-stroke);
+}
+
+jelly-input:focus-within::part(ring),
+jelly-textarea:focus-within::part(ring) {
+  border-color: var(--m-accent);
+}
+
+jelly-select::part(trigger) {
+  border: var(--control-stroke) solid var(--m-stroke);
+}
+
+jelly-select:focus-within::part(trigger) {
+  border-color: var(--m-accent);
 }
 
 /* ── Focus — deliberately NOT drawn here ────────────────────────────────────
