@@ -794,6 +794,67 @@ jelly-textarea[disabled]::part(textarea)::placeholder {
   color: var(--m-disabled-label);
 }
 
+/* ---- Disabled: radio, switch, slider, range ------------------------------
+   Nothing in the Figma file draws these four disabled, so all of it is
+   DERIVED. Rather than pick colours, each part is mapped onto a part the file
+   DOES draw, so the reasoning can be checked instead of taken on trust:
+
+     the shape that carries the state  -> --m-disabled-box    (checkbox box)
+     the detail drawn on that shape    -> --m-disabled-mark   (checkbox tick)
+     a large surface that should recede -> --m-disabled-field (field surface)
+     any text                          -> --m-disabled-label
+
+   Dark offers only two steps -- Primary 900 and Primary 950 -- so no control
+   can show three distinct parts. That is the file's constraint, not a
+   shortcut here, and it is why the slider knob repeats the fill colour.
+
+   opacity is cancelled on all four for the reason it was cancelled on the
+   checkbox: .5 over a Primary 950 card turns Neutral 100 into a grey that is
+   in no palette. pointer-events: none stays as Jelly set it. */
+jelly-radio[disabled] {
+  opacity: 1;
+  --jelly-fill:                    var(--m-disabled-box);
+  --jelly-on:                      var(--m-disabled-box);
+  --jelly-accent:                  var(--m-disabled-box);
+  --jelly-color-background-accent: var(--m-disabled-box);
+  --jelly-radio-dot-color:         var(--m-disabled-mark);
+  --jelly-label:                   var(--m-disabled-label);
+}
+
+jelly-switch[disabled] {
+  opacity: 1;
+  --jelly-off:                     var(--m-disabled-box);
+  --jelly-on:                      var(--m-disabled-box);
+  --jelly-fill:                    var(--m-disabled-box);
+  --jelly-accent:                  var(--m-disabled-box);
+  --jelly-color-background-accent: var(--m-disabled-box);
+  --jelly-switch-thumb-off:        var(--m-disabled-mark);
+  --jelly-switch-thumb-on:         var(--m-disabled-mark);
+  --jelly-label:                   var(--m-disabled-label);
+}
+
+/* The slider maps onto the checkbox, NOT onto the field. The first attempt
+   here receded the track to the field surface, and on screen that removed the
+   control: the track is Primary 950 on a Primary 950 card, so all that was
+   left was a short bar ending in nothing, with the knob invisible too. A
+   disabled control still has to read as a control and still has to show its
+   value.
+
+   So the TRACK is the shape and takes the box colour, and the filled run and
+   the knob are the detail drawn on it and take the mark colour -- exactly the
+   checkbox's relationship, a Primary 950 mark on a Primary 900 shape. The
+   knob goes through the fork token so it still deforms with the blob. */
+jelly-slider[disabled], jelly-range[disabled] {
+  opacity: 1;
+  --jelly-track:                   var(--m-disabled-box);
+  --jelly-fill:                    var(--m-disabled-mark);
+  --jelly-accent:                  var(--m-disabled-mark);
+  --jelly-color-background-accent: var(--m-disabled-mark);
+  --jelly-slider-knob:             var(--m-disabled-mark);
+  --jelly-range-knob:              var(--m-disabled-mark);
+  color:                           var(--m-disabled-label);
+}
+
 /* ── Focus — deliberately NOT drawn here ────────────────────────────────────
    An earlier version put a 3px outline on :focus-within for the four field
    components. It was wrong three ways: one radius for every control, so a
