@@ -87,8 +87,13 @@
 
   /* Control metrics — component dimensions, deliberately NOT aliases of the
      spacing scale even where the numbers coincide. */
-  --control-h-56: 56px;
-  --control-h-48: 48px;
+  /* The control ladder. Named without an axis because the OTP digit uses these
+     for its WIDTH as well as its height; --control-h-* said height and was then
+     asked to be a width, which is the sort of small lie that outlives everyone. */
+  --control-64: 64px;
+  --control-56: 56px;
+  --control-48: 48px;
+  --control-40: 40px;
   --control-icon-20: 20px;
   --control-icon-24: 24px;
   --control-icon-16: 16px;
@@ -397,7 +402,7 @@ jelly-tooltip {
    ═════════════════════════════════════════════════════════════════════════ */
 
 jelly-button {
-  --jelly-button-height:         var(--control-h-48);
+  --jelly-button-height:         var(--control-48);
   --jelly-button-padding-inline: var(--space-250);
   --jelly-button-gap:            var(--space-100);
   --jelly-button-font-size:      var(--text-lg);
@@ -405,7 +410,7 @@ jelly-button {
 }
 
 jelly-icon-button {
-  --jelly-icon-button-size:      var(--control-h-48);
+  --jelly-icon-button-size:      var(--control-48);
   --jelly-icon-button-icon-size: var(--control-icon-20);
   --jelly-icon-button-radius:    var(--radius-full);
   --jelly-icon-button-font-size: var(--text-lg);
@@ -528,8 +533,8 @@ jelly-label {
 }
 
 jelly-otp {
-  --jelly-otp-width:     var(--space-600);
-  --jelly-otp-height:    var(--control-h-56);
+  --jelly-otp-width:     var(--control-48);
+  --jelly-otp-height:    var(--control-56);
   --jelly-otp-gap:       var(--space-100);
   --jelly-otp-radius:    var(--radius-16);
   --jelly-otp-font-size: var(--text-xl);
@@ -542,6 +547,42 @@ jelly-otp {
      were rendering Neutral 100 while the bridge confidently assigned Primary
      300 to a token nothing here reads. */
   --jelly-color-background-muted: var(--m-field);
+}
+
+/* Sizes. Same defect the checkbox and switch had: the width, height, gap and
+   font were pinned flat on the element, so :host([size="small"]) never got a
+   look in and every OTP measured 48x56 whatever the attribute said. The page
+   has said "Four digits, small" over a medium-sized control since the entry
+   was written.
+
+   Medium is the box the file draws, 48x56. Small and large step one rung along
+   the control ladder in both dimensions, keeping the portrait shape.
+
+   The radius does NOT scale, as on the checkbox: 16 is drawn in the file and
+   holding it keeps the corner language identical across the three.
+
+   The large digits do not grow either, and that one is a limitation rather
+   than a decision -- our type scale stops at --text-xl, so there is no step
+   above medium to give them. */
+jelly-otp[size="small"], jelly-otp[size="sm"] {
+  --jelly-otp-width:     var(--control-40);
+  --jelly-otp-height:    var(--control-48);
+  --jelly-otp-gap:       var(--space-075);
+  --jelly-otp-font-size: var(--text-lg);
+}
+
+jelly-otp[size="medium"], jelly-otp[size="md"] {
+  --jelly-otp-width:     var(--control-48);
+  --jelly-otp-height:    var(--control-56);
+  --jelly-otp-gap:       var(--space-100);
+  --jelly-otp-font-size: var(--text-xl);
+}
+
+jelly-otp[size="large"], jelly-otp[size="lg"] {
+  --jelly-otp-width:     var(--control-56);
+  --jelly-otp-height:    var(--control-64);
+  --jelly-otp-gap:       var(--space-150);
+  --jelly-otp-font-size: var(--text-xl);
 }
 
 jelly-radio {
@@ -594,7 +635,7 @@ jelly-segmented {
      is the figure the specification draws. Paired with the min-height on
      `.segment` in minaa-jelly.js, without which the pill collapses to its
      line box and floats in the taller track. */
-  height: var(--control-h-56);
+  height: var(--control-56);
 
   /* The track is painted from --jelly-track, not from a surface token — that
      was measured, not assumed. --jelly-pill carries the sliding selection. */
