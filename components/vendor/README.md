@@ -14,10 +14,20 @@ bolted on from the page instead:
 
 | What the specification wants | What Jelly offers | The bolt-on it forced |
 |---|---|---|
-| A stroke on every field | No border concept — only a transparent focus ring | `::part(ring)` repurposed as a permanent edge |
+| A stroke on every field | A 1px canvas border, hardcoded width (see note) | `::part(ring)` repurposed as a permanent edge |
 | A stroke on the OTP digits | No `part` attributes at all | A rule injected into the shadow root |
 | A 56px segmented control | A size scale of 36 / 44 / 52 and no height token | Forced host height plus an injected pill min-height |
 | A Secondary 600 knob on a Primary 700 fill | One `--jelly-accent` painting both | **A rigid overlay knob, which visibly desynced from the deforming blob during a drag** |
+
+**Correction to the first row.** It used to read "No border concept -- only a
+transparent focus ring", and that is wrong. `surfaceBorder()` is overridden on
+input, textarea and select and paints a 1px edge on the canvas each frame. What
+Jelly lacks is a *width* token for it: the 1 is hardcoded, so the specified
+1.5px still cannot come from the bridge. The bolt-on therefore stays, but the
+reason is narrower than the table claimed -- and because the note said no
+border existed, nobody noticed the fields carry two strokes, ours and Jelly's.
+Driving Jelly's border from a forked token would collapse them into one that
+deforms with the blob; it has not been done.
 
 The last one is why this exists. The overlay was measurably correct at rest and
 wrong in motion, which is the worst kind of wrong: it passed every static check

@@ -65,11 +65,9 @@
   --primary-950: #00264B;   /* Primary 950  — dark-mode card */
   --secondary:   #E8411D;   /* Secondary 600 — Minaã Red */
   --secondary-300: #FCBBAD;  /* Secondary 300 - the light disabled surface */
-  --white:       #FFFFFF;   /* Neutral 0    */
   --cream-50:    #FDF9F0;   /* Neutral 50   — light-mode card */
   --cream:       #FBF0DC;   /* Neutral 100  — Minaã Cream */
   --cream-200:   #F7E0B6;   /* Neutral 200  */
-  --cream-700:   #895A30;   /* Neutral 700  */
 
   /* Semantic — success / warning / error. Never brand, never decoration. */
   --success:      #05AA00;   /* Green 600  */
@@ -91,7 +89,6 @@
      spacing scale even where the numbers coincide. */
   --control-h-56: 56px;
   --control-h-48: 48px;
-  --control-h-40: 40px;
   --control-icon-20: 20px;
   --control-icon-24: 24px;
   --control-icon-16: 16px;
@@ -107,7 +104,6 @@
   --control-knob: 24px;
 
   --shadow-card:  0 2px 10px rgba(22, 22, 22, .05);
-  --shadow-float: 0 30px 80px -20px rgba(0, 67, 123, .18), 0 10px 30px rgba(22, 22, 22, .06);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -131,7 +127,6 @@ jelly-theme {
   --m-check-mark:  var(--secondary);    /* Secondary 600 */
   --m-seg-track:   var(--primary-300);  /* Primary 300 */
   --m-seg-pill:    var(--secondary);    /* Secondary 600 */
-  --m-seg-label:   var(--primary);      /* Primary 700 — unselected */
 
   /* Labels on the two controls Ahmad coloured first. In dark these are the
      one place the set is not self-consistent — see the dark block. */
@@ -173,7 +168,6 @@ jelly-theme {
     --m-check-mark:  var(--cream);
     --m-seg-track:   var(--secondary);
     --m-seg-pill:    var(--primary);
-    --m-seg-label:   var(--cream);
     --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-disabled-box:   var(--primary-900);
@@ -208,7 +202,6 @@ jelly-theme[mode="dark"] {
   --m-check-mark:  var(--cream);
   --m-seg-track:   var(--secondary);
   --m-seg-pill:    var(--primary);
-  --m-seg-label:   var(--cream);
   --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-disabled-box:   var(--primary-900);
@@ -235,7 +228,6 @@ jelly-theme[mode="light"] {
   --m-check-mark:  var(--secondary);
   --m-seg-track:   var(--primary-300);
   --m-seg-pill:    var(--secondary);
-  --m-seg-label:   var(--primary);
   --m-toggle-label: var(--primary);
   --m-hairline:    var(--cream-200);   /* Neutral 200 */
   /* Disabled, both modes now drawn in the Figma file rather than derived:
@@ -519,7 +511,12 @@ jelly-input {
 jelly-label {
   --jelly-label-font-size: var(--text-md);
   --jelly-label-gap:       var(--space-100);
-  color: var(--m-ink);
+  /* The required asterisk. Jelly paints it from --jelly-color-background-rose,
+     which the bridge never set, so it rendered #01001B -- near-black type on a
+     page whose whole rule is that there is none. Secondary 600 is DERIVED: no
+     specimen in the Figma file draws a required marker, and Secondary 600 is
+     already the mark colour elsewhere in the system. */
+  --jelly-color-background-rose: var(--m-stroke);
 }
 
 jelly-otp {
@@ -537,7 +534,6 @@ jelly-radio {
   --jelly-radio-font-size: var(--text-md);
   --jelly-radio-dot-size:  var(--space-100);
   --jelly-radio-dot-color: var(--m-thumb);
-  color: var(--m-ink);
 }
 
 jelly-radio-group {
@@ -596,7 +592,6 @@ jelly-segmented {
   --jelly-segmented-gap:            var(--space-050);
   --jelly-segmented-font-size:      var(--text-md);
   --jelly-segmented-min-width:      var(--space-1000);
-  color: var(--m-seg-label);
 }
 
 jelly-select {
@@ -693,11 +688,23 @@ jelly-textarea::part(textarea)::placeholder {
 
 /* ── The field stroke ──────────────────────────────────────────────────────
    The specification gives every field a 1.5px Secondary 600 outline, and it is
-   the most recognisable thing about the design. JELLY HAS NO BORDER CONCEPT:
-   its input stylesheet paints a fill edge to edge and the only edge element is
-   `.ring`, declared `border: var(--jelly-ring-width) solid transparent` — a
-   focus ring that is invisible at rest. No token produces the outline, so it
-   cannot come from the bridge alone.
+   the most recognisable thing about the design.
+
+   CORRECTION, and the reason this block is worth re-reading: it used to say in
+   capitals that Jelly has no border concept. That is FALSE. Jelly overrides
+   `surfaceBorder()` on input, textarea and select and paints a 1px edge onto
+   the canvas every frame -- resting colour from --jelly-color-background-
+   neutral, focused from --jelly-accent, width hardcoded 1.
+
+   The consequence of believing otherwise is visible: every field carries TWO
+   strokes, the 1.5px Secondary 600 one below and Jelly's 1px canvas one just
+   inside it, which in dark reads as a cream hairline against the red. Nobody
+   looked for a second stroke because the comment said there could not be one.
+
+   Left as it is on purpose. Driving Jelly's own border instead would give one
+   stroke that deforms with the blob -- the lesson the knob taught -- but its
+   width is hardcoded, so matching the specified 1.5 means another fork edit.
+   That is a decision to take deliberately, not as a side effect of a cleanup.
 
    It is drawn here instead, on the ring element itself, which is already the
    right shape, already follows the control's radius, and is already positioned
