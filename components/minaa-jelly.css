@@ -142,6 +142,7 @@ jelly-theme {
      unchecked, so nothing draws a disabled tick. Primary 700 follows the label
      rather than the Neutral 100 a live checkbox uses, which would all but
      vanish on the pale Secondary 300 surface. */
+  --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
   --m-disabled-label: var(--primary);       /* Primary 700 */
@@ -170,6 +171,7 @@ jelly-theme {
     --m-seg-pill:    var(--primary);
     --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
+  --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
   --m-disabled-label: var(--primary-900);
@@ -204,6 +206,7 @@ jelly-theme[mode="dark"] {
   --m-seg-pill:    var(--primary);
   --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
+  --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
   --m-disabled-label: var(--primary-900);
@@ -240,6 +243,7 @@ jelly-theme[mode="light"] {
      unchecked, so nothing draws a disabled tick. Primary 700 follows the label
      rather than the Neutral 100 a live checkbox uses, which would all but
      vanish on the pale Secondary 300 surface. */
+  --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
   --m-disabled-label: var(--primary);       /* Primary 700 */
@@ -742,6 +746,52 @@ jelly-select::part(trigger) {
 
 jelly-select:focus-within::part(trigger) {
   border-color: var(--m-accent);
+}
+
+/* ---- Disabled fields -----------------------------------------------------
+   Jelly renders a disabled field by swapping --jelly-fill to its neutral and
+   dropping the host to opacity .55. On our page the neutral is Neutral 100, so
+   a disabled field came out as cream at 55 per cent over a Primary 950 card --
+   the grey in the screenshots, and a colour that exists nowhere in Minaa. The
+   Secondary 600 edge stayed at full strength on top of it, so the control read
+   louder disabled than enabled.
+
+   The file draws this state (229:910): a Primary 950 surface, a 1.5 Primary
+   900 edge, and Primary 900 text. Like the checkbox, it recedes by taking the
+   colour of the card behind it rather than by fading, so the opacity goes and
+   the colours carry the state.
+
+   --jelly-color-background-neutral is reassigned alongside the fill because
+   Jelly uses it twice more on a disabled field: it paints the inner input
+   element with it, and surfaceBorder() paints the canvas edge from it. Left
+   alone, both would still be cream -- a grey rectangle inside the pill and a
+   hairline around it. Pointing all three at the same surface makes the inner
+   element and the canvas edge disappear into it, and leaves the visible edge
+   to the ::part(ring) rule below.
+
+   Light is DERIVED. The file has no disabled field in light, so this keeps the
+   dark structure -- surface takes the card colour, edge and text take the
+   light disabled colours already chosen for the checkbox -- rather than
+   inventing a third palette. */
+jelly-input[disabled], jelly-textarea[disabled], jelly-select[disabled] {
+  opacity: 1;
+  --jelly-fill:                     var(--m-disabled-field);
+  --jelly-color-background-neutral: var(--m-disabled-field);
+  --jelly-label:                    var(--m-disabled-label);
+}
+
+jelly-input[disabled]::part(ring),
+jelly-textarea[disabled]::part(ring) {
+  border-color: var(--m-disabled-box);
+}
+
+jelly-select[disabled]::part(trigger) {
+  border-color: var(--m-disabled-box);
+}
+
+jelly-input[disabled]::part(input)::placeholder,
+jelly-textarea[disabled]::part(textarea)::placeholder {
+  color: var(--m-disabled-label);
 }
 
 /* ── Focus — deliberately NOT drawn here ────────────────────────────────────
