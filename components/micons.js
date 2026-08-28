@@ -77,6 +77,35 @@ const MICONS = {
 
   /* interface/setting-solid — a gear with its centre knocked out */
   theme: '<path d="M13.7539 3.82922C14.2237 3.03962 15.2436 2.75889 16.0332 3.22864L17.7617 4.21887C18.6712 4.73864 18.9816 5.90822 18.4619 6.80774C17.5529 8.37663 18.2919 9.65522 20.1006 9.6554C21.14 9.6554 22 10.5054 22 11.5548V13.3136C21.9999 14.353 21.15 15.213 20.1006 15.213C18.2918 15.2132 17.5524 16.4925 18.4619 18.0616C18.9814 18.9712 18.6712 20.1308 17.7617 20.6505L16.0332 21.6398C15.2437 22.1094 14.2237 21.8296 13.7539 21.0402L13.6445 20.8507C12.745 19.2815 11.265 19.2815 10.3555 20.8507L10.2461 21.0402C9.7763 21.8296 8.75633 22.1094 7.9668 21.6398L6.23828 20.6505C5.32882 20.1308 5.01855 18.9612 5.53809 18.0616C6.44757 16.4925 5.70824 15.2132 3.89941 15.213C2.85002 15.213 2.00013 14.353 2 13.3136V11.5548C2.00004 10.5154 2.84996 9.6554 3.89941 9.6554C5.70806 9.65522 6.44714 8.37663 5.53809 6.80774C5.01837 5.90822 5.32882 4.73864 6.23828 4.21887L7.9668 3.22864C8.7564 2.75889 9.77633 3.03962 10.2461 3.82922L10.3555 4.01868C11.255 5.58765 12.735 5.58765 13.6445 4.01868L13.7539 3.82922ZM12 8.46204C9.80633 8.46223 8.02734 10.241 8.02734 12.4347L8.03223 12.6388C8.13525 14.6696 9.76415 16.2982 11.7949 16.4015L12 16.4064C14.125 16.4062 15.8603 14.7374 15.9668 12.6388L15.9717 12.4347C15.9717 10.3094 14.3029 8.57333 12.2041 8.46692L12 8.46204ZM12 9.96204C13.3652 9.96223 14.4717 11.0694 14.4717 12.4347C14.4714 13.7998 13.3651 14.9062 12 14.9064C10.6349 14.9062 9.5276 13.7998 9.52734 12.4347C9.52734 11.0694 10.6348 9.96223 12 9.96204Z" fill="currentColor"/>',
+
+  /* weather/* -- the two states of the theme switch. Imported by key from the
+     published library (8b153aa5... and e9ffbd72...) rather than exported from
+     the instances that use them, because an instance can carry overrides an
+     export would silently bake in. Path data verified identical either way.
+
+     Both are filed in the library under the name `weather/emailbox-solid`,
+     which describes neither a moon nor a sunrise and is the same name for two
+     different components. The names are wrong upstream; the drawings are
+     right. Renaming them in BlltPtiVnS9ULiuMVKo2oM is worth doing before
+     anyone else goes looking for "moon".
+
+     TIER, and worth knowing before reusing these as a pair: they do NOT
+     match. The moon is a SOLID glyph and the sun is an OUTLINE one at stroke
+     2. Against the rule at the top of this file that says decide the tier for
+     a whole set, that is a mismatch -- the moon carries visibly more weight
+     than the sun at the same size. It is what the library holds today. */
+  moon: '<path d="M10.8077 2.89062C10.8184 2.8957 10.8392 2.9088 10.8605 2.94141C10.9067 3.01239 10.9275 3.13131 10.8761 3.25098C9.86031 5.61727 9.21856 8.73023 10.3927 11.3799C11.602 14.1089 14.5903 16.0485 20.1544 16.3379C20.2616 16.3435 20.3394 16.399 20.3761 16.4561C20.3933 16.4828 20.3979 16.5041 20.3986 16.5166C20.399 16.526 20.3979 16.5436 20.381 16.5732C18.7879 19.3682 15.7829 21.25 12.339 21.25C7.23036 21.25 3.08899 17.1086 3.08899 12C3.08899 7.43579 6.3959 3.64215 10.7443 2.88672C10.7843 2.87984 10.8011 2.88752 10.8077 2.89062Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<path d="M18.4121 9.24512C18.3384 9.3808 18.2498 9.509 18.1367 9.62207C18.0238 9.73494 17.8962 9.82381 17.7607 9.89746C17.8962 9.97111 18.0238 10.06 18.1367 10.1729C18.2496 10.2857 18.3385 10.4134 18.4121 10.5488C18.4858 10.4134 18.5746 10.2857 18.6875 10.1729C18.8006 10.0598 18.9288 9.97119 19.0645 9.89746C18.9288 9.82373 18.8006 9.73515 18.6875 9.62207C18.5744 9.50899 18.4858 9.38081 18.4121 9.24512Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<path d="M14.75 5.89453C14.7361 5.90894 14.7224 5.92358 14.708 5.9375C14.7222 5.95126 14.7362 5.96525 14.75 5.97949C14.7639 5.96509 14.7786 5.95142 14.793 5.9375C14.7784 5.92342 14.7641 5.90911 14.75 5.89453Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+
+  sun: '<path d="M7.75 12.75C7.75 10.4028 9.65279 8.5 12 8.5C14.3472 8.5 16.25 10.4028 16.25 12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+       '<path d="M12 3.25V5.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+       '<path d="M2.5 12.75L5 12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+       '<path d="M19 12.75L21.5 12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+       '<path d="M18.7168 6.03247L17.3121 7.43713" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+       '<path d="M5.28223 6.03247L6.68689 7.43713" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+       '<path d="M5 16.75H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+       '<path d="M9 20.75H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
 };
 
 /* One sprite, referenced by <use>, so each path is stored once no matter how

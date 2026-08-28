@@ -36,10 +36,21 @@
      reader to type things the component supplies for itself. */
   const NOISE = /^(aria-|data-jelly)/;
   const NOISE_EXACT = new Set(['role', 'tabindex', 'style', 'slot', 'part', 'class']);
+  /* Bookkeeping the wiring writes at runtime, plus the marker that names a
+     snippet root. None of it is anything a reader should type. */
+  const NOISE_RUNTIME = new Set(['data-snippet-root', 'data-wired', 'data-mode']);
+
+  /* Set only while serialising a declared root. `class` is noise on a Jelly
+     element -- the page hangs layout classes on them that have nothing to do
+     with using the component. On a composition it is the reverse: .theme-switch
+     and .mi-moon ARE the component, and dropping them would print markup that
+     does not work. */
+  let KEEP_CLASS = false;
 
   function attrsOf(el) {
     return [...el.attributes]
-      .filter((a) => !NOISE.test(a.name) && !NOISE_EXACT.has(a.name))
+      .filter((a) => !NOISE.test(a.name) && !NOISE_RUNTIME.has(a.name)
+        && !(NOISE_EXACT.has(a.name) && !(KEEP_CLASS && a.name === 'class')))
       .map((a) => (a.value === '' ? ' ' + a.name : ' ' + a.name + '="' + a.value + '"'))
       .join('');
   }
@@ -82,6 +93,19 @@
   }
 
   function snippetFor(demo) {
+    /* A component that is a composition rather than a single element cannot be
+       described by serialising the jelly-* nodes inside it. The theme switch is
+       a wrapper, a switch and two icons; printing only the switch would tell a
+       reader to type something that does not work. Such a demo names its own
+       root and the whole subtree is serialised, classes included. */
+    const declared = [...demo.querySelectorAll('[data-snippet-root]')];
+    if (declared.length) {
+      KEEP_CLASS = true;
+      const out = declared.map((el) => serialise(el, 0)).join('\n');
+      KEEP_CLASS = false;
+      return out;
+    }
+
     const roots = [...demo.querySelectorAll('*')].filter(
       (el) => el.tagName.toLowerCase().startsWith('jelly-')
         && !hasJellyAncestor(el, demo)
@@ -177,7 +201,48 @@
     }
   }
 
-  function start() { buildCode(); wireThemeDemo(); }
+  /* ── The theme switch (entry 16) ────────────────────────────────────────
+     It drives the PAGE provider rather than a scoped one. That is the whole
+     point of the component and what it will do in the header, so the demo is
+     the mechanism rather than a picture of it -- the opposite call from the
+     jelly-theme demo above, which is scoped on purpose.
+
+     The handler only READS the switch. Writing `checked` back to it inside
+     its own change event makes Jelly re-sync from the write and toggle a
+     second time, so every other click appears to do nothing. That cost an
+     afternoon on the test page; the switch owns `checked`, the page owns
+     `mode`, and neither writes the other's. */
+  function wireThemeSwitch() {
+    const page = document.querySelector('body > jelly-theme');
+    if (!page) return;
+
+    document.querySelectorAll('[data-theme-switch]').forEach((wrap) => {
+      const sw = wrap.querySelector('jelly-switch');
+      if (!sw || wrap.dataset.wired) return;
+      wrap.dataset.wired = '1';
+
+      /* resolvedMode, not the attribute: the attribute may say "auto", which
+         is not a position a switch has. */
+      const settle = (mode) => { sw.toggleAttribute('checked', mode === 'light'); wrap.dataset.mode = mode; };
+      settle(page.resolvedMode || 'light');
+
+      sw.addEventListener('change', () => {
+        const mode = sw.checked ? 'light' : 'dark';
+        page.setAttribute('mode', mode);
+        wrap.dataset.mode = mode;
+      });
+
+      /* While the page is still on auto, the OS can move underneath us. Safe
+         to write `checked` here because it is not a reaction to the switch. */
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (page.getAttribute('mode') === 'auto') settle(page.resolvedMode);
+        });
+      }
+    });
+  }
+
+  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); }
 
   if (window.customElements) {
     Promise.all(

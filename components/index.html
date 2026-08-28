@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260829c"></script>
+<script src="../gate.js?v=20260829g"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -16,15 +16,18 @@
 <link rel="preconnect" href="https://jelly-ui.com" crossorigin>
 
 <!-- SPIKE: Jelly vendored from https://jelly-ui.com/dist/jelly.js (MIT, by
-     bmson.com), with one addition — a `--jelly-slider-knob` token so the knob
-     can differ from the filled track. The physics is untouched. Diff and
-     rationale in vendor/README.md. Revert to the hosted package.js to undo. -->
-<script type="module" src="vendor/jelly.js?v=20260829c"></script>
+     bmson.com), with three added tokens: --jelly-slider-knob and its range
+     twin so a knob can differ from the filled track, and --jelly-switch-inset
+     so the theme switch can hold the inset the drawing pads by. Every one
+     falls back to Jelly's own value, so a component that sets none behaves
+     exactly as before. The physics is untouched — not one spring constant or
+     paint routine. Diff and rationale in vendor/README.md. -->
+<script type="module" src="vendor/jelly.js?v=20260829g"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260829c">
-<link rel="stylesheet" href="showcase.css?v=20260829c">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260829g">
+<link rel="stylesheet" href="showcase.css?v=20260829g">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -44,13 +47,14 @@
     <p class="eyebrow">Components</p>
     <h1>Component library</h1>
     <p>Jelly UI wearing Minaã. Every control below is the real Jelly component,
-       unmodified — the identity comes from one token bridge that replaces
+       all but unmodified — the identity comes from one token bridge that replaces
        Jelly's design language with ours: eleven colour tokens, the 14-step
        spacing scale, and 29LT Idris Round.</p>
     <ul class="facts">
       <li>Forms · 12 components</li>
+      <li>1 theme switch</li>
       <li>1 token bridge</li>
-      <li>0 forks</li>
+      <li>3 forked tokens</li>
       <li>Minaã Blue throughout</li>
       <li>LTR</li>
     </ul>
@@ -369,9 +373,34 @@
     </div>
   </section>
 
+  <section class="entry" id="c-16">
+    <div class="entry-text">
+    <p class="entry-num">Theming · 16</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-theme"/></svg> theme switch</h2>
+    <p class="entry-note">A <code>&lt;jelly-switch&gt;</code> at the geometry of Figma 253:26, driving this page's
+       <code>&lt;jelly-theme&gt;</code>. Checked is light: the drawing rests the thumb at the start for dark and at
+       the end for light, and in an LTR page the start is the unchecked position. The icon sits in whichever
+       half the thumb has left, and the two cross-fade rather than swap, because a swap at the end of the
+       travel pops while the track colour is still crossfading.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row">
+        <figure class="specimen">
+          <span class="theme-switch" data-theme-switch data-snippet-root>
+            <jelly-switch aria-label="Theme"></jelly-switch>
+            <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
+            <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
+          </span>
+          <figcaption>Drives the whole page</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
-       through a token bridge; the library itself is unmodified and loaded from its own origin.</p>
+       through a token bridge. The library is vendored here rather than loaded from its own origin, and
+       carries three added tokens — each one falling back to Jelly's value, none of them touching the
+       physics. The diff is in <code>vendor/README.md</code>.</p>
     <p>Minaã — Components. Not public yet.</p>
   </footer>
 
@@ -381,8 +410,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260829c"></script>
-<script src="micons.js?v=20260829c"></script>
-<script src="showcase.js?v=20260829c" defer></script>
+<script src="minaa-jelly.js?v=20260829g"></script>
+<script src="micons.js?v=20260829g"></script>
+<script src="showcase.js?v=20260829g" defer></script>
 </body>
 </html>

@@ -2269,7 +2269,7 @@ class He extends L {
       MINAA_i = parseFloat(MINAA_cs.getPropertyValue("--jelly-switch-inset")),
       MINAA_d = parseFloat(MINAA_cs.getPropertyValue("--jelly-switch-thumb-size")),
       MINAA_inset = Number.isFinite(MINAA_i) ? MINAA_i : this.sizeConfig.inset,
-      e = Number.isFinite(MINAA_d) ? MINAA_d : t - this.sizeConfig.inset * 2;
+      e = Number.isFinite(MINAA_d) ? MINAA_d : t - MINAA_inset * 2;
     this.MINAA_travel = MINAA_w - MINAA_inset * 2 - e;
     this.thumbBody ? this.thumbBody.resize(e, e, e / 2) : this.thumbBody = new D({ width: e, height: e, radius: e / 2 }), this.thumbTarget = this.targetFor(this.checked), this.thumbX = this.thumbTarget, this.thumbXVelocity = 0, this.requestFrame();
   }

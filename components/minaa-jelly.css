@@ -1131,3 +1131,72 @@ jelly-textarea::part(textarea):-webkit-autofill {
   -webkit-text-fill-color: var(--m-value);
   -webkit-box-shadow: 0 0 0 1000px var(--m-field) inset;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE THEME SWITCH  (Figma 253:26)
+
+   Not a new component. It is a jelly-switch given the drawn geometry and two
+   icons laid over the half the thumb is not occupying, because the brief was
+   "react like jelly-switch" and re-implementing the physics to get the same
+   feel is how the slider knob went wrong the first time.
+
+   The drawing pads its track 4 on every side and lays it out space-between:
+   a 32 thumb hard against one end, a 24 icon hard against the other, 16 of
+   air between them. A uniform inset is exactly the model Jelly already has,
+   so one forked token carries it and the thumb diameter falls out.
+   ═════════════════════════════════════════════════════════════════════════ */
+.theme-switch {
+  position: relative;
+  display: inline-flex;
+  --ts-track-h: var(--control-40);   /* must agree with --jelly-switch-height */
+  --ts-icon:    var(--control-icon-24);
+  --ts-inset:   var(--space-050);    /* the track padding, uniform, as drawn */
+}
+
+/* The tokens go on the ELEMENT, not on .theme-switch. Set on the wrapper they
+   are merely inherited, and Jelly declares its own on :host, where an explicit
+   declaration beats an inherited one. Written on the wrapper first and the
+   switch came out 56x30 in Neutral 100: the rules were live, they just never
+   reached the component. */
+.theme-switch jelly-switch {
+  --jelly-switch-width:  var(--space-1000);   /* 80 */
+  --jelly-switch-height: var(--control-40);
+  --jelly-switch-gap: 0;
+  /* From the fork. Jelly hardcodes 5 for medium; 4 is what the drawing pads
+     by, and the thumb derives from it as 40 - 4*2 = 32. */
+  --jelly-switch-inset: var(--space-050);
+  /* Off is dark, on is light. That reads backwards until you look at the
+     drawing: Mode=Dark rests the thumb at the start and Mode=Light rests it at
+     the end, and in an LTR page the start is the unchecked position. So the
+     CHECKED state is light mode, and the track colours follow it. */
+  --jelly-off: var(--primary);        /* Primary 700 - dark  */
+  --jelly-on:  var(--primary-300);    /* Primary 300 - light */
+  --jelly-switch-thumb-off: var(--m-thumb);
+  --jelly-switch-thumb-on:  var(--m-thumb);
+}
+
+/* Exactly one icon is visible: the one in the half the thumb has left. Both
+   are rendered and cross-faded rather than swapped, because a swap at the end
+   of the travel pops while the track colour is still crossfading. */
+.theme-switch .mi {
+  position: absolute;
+  /* NOT top: 50%. The jelly-switch host is 46 tall where its painted track is
+     40, and the spare 6 sits entirely BELOW the track, so the host centre is
+     3px lower than the track centre. Centring on the host put 11 above the
+     icon and 5 below it. Measuring down from the top, which host and track
+     share, is exact. */
+  top: calc((var(--ts-track-h) - var(--ts-icon)) / 2);
+  width:  var(--ts-icon);
+  height: var(--ts-icon);
+  color: var(--m-thumb);      /* Secondary 600, as drawn */
+  pointer-events: none;       /* the switch underneath keeps the drag */
+  transition: opacity .18s ease;
+}
+.theme-switch .mi-sun  { inset-inline-start: var(--ts-inset); opacity: 0; }
+.theme-switch .mi-moon { inset-inline-end:   var(--ts-inset); opacity: 1; }
+.theme-switch[data-mode="light"] .mi-sun  { opacity: 1; }
+.theme-switch[data-mode="light"] .mi-moon { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch .mi { transition: none; }
+}

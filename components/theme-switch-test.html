@@ -19,9 +19,9 @@
      Everything here is deliberately duplicated rather than added to
      minaa-jelly.css, so a failed test throws away cleanly. -->
 
-<script type="module" src="vendor/jelly.js?v=20260829d"></script>
-<link rel="stylesheet" href="minaa-jelly.css?v=20260829d">
-<script src="minaa-jelly.js?v=20260829d" defer></script>
+<script type="module" src="vendor/jelly.js?v=20260829e"></script>
+<link rel="stylesheet" href="minaa-jelly.css?v=20260829e">
+<script src="minaa-jelly.js?v=20260829e" defer></script>
 
 <style>
   body {
@@ -72,12 +72,14 @@
     --jelly-switch-width:  80px;
     --jelly-switch-height: 40px;
     --jelly-switch-gap: 0;
-    /* Both from the fork. 253:26 lays the track out with padding-inline 8 and
-       centres its children, so the thumb is 32 with 8 either side and 4 above
-       and below -- an inset that differs by axis, which Jelly's single number
-       could not express. The thumb now matches the icon exactly. */
-    --jelly-switch-thumb-size: 32px;
-    --jelly-switch-inset:       8px;
+    /* One token, from the fork. 253:26 now pads the track 4 on every side and
+       lays it out space-between, so the thumb is 32 with a uniform 4 inset --
+       and a uniform inset is exactly Jelly's own model, so the diameter falls
+       out of it: 40 - 4*2 = 32. Only the number needs replacing, because Jelly
+       hardcodes 5 for medium. The earlier draft also set --jelly-switch-thumb-
+       size; that was needed when the drawing wanted 8 horizontal and 4
+       vertical, and this update removed the need for it. */
+    --jelly-switch-inset: 4px;
     /* Off is dark, on is light. That reads backwards until you look at the
        drawing: Mode=Dark rests the thumb at the start, Mode=Light rests it at
        the end, and in an LTR page the start is the unchecked position. So the
@@ -97,13 +99,10 @@
      one place, and so the centring below cannot drift from the track height. */
   .theme-switch {
     --ts-track-h: 40px;   /* must match --jelly-switch-height */
-    /* 253:26 draws 24. 32 is Ahmad's call: it matches the thumb, so the pill
-       reads as two circles of equal weight rather than a disc and a smaller
-       mark. It costs clearance -- 5px between icon and thumb instead of 9 --
-       which is the trade being made knowingly, not an oversight. */
-    --ts-icon:    32px;
-    --ts-inset:    8px;   /* the thumb's resting inset, as drawn */
+    --ts-icon:    24px;  /* as drawn */
+    --ts-inset:    4px;  /* the track padding, uniform, as drawn */
   }
+
 
   .theme-switch .mi {
     position: absolute;
@@ -163,7 +162,7 @@
   const theme = document.querySelector('jelly-theme');
   const wrap  = document.getElementById('ts');
   const sw    = document.getElementById('sw');
-  const out   = document.getElementById('out');
+  const out   = document.getElementById("out");
 
   /* paint() only READS the switch. It must never write `checked` back, which
      is the bug this page caught: the first version set the attribute inside
@@ -187,6 +186,7 @@
     const start = theme.resolvedMode;
     sw.toggleAttribute('checked', start === 'light');
     paint(start);
+
 
     sw.addEventListener('change', () => {
       const mode = sw.checked ? 'light' : 'dark';
