@@ -174,7 +174,16 @@ jelly-theme {
   }
 }
 
-/* Forced dark, whatever the OS says. */
+/* Forced dark, whatever the OS says.
+
+   :root is in the selector because <body> is the theme element's PARENT, not
+   its descendant, so an attribute on the wrapper cannot reach it. Without
+   this, forcing a mode painted the cards and controls in the mode asked for
+   while the page background and the prose ink stayed on whatever the OS said
+   -- light cards marooned on a dark page. The :has() is scoped to the
+   page-level wrapper (a direct child of body) so the scoped theming demo
+   further down cannot drag the whole page with it. */
+:root:has(> body > jelly-theme[mode="dark"]),
 jelly-theme[mode="dark"] {
   --m-page:        var(--primary-900);
   --m-card:        var(--primary-950);
@@ -200,7 +209,8 @@ jelly-theme[mode="dark"] {
 }
 
 /* Forced light, whatever the OS says. Must come last so it wins back from the
-   media query above. */
+   media query above. Same :root:has() as the dark block above, same reason. */
+:root:has(> body > jelly-theme[mode="light"]),
 jelly-theme[mode="light"] {
   --m-page:        var(--cream);
   --m-card:        var(--cream-50);
