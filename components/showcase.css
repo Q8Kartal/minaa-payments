@@ -59,7 +59,17 @@ body {
 
 /* ── Masthead ────────────────────────────────────────────────────────────── */
 
-.masthead { margin-block-end: var(--space-1000); }   /* 80 */
+/* position: relative so the theme switch can sit in the corner. It is the
+   component in the place it will actually be used, not a specimen -- which is
+   also the honest test of it: anything wrong with the control shows up here
+   first, on every visit, rather than in a demo card someone has to scroll to. */
+.masthead { position: relative; margin-block-end: var(--space-1000); }   /* 80 */
+
+.masthead-switch {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+}
 
 .eyebrow {
   margin: 0 0 var(--space-100);

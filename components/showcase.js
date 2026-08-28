@@ -230,8 +230,18 @@
        already know: a real toggle always disagrees with the current mode,
        because disagreeing is what toggling means, while an echo always agrees.
        No timers, and nothing to get wrong when the machine is slow. */
+    /* The OS, not a hopeful default. Reading `resolvedMode || "light"` looks
+       harmless and is not: jelly-theme may not have upgraded yet, and on a dark
+       machine the guard below then compares a real "dark" against a made-up
+       "light", decides they disagree, and writes mode="dark" onto a page that
+       was quite happily on "auto". Nothing looked wrong -- the colour matched
+       the OS -- but the page had stopped following it. */
+    const osMode = () => (window.matchMedia
+      && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const current = () => page.resolvedMode || osMode();
+
     function render() {
-      const mode = page.resolvedMode || 'light';
+      const mode = current();
       wraps.forEach((w) => {
         w.dataset.mode = mode;
         w.querySelector('jelly-switch').toggleAttribute('checked', mode === 'light');
@@ -243,7 +253,7 @@
       if (!sw) return;
       sw.addEventListener('change', () => {
         const want = sw.checked ? 'light' : 'dark';
-        if (want === (page.resolvedMode || 'light')) return;   // our own write coming back
+        if (want === current()) return;   // our own write coming back
         page.setAttribute('mode', want);
         render();
       });
