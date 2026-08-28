@@ -828,8 +828,13 @@ jelly-switch[disabled] {
   --jelly-fill:                    var(--m-disabled-box);
   --jelly-accent:                  var(--m-disabled-box);
   --jelly-color-background-accent: var(--m-disabled-box);
-  --jelly-switch-thumb-off:        var(--m-disabled-mark);
-  --jelly-switch-thumb-on:         var(--m-disabled-mark);
+  /* The thumb stays --m-thumb. The system already says every thumb and dot is
+     Secondary 600, and pointing it at --m-disabled-mark invented a rule that
+     does not exist -- which in light painted it Primary 700, a full-strength
+     brand blue that read as neither a thumb nor disabled. The TRACK carries
+     the state; the thumb is the thumb. */
+  --jelly-switch-thumb-off:        var(--m-thumb);
+  --jelly-switch-thumb-on:         var(--m-thumb);
   --jelly-label:                   var(--m-disabled-label);
 }
 
