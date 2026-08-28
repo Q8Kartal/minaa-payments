@@ -213,35 +213,51 @@
      afternoon on the test page; the switch owns `checked`, the page owns
      `mode`, and neither writes the other's. */
   function wireThemeSwitch() {
-    const page = document.querySelector('body > jelly-theme');
-    if (!page) return;
+    const page  = document.querySelector('body > jelly-theme');
+    const wraps = [...document.querySelectorAll('[data-theme-switch]')];
+    if (!page || !wraps.length || page.dataset.switchWired) return;
+    page.dataset.switchWired = '1';
 
-    document.querySelectorAll('[data-theme-switch]').forEach((wrap) => {
-      const sw = wrap.querySelector('jelly-switch');
-      if (!sw || wrap.dataset.wired) return;
-      wrap.dataset.wired = '1';
+    /* One source of truth: the provider. Every switch renders FROM it, and a
+       switch that changes writes TO it and then re-renders all of them, so the
+       sizes on this page cannot drift apart.
 
-      /* resolvedMode, not the attribute: the attribute may say "auto", which
-         is not a position a switch has. */
-      const settle = (mode) => { sw.toggleAttribute('checked', mode === 'light'); wrap.dataset.mode = mode; };
-      settle(page.resolvedMode || 'light');
-
-      sw.addEventListener('change', () => {
-        const mode = sw.checked ? 'light' : 'dark';
-        page.setAttribute('mode', mode);
-        wrap.dataset.mode = mode;
+       The guard is the interesting part. Writing `checked` makes Jelly fire a
+       change of its own, so a naive handler reacts to its own initialisation --
+       and with four switches settling in sequence they fought each other and
+       left the page dark with nothing clicked. Rather than time the echo out,
+       the handler asks whether the switch is telling it something it does not
+       already know: a real toggle always disagrees with the current mode,
+       because disagreeing is what toggling means, while an echo always agrees.
+       No timers, and nothing to get wrong when the machine is slow. */
+    function render() {
+      const mode = page.resolvedMode || 'light';
+      wraps.forEach((w) => {
+        w.dataset.mode = mode;
+        w.querySelector('jelly-switch').toggleAttribute('checked', mode === 'light');
       });
+    }
 
-      /* While the page is still on auto, the OS can move underneath us. Safe
-         to write `checked` here because it is not a reaction to the switch. */
-      if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-          if (page.getAttribute('mode') === 'auto') settle(page.resolvedMode);
-        });
-      }
+    wraps.forEach((w) => {
+      const sw = w.querySelector('jelly-switch');
+      if (!sw) return;
+      sw.addEventListener('change', () => {
+        const want = sw.checked ? 'light' : 'dark';
+        if (want === (page.resolvedMode || 'light')) return;   // our own write coming back
+        page.setAttribute('mode', want);
+        render();
+      });
     });
-  }
 
+    render();
+
+    /* While the page is still on auto the OS can move underneath us. */
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (page.getAttribute('mode') === 'auto') render();
+      });
+    }
+  }
   function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); }
 
   if (window.customElements) {

@@ -90,10 +90,13 @@
   /* The control ladder. Named without an axis because the OTP digit uses these
      for its WIDTH as well as its height; --control-h-* said height and was then
      asked to be a width, which is the sort of small lie that outlives everyone. */
+  --control-96: 96px;
+  --control-80: 80px;
   --control-64: 64px;
   --control-56: 56px;
   --control-48: 48px;
   --control-40: 40px;
+  --control-32: 32px;
   --control-icon-20: 20px;
   --control-icon-24: 24px;
   --control-icon-16: 16px;
@@ -1200,3 +1203,41 @@ jelly-textarea::part(textarea):-webkit-autofill {
 @media (prefers-reduced-motion: reduce) {
   .theme-switch .mi { transition: none; }
 }
+
+/* ---- Sizes ---------------------------------------------------------------
+   Named for where the control is used rather than small/medium/large, because
+   the reason to change size here is the pointing device, not emphasis.
+
+   Every number comes off the control ladder, and only two are written per
+   size: the track. The thumb derives from the 4 inset (height - 4*2) and the
+   gap is whatever is left, so a size cannot be internally inconsistent.
+
+     desktop   80 x 40   thumb 32   icon 24   gap 16   <- as drawn, 253:26
+     ios       64 x 32   thumb 24   icon 20   gap 12
+     android   96 x 48   thumb 40   icon 24   gap 24
+
+   THE PLATFORM ASSIGNMENT IS A GUESS AND SHOULD BE CHECKED. Three visibly
+   distinct steps were the ask, and these are three; which platform gets which
+   is not derivable from anything. Two facts that argue with the ordering as it
+   stands: a touch target wants to be LARGER than a pointer one, not smaller,
+   so iOS being the smallest is backwards on ergonomics; and Apple ships its
+   own switch at 51x31 while Material ships 52x32, which is to say the two
+   platforms agree with each other and disagree with all three of these. Say
+   which size belongs to which surface and it is one line each. */
+.theme-switch[data-size="desktop"] jelly-switch {
+  --jelly-switch-width:  var(--control-80);
+  --jelly-switch-height: var(--control-40);
+}
+.theme-switch[data-size="desktop"] { --ts-track-h: var(--control-40); --ts-icon: var(--control-icon-24); }
+
+.theme-switch[data-size="ios"] jelly-switch {
+  --jelly-switch-width:  var(--control-64);
+  --jelly-switch-height: var(--control-32);
+}
+.theme-switch[data-size="ios"] { --ts-track-h: var(--control-32); --ts-icon: var(--control-icon-20); }
+
+.theme-switch[data-size="android"] jelly-switch {
+  --jelly-switch-width:  var(--control-96);
+  --jelly-switch-height: var(--control-48);
+}
+.theme-switch[data-size="android"] { --ts-track-h: var(--control-48); --ts-icon: var(--control-icon-24); }

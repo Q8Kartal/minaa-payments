@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260829g"></script>
+<script src="../gate.js?v=20260829i"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260829g"></script>
+<script type="module" src="vendor/jelly.js?v=20260829i"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260829g">
-<link rel="stylesheet" href="showcase.css?v=20260829g">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260829i">
+<link rel="stylesheet" href="showcase.css?v=20260829i">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -394,6 +394,33 @@
           <figcaption>Drives the whole page</figcaption>
         </figure>
       </div>
+
+      <div class="row">
+        <figure class="specimen">
+          <span class="theme-switch" data-theme-switch data-size="desktop">
+            <jelly-switch aria-label="Theme, desktop"></jelly-switch>
+            <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
+            <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
+          </span>
+          <figcaption>desktop &middot; 80&times;40</figcaption>
+        </figure>
+        <figure class="specimen">
+          <span class="theme-switch" data-theme-switch data-size="ios">
+            <jelly-switch aria-label="Theme, iOS"></jelly-switch>
+            <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
+            <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
+          </span>
+          <figcaption>ios &middot; 64&times;32</figcaption>
+        </figure>
+        <figure class="specimen">
+          <span class="theme-switch" data-theme-switch data-size="android">
+            <jelly-switch aria-label="Theme, Android"></jelly-switch>
+            <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
+            <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
+          </span>
+          <figcaption>android &middot; 96&times;48</figcaption>
+        </figure>
+      </div>
     </div>
   </section>
   <footer class="foot">
@@ -410,8 +437,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260829g"></script>
-<script src="micons.js?v=20260829g"></script>
-<script src="showcase.js?v=20260829g" defer></script>
+<script src="minaa-jelly.js?v=20260829i"></script>
+<script src="micons.js?v=20260829i"></script>
+<script src="showcase.js?v=20260829i" defer></script>
 </body>
 </html>
