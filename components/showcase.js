@@ -93,6 +93,12 @@
   }
 
   function snippetFor(demo) {
+    /* Some entries are a JS call, not markup. Serialising their demo would
+       print the buttons that happen to fire it, which is page furniture and
+       teaches the wrong thing, so such a demo states its snippet outright. */
+    const literal = demo.querySelector('template[data-snippet-text]');
+    if (literal) return literal.content.textContent.trim();   /* .content: a template's children live in a fragment, so textContent on the element itself is empty */
+
     /* A component that is a composition rather than a single element cannot be
        described by serialising the jelly-* nodes inside it. The theme switch is
        a wrapper, a switch and two icons; printing only the switch would tell a
@@ -268,7 +274,20 @@
       });
     }
   }
-  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); }
+  /* The four toast triggers. jellyToast is Jelly's own global; the tone and the
+     message ride on the button so the markup stays the single place either is
+     written, and nothing here duplicates the copy shown in the caption. */
+  function wireToasts() {
+    document.querySelectorAll('[data-toast]').forEach((btn) => {
+      if (btn.dataset.toastWired) return;
+      btn.dataset.toastWired = '1';
+      btn.addEventListener('click', () => {
+        if (typeof jellyToast === 'function') jellyToast(btn.dataset.toast, { tone: btn.dataset.tone });
+      });
+    });
+  }
+
+  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts(); }
 
   if (window.customElements) {
     Promise.all(

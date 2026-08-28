@@ -74,6 +74,15 @@
   --success-text: #158200;   /* Green 700  */
   --warning:      #E5B11F;   /* Yellow 400 */
   --error:        #E56E1F;   /* Orange 500 */
+  /* The deep steps. Each is the same hue as the bright one above at a weight
+     that clears 4.5:1 on cream, and they carry the pressed state of the tone
+     buttons. Recorded here because the bright steps do NOT clear it -- Green
+     600 is 2.75:1, Orange 500 2.83:1, Yellow 400 only 1.75:1 -- so if the
+     toast pills ever need to be legible rather than saturated, these are the
+     one-word substitution. */
+  --success-deep: #146600;   /* Green 800  */
+  --warning-deep: #94630E;   /* Yellow 700 */
+  --error-deep:   #A14712;   /* Orange 700 */
 
   /* Spacing — the official 14-step scale. Never write a raw px for padding,
      gap, item spacing or layout spacing; bind to a step. */
@@ -1241,3 +1250,90 @@ jelly-textarea::part(textarea):-webkit-autofill {
   --jelly-switch-height: var(--control-48);
 }
 .theme-switch[data-size="android"] { --ts-track-h: var(--control-48); --ts-icon: var(--control-icon-24); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE TOASTER
+
+   Ported from buttons-en.html unchanged, and deliberately IDENTICAL in both
+   modes. Ahmad asked for it that way: a toast is a momentary overlay that
+   arrives on top of whatever is underneath, and its job is to be read, not to
+   belong to the page. The four tones are semantic colours, which are never
+   brand and never decoration and therefore never mode-dependent either -- an
+   error is Orange 500 whatever the surface behind it.
+
+   Everything here is the buttons page verbatim, which is the point: the same
+   toast, not a second implementation of one that drifts from it.
+
+   Jelly paints its pill from --jelly-color-background-surface with
+   --jelly-color-foreground-default copy, and each tone dot from one of its
+   own palette hues. Jelly's pill is near-black, which has no place here.
+   ═════════════════════════════════════════════════════════════════════════ */
+jelly-toaster {
+  --jelly-color-background-surface: var(--primary);
+  --jelly-color-foreground-default: var(--cream);
+  --jelly-color-background-azure:   var(--cream);      /* info    */
+  --jelly-color-background-mint:    var(--success);    /* success */
+  --jelly-color-background-amber:   var(--warning);    /* warning */
+  --jelly-color-background-rose:    var(--error);      /* danger  */
+  --jelly-toast-font-size: var(--text-sm);
+  font-family: var(--font-regular);
+}
+
+/* Jelly hardcodes the pill's own spacing -- measured on the rendered toast:
+   gap 11, padding-block 11, padding-inline 14, and .rail gap 10. None of 10,
+   11 or 14 is a step on the scale and it exposes no property for any of them,
+   so they are bound here. The shadow root is somebody else's stylesheet but it
+   paints on our page, so the no-raw-values rule reaches inside it.
+
+   .rail carries no part attribute and cannot be reached from a stylesheet at
+   all -- minaa-jelly.js binds that one by injection. */
+jelly-toaster::part(toast) {
+  border: none;
+  gap: var(--space-150);
+  padding-block: var(--space-150);
+  padding-inline: var(--space-200);
+}
+
+/* No dismiss control. The toast leaves on its own timer, and the disc the x
+   sat on was a second circle competing with the tone mark inside one small
+   pill. It costs early dismissal; it does not cost the message, which Jelly
+   also announces with a spoken tone prefix. */
+jelly-toaster::part(close) { display: none; }
+
+/* The dot became the tone mark. minaa-jelly.js clears its inline background
+   and puts the Micon inside; this gives that glyph a box to sit in. Cream on
+   every tone, so mark and copy read as one thing.
+
+   NOT display:flex, and that is not an oversight: laying the glyph out as a
+   flex item is what made Safari collapse it to nothing while Chrome rendered
+   it fine. The svg fills this box at 100% instead and needs no inner layout. */
+jelly-toaster::part(dot) {
+  inline-size: var(--text-xl);
+  block-size: var(--text-xl);
+  border-radius: 0;
+  color: var(--cream);
+  flex: none;
+}
+
+/* One pill colour per tone, hung on the part name minaa-jelly.js appends.
+   Jelly gives every toast an identical part="toast" with nothing to say which
+   of the four it is, so there is nothing for a stylesheet to hook until that
+   runs. */
+jelly-toaster::part(tone-info)    { background: var(--primary); }
+jelly-toaster::part(tone-success) { background: var(--success); }
+jelly-toaster::part(tone-warning) { background: var(--warning); }
+jelly-toaster::part(tone-danger)  { background: var(--error);   }
+
+/* The four triggers. jelly-button is not a documented entry in this library --
+   it was excluded from the brief -- but it is what fires the toasts on the
+   buttons page, and porting the toast means porting how it is fired. They are
+   page furniture here, not a specimen, which is why the entry marks them
+   data-controls and the snippet shows the jellyToast call instead. */
+.toast-trigger[data-tone] {
+  --jelly-label: var(--cream);
+  --jelly-label-on: var(--cream);
+}
+.toast-trigger[data-tone="info"]    { --jelly-fill: var(--primary); --jelly-accent: var(--primary); }
+.toast-trigger[data-tone="success"] { --jelly-fill: var(--success); --jelly-accent: var(--success-deep); }
+.toast-trigger[data-tone="warning"] { --jelly-fill: var(--warning); --jelly-accent: var(--warning-deep); }
+.toast-trigger[data-tone="danger"]  { --jelly-fill: var(--error);   --jelly-accent: var(--error-deep); }
