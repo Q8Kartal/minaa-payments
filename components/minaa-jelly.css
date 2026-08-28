@@ -93,6 +93,7 @@
   --control-h-48: 48px;
   --control-h-40: 40px;
   --control-icon-20: 20px;
+  --control-icon-24: 24px;
   --control-icon-16: 16px;
   --control-stroke: 1.5px;
   /* The tick and dash inside a checkbox. A MARK is not a BORDER: the field
@@ -473,6 +474,42 @@ jelly-checkbox[disabled] {
   --jelly-label:                   var(--m-disabled-label);
 }
 
+/* ------ Sizes -------------------------------------------------------------
+   Jelly scales five tokens per size behind :host([size="small"]) and friends.
+   The bridge was setting those same tokens flat on the element, and an outer
+   rule on the host beats a :host rule inside the shadow root -- so every size
+   collapsed to one and the prop did nothing at all. Stating them per attribute
+   hands the prop back without giving up our values.
+
+   Both spellings, because Jelly accepts sm/md/lg as aliases and a size that
+   silently fell back to medium is the bug this rule exists to fix.
+
+   Medium is the size the Figma file draws: a 20 box, 8 gap, 16 label. Small
+   and large are DERIVED -- the file has no size ramp -- so they step one stop
+   along the scales we already have rather than inventing numbers.
+
+   Radius and mark stroke deliberately do NOT scale. Jelly grows both with the
+   box; the specification draws a 4 corner and a 3 mark, and those are the two
+   values it actually states. Holding them constant keeps the corner language
+   and the mark weight the same across the three. */
+jelly-checkbox[size="small"], jelly-checkbox[size="sm"] {
+  --jelly-checkbox-size:      var(--control-icon-16);
+  --jelly-checkbox-gap:       var(--space-075);
+  --jelly-checkbox-font-size: var(--text-sm);
+}
+
+jelly-checkbox[size="medium"], jelly-checkbox[size="md"] {
+  --jelly-checkbox-size:      var(--control-icon-20);
+  --jelly-checkbox-gap:       var(--space-100);
+  --jelly-checkbox-font-size: var(--text-md);
+}
+
+jelly-checkbox[size="large"], jelly-checkbox[size="lg"] {
+  --jelly-checkbox-size:      var(--control-icon-24);
+  --jelly-checkbox-gap:       var(--space-150);
+  --jelly-checkbox-font-size: var(--text-lg);
+}
+
 jelly-input {
   --jelly-input-radius:         var(--radius-full);
   --jelly-input-padding-inline: var(--space-250);
@@ -584,6 +621,31 @@ jelly-switch {
   --jelly-switch-thumb-off: var(--m-thumb);
   /* Via --jelly-label, not `color`: see jelly-checkbox above. */
   --jelly-label: var(--m-toggle-label);
+}
+
+/* Same defect, same fix as the checkbox above -- the pinned width and height
+   made the switch prop inert too. Medium is the pair already in use; small and
+   large hold its exact 2:1 ratio and land every value on a step we already
+   have. Large jumps further than small does because the scale offers no 28. */
+jelly-switch[size="small"], jelly-switch[size="sm"] {
+  --jelly-switch-width:     var(--space-500);
+  --jelly-switch-height:    var(--space-250);
+  --jelly-switch-gap:       var(--space-075);
+  --jelly-switch-font-size: var(--text-sm);
+}
+
+jelly-switch[size="medium"], jelly-switch[size="md"] {
+  --jelly-switch-width:     var(--space-600);
+  --jelly-switch-height:    var(--space-300);
+  --jelly-switch-gap:       var(--space-100);
+  --jelly-switch-font-size: var(--text-md);
+}
+
+jelly-switch[size="large"], jelly-switch[size="lg"] {
+  --jelly-switch-width:     var(--space-800);
+  --jelly-switch-height:    var(--space-400);
+  --jelly-switch-gap:       var(--space-150);
+  --jelly-switch-font-size: var(--text-lg);
 }
 
 jelly-textarea {
