@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260828y"></script>
+<script src="../gate.js?v=20260828z"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -19,12 +19,12 @@
      bmson.com), with one addition — a `--jelly-slider-knob` token so the knob
      can differ from the filled track. The physics is untouched. Diff and
      rationale in vendor/README.md. Revert to the hosted package.js to undo. -->
-<script type="module" src="vendor/jelly.js?v=20260828y"></script>
+<script type="module" src="vendor/jelly.js?v=20260828z"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260828y">
-<link rel="stylesheet" href="showcase.css?v=20260828y">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260828z">
+<link rel="stylesheet" href="showcase.css?v=20260828z">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -152,9 +152,10 @@
     <p class="entry-num">Forms · 05</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-input"/></svg> &lt;jelly-input&gt;</h2>
     <p class="entry-note">A single-line field. Focus lifts and rings the membrane, and each keystroke
-       ripples the surface at the caret. The focus indicator is Jelly's own, painted on its canvas and
-       tinted Primary 700 by the bridge — <b>not</b> the 3px solid ring the Buttons page specifies.
-       The two libraries do not agree on this yet; the difference is recorded rather than hidden.</p>
+       ripples the surface at the caret. Focus shows twice over: the permanent Secondary 600 edge
+       turns Primary 700, and Jelly paints a ring of its own on the canvas beneath it. That doubling
+       is measured and recorded in the stylesheet rather than hidden. Neither is <b>the 3px solid
+       ring the Buttons page specifies</b>; the two libraries do not agree on focus yet.</p>
     </div>
     <div class="demo" data-demo>
       <div class="row">
@@ -216,7 +217,7 @@
     <p class="entry-num">Forms · 08</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radio"/></svg> &lt;jelly-radio&gt;</h2>
     <p class="entry-note">Radios sharing a <code>name</code> under the same root form a group with
-       roving tabindex and direction-aware arrow keys. The dot is Neutral 100 on Primary 700.</p>
+       roving tabindex and direction-aware arrow keys. The dot is Secondary 600 on Primary 700, the thumb colour every control shares.</p>
     </div>
     <div class="demo" data-demo>
       <div class="row">
@@ -334,8 +335,9 @@
     <div class="entry-text">
     <p class="entry-num">Forms · 14</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-switch"/></svg> &lt;jelly-switch&gt;</h2>
-    <p class="entry-note">A draggable switch whose thumb stretches like a liquid drop and whose colour
-       crossfades between off and on. Off is Neutral 200, on is Primary 700.</p>
+    <p class="entry-note">A draggable switch whose thumb stretches like a liquid drop and whose track
+       crossfades between off and on. The track carries the state: off is Primary 300 in light and
+       Neutral 100 in dark, on is Primary 700 in both. The thumb stays Secondary 600 throughout.</p>
     </div>
     <div class="demo" data-demo>
       <div class="row">
@@ -379,8 +381,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260828y"></script>
-<script src="micons.js?v=20260828y"></script>
-<script src="showcase.js?v=20260828y" defer></script>
+<script src="minaa-jelly.js?v=20260828z"></script>
+<script src="micons.js?v=20260828z"></script>
+<script src="showcase.js?v=20260828z" defer></script>
 </body>
 </html>
