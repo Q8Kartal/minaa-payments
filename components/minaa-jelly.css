@@ -342,10 +342,10 @@ jelly-switch, jelly-tab-panel, jelly-tabs, jelly-textarea, jelly-tooltip {
    SURFACE there, and as the FILLED TRACK on a slider. One name, two jobs.
 
    So it is assigned by what the component actually uses it for. */
-jelly-input, jelly-textarea, jelly-select, jelly-otp {
+jelly-input, jelly-textarea, jelly-select {
   --jelly-fill: var(--m-field);
   /* Jelly's field rule is literally `color: var(--jelly-label)`, so on these
-     four components that token is the VALUE ink — the text you have typed —
+     three components that token is the VALUE ink — the text you have typed —
      not the label beside the control. Read out of the shadow stylesheet, not
      inferred from the name, which would have got it backwards. */
   --jelly-label: var(--m-value);
@@ -534,6 +534,14 @@ jelly-otp {
   --jelly-otp-radius:    var(--radius-16);
   --jelly-otp-font-size: var(--text-xl);
   --jelly-otp-accent:    var(--m-stroke);
+  /* The digit surface. jelly-otp is the exception to the field rule above, and
+     was dropped from that group because BOTH tokens it granted are dead here:
+     this component has no canvas and its stylesheet never reads --jelly-fill
+     or --jelly-label. It paints the box with --jelly-color-background-muted
+     instead, so that is the token the surface has to come through. The boxes
+     were rendering Neutral 100 while the bridge confidently assigned Primary
+     300 to a token nothing here reads. */
+  --jelly-color-background-muted: var(--m-field);
 }
 
 jelly-radio {

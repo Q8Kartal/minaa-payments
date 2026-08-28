@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260828z"></script>
+<script src="../gate.js?v=20260829a"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -19,12 +19,12 @@
      bmson.com), with one addition — a `--jelly-slider-knob` token so the knob
      can differ from the filled track. The physics is untouched. Diff and
      rationale in vendor/README.md. Revert to the hosted package.js to undo. -->
-<script type="module" src="vendor/jelly.js?v=20260828z"></script>
+<script type="module" src="vendor/jelly.js?v=20260829a"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260828z">
-<link rel="stylesheet" href="showcase.css?v=20260828z">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260829a">
+<link rel="stylesheet" href="showcase.css?v=20260829a">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -381,8 +381,8 @@
 <!-- The rest of the bridge: the few shadow-root internals that carry no part
      attribute, so no stylesheet can reach them. Loaded before the catalogue
      because it is part of the components, not part of the page. -->
-<script src="minaa-jelly.js?v=20260828z"></script>
-<script src="micons.js?v=20260828z"></script>
-<script src="showcase.js?v=20260828z" defer></script>
+<script src="minaa-jelly.js?v=20260829a"></script>
+<script src="micons.js?v=20260829a"></script>
+<script src="showcase.js?v=20260829a" defer></script>
 </body>
 </html>
