@@ -55,7 +55,7 @@
        space-500 rather than written as 40 here. */
     'jelly-segmented': `
       .segment {
-        min-height: var(--space-500);
+        min-height: var(--m-seg-pill-h, var(--space-500));
       }`,
   };
 

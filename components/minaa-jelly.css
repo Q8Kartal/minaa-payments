@@ -520,6 +520,25 @@ jelly-input {
   --jelly-input-padding-inline: var(--space-250);
   --jelly-input-font-size:      var(--text-lg);
 }
+/* Sizes. Same defect as the checkbox: pinned flat, so :host([size]) lost and
+   the prop did nothing. Medium is what the component already renders; small
+   and large step one rung along scales we already have. Both spellings, since
+   Jelly accepts sm/md/lg too. Radius never scales -- see the checkbox. */
+jelly-input[size="small"], jelly-input[size="sm"] {
+  --jelly-input-padding-inline: var(--space-200);
+  --jelly-input-font-size:      var(--text-md);
+}
+
+jelly-input[size="medium"], jelly-input[size="md"] {
+  --jelly-input-padding-inline: var(--space-250);
+  --jelly-input-font-size:      var(--text-lg);
+}
+
+jelly-input[size="large"], jelly-input[size="lg"] {
+  --jelly-input-padding-inline: var(--space-300);
+  --jelly-input-font-size:      var(--text-xl);
+}
+
 
 jelly-label {
   --jelly-label-font-size: var(--text-md);
@@ -531,6 +550,21 @@ jelly-label {
      already the mark colour elsewhere in the system. */
   --jelly-color-background-rose: var(--m-stroke);
 }
+jelly-label[size="small"], jelly-label[size="sm"] {
+  --jelly-label-font-size: var(--text-sm);
+  --jelly-label-gap:       var(--space-075);
+}
+
+jelly-label[size="medium"], jelly-label[size="md"] {
+  --jelly-label-font-size: var(--text-md);
+  --jelly-label-gap:       var(--space-100);
+}
+
+jelly-label[size="large"], jelly-label[size="lg"] {
+  --jelly-label-font-size: var(--text-lg);
+  --jelly-label-gap:       var(--space-150);
+}
+
 
 jelly-otp {
   --jelly-otp-width:     var(--control-48);
@@ -592,6 +626,31 @@ jelly-radio {
   --jelly-radio-dot-size:  var(--space-100);
   --jelly-radio-dot-color: var(--m-thumb);
 }
+/* Mirrors the checkbox rung for rung: same control, different mark. The large
+   DOT is the one number off the pattern -- the ring steps 16/20/24 and the dot
+   should follow at 6/8/10, but the spacing scale has no 10, so it takes 12 and
+   reads slightly heavier than the other two. */
+jelly-radio[size="small"], jelly-radio[size="sm"] {
+  --jelly-radio-size:      var(--control-icon-16);
+  --jelly-radio-dot-size:  var(--space-075);
+  --jelly-radio-gap:       var(--space-075);
+  --jelly-radio-font-size: var(--text-sm);
+}
+
+jelly-radio[size="medium"], jelly-radio[size="md"] {
+  --jelly-radio-size:      var(--control-icon-20);
+  --jelly-radio-dot-size:  var(--space-100);
+  --jelly-radio-gap:       var(--space-100);
+  --jelly-radio-font-size: var(--text-md);
+}
+
+jelly-radio[size="large"], jelly-radio[size="lg"] {
+  --jelly-radio-size:      var(--control-icon-24);
+  --jelly-radio-dot-size:  var(--space-150);
+  --jelly-radio-gap:       var(--space-150);
+  --jelly-radio-font-size: var(--text-lg);
+}
+
 
 jelly-radio-group {
   --jelly-radio-group-row-gap:      var(--space-150);
@@ -600,6 +659,27 @@ jelly-radio-group {
   --jelly-radio-group-legend-color: var(--m-ink);
   --jelly-radio-group-font-size:    var(--text-md);
 }
+jelly-radio-group[size="small"], jelly-radio-group[size="sm"] {
+  --jelly-radio-group-row-gap:    var(--space-100);
+  --jelly-radio-group-column-gap: var(--space-250);
+  --jelly-radio-group-legend-gap: var(--space-100);
+  --jelly-radio-group-font-size:  var(--text-sm);
+}
+
+jelly-radio-group[size="medium"], jelly-radio-group[size="md"] {
+  --jelly-radio-group-row-gap:    var(--space-150);
+  --jelly-radio-group-column-gap: var(--space-300);
+  --jelly-radio-group-legend-gap: var(--space-150);
+  --jelly-radio-group-font-size:  var(--text-md);
+}
+
+jelly-radio-group[size="large"], jelly-radio-group[size="lg"] {
+  --jelly-radio-group-row-gap:    var(--space-200);
+  --jelly-radio-group-column-gap: var(--space-400);
+  --jelly-radio-group-legend-gap: var(--space-200);
+  --jelly-radio-group-font-size:  var(--text-lg);
+}
+
 
 /* One track height across both, so a dual-thumb range and a single-value
    slider read as the same control family rather than two similar ones. */
@@ -611,6 +691,21 @@ jelly-range {
   --jelly-range-knob: var(--m-thumb);
   color: var(--m-ink);
 }
+/* Only the track scales. The knob does NOT: the token block is explicit that a
+   knob is a fixed component dimension that must not move with the scales, and
+   there is no rung above 24 for it in any case. */
+jelly-range[size="small"], jelly-range[size="sm"] {
+  --jelly-range-track-height: var(--space-075);
+}
+
+jelly-range[size="medium"], jelly-range[size="md"] {
+  --jelly-range-track-height: var(--space-100);
+}
+
+jelly-range[size="large"], jelly-range[size="lg"] {
+  --jelly-range-track-height: var(--space-150);
+}
+
 
 jelly-slider {
   --jelly-slider-track-height: var(--space-100);
@@ -622,6 +717,18 @@ jelly-slider {
   --jelly-slider-knob: var(--m-thumb);
   color: var(--m-ink);
 }
+jelly-slider[size="small"], jelly-slider[size="sm"] {
+  --jelly-slider-track-height: var(--space-075);
+}
+
+jelly-slider[size="medium"], jelly-slider[size="md"] {
+  --jelly-slider-track-height: var(--space-100);
+}
+
+jelly-slider[size="large"], jelly-slider[size="lg"] {
+  --jelly-slider-track-height: var(--space-150);
+}
+
 
 /* Segmented is the one component whose two modes swap which colour carries
    selection: a Secondary 600 pill on a Primary 300 track in light, a Primary
@@ -650,6 +757,41 @@ jelly-segmented {
   --jelly-segmented-font-size:      var(--text-md);
   --jelly-segmented-min-width:      var(--space-1000);
 }
+/* The height is a host rule rather than a token -- Jelly offers none here -- so
+   it is restated per size, alongside the pill height that the shadow patch in
+   minaa-jelly.js now reads off --m-seg-pill-h. Without that the pill would sit
+   at 40 inside a 64 track. min-width holds at 80 for medium and large: the
+   spacing scale ends there, and it is a minimum rather than a size. */
+jelly-segmented[size="small"], jelly-segmented[size="sm"] {
+  height: var(--control-48);
+  --m-seg-pill-h:                   var(--space-400);
+  --jelly-segmented-padding:        var(--space-075);
+  --jelly-segmented-padding-inline: var(--space-150);
+  --jelly-segmented-gap:            var(--space-050);
+  --jelly-segmented-font-size:      var(--text-sm);
+  --jelly-segmented-min-width:      var(--space-800);
+}
+
+jelly-segmented[size="medium"], jelly-segmented[size="md"] {
+  height: var(--control-56);
+  --m-seg-pill-h:                   var(--space-500);
+  --jelly-segmented-padding:        var(--space-100);
+  --jelly-segmented-padding-inline: var(--space-200);
+  --jelly-segmented-gap:            var(--space-050);
+  --jelly-segmented-font-size:      var(--text-md);
+  --jelly-segmented-min-width:      var(--space-1000);
+}
+
+jelly-segmented[size="large"], jelly-segmented[size="lg"] {
+  height: var(--control-64);
+  --m-seg-pill-h:                   var(--space-600);
+  --jelly-segmented-padding:        var(--space-150);
+  --jelly-segmented-padding-inline: var(--space-250);
+  --jelly-segmented-gap:            var(--space-100);
+  --jelly-segmented-font-size:      var(--text-lg);
+  --jelly-segmented-min-width:      var(--space-1000);
+}
+
 
 jelly-select {
   --jelly-select-radius:             var(--radius-full);
@@ -709,6 +851,24 @@ jelly-textarea {
      the field to the maximum whether it had content or not — empty and filled
      both measured 452x240. Jelly grows the field from its own measurement. */
 }
+jelly-textarea[size="small"], jelly-textarea[size="sm"] {
+  --jelly-textarea-padding-inline: var(--space-200);
+  --jelly-textarea-padding-block:  var(--space-150);
+  --jelly-textarea-font-size:      var(--text-md);
+}
+
+jelly-textarea[size="medium"], jelly-textarea[size="md"] {
+  --jelly-textarea-padding-inline: var(--space-250);
+  --jelly-textarea-padding-block:  var(--space-200);
+  --jelly-textarea-font-size:      var(--text-lg);
+}
+
+jelly-textarea[size="large"], jelly-textarea[size="lg"] {
+  --jelly-textarea-padding-inline: var(--space-300);
+  --jelly-textarea-padding-block:  var(--space-250);
+  --jelly-textarea-font-size:      var(--text-xl);
+}
+
 
 /* Overlay surfaces. Declared on the components that own a panel as well as on
    the menu itself, because the panel a select unfolds is drawn by the select,
@@ -722,6 +882,33 @@ jelly-select {
   --jelly-menu-item-radius:         var(--radius-8);
   --jelly-menu-font-size:           var(--text-md);
 }
+jelly-select[size="small"], jelly-select[size="sm"] {
+  --jelly-select-padding-inline:     var(--space-200);
+  --jelly-select-gap:                var(--space-075);
+  --jelly-select-font-size:          var(--text-md);
+  --jelly-select-chevron-size:       var(--control-icon-16);
+  --jelly-select-row-height:         var(--space-400);
+  --jelly-select-row-padding-inline: var(--space-150);
+}
+
+jelly-select[size="medium"], jelly-select[size="md"] {
+  --jelly-select-padding-inline:     var(--space-250);
+  --jelly-select-gap:                var(--space-100);
+  --jelly-select-font-size:          var(--text-lg);
+  --jelly-select-chevron-size:       var(--control-icon-20);
+  --jelly-select-row-height:         var(--space-500);
+  --jelly-select-row-padding-inline: var(--space-200);
+}
+
+jelly-select[size="large"], jelly-select[size="lg"] {
+  --jelly-select-padding-inline:     var(--space-300);
+  --jelly-select-gap:                var(--space-150);
+  --jelly-select-font-size:          var(--text-xl);
+  --jelly-select-chevron-size:       var(--control-icon-24);
+  --jelly-select-row-height:         var(--space-600);
+  --jelly-select-row-padding-inline: var(--space-250);
+}
+
 
 /* ── Weight carries writing state ──────────────────────────────────────────
    From the specification: BEFORE writing is Regular, WHILE AND AFTER writing
