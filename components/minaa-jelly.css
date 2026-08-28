@@ -145,6 +145,7 @@ jelly-theme {
   --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
+  --m-disabled-thumb: var(--secondary);     /* Secondary 600 - see the note on the switch */
   --m-disabled-label: var(--primary);       /* Primary 700 */
 }
 
@@ -174,6 +175,7 @@ jelly-theme {
   --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
+  --m-disabled-thumb: var(--primary-950);
   --m-disabled-label: var(--primary-900);
   }
 }
@@ -209,6 +211,7 @@ jelly-theme[mode="dark"] {
   --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
+  --m-disabled-thumb: var(--primary-950);
   --m-disabled-label: var(--primary-900);
 }
 
@@ -246,6 +249,7 @@ jelly-theme[mode="light"] {
   --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
+  --m-disabled-thumb: var(--secondary);     /* Secondary 600 - see the note on the switch */
   --m-disabled-label: var(--primary);       /* Primary 700 */
 }
 
@@ -828,13 +832,24 @@ jelly-switch[disabled] {
   --jelly-fill:                    var(--m-disabled-box);
   --jelly-accent:                  var(--m-disabled-box);
   --jelly-color-background-accent: var(--m-disabled-box);
-  /* The thumb stays --m-thumb. The system already says every thumb and dot is
-     Secondary 600, and pointing it at --m-disabled-mark invented a rule that
-     does not exist -- which in light painted it Primary 700, a full-strength
-     brand blue that read as neither a thumb nor disabled. The TRACK carries
-     the state; the thumb is the thumb. */
-  --jelly-switch-thumb-off:        var(--m-thumb);
-  --jelly-switch-thumb-on:         var(--m-thumb);
+  /* The thumb is the one place the two modes genuinely want different things,
+     so it gets its own token rather than a rule bent to fit both.
+
+     LIGHT keeps Secondary 600, the system's colour for every thumb and dot. It
+     sits inside a Secondary 300 track -- same hue family, so the thumb reads as
+     part of the control. Primary 700 was tried here and read as neither a thumb
+     nor a disabled control.
+
+     DARK recedes to Primary 950 with everything else. Secondary 600 was tried
+     and made the disabled switch the brightest thing in its row: a red mark on
+     a navy track, drawing more attention than the two live switches beside it,
+     which is the opposite of what the state means.
+
+     The modes already disagree about disabled elsewhere -- light keeps an
+     ordinary Primary 700 label where dark dims its label to Primary 900 -- so
+     this is consistent with the file rather than a special case. */
+  --jelly-switch-thumb-off:        var(--m-disabled-thumb);
+  --jelly-switch-thumb-on:         var(--m-disabled-thumb);
   --jelly-label:                   var(--m-disabled-label);
 }
 
