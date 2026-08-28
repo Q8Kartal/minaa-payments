@@ -64,6 +64,7 @@
   --primary-900: #00437B;   /* Primary 900  — dark-mode page and fields */
   --primary-950: #00264B;   /* Primary 950  — dark-mode card */
   --secondary:   #E8411D;   /* Secondary 600 — Minaã Red */
+  --secondary-300: #FCBBAD;  /* Secondary 300 - the light disabled surface */
   --white:       #FFFFFF;   /* Neutral 0    */
   --cream-50:    #FDF9F0;   /* Neutral 50   — light-mode card */
   --cream:       #FBF0DC;   /* Neutral 100  — Minaã Cream */
@@ -135,13 +136,19 @@ jelly-theme {
      one place the set is not self-consistent — see the dark block. */
   --m-toggle-label: var(--primary);     /* Primary 700 */
   --m-hairline:    var(--cream-200);   /* Neutral 200 */
-  /* Disabled. Dark is specified in the Figma file (box Primary 900, mark
-     Primary 950, label Primary 900). Light is NOT specified there, so it
-     reuses the disabled pair the Buttons page already documents —
-     Neutral 200 fill with Neutral 700 ink — rather than inventing one. */
-  --m-disabled-box:   var(--cream-200);   /* Neutral 200 */
-  --m-disabled-mark:  var(--cream-700);   /* Neutral 700 */
-  --m-disabled-label: var(--cream-700);   /* Neutral 700 */
+  /* Disabled, both modes now drawn in the Figma file rather than derived:
+     dark is a Primary 900 box with a Primary 950 mark and a Primary 900 label;
+     light is a Secondary 300 box with a Primary 700 label. Light keeps the
+     ordinary label colour, so the state is carried by the surface alone -- a
+     different decision from dark, and the file's to make, not ours.
+
+     The light MARK is the one value still derived: the light specimen is
+     unchecked, so nothing draws a disabled tick. Primary 700 follows the label
+     rather than the Neutral 100 a live checkbox uses, which would all but
+     vanish on the pale Secondary 300 surface. */
+  --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
+  --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
+  --m-disabled-label: var(--primary);       /* Primary 700 */
 }
 
 /* mode="auto" resolves to this when the operating system is dark. Written as
@@ -230,13 +237,19 @@ jelly-theme[mode="light"] {
   --m-seg-label:   var(--primary);
   --m-toggle-label: var(--primary);
   --m-hairline:    var(--cream-200);   /* Neutral 200 */
-  /* Disabled. Dark is specified in the Figma file (box Primary 900, mark
-     Primary 950, label Primary 900). Light is NOT specified there, so it
-     reuses the disabled pair the Buttons page already documents —
-     Neutral 200 fill with Neutral 700 ink — rather than inventing one. */
-  --m-disabled-box:   var(--cream-200);   /* Neutral 200 */
-  --m-disabled-mark:  var(--cream-700);   /* Neutral 700 */
-  --m-disabled-label: var(--cream-700);   /* Neutral 700 */
+  /* Disabled, both modes now drawn in the Figma file rather than derived:
+     dark is a Primary 900 box with a Primary 950 mark and a Primary 900 label;
+     light is a Secondary 300 box with a Primary 700 label. Light keeps the
+     ordinary label colour, so the state is carried by the surface alone -- a
+     different decision from dark, and the file's to make, not ours.
+
+     The light MARK is the one value still derived: the light specimen is
+     unchecked, so nothing draws a disabled tick. Primary 700 follows the label
+     rather than the Neutral 100 a live checkbox uses, which would all but
+     vanish on the pale Secondary 300 surface. */
+  --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
+  --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
+  --m-disabled-label: var(--primary);       /* Primary 700 */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
