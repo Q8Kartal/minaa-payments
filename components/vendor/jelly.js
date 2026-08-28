@@ -2204,7 +2204,10 @@ class He extends L {
   // How far the thumb center travels between its two resting points
   get travel() {
     const { width: t, height: e } = this.trackSize;
-    return t - e;
+    // MINAA: onShape caches a travel derived from the resting inset and the
+    // thumb size. Falls back to Jelly's own w - h whenever neither token is
+    // set, so stock behaviour is bit-for-bit unchanged.
+    return Number.isFinite(this.MINAA_travel) ? this.MINAA_travel : t - e;
   }
   // The thumb's resting offset for a checked state - "on" sits at the inline end
   targetFor(t) {
@@ -2250,7 +2253,24 @@ class He extends L {
   }
   // Called whenever the shape (re)builds: size the thumb and seat it in place
   onShape() {
-    const { height: t } = this.trackSize, e = t - this.sizeConfig.inset * 2;
+    /* MINAA: Jelly derives BOTH the thumb diameter and its resting inset from
+       one number, sizeConfig.inset -- thumb = height - inset*2, and travel =
+       width - height, which puts the resting edge exactly `inset` from the
+       rim. A design that wants a 32 thumb inset 8 horizontally and 4
+       vertically inside a 40 track therefore cannot be expressed: the two
+       insets are forced equal.
+
+       Two tokens separate them. Both fall back to the stock derivation, so a
+       switch that sets neither behaves exactly as before -- substitute the
+       defaults and travel collapses to w - h again. Read once per shape
+       rebuild rather than per frame, which is why travel reads the cache. */
+    const { width: MINAA_w, height: t } = this.trackSize,
+      MINAA_cs = getComputedStyle(this),
+      MINAA_i = parseFloat(MINAA_cs.getPropertyValue("--jelly-switch-inset")),
+      MINAA_d = parseFloat(MINAA_cs.getPropertyValue("--jelly-switch-thumb-size")),
+      MINAA_inset = Number.isFinite(MINAA_i) ? MINAA_i : this.sizeConfig.inset,
+      e = Number.isFinite(MINAA_d) ? MINAA_d : t - this.sizeConfig.inset * 2;
+    this.MINAA_travel = MINAA_w - MINAA_inset * 2 - e;
     this.thumbBody ? this.thumbBody.resize(e, e, e / 2) : this.thumbBody = new D({ width: e, height: e, radius: e / 2 }), this.thumbTarget = this.targetFor(this.checked), this.thumbX = this.thumbTarget, this.thumbXVelocity = 0, this.requestFrame();
   }
   // Press: capture the pointer and dent the track where the finger lands

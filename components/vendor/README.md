@@ -84,6 +84,30 @@ expects are recorded in the Minaã Components Figma file, page `Components`.
 |---|---|---|
 | `MINAA_KNOB` | slider | `--jelly-slider-knob` |
 | `MINAA_KNOB` | range | `--jelly-range-knob`, falling back through `--jelly-slider-knob` so one value drives both |
+| `MINAA_BORDER` etc. | switch | `--jelly-switch-thumb-size` and `--jelly-switch-inset` |
+
+The switch pair is a different shape of problem and worth reading before
+touching either token. Jelly derives the thumb diameter AND its resting inset
+from one number, `sizeConfig.inset`: the thumb is `height - inset * 2`, and
+travel is `width - height`, which necessarily leaves the thumb exactly `inset`
+from the rim. The two insets cannot differ.
+
+The Minaa theme switch needs them to. Its track is laid out with
+`padding-inline: 8` and its children centred, so a 32 thumb in a 40 track sits
+8 from each end and 4 from the top and bottom. Under the stock derivation that
+is unreachable -- asking for a 32 thumb forces a 4 horizontal inset too, and
+the thumb no longer lines up with the icon opposite it.
+
+So `--jelly-switch-thumb-size` sets the diameter and `--jelly-switch-inset`
+sets the resting inset, independently. Substitute the stock defaults into the
+new travel expression -- `width - inset*2 - (height - inset*2)` -- and it
+collapses back to `width - height`, which is why a switch that sets neither
+token is unchanged. Verified rather than argued: the library page's own
+switches still measure 48x24 with a 14 thumb at inset 5, and 64x32 with a 20,
+exactly as before the fork.
+
+The value is read once per shape rebuild and cached, not read per frame.
+`travel` is called several times a frame and getComputedStyle is not free.
 
 Range needed the same change for a reason worth recording: it *does* expose
 `part="knob"` on two real elements, so colouring those looked like the clean

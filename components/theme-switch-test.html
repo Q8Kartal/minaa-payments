@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Theme Switch — test</title>
+
+<!-- Scratch page. Not linked from the library, not in the nav, not deployed as
+     a component entry. It exists to answer three questions before any of this
+     reaches index.html:
+
+       1. can a jelly-switch be made to match 253:26 exactly, or does the
+          geometry need a fork the way the slider knob did
+       2. does the icon swap read correctly while the thumb is mid-drag, or
+          does it flick the way the overlay knob did
+       3. does driving <jelly-theme mode> from it actually repaint the page
+
+     Everything here is deliberately duplicated rather than added to
+     minaa-jelly.css, so a failed test throws away cleanly. -->
+
+<script type="module" src="vendor/jelly.js?v=20260829d"></script>
+<link rel="stylesheet" href="minaa-jelly.css?v=20260829d">
+<script src="minaa-jelly.js?v=20260829d" defer></script>
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    gap: var(--space-400);
+    background: var(--m-page);
+    color: var(--m-ink);
+    font-family: var(--font-regular), system-ui, sans-serif;
+    transition: background .2s ease;
+  }
+
+  .stage {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-300);
+    padding: var(--space-600);
+    background: var(--m-card);
+    border-radius: var(--radius-24);
+  }
+
+  .readout {
+    font-size: var(--text-sm);
+    opacity: .75;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── The theme switch ─────────────────────────────────────────────────────
+     A jelly-switch, not a new component: the brief is "react like
+     jelly-switch", and reimplementing the physics to get the same feel would
+     be the overlay-knob mistake again.
+
+     253:26 draws an 80x40 track with a 32 thumb resting 8 in from each end.
+     Jelly derived both from one number and could not express it; the fork in
+     vendor/jelly.js separates them, and the two tokens below are the result.
+     Thumb and icon now measure identically -- 32 across, 8 from their end,
+     4 above and below -- which is what the drawing asks for. */
+  .theme-switch { position: relative; display: inline-flex; }
+
+  /* Note the selector: the tokens go on the ELEMENT, not on the wrapper. Set
+     on .theme-switch they are merely inherited, and Jelly declares its own
+     defaults on :host, where an explicit declaration beats an inherited one.
+     Done that way first and the switch came out 56x30 in Neutral 100 -- the
+     rules were live, they just never reached the component. */
+  .theme-switch jelly-switch {
+    --jelly-switch-width:  80px;
+    --jelly-switch-height: 40px;
+    --jelly-switch-gap: 0;
+    /* Both from the fork. 253:26 lays the track out with padding-inline 8 and
+       centres its children, so the thumb is 32 with 8 either side and 4 above
+       and below -- an inset that differs by axis, which Jelly's single number
+       could not express. The thumb now matches the icon exactly. */
+    --jelly-switch-thumb-size: 32px;
+    --jelly-switch-inset:       8px;
+    /* Off is dark, on is light. That reads backwards until you look at the
+       drawing: Mode=Dark rests the thumb at the start, Mode=Light rests it at
+       the end, and in an LTR page the start is the unchecked position. So the
+       checked state IS light mode, and the track colours follow. */
+    --jelly-off: var(--primary);        /* Primary 700 - dark mode */
+    --jelly-on:  var(--primary-300);    /* Primary 300 - light mode */
+    --jelly-switch-thumb-off: var(--m-thumb);
+    --jelly-switch-thumb-on:  var(--m-thumb);
+  }
+
+  /* The icon sits in the half the thumb is not occupying, so exactly one is
+     ever visible. Both are rendered and cross-faded rather than swapped on
+     the change event: a swap at the end of the drag pops, and the thumb is
+     still travelling while the track colour crossfades. */
+  /* Geometry the icons are positioned from. Declared here rather than written
+     into each rule so the two numbers that decide the layout are visible in
+     one place, and so the centring below cannot drift from the track height. */
+  .theme-switch {
+    --ts-track-h: 40px;   /* must match --jelly-switch-height */
+    /* 253:26 draws 24. 32 is Ahmad's call: it matches the thumb, so the pill
+       reads as two circles of equal weight rather than a disc and a smaller
+       mark. It costs clearance -- 5px between icon and thumb instead of 9 --
+       which is the trade being made knowingly, not an oversight. */
+    --ts-icon:    32px;
+    --ts-inset:    8px;   /* the thumb's resting inset, as drawn */
+  }
+
+  .theme-switch .mi {
+    position: absolute;
+    /* NOT top:50%. The jelly-switch host is 46 tall while its painted track is
+       40, and the spare 6 sits entirely BELOW the track -- so the host's centre
+       is 3px lower than the track's. Centring on the host put 11 above the icon
+       and 5 below it, which is the gap you can see. Measuring down from the top
+       of the host, which the track's top edge shares, is exact. */
+    top: calc((var(--ts-track-h) - var(--ts-icon)) / 2);
+    width:  var(--ts-icon);
+    height: var(--ts-icon);
+    color: var(--m-thumb);           /* Secondary 600, as drawn */
+    pointer-events: none;            /* the switch underneath keeps the drag */
+    transition: opacity .18s ease;
+  }
+  .theme-switch .mi-sun  { inset-inline-start: var(--ts-inset); opacity: 0; }
+  .theme-switch .mi-moon { inset-inline-end:   var(--ts-inset); opacity: 1; }
+  .theme-switch[data-mode="light"] .mi-sun  { opacity: 1; }
+  .theme-switch[data-mode="light"] .mi-moon { opacity: 0; }
+</style>
+</head>
+<body>
+
+<jelly-theme mode="auto">
+  <div class="stage">
+
+    <span class="theme-switch" id="ts">
+      <jelly-switch id="sw" aria-label="Theme"></jelly-switch>
+
+      <!-- Exported with node.exportAsync({format:'SVG'}) from the two variants
+           of 253:26, then the library paint swapped for currentColor. Same
+           method as micons.js; see the warning at the top of that file. -->
+      <svg class="mi mi-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M10.8077 2.89062C10.8184 2.8957 10.8392 2.9088 10.8605 2.94141C10.9067 3.01239 10.9275 3.13131 10.8761 3.25098C9.86031 5.61727 9.21856 8.73023 10.3927 11.3799C11.602 14.1089 14.5903 16.0485 20.1544 16.3379C20.2616 16.3435 20.3394 16.399 20.3761 16.4561C20.3933 16.4828 20.3979 16.5041 20.3986 16.5166C20.399 16.526 20.3979 16.5436 20.381 16.5732C18.7879 19.3682 15.7829 21.25 12.339 21.25C7.23036 21.25 3.08899 17.1086 3.08899 12C3.08899 7.43579 6.3959 3.64215 10.7443 2.88672C10.7843 2.87984 10.8011 2.88752 10.8077 2.89062Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M18.4121 9.24512C18.3384 9.3808 18.2498 9.509 18.1367 9.62207C18.0238 9.73494 17.8962 9.82381 17.7607 9.89746C17.8962 9.97111 18.0238 10.06 18.1367 10.1729C18.2496 10.2857 18.3385 10.4134 18.4121 10.5488C18.4858 10.4134 18.5746 10.2857 18.6875 10.1729C18.8006 10.0598 18.9288 9.97119 19.0645 9.89746C18.9288 9.82373 18.8006 9.73515 18.6875 9.62207C18.5744 9.50899 18.4858 9.38081 18.4121 9.24512Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M14.75 5.89453C14.7361 5.90894 14.7224 5.92358 14.708 5.9375C14.7222 5.95126 14.7362 5.96525 14.75 5.97949C14.7639 5.96509 14.7786 5.95142 14.793 5.9375C14.7784 5.92342 14.7641 5.90911 14.75 5.89453Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+
+      <svg class="mi mi-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M7.75 12.75C7.75 10.4028 9.65279 8.5 12 8.5C14.3472 8.5 16.25 10.4028 16.25 12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 3.25V5.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M2.5 12.75L5 12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M19 12.75L21.5 12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M18.7168 6.03247L17.3121 7.43713" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M5.28223 6.03247L6.68689 7.43713" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M5 16.75H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M9 20.75H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </span>
+
+    <p class="readout" id="out">-</p>
+  </div>
+</jelly-theme>
+
+<script>
+(function () {
+  const theme = document.querySelector('jelly-theme');
+  const wrap  = document.getElementById('ts');
+  const sw    = document.getElementById('sw');
+  const out   = document.getElementById('out');
+
+  /* paint() only READS the switch. It must never write `checked` back, which
+     is the bug this page caught: the first version set the attribute inside
+     the change handler, Jelly re-synced from that write and toggled a second
+     time, and the control landed back where it started. Every other click
+     appeared to do nothing. Echoing a component's own state at it is the
+     mistake -- the switch owns `checked`, the page owns `mode`. */
+  function paint(mode) {
+    wrap.dataset.mode = mode;
+    out.textContent = 'mode=' + theme.getAttribute('mode') + '  resolved=' + mode +
+                      '  checked=' + sw.checked;
+  }
+
+  Promise.all([
+    customElements.whenDefined('jelly-switch'),
+    customElements.whenDefined('jelly-theme')
+  ]).then(() => {
+    /* Once, at startup, so the control never contradicts the page it sits on.
+       resolvedMode rather than the attribute: the attribute may say "auto",
+       which is not a position a switch has. */
+    const start = theme.resolvedMode;
+    sw.toggleAttribute('checked', start === 'light');
+    paint(start);
+
+    sw.addEventListener('change', () => {
+      const mode = sw.checked ? 'light' : 'dark';
+      theme.setAttribute('mode', mode);
+      paint(mode);
+    });
+  });
+})();
+</script>
+</body>
+</html>
