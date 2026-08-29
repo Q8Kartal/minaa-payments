@@ -164,6 +164,7 @@ jelly-theme {
      light --m-ink is Primary 700, which is now the panel colour: the prose
      would have been invisible against its own surface. */
   --m-overlay-surface:  var(--primary);    /* Primary 700 */
+  --m-anchored-surface: var(--secondary);  /* Secondary 600 - see below */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
 
   /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
@@ -243,6 +244,7 @@ jelly-theme {
     --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
+  --m-anchored-surface: var(--primary);    /* Primary 700 - see below */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
@@ -284,6 +286,7 @@ jelly-theme[mode="dark"] {
   --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
+  --m-anchored-surface: var(--primary);    /* Primary 700 - see below */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
@@ -331,6 +334,7 @@ jelly-theme[mode="light"] {
      light --m-ink is Primary 700, which is now the panel colour: the prose
      would have been invisible against its own surface. */
   --m-overlay-surface:  var(--primary);    /* Primary 700 */
+  --m-anchored-surface: var(--secondary);  /* Secondary 600 - see below */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
 
   /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
@@ -1622,18 +1626,57 @@ jelly-drawer::part(sheet)    { border: 0; }
    surfaces, and at these sizes a superellipse and a rounded corner are the
    same handful of pixels.
    ========================================================================== */
+/* ANCHORED OVERLAYS INVERT. A dialog and a drawer float over a scrim with
+   nothing of their own colour beside them, so they can take the accent. A
+   popover and a tooltip are tethered to a TRIGGER, and the trigger is a button
+   -- which is already the accent. Painting the panel with --m-overlay-surface
+   put Primary 700 on Primary 700 in light: the popover merged into the button
+   it hung from, and the tooltip was literally the same colour as the control it
+   was explaining (measured: #0062AD on #0062AD).
+
+   --m-anchored-surface is the inverse pair, so the panel is always the other
+   brand hue from its trigger: Secondary 600 in light, Primary 700 in dark.
+
+   The trigger then takes --m-overlay-surface, and that is not a coincidence
+   worth hiding -- the two tokens ARE the inverse of each other, so pointing the
+   trigger at one and the panel at the other guarantees they can never collide,
+   in either mode, whatever the palette does later. In light that leaves the
+   trigger on Primary 700, exactly the default it already had; in dark it turns
+   it Secondary 600 against a Primary 700 panel. */
 jelly-popover {
   --jelly-color-foreground-default: var(--m-overlay-ink);
-  --jelly-color-background-surface: var(--m-overlay-surface);
-  --jelly-popover-radius:         var(--radius-16);
+  --jelly-color-background-surface: var(--m-anchored-surface);
+  --jelly-popover-radius:         var(--radius-16);   /* pre-paint fallback */
+  --m-squircle-radius:            var(--m-overlay-corner);
   --jelly-popover-padding-block:  var(--space-200);
   --jelly-popover-padding-inline: var(--space-200);
   --jelly-popover-font-size:      var(--text-md);
   --jelly-popover-min-width:      var(--space-1000);
 }
 
+/* The panel carries a 1px border from --jelly-color-border-default, which the
+   squircle clip would slice on the curve. It was doing nothing anyway: the
+   panel is a solid brand fill against the page, not a surface needing an edge. */
+jelly-popover::part(panel) { border: 0; }
+
+/* Both triggers are slotted light DOM, so they are styled from here rather than
+   through a part. Only the fill moves -- the label stays --m-on-accent, which is
+   cream and correct on both hues.
+
+   The TOOLTIP needs this as much as the popover, and leaving it out simply
+   relocated the bug: inverting the tooltip panel alone made it Primary 700 in
+   dark, sitting on a Primary 700 trigger -- the same collision, one mode over.
+   The pair only works if both halves move.
+
+   :not([slot]) picks the tooltip trigger, which is default-slotted; its other
+   slot is the named "content". */
+jelly-popover > [slot="trigger"],
+jelly-tooltip > :not([slot]) {
+  --jelly-fill: var(--m-overlay-surface);
+}
+
 jelly-tooltip {
-  --jelly-tooltip-background:     var(--m-overlay-surface);
+  --jelly-tooltip-background:     var(--m-anchored-surface);
   --jelly-tooltip-color:          var(--m-overlay-ink);
   --jelly-tooltip-radius:         var(--radius-8);
   --jelly-tooltip-padding-block:  var(--space-075);

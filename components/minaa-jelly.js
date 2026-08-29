@@ -139,6 +139,33 @@
                 drop-shadow(0 3px 6px rgba(0, 0, 0, .22));
       }`,
 
+    /* The popover panel is clipped to the family squircle, so its own shadow is
+       cut away. minaaSquircle() inserts a wrapper around the panel -- the
+       popover has no .wrap and cannot use :host, which holds the trigger -- and
+       the shadow moves onto that. The wrapper is inert layout-wise: the panel
+       inside it is position:fixed and Jelly keeps placing it by inline style. */
+    'jelly-popover': `
+      .panel { box-shadow: none; }
+      /* THE WRAPPER IS VIEWPORT-SIZED ON PURPOSE, and this is the whole trick.
+         A filter makes an element a containing block for position:fixed
+         descendants, so an ordinary wrapper re-anchors the panel to itself --
+         measured, the panel went from 273x89 to 140x136 and its max-width
+         started resolving against a narrow box instead of the screen. Pinning
+         the wrapper to the viewport makes it the containing block WITHOUT
+         changing what that containing block is: same origin, same size, so
+         Jelly's inline left/top still land where it intended.
+
+         pointer-events has to be handed back to the panel, or a full-screen
+         layer would swallow every click on the page underneath. */
+      [data-minaa-lift] {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .30))
+                drop-shadow(0 3px 6px rgba(0, 0, 0, .20));
+      }
+      [data-minaa-lift] > .panel { pointer-events: auto; }`,
+
     /* jelly-segmented draws its pill from `.segment`, which hardcodes
        `padding-block: 0` with no token behind it and carries no part. The pill
        collapses to its 28px line box, and the track came out 44 tall where the
@@ -349,10 +376,14 @@
 (function minaaSquircle() {
   'use strict';
 
-  /* Both overlays that own a large panel. jelly-popover and jelly-tooltip are
-     deliberately absent: at their size a superellipse and a rounded corner are
-     the same few pixels, and clipping them would cost their shadows for nothing. */
-  var TAGS = ['jelly-dialog', 'jelly-drawer'];
+  /* Every overlay that owns a panel big enough for the curve to read. The
+     popover joined once it took the family corner: at radius-16 the claim that
+     "a superellipse and a rounded corner are the same few pixels" was true, but
+     at 64 on a ~270x90 panel it plainly is not.
+
+     jelly-tooltip stays out. It is a chip at radius-8, where that claim still
+     holds, and it has no wrapper to lift its shadow onto. */
+  var TAGS = ['jelly-dialog', 'jelly-drawer', 'jelly-popover'];
   var OVERLAYS = TAGS.join(', ');
 
   /* EXPONENT. CSS spells the family superellipse(s), and s is NOT the exponent
@@ -435,10 +466,28 @@
     if (!dialog.shadowRoot) return false;
     /* .dialog on a jelly-dialog, .sheet on a jelly-drawer -- one selector for
        both, so the two overlays cannot drift apart. */
-    var panel = dialog.shadowRoot.querySelector('.dialog, .sheet');
+    var panel = dialog.shadowRoot.querySelector('.dialog, .sheet, .panel');
     if (!panel) return false;
     if (panel.__sqBound) return true;
     panel.__sqBound = true;
+
+    /* A clip is applied AFTER a filter, so a shadow on the clipped element is
+       generated from the unclipped box and then cut away -- verified with two
+       identical boxes, one with drop-shadow, neither casting anything. The
+       shadow therefore has to live on an ANCESTOR.
+
+       The dialog has .wrap and the drawer has :host. The popover has neither:
+       its panel is a direct child of the shadow root, and :host also contains
+       the trigger, so a filter there would put a shadow under the button too.
+       One is inserted. Checked before relying on it -- Jelly positions the
+       panel with inline styles and finds it with querySelector, and both
+       survive: same rect to the pixel before and after wrapping. */
+    if (panel.parentNode && panel.parentNode.nodeType === 11) {
+      var lift = document.createElement('div');
+      lift.setAttribute('data-minaa-lift', '');
+      panel.parentNode.insertBefore(lift, panel);
+      lift.appendChild(panel);
+    }
     shape(panel);
     /* The panel is display:none until the dialog opens, so the first useful
        size arrives later. ResizeObserver reports 0 -> size as a resize, which
