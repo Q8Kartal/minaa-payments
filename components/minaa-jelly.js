@@ -47,6 +47,28 @@
         border-color: var(--m-accent);
       }`,
 
+    /* jelly-dialog's close control carries NO part attribute -- the dialog
+       exposes only `backdrop` and `dialog`, so ::part() cannot reach it and a
+       rule has to be injected.
+
+       Jelly fills it on hover from --jelly-color-background-neutral with ink
+       from --jelly-color-foreground-on-neutral. Through this bridge the first
+       is Neutral 100 in dark, so hovering the close button put a cream disc on
+       the panel and the mark on it went with the surface: a bright empty circle
+       where the x should be.
+
+       Both now come off --m-close-disc / --m-close-mark, which the semantic
+       layer sets per mode because the two modes genuinely want opposite pairs:
+       light keeps its Primary 300 disc and only the mark moves to Secondary
+       600, dark inverts to a Secondary 600 disc with a Primary 700 mark. */
+    'jelly-dialog': `
+      .close { color: var(--m-close-mark); }
+      .close:hover,
+      .close:focus-visible {
+        background: var(--m-close-disc);
+        color: var(--m-close-mark);
+      }`,
+
     /* jelly-segmented draws its pill from `.segment`, which hardcodes
        `padding-block: 0` with no token behind it and carries no part. The pill
        collapses to its 28px line box, and the track came out 44 tall where the
