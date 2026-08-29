@@ -202,16 +202,23 @@ body {
 
 /* ── The live demo ───────────────────────────────────────────────────────── */
 
+/* THE CARD IS NEVER CLIPPED. Its squircle is painted by a layer behind the
+   content -- see wireSquircleCards() -- because clip-path clips every
+   descendant including position:fixed ones, and the popover and menu panels are
+   fixed children of this card. Clipping it cut their panels off at the card's
+   own edge. So the fill lives on [data-sq-fill] and this element keeps a plain,
+   unclipped box.
+
+   position: relative is what that layer is positioned against. */
 .demo {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: var(--space-500);                 /* 40 */
   min-height: 260px;
   padding: var(--space-600);             /* 48 */
-  background: var(--m-card);
-  border-radius: var(--radius-24);
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-24);       /* pre-paint fallback only */
 
   /* Jelly gives every soft-body component a BLEED CANVAS wider than the
      control, so the blob has room to deform past its own box — a 279px slider
@@ -312,17 +319,50 @@ body {
 .sw[aria-pressed="true"] { border-color: var(--m-card); box-shadow: 0 0 0 2px var(--m-accent); }
 .sw:focus-visible { outline: 3px solid var(--m-accent); outline-offset: 3px; }
 
+/* THE STROKE IS A DRAWN PATH, NOT A BORDER, and it has to be. A border is
+   painted on the border-box rectangle, so clipping this card to a squircle kept
+   the straight middle of each edge and cut the corners off -- four hairlines
+   floating around a shape they no longer traced. Removing the border was not an
+   option either: this surface is --m-card sitting on a .demo that is also
+   --m-card, so the stroke is the only thing telling the two apart.
+
+   --m-squircle-ring asks wireSquircleCards() for an SVG path following the same
+   superellipse as the clip, inset by half its own width so the whole stroke
+   lands inside it. The colour comes from `color` below, through currentColor,
+   so it stays a CSS decision rather than a string read out of JavaScript.
+
+   position: relative is load-bearing -- the ring is absolutely positioned. */
 .preview {
+  position: relative;
   display: grid;
   gap: var(--space-300);                 /* 24 */
   padding: var(--space-400);             /* 32 */
-  background: var(--m-card);
-  border: 1px solid var(--m-stroke);
-  border-radius: var(--radius-16);
+  --m-squircle-ring: 1;
+  border-radius: var(--radius-16);       /* pre-paint fallback only */
   /* Reads the bridged tokens rather than ours directly, so when the provider
      above is re-tinted or switched to dark this surface follows it. That is
      the point of the demo: the whole subtree moves, not just the controls. */
   color: var(--m-ink);
+}
+
+/* The painted squircle. It carries the card fill and the clip, so the card
+   itself carries neither -- content, and any overlay panel inside it, is never
+   clipped by the shape. Inherits --m-card, so inside .preview it follows the
+   scoped provider exactly as the old background did. */
+[data-sq-fill] {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* --m-card unless the surface says otherwise. A card sits ON the page; the
+     OTP stage is a well cut INTO it and asks for --m-page. */
+  background: var(--m-squircle-fill, var(--m-card));
+  pointer-events: none;
+}
+
+/* Secondary 600 in both modes -- --m-stroke does not invert. currentColor on
+   the path means this one declaration is the whole colour decision. */
+.preview > [data-sq-ring] {
+  color: var(--m-stroke);
 }
 
 .preview-title {
@@ -418,17 +458,24 @@ body {
 
 /* ── Contents rail ───────────────────────────────────────────────────────── */
 
+/* NOT STICKY, deliberately. This used to pin itself to the top of the viewport
+   and ride along, which on a page of 23 entries meant a two-row bar of links
+   permanently covering the top of whatever you were actually reading. An index
+   is for finding your way in, not for being followed by.
+
+   The translucent fill and the backdrop blur went with it: both existed only so
+   a floating bar stayed legible over scrolling content underneath. With the bar
+   sitting still on the page there is nothing to be legible over, and a 92%
+   wash of the page colour on top of the page colour is just a faint patch.
+
+   padding-block and the margin stay so the space around the index is unchanged
+   -- this removes a behaviour, not a piece of the layout. */
 .toc {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-050);                 /* 4 */
   margin-block-end: var(--space-800);
   padding-block: var(--space-150);
-  background: color-mix(in srgb, var(--m-page) 92%, transparent);
-  backdrop-filter: blur(8px);
 }
 
 .toc a {
@@ -574,12 +621,34 @@ body {
    demo card behind it. Scrolling is the honest answer — the boxes have fixed
    widths and cannot shrink — and `safe center` keeps the row centred until it
    overflows, then pins it to the start so the first box is never cut off. */
+/* THE SURFACE AND THE SCROLLER ARE TWO ELEMENTS, and they have to be. The
+   squircle is painted by a layer positioned inset:0 inside its surface -- but
+   an absolutely positioned child of a SCROLL container scrolls with the
+   content, so a single element that both scrolled and carried the shape would
+   slide its own background out from under itself at length 8.
+
+   Splitting them fixes it and reads better anyway: the scrollbar now sits
+   inside the padding rather than along the very edge of the surface. */
 .otp-stage {
+  position: relative;
+  --m-squircle-fill: var(--m-page);      /* a well, not a card */
+  border-radius: var(--radius-16);       /* pre-paint fallback only */
+}
+
+/* THE PADDING BELONGS TO THE SCROLLER, not to the surface around it, and that
+   is not a stylistic preference. overflow-x: auto forces overflow-y to auto --
+   a not-visible value on one axis computes the other to auto -- so this element
+   clips VERTICALLY as well as horizontally. With the padding on .otp-stage the
+   boxes sat flush at top: 0 inside the scroller, and the focus ring above the
+   focused digit was sliced off at the edge. Measured: 0px between the OTP and
+   the clipping boundary.
+
+   Inside the scroller the padding is part of the scrollable area, so the ring
+   has room on every side and the first box still cannot be cut when scrolled. */
+.otp-scroll {
   display: flex;
   justify-content: safe center;
   padding: var(--space-400);
-  background: var(--m-page);
-  border-radius: var(--radius-16);
   overflow-x: auto;
 }
 

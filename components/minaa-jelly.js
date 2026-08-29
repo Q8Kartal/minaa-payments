@@ -195,7 +195,7 @@
       .item:not([aria-disabled="true"]):focus,
       .item:not([aria-disabled="true"]):focus-visible,
       .item:not([aria-disabled="true"]).active {
-        background: var(--m-menu-selected);
+        background: var(--m-row-selected);
       }
       /* Excluding the disabled row from OUR rule is not enough on its own:
          Jelly's bare .item:hover still matches it, so it kept a 12% wash.
@@ -207,6 +207,32 @@
       .item[aria-disabled="true"].active {
         background: transparent;
       }`,
+
+    /* jelly-select draws its OWN dropdown rather than opening a jelly-menu, so
+       the menu patch above does not reach it and the same two corrections have
+       to be made again against different class names.
+
+       THE SELECTED ROW: Jelly paints .row.active as a 15% tint of the accent,
+       the same arithmetic-instead-of-a-decision as the menu. It takes
+       --m-row-selected, which is the token both now share -- Primary 300 in
+       light, Secondary 600 in dark. Disabled rows are cleared for the same
+       reason as the menu: at a 15% wash an un-choosable row highlighting was
+       invisible, at a solid fill it is not.
+
+       THE TICK: Jelly pins it to `color: var(--jelly-accent)`, so it stayed
+       Primary 700 while the row's own ink was Secondary 600 in light and cream
+       in dark -- a blue mark on a red word. `inherit` is the whole fix, and it
+       is better than naming two colours: the tick is not a thing with a colour
+       of its own, it is punctuation on the row, so it should read as whatever
+       the row reads as. The glyph is already stroke="currentColor". */
+    'jelly-select': `
+      .row.active:not([aria-disabled="true"]) {
+        background: var(--m-row-selected);
+      }
+      .row[aria-disabled="true"].active {
+        background: transparent;
+      }
+      .row .tick { color: inherit; }`,
 
     /* jelly-segmented draws its pill from `.segment`, which hardcodes
        `padding-block: 0` with no token behind it and carries no part. The pill

@@ -415,9 +415,143 @@
     }
   }
 
+  /* ── Squircle cards ──────────────────────────────────────────────────────
+     The same superellipse the overlays use, on the page's own surfaces. The
+     geometry comes from the bridge -- window.minaaSquirclePath, exposed for
+     exactly this -- rather than being reimplemented here, because two copies of
+     the maths is two shapes the day one of them is edited.
+
+     WHICH SURFACES: .demo, .preview and .otp-stage. The fill colour comes from
+     --m-squircle-fill, so a well can take --m-page while a card takes --m-card
+     without this function knowing which is which.
+
+     .otp-stage was excluded while the shape was a clip, on the grounds that it
+     scrolls and a clip would slice its scrollbar. Painting the shape instead
+     retired that objection -- but it still needed the scroll moved onto an
+     inner .otp-scroll, because an absolutely positioned layer inside a scroll
+     container scrolls with the content and would slide out from under its own
+     surface.
+
+     .code is still out: it is a well too, but nothing about a code block wants
+     a 64px corner.
+
+     A CLIPPED ELEMENT MUST NOT HAVE A BORDER. A border is drawn on the
+     border-box rectangle, so the clip keeps the straight middle of each edge
+     and cuts the corners off, leaving four hairlines floating around a shape
+     they no longer trace. Same reason jelly-popover::part(panel) drops its own.
+
+     But "no border, or no clip" was too quick -- there IS a third option, and
+     .preview needs it, because that card is --m-card sitting on a .demo that is
+     also --m-card and the stroke is the only thing separating them. Draw the
+     stroke as a PATH rather than a border: the same superellipse, stroked, and
+     inset by half its own width so the whole stroke lands inside the clip
+     instead of straddling it. Opt in with --m-squircle-ring.
+
+     The 5% card shadow is lost -- clipping happens after filtering, so a
+     clipped element cannot shadow itself, and lifting it would mean wrapping
+     every card on the page. At rgba(22,22,22,.05) it was a whisper, and the
+     card is already a different colour from the page it sits on. */
+  function wireSquircleCards() {
+    if (typeof minaaSquirclePath !== 'function') return;
+    const cards = document.querySelectorAll('.demo, .preview, .otp-stage');
+    if (!cards.length) return;
+
+    const SVGNS = 'http://www.w3.org/2000/svg';
+
+    /* The stroke, for cards that ask for one. Inset by half the stroke width:
+       a stroke is centred on its path, so drawing it on the clip boundary would
+       lose the outer half to the clip and leave a stroke of half the weight.
+       The inner superellipse is generated at (w - s, h - s) with its radius
+       reduced by the same half, which is not the true parallel curve of a
+       superellipse but is indistinguishable at these weights. */
+    const ring = (el, w, h, r) => {
+      const cs = getComputedStyle(el);
+      let svg = el.querySelector(':scope > [data-sq-ring]');
+      if (!cs.getPropertyValue('--m-squircle-ring').trim()) {
+        if (svg) svg.remove();
+        return;
+      }
+      const s = parseFloat(cs.getPropertyValue('--control-stroke')) || 1.5;
+      const d = minaaSquirclePath(w - s, h - s, Math.max(0, r - s / 2));
+      if (!d) return;
+      if (!svg) {
+        svg = document.createElementNS(SVGNS, 'svg');
+        svg.setAttribute('data-sq-ring', '');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+        /* Absolute so it never joins the grid this card lays out, and inert so
+           it cannot eat a click meant for a control underneath it. */
+        svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
+                            'pointer-events:none';
+        el.appendChild(svg);
+      }
+      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      svg.innerHTML =
+        '<g transform="translate(' + (s / 2) + ',' + (s / 2) + ')">' +
+        '<path d="' + d + '" fill="none" stroke="currentColor" stroke-width="' + s + '"/>' +
+        '</g>';
+    };
+
+    const radius = () => {
+      const raw = getComputedStyle(document.documentElement)
+        .getPropertyValue('--m-surface-corner');
+      const n = parseFloat(raw);
+      return isNaN(n) ? Infinity : n;
+    };
+
+    /* THE SHAPE IS PAINTED, NOT CLIPPED, and that distinction is the whole
+       reason this function exists in its current form.
+
+       Clipping the card itself was the obvious way to do it and it was wrong:
+       clip-path clips EVERY descendant, including position:fixed ones, which
+       overflow:hidden would have left alone. The popover and menu panels are
+       fixed children of .demo, so the card's own corner was slicing the panels
+       off wherever they extended past it. The dialog and drawer escaped only
+       because they portal themselves to document.body.
+
+       So the card is never clipped. A layer behind the content carries the
+       --m-card fill and takes the clip instead: the shape is identical, and
+       nothing inside the card is affected by it.
+
+       z-index -1 rather than a stacking context on the card. isolation:isolate
+       would also put the layer behind the content, but it would trap the
+       overlays' z-index inside the card -- trading a clipping bug for the
+       layering bug this was reported as. */
+    const fill = (el, d) => {
+      let layer = el.querySelector(':scope > [data-sq-fill]');
+      if (!layer) {
+        layer = document.createElement('div');
+        layer.setAttribute('data-sq-fill', '');
+        layer.setAttribute('aria-hidden', 'true');
+        el.insertBefore(layer, el.firstChild);
+      }
+      layer.style.clipPath = 'path("' + d + '")';
+    };
+
+    const shape = (el) => {
+      const w = el.clientWidth, h = el.clientHeight;
+      if (!w || !h) return;
+      if (el.__sqW === w && el.__sqH === h) return;
+      const r = radius();
+      const d = minaaSquirclePath(w, h, r);
+      if (!d) return;
+      el.__sqW = w; el.__sqH = h;
+      fill(el, d);
+      ring(el, w, h, r);
+    };
+
+    /* Cards reflow constantly here -- fonts settle, code blocks wrap, a demo
+       grows when a control opens -- so the path is regenerated on every resize
+       rather than measured once. */
+    const ro = window.ResizeObserver
+      ? new ResizeObserver((recs) => recs.forEach((r) => shape(r.target)))
+      : null;
+    cards.forEach((el) => { shape(el); if (ro) ro.observe(el); });
+  }
+
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireDialog(); wireDrawer();
+    wireOtpDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

@@ -165,7 +165,7 @@ jelly-theme {
      would have been invisible against its own surface. */
   --m-overlay-surface:  var(--primary);    /* Primary 700 */
   --m-anchored-surface: var(--secondary);  /* Secondary 600 - see below */
-  --m-menu-selected:    var(--primary-300);/* Primary 300 */
+  --m-row-selected:    var(--primary-300);/* Primary 300 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
 
   /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
@@ -183,8 +183,14 @@ jelly-theme {
      digit hex so the colour still comes from the ramp. */
   --m-scrim: color-mix(in srgb, var(--primary-950) 62%, transparent);
 
-  /* THE OVERLAY CORNER, and like --m-scrim it is deliberately declared once
+  /* THE SURFACE CORNER, and like --m-scrim it is deliberately declared once
      rather than per mode: a corner does not change with the theme.
+
+     Named for the surface rather than the overlay because it now governs both.
+     It began as --m-overlay-corner and was renamed the moment the demo cards
+     took it: a token called "overlay" driving a card is the same false
+     dependency as a dialog borrowing Button radius/Full -- it reads as a
+     coincidence, and the next person to change overlays moves the cards.
 
      Every overlay in the family shares it, and that is the point. Left to the
      generator's default -- "as round as this shape can be", half the short side
@@ -203,7 +209,7 @@ jelly-theme {
      this is now the third time that gap has cost something -- the dialog's
      radius, the missing Radius collection in Figma, and this. A radius-64 step,
      or a Radius collection that both files read, would absorb it. */
-  --m-overlay-corner: 64px;
+  --m-surface-corner: 64px;
   /* Disabled, both modes now drawn in the Figma file rather than derived:
      dark is a Primary 900 box with a Primary 950 mark and a Primary 900 label;
      light is a Secondary 300 box with a Primary 700 label. Light keeps the
@@ -246,7 +252,7 @@ jelly-theme {
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
   --m-anchored-surface: var(--primary);    /* Primary 700 - see below */
-  --m-menu-selected:    var(--secondary);  /* Secondary 600 */
+  --m-row-selected:    var(--secondary);  /* Secondary 600 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
@@ -289,7 +295,7 @@ jelly-theme[mode="dark"] {
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
   --m-anchored-surface: var(--primary);    /* Primary 700 - see below */
-  --m-menu-selected:    var(--secondary);  /* Secondary 600 */
+  --m-row-selected:    var(--secondary);  /* Secondary 600 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
@@ -338,7 +344,7 @@ jelly-theme[mode="light"] {
      would have been invisible against its own surface. */
   --m-overlay-surface:  var(--primary);    /* Primary 700 */
   --m-anchored-surface: var(--secondary);  /* Secondary 600 - see below */
-  --m-menu-selected:    var(--primary-300);/* Primary 300 */
+  --m-row-selected:    var(--primary-300);/* Primary 300 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
 
   /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
@@ -1583,7 +1589,7 @@ jelly-dialog::part(dialog) {
    as the shape can be, half the short side -- a 360-wide sheet most of the
    viewport tall asks for a 180px corner and renders as a capsule standing on
    end. So the drawer CAPS its corner through --m-squircle-radius, the hook the
-   generator already reads, and the cap is --m-overlay-corner: the single value
+   generator already reads, and the cap is --m-surface-corner: the single value
    the whole overlay family shares.
 
    Capping, not pinning. The generator still takes min(cap, half the short
@@ -1606,7 +1612,7 @@ jelly-drawer {
   --jelly-color-background-surface: var(--m-overlay-surface);
   --jelly-drawer-padding: var(--space-300);   /* 24, against Jelly's 22 */
   --jelly-drawer-radius:  var(--radius-24);        /* pre-paint fallback only */
-  --m-squircle-radius:    var(--m-overlay-corner); /* what the generator draws */
+  --m-squircle-radius:    var(--m-surface-corner); /* what the generator draws */
 }
 jelly-drawer::part(backdrop) { background: var(--m-scrim); }
 jelly-drawer::part(sheet)    { border: 0; }
@@ -1651,7 +1657,7 @@ jelly-popover {
   --jelly-color-foreground-default: var(--m-overlay-ink);
   --jelly-color-background-surface: var(--m-anchored-surface);
   --jelly-popover-radius:         var(--radius-16);   /* pre-paint fallback */
-  --m-squircle-radius:            var(--m-overlay-corner);
+  --m-squircle-radius:            var(--m-surface-corner);
   --jelly-popover-padding-block:  var(--space-200);
   --jelly-popover-padding-inline: var(--space-200);
   --jelly-popover-font-size:      var(--text-md);
@@ -1673,10 +1679,17 @@ jelly-popover::part(panel) { border: 0; }
    The pair only works if both halves move.
 
    :not([slot]) picks the tooltip trigger, which is default-slotted; its other
-   slot is the named "content". */
+   slot is the named "content".
+
+   .overlay-trigger is the same idea for the two overlays whose trigger is NOT
+   slotted into them. A dialog and a drawer are opened by an ordinary button
+   somewhere else on the page -- there is no structural relationship to select
+   on -- so they are marked by hand. Without it those two were the only overlay
+   triggers left on Primary 700 in dark while the other four had turned. */
 jelly-popover > [slot="trigger"],
 jelly-menu > [slot="trigger"],
-jelly-tooltip > :not([slot]) {
+jelly-tooltip > :not([slot]),
+.overlay-trigger {
   --jelly-fill: var(--m-overlay-surface);
 }
 
@@ -1684,7 +1697,7 @@ jelly-tooltip {
   --jelly-tooltip-background:     var(--m-anchored-surface);
   --jelly-tooltip-color:          var(--m-overlay-ink);
   --jelly-tooltip-radius:         var(--radius-8);    /* pre-paint fallback */
-  --m-squircle-radius:            var(--m-overlay-corner);
+  --m-squircle-radius:            var(--m-surface-corner);
   --jelly-tooltip-padding-block:  var(--space-075);
   --jelly-tooltip-padding-inline: var(--space-150);
   --jelly-tooltip-font-size:      var(--text-sm);

@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260831c"></script>
+<script src="../gate.js?v=20260831k"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260831c"></script>
+<script type="module" src="vendor/jelly.js?v=20260831k"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260831c">
-<link rel="stylesheet" href="showcase.css?v=20260831c">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260831k">
+<link rel="stylesheet" href="showcase.css?v=20260831k">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -268,7 +268,9 @@
              surface that scrolls instead of overflowing, tinted --m-page so the
              scoped mode is visible behind the capsule. -->
         <div class="otp-stage">
-          <jelly-otp id="otp-demo" length="6" label="One-time code"></jelly-otp>
+          <div class="otp-scroll">
+            <jelly-otp id="otp-demo" length="6" label="One-time code"></jelly-otp>
+          </div>
         </div>
       </jelly-theme>
 
@@ -524,7 +526,7 @@
     <div class="demo" data-demo>
       <div class="row" data-controls>
         <figure class="specimen">
-          <jelly-button id="dlg-open">Delete payment</jelly-button>
+          <jelly-button id="dlg-open" class="overlay-trigger">Delete payment</jelly-button>
           <figcaption>Opens the dialog</figcaption>
         </figure>
       </div>
@@ -559,15 +561,15 @@ dialog.setAttribute('open', '');   // or dialog.showModal()</template>
     <div class="demo" data-demo>
       <div class="row" data-controls>
         <figure class="specimen">
-          <jelly-button id="drw-start">Open at the start</jelly-button>
+          <jelly-button id="drw-start" class="overlay-trigger">Open at the start</jelly-button>
           <figcaption>side="start"</figcaption>
         </figure>
         <figure class="specimen">
-          <jelly-button id="drw-end">Open at the end</jelly-button>
+          <jelly-button id="drw-end" class="overlay-trigger">Open at the end</jelly-button>
           <figcaption>side="end"</figcaption>
         </figure>
         <figure class="specimen">
-          <jelly-button id="drw-bottom">Open at the bottom</jelly-button>
+          <jelly-button id="drw-bottom" class="overlay-trigger">Open at the bottom</jelly-button>
           <figcaption>side="bottom"</figcaption>
         </figure>
       </div>
@@ -700,8 +702,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260831c"></script>
-<script src="minaa-jelly.js?v=20260831c"></script>
-<script src="showcase.js?v=20260831c" defer></script>
+<script src="micons.js?v=20260831k"></script>
+<script src="minaa-jelly.js?v=20260831k"></script>
+<script src="showcase.js?v=20260831k" defer></script>
 </body>
 </html>
