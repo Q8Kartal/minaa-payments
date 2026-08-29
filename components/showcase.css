@@ -366,12 +366,18 @@ body {
   margin: 0;
   padding: var(--space-300);             /* 24 */
   padding-inline-end: var(--space-1000); /* 80 — room for the copy button */
-  /* Wrap rather than scroll. Every one of the fifteen snippets overflowed its
-     400px column and carried its own horizontal scrollbar -- fifteen bars down
-     the page, each hiding the end of the line it belonged to. A snippet exists
-     to be read, and a reader should not have to drag to finish a tag. */
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
+  /* Scroll, deliberately, and this is the one place on the page a horizontal
+     bar is allowed. Code is the exception: a snippet is a single technical run
+     and breaking it mid-attribute to avoid a scrollbar makes it harder to read,
+     not easier. Wrapping was tried and reverted for exactly that.
+
+     The bar is not hiding a layout failure either -- measured, the fifteen
+     snippets need 362 to 924px of text width and the column gives 296, so no
+     column this page could reasonably hand them would fit a jelly-radio-group
+     line. Everywhere ELSE a horizontal bar appears it is a bug: the page had
+     one from the masthead switch and the OTP stage had one from a card frozen
+     at 568, and both were fixed rather than accepted. */
+  overflow-x: auto;
   /* The one place a non-brand family is correct: this is code, and Minaã has
      no monospace face. Brand type here would misrepresent what is on screen. */
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
