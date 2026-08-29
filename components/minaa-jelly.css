@@ -180,6 +180,28 @@ jelly-theme {
      the ramp in both. Written as a mix off the token rather than an eight
      digit hex so the colour still comes from the ramp. */
   --m-scrim: color-mix(in srgb, var(--primary-950) 62%, transparent);
+
+  /* THE OVERLAY CORNER, and like --m-scrim it is deliberately declared once
+     rather than per mode: a corner does not change with the theme.
+
+     Every overlay in the family shares it, and that is the point. Left to the
+     generator's default -- "as round as this shape can be", half the short side
+     -- the corner tracks the panel's SIZE instead of its ROLE, and the family
+     came apart: the dialog drew 64.5 on a 508x129 panel while the drawer drew
+     24, and a bottom sheet that happens to be 129 tall, exactly the dialog's
+     height, drew 24 as well. Same surface, same brand fill, three corners.
+
+     Capping instead of pinning is what makes one value work for all of them.
+     The generator takes min(this, half the short side), so a tall end sheet
+     gets 64 rather than the 180 that would stand a capsule on end, and a short
+     wide sheet still cannot exceed its own geometry.
+
+     64 IS A RAW VALUE, and the only one in this block. The radius scale stops
+     at 24 because 24 is right for fields and cards; an overlay is neither, and
+     this is now the third time that gap has cost something -- the dialog's
+     radius, the missing Radius collection in Figma, and this. A radius-64 step,
+     or a Radius collection that both files read, would absorb it. */
+  --m-overlay-corner: 64px;
   /* Disabled, both modes now drawn in the Figma file rather than derived:
      dark is a Primary 900 box with a Primary 950 mark and a Primary 900 label;
      light is a Secondary 300 box with a Primary 700 label. Light keeps the
@@ -487,6 +509,17 @@ jelly-tooltip {
    because --m-ink and --m-on-accent are both Neutral 100 there -- which is why
    this went unnoticed until a button appeared outside the toast row, where
    every trigger sets its own label colour. */
+/* DO NOT USE JELLY'S variant ATTRIBUTE THROUGH THIS BRIDGE. Jelly ships its own
+   palette -- white, rose, amber, azure, mint, platinum, graphite -- none of
+   which is a Minaa colour, and the label below is set unconditionally to the
+   ink for the ACCENT fill. Put variant="platinum" on a button and you get a
+   pale pill with cream text on it: a control with no visible label. Measured,
+   not predicted -- it shipped into an overlay entry for exactly one build.
+
+   The fix is not a per-variant label map. Minaa has its own five button
+   appearances (see the Button component set in Figma) and Jelly's palette is
+   not part of the system, so the attribute has no business being set. If a
+   second appearance is ever needed here, it comes from the Minaa set. */
 jelly-button {
   --jelly-label:                 var(--m-on-accent);
   --jelly-button-height:         var(--control-48);
@@ -1521,4 +1554,89 @@ jelly-dialog::part(backdrop) { background: var(--m-scrim); }
    the two blurs are retuned rather than copied. */
 jelly-dialog::part(dialog) {
   border: 0;
+}
+
+/* ==========================================================================
+   THE DRAWER
+
+   Structurally the dialog with a different resting place, and it repeats the
+   dialog bugs one for one, so it takes the dialog fixes one for one:
+
+     - the backdrop derives from the TEXT colour, so it washed the page cream
+       in dark and red in light. It gets --m-scrim.
+     - the sheet took the card colour, which in dark is the same end of the
+       ramp as the scrim. It gets --m-overlay-surface, and --m-overlay-ink so
+       the copy is not painted onto its own background.
+     - the close control is the same U+2715 in a plain button, replaced by the
+       same jelly-icon-button in minaaDialogClose().
+     - the corner is the same generated superellipse from minaaSquircle().
+
+   ONE DIFFERENCE, and it matters. Left to the generator's default -- as round
+   as the shape can be, half the short side -- a 360-wide sheet most of the
+   viewport tall asks for a 180px corner and renders as a capsule standing on
+   end. So the drawer CAPS its corner through --m-squircle-radius, the hook the
+   generator already reads, and the cap is --m-overlay-corner: the single value
+   the whole overlay family shares.
+
+   Capping, not pinning. The generator still takes min(cap, half the short
+   side), so a bottom sheet -- wide and short -- is limited by its own geometry
+   rather than by the cap, exactly as the dialog is.
+
+   This started as radius-24, which was wrong in a way that only showed at size:
+   24 on a 360-wide sheet is 13% of the maximum, and at that fraction a
+   superellipse and a plain rounded corner are the same few pixels. The drawer
+   simply did not look squircled, while the dialog beside it drew 64.5.
+
+   The dialog is still left on the default and therefore still self-computes its
+   corner. At its present size the two agree to within half a pixel, and the
+   shape is signed off, so it is not touched here. Pointing it at the same token
+   would cost 0.5px, make the family exactly consistent and remove its own
+   grow-into-a-capsule risk -- worth doing, but it is a change to approved work.
+   ========================================================================== */
+jelly-drawer {
+  --jelly-color-foreground-default: var(--m-overlay-ink);
+  --jelly-color-background-surface: var(--m-overlay-surface);
+  --jelly-drawer-padding: var(--space-300);   /* 24, against Jelly's 22 */
+  --jelly-drawer-radius:  var(--radius-24);        /* pre-paint fallback only */
+  --m-squircle-radius:    var(--m-overlay-corner); /* what the generator draws */
+}
+jelly-drawer::part(backdrop) { background: var(--m-scrim); }
+jelly-drawer::part(sheet)    { border: 0; }
+
+
+/* ==========================================================================
+   THE POPOVER AND THE TOOLTIP
+
+   Both are overlays, so both take the overlay surface rather than the card
+   colour -- that is now a family decision, not a per-component one: a dialog,
+   a drawer, a popover and a tooltip are all "the brand speaking over the page"
+   and they are all Primary 700 in light, Secondary 600 in dark, cream copy.
+
+   The tooltip is the one component that names its own colours instead of
+   reading the surface tokens, so the mapping has to be written out. Left to
+   Jelly it paints a near-black chip, which is the one colour this system does
+   not have.
+
+   Radius: 16 for the popover, which is a small panel, and 8 for the tooltip,
+   which is a chip. Neither is squircled -- the generator is pointed at large
+   surfaces, and at these sizes a superellipse and a rounded corner are the
+   same handful of pixels.
+   ========================================================================== */
+jelly-popover {
+  --jelly-color-foreground-default: var(--m-overlay-ink);
+  --jelly-color-background-surface: var(--m-overlay-surface);
+  --jelly-popover-radius:         var(--radius-16);
+  --jelly-popover-padding-block:  var(--space-200);
+  --jelly-popover-padding-inline: var(--space-200);
+  --jelly-popover-font-size:      var(--text-md);
+  --jelly-popover-min-width:      var(--space-1000);
+}
+
+jelly-tooltip {
+  --jelly-tooltip-background:     var(--m-overlay-surface);
+  --jelly-tooltip-color:          var(--m-overlay-ink);
+  --jelly-tooltip-radius:         var(--radius-8);
+  --jelly-tooltip-padding-block:  var(--space-075);
+  --jelly-tooltip-padding-inline: var(--space-150);
+  --jelly-tooltip-font-size:      var(--text-sm);
 }

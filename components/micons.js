@@ -148,6 +148,58 @@ const MICONS = {
   close: '<path d="M9.87868 10.1213L14.1213 14.364" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
          '<path d="M14.1213 10.1213L9.87868 14.364" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
          '<circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5"/>',
+
+  /* ── Overlays ──────────────────────────────────────────────────────────
+     Four of these five are SETTLES, and the reason is structural rather than
+     bad luck. Micons has no UI-chrome vocabulary at all: scanning all 1,895
+     names for panel, layout, window, sidebar, drawer, tab, modal, popup,
+     tooltip, badge, chip, divider, accordion, progress, skeleton, spinner,
+     breadcrumb and pagination returns NOTHING. The library covers the
+     business -- shipping, storage, finance, weather -- plus generic interface
+     actions, and it was never asked to name the parts of an interface.
+
+     So these are chosen on AFFORDANCE, which is the honest reading available:
+     the mark a user would touch to summon the thing, not a picture of the
+     thing. Where even that fails it is said so.
+
+     Names here are entry names, not library names -- the library path is on
+     each line, because interface/menu-2-solid labelling the DRAWER entry is
+     exactly the sort of thing that looks like a mistake six months later. */
+
+  /* interface/menu-2-solid. The hamburger is not a drawer; it is the control
+     that opens one, and it is the most universally read drawer affordance
+     there is. Deliberately NOT given to the menu entry, which would be the
+     literal-minded choice: nothing on this page opens a jelly-menu with a
+     hamburger, while a drawer is opened with one everywhere. */
+  drawer: '<path d="M3 6L21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+          '<path d="M3 12L21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+          '<path d="M3 18L21 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+
+  /* communication/sms-solid, and the WEAKEST mark in this file -- it is an
+     envelope. A popover is a small panel tethered to its trigger, so the mark
+     that fits is a bubble with a tail, and the library holds no such thing:
+     every cross-checked candidate was an envelope, a grid or an arrow. It sits
+     beside dialog, which settled on communication/message-2-solid for the same
+     missing idea, so at least the two overlays fail consistently. Replace both
+     the day a bubble exists. */
+  popover: '<path d="M14 4C17.7712 4 19.6566 4.0003 20.8281 5.17188C21.9997 6.34345 22 8.22876 22 12C22 15.7712 21.9997 17.6566 20.8281 18.8281C19.6566 19.9997 17.7712 20 14 20H10C6.22876 20 4.34345 19.9997 3.17188 18.8281C2.0003 17.6566 2 15.7712 2 12C2 8.22876 2.0003 6.34345 3.17188 5.17188C4.34345 4.0003 6.22876 4 10 4H14ZM16.5303 7.46973C16.2374 7.17683 15.7626 7.17683 15.4697 7.46973L14.2979 8.6416C13.6164 9.32309 13.157 9.7796 12.7695 10.0752C12.3995 10.3575 12.1843 10.4219 12 10.4219C11.8157 10.4219 11.6005 10.3575 11.2305 10.0752C10.843 9.7796 10.3836 9.32309 9.70215 8.6416L8.53027 7.46973C8.23738 7.17683 7.76262 7.17683 7.46973 7.46973C7.17683 7.76262 7.17683 8.23738 7.46973 8.53027L8.6416 9.70215C9.29312 10.3537 9.83411 10.8966 10.3203 11.2676C10.8239 11.6518 11.3559 11.9219 12 11.9219C12.6441 11.9219 13.1761 11.6518 13.6797 11.2676C14.1659 10.8966 14.7069 10.3537 15.3584 9.70215L16.5303 8.53027C16.8232 8.23738 16.8232 7.76262 16.5303 7.46973Z" fill="currentColor"/>',
+
+  /* interface/why-solid. A question mark, and the one overlay glyph that is
+     not a settle: a tooltip exists to answer "what is this?", so the mark for
+     asking is the subject rather than a stand-in for it. */
+  tooltip: '<path d="M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2ZM11.5488 14.9785C11.2598 14.9785 11.0293 15.0625 10.8574 15.2305C10.6855 15.3945 10.5996 15.6016 10.5996 15.8516C10.5996 16.0937 10.6855 16.2988 10.8574 16.4668C11.0293 16.6348 11.2598 16.7188 11.5488 16.7188C11.834 16.7187 12.0625 16.6348 12.2344 16.4668C12.4102 16.2988 12.498 16.0937 12.498 15.8516C12.498 15.6016 12.4102 15.3945 12.2344 15.2305C12.0625 15.0625 11.834 14.9785 11.5488 14.9785ZM11.666 8C11.1699 8 10.7227 8.08594 10.3242 8.25781C9.92578 8.42578 9.60742 8.68555 9.36914 9.03711C9.13477 9.38477 9.01172 9.82617 9 10.3613H10.6992C10.7031 10.1191 10.75 9.92383 10.8398 9.77539C10.9336 9.62695 11.0527 9.51758 11.1973 9.44727C11.3418 9.37305 11.498 9.33594 11.666 9.33594C11.8691 9.33594 12.0371 9.375 12.1699 9.45312C12.3066 9.53125 12.4082 9.64648 12.4746 9.79883C12.5449 9.94727 12.5801 10.1348 12.5801 10.3613C12.5801 10.5566 12.541 10.7344 12.4629 10.8945C12.3848 11.0508 12.2773 11.2031 12.1406 11.3516C12.0039 11.5 11.8437 11.6563 11.6602 11.8203C11.4414 12.0234 11.2656 12.2285 11.1328 12.4355C11.0039 12.6426 10.9121 12.875 10.8574 13.1328C10.8066 13.3867 10.7793 13.6895 10.7754 14.041H12.2695C12.2734 13.7402 12.3145 13.4805 12.3926 13.2617C12.4746 13.043 12.627 12.834 12.8496 12.6348C13.1074 12.3926 13.3438 12.1582 13.5586 11.9316C13.7734 11.7051 13.9473 11.4609 14.0801 11.1992C14.2129 10.9336 14.2793 10.6309 14.2793 10.291C14.2793 9.80273 14.1758 9.38867 13.9688 9.04883C13.7617 8.70508 13.4629 8.44531 13.0723 8.26953C12.6816 8.08984 12.2129 8 11.666 8Z" fill="currentColor"/>',
+
+  /* interface/more-solid. Three dots -- the overflow control, which is how a
+     jelly-menu is actually summoned. Same affordance logic as drawer. */
+  menu: '<rect x="2.75" y="9.75" width="4.5" height="4.5" rx="2.25" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>' +
+        '<rect x="9.75" y="9.75" width="4.5" height="4.5" rx="2.25" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>' +
+        '<rect x="16.75" y="9.75" width="4.5" height="4.5" rx="2.25" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>',
+
+  /* interface/done-solid. A menu item is a choice, and this is a chosen one.
+     Note it is the same drawing as the checkbox entry at a glance -- they are
+     different components (checkbox is the plain tick, this is the ringed one)
+     but if the two ever sit in one row, split them. */
+  menuitem: '<path d="M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2ZM15.5303 9.46973C15.2374 9.17683 14.7626 9.17683 14.4697 9.46973L11 12.9395L9.53027 11.4697C9.23738 11.1768 8.76262 11.1768 8.46973 11.4697C8.17683 11.7626 8.17683 12.2374 8.46973 12.5303L10.4697 14.5303C10.7626 14.8232 11.2374 14.8232 11.5303 14.5303L15.5303 10.5303C15.8232 10.2374 15.8232 9.76262 15.5303 9.46973Z" fill="currentColor"/>',
 };
 
 /* One sprite, referenced by <use>, so each path is stored once no matter how

@@ -392,7 +392,33 @@
     btn.addEventListener('click', () => dlg.setAttribute('open', ''));
   }
 
-  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts(); wireOtpDemo(); wireDialog(); }
+  /* ── The drawer (entry 19) ───────────────────────────────────────────────
+     side is NOT an observed attribute -- Jelly reads it from CSS only -- so it
+     has to be set BEFORE opening. Setting it while the sheet is on screen
+     changes nothing until the next open, which is the entry's own warning and
+     would be an odd thing for the page to contradict. */
+  function wireDrawer() {
+    const drw = document.getElementById('drw-demo');
+    if (!drw) return;
+    /* start and end, not left and right. Jelly accepts all four, but the
+       logical pair follows the writing direction and the physical pair does
+       not -- and this library gets an RTL build later, where left would stay
+       left and be wrong. */
+    for (const [id, side] of [['drw-start', 'start'], ['drw-end', 'end'], ['drw-bottom', 'bottom']]) {
+      const btn = document.getElementById(id);
+      if (!btn || btn.dataset.wired) continue;
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', () => {
+        drw.setAttribute('side', side);
+        drw.open = true;
+      });
+    }
+  }
+
+  function start() {
+    buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
+    wireOtpDemo(); wireDialog(); wireDrawer();
+  }
 
   if (window.customElements) {
     Promise.all(

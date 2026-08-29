@@ -92,13 +92,49 @@
       /* The panel is clipped to a squircle path by minaaSquircle(), and a
          clip removes a box-shadow entirely -- the shadow is drawn outside the
          border box, which is precisely the part being clipped away. So the
-         panel stops casting its own and .wrap casts it instead: a filter
+         panel stops casting its own and an ANCESTOR casts it instead: a filter
          follows the CLIPPED alpha, so the shadow traces the squircle rather
-         than the rectangle underneath it. .wrap holds nothing else opaque.
+         than the rectangle underneath it. It has to be an ancestor and not the
+         panel: clipping is applied after filtering, so a drop-shadow on the
+         clipped element is generated from the unclipped box and then cut away.
          drop-shadow takes no spread, so the two layers are retuned by eye
          against the original rather than transcribed. */
       .dialog { box-shadow: none; }
       .wrap {
+        filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .34))
+                drop-shadow(0 3px 6px rgba(0, 0, 0, .22));
+      }`,
+
+    /* The drawer needs the SAME close treatment, and not having it was visible
+       rather than theoretical: with no rule reaching its shadow root the
+       replacement button fell back to Jelly's own defaults -- 48px instead of
+       40, an accent-filled disc instead of a transparent one, and parked at the
+       top-left of the sheet because nothing positioned it.
+
+       Two differences from the dialog, both structural:
+
+         The panel is `.sheet`, not `.dialog`.
+
+         There is no `.wrap` to hang the shadow on -- the sheet is a direct
+         child of the shadow root -- so the filter goes on :host. That also
+         covers the backdrop, which is harmless: the backdrop is exactly
+         viewport-sized, so its shadow falls off-screen. */
+    'jelly-drawer': `
+      .minaa-close {
+        position: absolute;
+        top: var(--space-150);
+        inset-inline-end: var(--space-150);
+        --jelly-icon-button-size: var(--space-500);
+        --jelly-icon-button-icon-size: var(--control-icon-24);
+        --jelly-fill: transparent;
+        --jelly-label: var(--m-close-mark);
+      }
+      .minaa-close[data-hover] {
+        --jelly-fill: var(--m-close-disc);
+        --jelly-label: var(--m-close-mark-hover);
+      }
+      .sheet { box-shadow: none; }
+      :host {
         filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .34))
                 drop-shadow(0 3px 6px rgba(0, 0, 0, .22));
       }`,
@@ -313,6 +349,12 @@
 (function minaaSquircle() {
   'use strict';
 
+  /* Both overlays that own a large panel. jelly-popover and jelly-tooltip are
+     deliberately absent: at their size a superellipse and a rounded corner are
+     the same few pixels, and clipping them would cost their shadows for nothing. */
+  var TAGS = ['jelly-dialog', 'jelly-drawer'];
+  var OVERLAYS = TAGS.join(', ');
+
   /* EXPONENT. CSS spells the family superellipse(s), and s is NOT the exponent
      -- the curve is |x|^(2^s) + |y|^(2^s) = 1, so round is superellipse(1) and
      N = 2, while squircle is superellipse(2) and N = 4. This was checked, not
@@ -391,7 +433,9 @@
 
   function attach(dialog) {
     if (!dialog.shadowRoot) return false;
-    var panel = dialog.shadowRoot.querySelector(".dialog");
+    /* .dialog on a jelly-dialog, .sheet on a jelly-drawer -- one selector for
+       both, so the two overlays cannot drift apart. */
+    var panel = dialog.shadowRoot.querySelector('.dialog, .sheet');
     if (!panel) return false;
     if (panel.__sqBound) return true;
     panel.__sqBound = true;
@@ -421,11 +465,13 @@
   }
 
   function attachAll() {
-    document.querySelectorAll("jelly-dialog").forEach(attach);
+    document.querySelectorAll(OVERLAYS).forEach(attach);
   }
 
   if (window.customElements) {
-    customElements.whenDefined("jelly-dialog").then(attachAll).catch(function () {});
+    TAGS.forEach(function (t) {
+      customElements.whenDefined(t).then(attachAll).catch(function () {});
+    });
   }
   if (window.MutationObserver) {
     new MutationObserver(function (recs) {
@@ -434,8 +480,8 @@
         for (var j = 0; j < added.length; j++) {
           var node = added[j];
           if (node.nodeType !== 1) continue;
-          if (node.tagName === "JELLY-DIALOG") attach(node);
-          if (node.querySelectorAll) node.querySelectorAll("jelly-dialog").forEach(attach);
+          if (TAGS.indexOf(node.tagName.toLowerCase()) >= 0) attach(node);
+          if (node.querySelectorAll) node.querySelectorAll(OVERLAYS).forEach(attach);
         }
       }
     }).observe(document.documentElement, { childList: true, subtree: true });
@@ -468,6 +514,11 @@
 (function minaaDialogClose() {
   'use strict';
 
+  /* The drawer ships the identical close control -- same U+2715, same plain
+     button -- so it takes the identical replacement rather than a copy of it. */
+  var TAGS = ['jelly-dialog', 'jelly-drawer'];
+  var OVERLAYS = TAGS.join(', ');
+
   function swap(dialog) {
     if (!dialog.shadowRoot) return false;
     var old = dialog.shadowRoot.querySelector('button.close');
@@ -486,12 +537,20 @@
     btn.addEventListener('click', function () { dialog.open = false; });
 
     /* Hover and keyboard focus drive the same state, so the disc appears for
-       a keyboard user too. */
+       a keyboard user too -- but focus is tested for :focus-visible, not for
+       focus. The drawer calls focus() on open and, with delegatesFocus, that
+       lands on this button: a plain focusin listener therefore opened every
+       drawer with the hover disc already lit, which reads as a stuck state.
+       :focus-visible is false for that programmatic focus and true for a
+       keyboard one, which is exactly the distinction wanted. */
     var on  = function () { btn.setAttribute('data-hover', ''); };
     var off = function () { btn.removeAttribute('data-hover'); };
     btn.addEventListener('pointerenter', on);
     btn.addEventListener('pointerleave', off);
-    btn.addEventListener('focusin', on);
+    btn.addEventListener('focusin', function () {
+      var inner = btn.shadowRoot && btn.shadowRoot.querySelector('button');
+      try { if ((inner || btn).matches(':focus-visible')) on(); } catch (e) { /* older engines */ }
+    });
     btn.addEventListener('focusout', off);
 
     old.replaceWith(btn);
@@ -499,12 +558,13 @@
   }
 
   function swapAll() {
-    document.querySelectorAll('jelly-dialog').forEach(swap);
+    document.querySelectorAll(OVERLAYS).forEach(swap);
   }
 
   if (window.customElements) {
     Promise.all([
       customElements.whenDefined('jelly-dialog'),
+      customElements.whenDefined('jelly-drawer'),
       customElements.whenDefined('jelly-icon-button')
     ]).then(swapAll).catch(function () {});
   }
@@ -515,8 +575,8 @@
         for (var j = 0; j < added.length; j++) {
           var node = added[j];
           if (node.nodeType !== 1) continue;
-          if (node.tagName === 'JELLY-DIALOG') swap(node);
-          if (node.querySelectorAll) node.querySelectorAll('jelly-dialog').forEach(swap);
+          if (TAGS.indexOf(node.tagName.toLowerCase()) >= 0) swap(node);
+          if (node.querySelectorAll) node.querySelectorAll(OVERLAYS).forEach(swap);
         }
       }
     }).observe(document.documentElement, { childList: true, subtree: true });

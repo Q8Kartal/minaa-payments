@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260830n"></script>
+<script src="../gate.js?v=20260830v"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260830n"></script>
+<script type="module" src="vendor/jelly.js?v=20260830v"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260830n">
-<link rel="stylesheet" href="showcase.css?v=20260830n">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260830v">
+<link rel="stylesheet" href="showcase.css?v=20260830v">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -63,7 +63,7 @@
     <ul class="facts">
       <li>Forms · 12 components</li>
       <li>1 theme switch</li>
-      <li>Overlays · 1 of 6</li>
+      <li>Overlays · 6 of 6</li>
       <li>1 token bridge</li>
       <li>3 forked tokens</li>
       <li>Minaã Blue throughout</li>
@@ -543,6 +543,142 @@
 dialog.setAttribute('open', '');   // or dialog.showModal()</template>
     </div>
   </section>
+  <section class="entry" id="c-19">
+    <div class="entry-text">
+    <p class="entry-num">Overlays &middot; 19</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-drawer"/></svg> &lt;jelly-drawer&gt;</h2>
+    <p class="entry-note">The dialog lying against an edge. Same portal, same scrim, same close control &mdash;
+       and it inherited the same three bugs, so it takes the same three fixes rather than copies of them.
+       <code>side</code> is <b>not an observed attribute</b>: it is read by CSS only, so setting it in
+       JavaScript after load moves the sheet but fires no update. The corner is <b>capped</b>, not left to
+       fill the space: a sheet is tall, and &ldquo;as round as it can be&rdquo; would stand a capsule on end.
+       The cap is one value the whole overlay family shares, so a bottom sheet and a dialog of the same
+       height draw the same corner &mdash; it tracks what the surface <i>is</i>, not how big it happens
+       to be.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row" data-controls>
+        <figure class="specimen">
+          <jelly-button id="drw-start">Open at the start</jelly-button>
+          <figcaption>side="start"</figcaption>
+        </figure>
+        <figure class="specimen">
+          <jelly-button id="drw-end">Open at the end</jelly-button>
+          <figcaption>side="end"</figcaption>
+        </figure>
+        <figure class="specimen">
+          <jelly-button id="drw-bottom">Open at the bottom</jelly-button>
+          <figcaption>side="bottom"</figcaption>
+        </figure>
+      </div>
+      <jelly-drawer id="drw-demo" side="end" label="Payment details">
+        <h3 class="dlg-title">Payment details</h3>
+        <p>Bay 4 &middot; 150.000 KWD &middot; monthly.</p>
+      </jelly-drawer>
+      <template data-snippet-text>&lt;jelly-drawer side="end" label="Payment details"&gt;
+  &lt;h3&gt;Payment details&lt;/h3&gt;
+  &lt;p&gt;Bay 4 &middot; 150.000 KWD &middot; monthly.&lt;/p&gt;
+&lt;/jelly-drawer&gt;
+
+drawer.open = true;   // side = start | end | left | right | bottom</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-20">
+    <div class="entry-text">
+    <p class="entry-num">Overlays &middot; 20</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-popover"/></svg> &lt;jelly-popover&gt;</h2>
+    <p class="entry-note">A panel tethered to its trigger. Two named slots, and both are required:
+       <code>trigger</code> is what you click, <code>content</code> is what appears. Unlike the dialog it does
+       <b>not</b> portal and has no scrim, so it stays inside a scoped <code>&lt;jelly-theme&gt;</code> &mdash;
+       the one overlay on this page that does.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row" data-controls>
+        <jelly-popover placement="bottom" label="Rate detail">
+          <jelly-button slot="trigger">Exchange rate</jelly-button>
+          <div slot="content">
+            <b>1 USD = 0.3065 KWD</b>
+            <p style="margin:var(--space-100) 0 0">Fixed fallback. Live rates come from open.er-api.com.</p>
+          </div>
+        </jelly-popover>
+      </div>
+      <template data-snippet-text>&lt;jelly-popover placement="bottom"&gt;
+  &lt;jelly-button slot="trigger"&gt;Exchange rate&lt;/jelly-button&gt;
+  &lt;div slot="content"&gt;1 USD = 0.3065 KWD&lt;/div&gt;
+&lt;/jelly-popover&gt;</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-21">
+    <div class="entry-text">
+    <p class="entry-num">Overlays &middot; 21</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-tooltip"/></svg> &lt;jelly-tooltip&gt;</h2>
+    <p class="entry-note">A hint on hover and on focus. The text is an <b>attribute</b>, not a slot, so it
+       cannot carry markup &mdash; and it is the one component that names its own
+       <code>--jelly-tooltip-background</code> and <code>--jelly-tooltip-color</code> instead of reading the
+       surface tokens. Left alone it paints a near-black chip, which is a colour this system does not have.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row" data-controls>
+        <jelly-tooltip text="Converted at today&rsquo;s rate">
+          <jelly-button>150.000 KWD</jelly-button>
+        </jelly-tooltip>
+        <jelly-tooltip text="Every three months" size="small">
+          <jelly-button>Quarterly</jelly-button>
+        </jelly-tooltip>
+      </div>
+      <template data-snippet-text>&lt;jelly-tooltip text="Converted at today&amp;rsquo;s rate"&gt;
+  &lt;jelly-button&gt;150.000 KWD&lt;/jelly-button&gt;
+&lt;/jelly-tooltip&gt;</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-22">
+    <div class="entry-text">
+    <p class="entry-num">Overlays &middot; 22</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-menu"/></svg> &lt;jelly-menu&gt;</h2>
+    <p class="entry-note">A list of actions hung off a trigger. It shares its panel tokens with
+       <code>&lt;jelly-select&gt;</code>, which draws its own dropdown rather than opening a menu &mdash; so the
+       bridge declares <code>--jelly-menu-*</code> on both, and a change to one silently moves the other.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row" data-controls>
+        <jelly-menu placement="bottom">
+          <jelly-button slot="trigger">Payment actions</jelly-button>
+          <jelly-menu-item>Edit</jelly-menu-item>
+          <jelly-menu-item>Duplicate</jelly-menu-item>
+          <jelly-menu-item>Export as JSON</jelly-menu-item>
+        </jelly-menu>
+      </div>
+      <template data-snippet-text>&lt;jelly-menu placement="bottom"&gt;
+  &lt;jelly-button slot="trigger"&gt;Payment actions&lt;/jelly-button&gt;
+  &lt;jelly-menu-item&gt;Edit&lt;/jelly-menu-item&gt;
+  &lt;jelly-menu-item&gt;Duplicate&lt;/jelly-menu-item&gt;
+&lt;/jelly-menu&gt;</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-23">
+    <div class="entry-text">
+    <p class="entry-num">Overlays &middot; 23</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-menuitem"/></svg> &lt;jelly-menu-item&gt;</h2>
+    <p class="entry-note">One row of a menu, and the only component here that is never used alone. It has no
+       tokens of its own &mdash; <code>--jelly-menu-item-*</code> are declared by the <b>menu</b>, so an item
+       outside one falls back to Jelly&rsquo;s defaults and quietly stops matching the rows beside it.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row" data-controls>
+        <jelly-menu placement="bottom">
+          <jelly-button slot="trigger">Rows</jelly-button>
+          <jelly-menu-item>Default</jelly-menu-item>
+          <jelly-menu-item disabled>Disabled</jelly-menu-item>
+        </jelly-menu>
+      </div>
+      <template data-snippet-text>&lt;jelly-menu-item&gt;Edit&lt;/jelly-menu-item&gt;
+&lt;jelly-menu-item disabled&gt;Disabled&lt;/jelly-menu-item&gt;</template>
+    </div>
+  </section>
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
        through a token bridge. The library is vendored here rather than loaded from its own origin, and
@@ -564,8 +700,8 @@ dialog.setAttribute('open', '');   // or dialog.showModal()</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260830n"></script>
-<script src="minaa-jelly.js?v=20260830n"></script>
-<script src="showcase.js?v=20260830n" defer></script>
+<script src="micons.js?v=20260830v"></script>
+<script src="minaa-jelly.js?v=20260830v"></script>
+<script src="showcase.js?v=20260830v" defer></script>
 </body>
 </html>
