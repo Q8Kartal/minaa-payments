@@ -586,10 +586,15 @@ body {
 /* The dialog's own heading. jelly-dialog renders no title of its own -- `label`
    is the accessible name and nothing more -- so an entry that wants a visible
    one slots it, and this is what that slot should look like. */
+/* --m-overlay-ink, NOT --m-ink. The dialog panel is a brand fill now -- Primary
+   700 in light -- and --m-ink is Primary 700 in light, so the heading painted
+   itself onto its own background and disappeared entirely. The title is slotted
+   light DOM, so it takes its colour from this sheet rather than inheriting the
+   panel's, which is exactly why it had to be fixed in two places. */
 .dlg-title {
   margin: 0 0 var(--space-150);
   font-family: var(--font-bold);
   font-size: var(--text-lg);
   line-height: var(--text-lg-lh);
-  color: var(--m-ink);
+  color: var(--m-overlay-ink);
 }

@@ -154,9 +154,26 @@ jelly-theme {
      the mark changes to Secondary 600; dark inverts it, a Secondary 600 disc
      with a Primary 700 mark. Two tokens rather than one rule, because that is
      a per-mode decision and belongs in the semantic layer. */
-  --m-overlay-surface: var(--cream-50);   /* Neutral 50 */
-  --m-close-disc: var(--primary-300);  /* Primary 300 */
-  --m-close-mark: var(--secondary);    /* Secondary 600 */
+  /* THE OVERLAY IS A BRAND-FILLED CARD, not a neutral sheet. Set in Figma on
+     2026-08-30 and read back from the file rather than guessed: the panel is
+     Primary 700 in light and Secondary 600 in dark, with cream copy on both,
+     so a dialog reads as the brand speaking rather than as paper. The earlier
+     Neutral 50 / Primary 900 pairing is gone.
+
+     --m-overlay-ink exists because --m-ink CANNOT be used here any more. In
+     light --m-ink is Primary 700, which is now the panel colour: the prose
+     would have been invisible against its own surface. */
+  --m-overlay-surface:  var(--primary);    /* Primary 700 */
+  --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
+
+  /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
+     resting colour and the mark flips to cream, so the control INVERTS rather
+     than tinting. Painting a Secondary 600 mark on a Secondary 600 disc would
+     erase it, which is exactly what the first read of the Figma file implied
+     until the per-variant stroke overrides were found. */
+  --m-close-disc:       var(--secondary);  /* Secondary 600 */
+  --m-close-mark:       var(--secondary);  /* Secondary 600 */
+  --m-close-mark-hover: var(--cream);      /* Neutral 100 */
   /* The overlay scrim, and the ONE semantic token deliberately not repeated
      per mode. A scrim's job does not change with the theme -- it pushes the
      page back so the thing on top reads -- and Primary 950 is the floor of
@@ -203,9 +220,11 @@ jelly-theme {
     --m-seg-pill:    var(--primary);
     --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
-  --m-overlay-surface: var(--primary-900); /* Primary 900 - see the dialog */
-  --m-close-disc: var(--secondary);    /* Secondary 600 */
-  --m-close-mark: var(--primary);      /* Primary 700 */
+  --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
+  --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
+  --m-close-disc:       var(--primary);    /* Primary 700 */
+  --m-close-mark:       var(--primary);    /* Primary 700 */
+  --m-close-mark-hover: var(--cream);      /* Neutral 100 */
   --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
@@ -242,9 +261,11 @@ jelly-theme[mode="dark"] {
   --m-seg-pill:    var(--primary);
   --m-toggle-label: var(--secondary);
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
-  --m-overlay-surface: var(--primary-900); /* Primary 900 - see the dialog */
-  --m-close-disc: var(--secondary);    /* Secondary 600 */
-  --m-close-mark: var(--primary);      /* Primary 700 */
+  --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
+  --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
+  --m-close-disc:       var(--primary);    /* Primary 700 */
+  --m-close-mark:       var(--primary);    /* Primary 700 */
+  --m-close-mark-hover: var(--cream);      /* Neutral 100 */
   --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
@@ -278,9 +299,26 @@ jelly-theme[mode="light"] {
      the mark changes to Secondary 600; dark inverts it, a Secondary 600 disc
      with a Primary 700 mark. Two tokens rather than one rule, because that is
      a per-mode decision and belongs in the semantic layer. */
-  --m-overlay-surface: var(--cream-50);   /* Neutral 50 */
-  --m-close-disc: var(--primary-300);  /* Primary 300 */
-  --m-close-mark: var(--secondary);    /* Secondary 600 */
+  /* THE OVERLAY IS A BRAND-FILLED CARD, not a neutral sheet. Set in Figma on
+     2026-08-30 and read back from the file rather than guessed: the panel is
+     Primary 700 in light and Secondary 600 in dark, with cream copy on both,
+     so a dialog reads as the brand speaking rather than as paper. The earlier
+     Neutral 50 / Primary 900 pairing is gone.
+
+     --m-overlay-ink exists because --m-ink CANNOT be used here any more. In
+     light --m-ink is Primary 700, which is now the panel colour: the prose
+     would have been invisible against its own surface. */
+  --m-overlay-surface:  var(--primary);    /* Primary 700 */
+  --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
+
+  /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
+     resting colour and the mark flips to cream, so the control INVERTS rather
+     than tinting. Painting a Secondary 600 mark on a Secondary 600 disc would
+     erase it, which is exactly what the first read of the Figma file implied
+     until the per-variant stroke overrides were found. */
+  --m-close-disc:       var(--secondary);  /* Secondary 600 */
+  --m-close-mark:       var(--secondary);  /* Secondary 600 */
+  --m-close-mark-hover: var(--cream);      /* Neutral 100 */
   /* Disabled, both modes now drawn in the Figma file rather than derived:
      dark is a Primary 900 box with a Primary 950 mark and a Primary 900 label;
      light is a Secondary 300 box with a Primary 700 label. Light keeps the
@@ -1395,22 +1433,46 @@ jelly-toaster::part(tone-danger)  { background: var(--error);   }
         property of the portal, not something CSS can answer, so an overlay
         entry cannot use the nested-provider trick entries 01 and 07 use.
    ═════════════════════════════════════════════════════════════════════════ */
-/* The ink is --m-ink, not the global default. The bridge maps
-   --jelly-color-foreground-default to --m-value, which is the ink for a value
-   you have TYPED into a field -- Secondary 600 in light. A dialog holds prose,
-   and it rendered its paragraph in red until this line existed. */
+/* The ink is --m-overlay-ink, and it is neither the global default nor --m-ink.
+
+   The global default maps to --m-value, the ink for a value you have TYPED into
+   a field -- Secondary 600 in light -- and the dialog rendered its paragraph in
+   red until this line existed. That was the first fix.
+
+   --m-ink was the second, and it stopped working the moment the panel became a
+   brand fill: in light --m-ink IS Primary 700, which is now the surface, so the
+   copy would have been invisible against its own background. The overlay needs
+   an ink of its own because its surface is no longer a neutral. */
 jelly-dialog {
-  --jelly-color-foreground-default: var(--m-ink);
+  --jelly-color-foreground-default: var(--m-overlay-ink);
   --jelly-color-background-surface: var(--m-overlay-surface);
-  /* radius-full, not radius-24, and it does NOT make a capsule. A squircle
-     clamps its corner at half the short side, so --radius-full is simply "as
-     round as this shape can be" -- 65px on the panel as it stands, and it
-     rescales itself as the panel grows. That is how the reference shape is
-     reached without adding a step: the radius scale stops at 24 because 24 is
-     right for fields and cards, and a 500px overlay is neither. Using the
-     token that already means maximum is honest; inventing --radius-32 to sit
-     between them would not be. */
-  --jelly-dialog-radius:  var(--radius-full);
+  /* THE PANEL IS NOT SHAPED BY THIS RADIUS. It is shaped by a generated SVG
+     path -- see minaaSquircle() in minaa-jelly.js -- and this value is only
+     the fallback for the instant before that runs, or if it never does.
+
+     Two earlier attempts were both wrong, in opposite directions:
+
+       radius-full + corner-shape: squircle looked right on desktop Chrome and
+       was the shape we wanted. But corner-shape is a very new CSS feature, and
+       an engine without it does not approximate the curve -- it drops the
+       declaration and leaves border-radius standing alone. At 9999px that is a
+       PURE PILL. iOS Safari and the GitHub Pages build both rendered a pill.
+
+       radius-24 then made the fallback survivable by making the corner small
+       enough that nobody could tell the shapes apart. That is fixing the
+       symptom by giving up the design: it threw away the shape to protect the
+       browsers that could not draw it.
+
+     The fix is to stop asking the browser for a shape it may not have. A
+     superellipse is just geometry, so we generate the path ourselves and clip
+     to it. Every engine can draw a path -- there is no feature to detect, no
+     fallback to degrade to, and Figma gets the identical curve from the
+     identical maths rather than from its own corner-smoothing approximation.
+
+     radius-24 stays here as the pre-paint fallback precisely because it is the
+     one value that is never embarrassing: a plain rounded rectangle. Never put
+     radius-full back on this line -- that is the pill. */
+  --jelly-dialog-radius:  var(--radius-24);
   --jelly-dialog-padding: var(--space-300);   /* 24, against Jelly's 26 */
 }
 
@@ -1435,15 +1497,28 @@ jelly-dialog::part(backdrop) { background: var(--m-scrim); }
    panel is then the lightest thing on screen in both modes and needs no border
    to be found.
 
-   corner-shape: squircle is superellipse(2). The first attempt used
-   superellipse(4), which is the wrong direction entirely -- the exponent runs
-   from scooped through round toward square, so 4 is SQUARER than the rounded
-   rectangle it replaced and the panel came out looking like a plain box.
+   corner-shape: squircle is superellipse(2), and the argument is NOT the
+   exponent -- the curve is |x|^(2^s) + |y|^(2^s) = 1, so squircle is really
+   exponent 4. An early attempt wrote superellipse(4) expecting "more squircle"
+   and got exponent 16, squarer than the rounded rectangle it replaced.
 
-   Where corner-shape is unsupported the border-radius still applies on its own
-   and the corner is merely circular, which is the shape this had before, so
-   nothing breaks. */
+   This is now measured rather than reasoned about, because the generated path
+   has to match what Chrome draws or the two shapes drift. Binary-searching the
+   painted boundary of a 150px corner against the analytic curve: exponent 4 is
+   0.80px mean error, against 7.32px at exponent 3 and 2.64px at exponent 5.
+   0.80px on 150 is antialiasing. See N in minaaSquircle().
+
+   corner-shape is GONE from this rule. It was the whole bug: a shape that only
+   some engines can draw is not a shape, it is a request. minaaSquircle() now
+   clips the panel to a generated superellipse path, which every engine draws
+   identically, so there is one code path and nothing to feature-detect.
+
+   The shadow had to move with it. clip-path clips a box-shadow away completely
+   -- the shadow is painted outside the border box, which is exactly what the
+   clip removes -- so the panel loses its own shadow and .wrap casts it instead
+   with filter: drop-shadow(), which follows the clipped alpha and therefore
+   traces the squircle rather than the rectangle. drop-shadow has no spread, so
+   the two blurs are retuned rather than copied. */
 jelly-dialog::part(dialog) {
   border: 0;
-  corner-shape: squircle;
 }

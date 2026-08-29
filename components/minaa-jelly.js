@@ -62,11 +62,45 @@
        light keeps its Primary 300 disc and only the mark moves to Secondary
        600, dark inverts to a Secondary 600 disc with a Primary 700 mark. */
     'jelly-dialog': `
-      .close { color: var(--m-close-mark); }
-      .close:hover,
-      .close:focus-visible {
-        background: var(--m-close-disc);
-        color: var(--m-close-mark);
+      /* Jelly's own close button is REPLACED by a real jelly-icon-button --
+         see minaaDialogClose(). Two reasons, and the second is the one that
+         matters: its mark was the literal character U+2715 in whatever font
+         fell through (Arial, measured), so the one glyph in the component was
+         not from Micons at all; and a plain <button> has no jelly physics,
+         while every other control on the page deforms under the pointer.
+
+         The disc is the MEMBRANE, not a background. Jelly paints it from
+         --jelly-fill on canvas, so a CSS background here would sit behind the
+         canvas as a second, squarer disc. Rest is transparent; hover swaps the
+         token. data-hover rather than :hover because the canvas only repaints
+         when asked, and Jelly already repaints on ANY host attribute change
+         (its attributeObserver, jelly.js ~897) -- so flipping the attribute
+         both selects the colour and schedules the frame that draws it. */
+      .minaa-close {
+        position: absolute;
+        top: var(--space-150);
+        inset-inline-end: var(--space-150);
+        --jelly-icon-button-size: var(--space-500);
+        --jelly-icon-button-icon-size: var(--control-icon-24);
+        --jelly-fill: transparent;
+        --jelly-label: var(--m-close-mark);
+      }
+      .minaa-close[data-hover] {
+        --jelly-fill: var(--m-close-disc);
+        --jelly-label: var(--m-close-mark-hover);
+      }
+      /* The panel is clipped to a squircle path by minaaSquircle(), and a
+         clip removes a box-shadow entirely -- the shadow is drawn outside the
+         border box, which is precisely the part being clipped away. So the
+         panel stops casting its own and .wrap casts it instead: a filter
+         follows the CLIPPED alpha, so the shadow traces the squircle rather
+         than the rectangle underneath it. .wrap holds nothing else opaque.
+         drop-shadow takes no spread, so the two layers are retuned by eye
+         against the original rather than transcribed. */
+      .dialog { box-shadow: none; }
+      .wrap {
+        filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .34))
+                drop-shadow(0 3px 6px rgba(0, 0, 0, .22));
       }`,
 
     /* jelly-segmented draws its pill from `.segment`, which hardcodes
@@ -252,4 +286,242 @@
   if (!attach() && window.customElements) {
     customElements.whenDefined('jelly-toaster').then(attach);
   }
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SQUIRCLE, AS GEOMETRY RATHER THAN AS A CSS FEATURE
+
+   corner-shape: squircle draws the right curve and is the wrong tool. It is a
+   very new property, and an engine that lacks it does not approximate the
+   shape -- it drops the declaration and leaves border-radius alone, so a panel
+   asking for a squircle at radius-full renders as a PILL. That is what iOS
+   Safari and the Pages build were showing while desktop Chrome looked correct.
+
+   Shrinking the radius until the two agreed would have been giving up the
+   shape to protect the engines that could not draw it. A superellipse is only
+   arithmetic, so we generate the outline and clip to it. Every engine can draw
+   a path. There is no feature to detect and no fallback to degrade to, and the
+   same function can hand Figma the identical curve -- one source of geometry
+   instead of CSS on one side and corner smoothing on the other.
+
+   The corner is |x/r|^N + |y/r|^N = 1, parametrised as
+       x = r * (cos t)^(2/N),  y = r * (sin t)^(2/N),   t in [0, pi/2]
+   N = 2 is a circle; larger N is squarer. N is calibrated against what Chrome
+   itself draws for corner-shape: squircle -- see EXPONENT below -- so the path
+   is not an interpretation of the shape, it is a copy of it.
+   ═════════════════════════════════════════════════════════════════════════ */
+(function minaaSquircle() {
+  'use strict';
+
+  /* EXPONENT. CSS spells the family superellipse(s), and s is NOT the exponent
+     -- the curve is |x|^(2^s) + |y|^(2^s) = 1, so round is superellipse(1) and
+     N = 2, while squircle is superellipse(2) and N = 4. This was checked, not
+     read: superellipse(4) was tried on this panel earlier and came out SQUARER
+     than a plain rounded rectangle, which only makes sense if the argument is
+     a power of two rather than the exponent itself. */
+  var N = 4;
+
+  /* Segments per corner. A 65px corner at 28 segments puts a vertex every
+     ~2.3px along the arc, under a pixel once the curve is antialiased. Raising
+     it costs path length for nothing visible. */
+  var STEPS = 28;
+
+  function squirclePath(w, h, radius) {
+    if (!(w > 0 && h > 0)) return null;
+    var r = Math.min(radius, Math.min(w, h) / 2);
+    var p = 2 / N;
+    var d = [];
+
+    /* Each corner walks a quadrant of the superellipse. cx/cy is the corner
+       centre and sx/sy point back into the panel; reverse decides which end of
+       the quadrant the walk starts at, so every arc begins where the previous
+       straight edge ended and the outline never doubles back. */
+    function arc(cx, cy, sx, sy, reverse) {
+      for (var i = 0; i <= STEPS; i++) {
+        var f = reverse ? (STEPS - i) / STEPS : i / STEPS;
+        var t = f * Math.PI / 2;
+        var x = cx + sx * r * Math.pow(Math.cos(t), p);
+        var y = cy + sy * r * Math.pow(Math.sin(t), p);
+        d.push((d.length ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2));
+      }
+    }
+
+    /* Clockwise from the left edge. Each arc must END where the next straight
+       edge BEGINS -- get one sweep backwards and the outline doubles back on
+       itself, which renders as a bowtie rather than as a wrong curve. */
+    arc(r, r, -1, -1, false);           /* top-left     (0,r)   -> (r, 0)   */
+    d.push("L" + (w - r).toFixed(2) + " 0");
+    arc(w - r, r, 1, -1, true);         /* top-right    (w-r,0) -> (w, r)   */
+    d.push("L" + w.toFixed(2) + " " + (h - r).toFixed(2));
+    arc(w - r, h - r, 1, 1, false);     /* bottom-right (w,h-r) -> (w-r, h) */
+    d.push("L" + r.toFixed(2) + " " + h.toFixed(2));
+    arc(r, h - r, -1, 1, true);         /* bottom-left  (r,h)   -> (0, h-r) */
+    d.push("Z");
+    return d.join(" ");
+  }
+
+  /* Exposed so the Figma side, and anything measuring, use the same function.
+     If those two ever disagree the shapes disagree, which is the whole point. */
+  window.minaaSquirclePath = squirclePath;
+
+  function radiusFor(el) {
+    /* Read the nominal radius off the host so the value still comes from the
+       scale. --m-squircle-radius wins when set; otherwise the panel is as round
+       as it can be, which is the shape this component actually wants. */
+    var root = el.getRootNode();
+    var host = root && root.host;
+    var raw = host && getComputedStyle(host).getPropertyValue("--m-squircle-radius");
+    var n = raw ? parseFloat(raw) : NaN;
+    return isNaN(n) ? Infinity : n;
+  }
+
+  function shape(el) {
+    var w = el.clientWidth, h = el.clientHeight;
+    if (!w || !h) return;
+    if (el.__sqW === w && el.__sqH === h) return;
+    var d = squirclePath(w, h, radiusFor(el));
+    if (!d) return;
+    el.__sqW = w; el.__sqH = h;
+    el.style.clipPath = "path(" + String.fromCharCode(39) + d + String.fromCharCode(39) + ")";
+  }
+
+  var ro = window.ResizeObserver ? new ResizeObserver(function (recs) {
+    for (var i = 0; i < recs.length; i++) shape(recs[i].target);
+  }) : null;
+
+  function attach(dialog) {
+    if (!dialog.shadowRoot) return false;
+    var panel = dialog.shadowRoot.querySelector(".dialog");
+    if (!panel) return false;
+    if (panel.__sqBound) return true;
+    panel.__sqBound = true;
+    shape(panel);
+    /* The panel is display:none until the dialog opens, so the first useful
+       size arrives later. ResizeObserver reports 0 -> size as a resize, which
+       is exactly the hook needed; without it the first open would be square. */
+    if (ro) ro.observe(panel);
+
+    /* ...but not ONLY that. The observer fires after layout, a frame or more
+       behind the panel becoming visible, and it was measured still unshaped
+       well after opening. That gap would show the fallback rounded rectangle
+       snapping into a squircle. Opening is an attribute change we can see, so
+       shape on it directly and again over the next few frames while the open
+       animation settles the height. */
+    if (window.MutationObserver) {
+      new MutationObserver(function () {
+        if (!dialog.hasAttribute("open")) return;
+        var n = 0;
+        (function again() {
+          shape(panel);
+          if (++n < 6) requestAnimationFrame(again);
+        })();
+      }).observe(dialog, { attributes: true, attributeFilter: ["open"] });
+    }
+    return true;
+  }
+
+  function attachAll() {
+    document.querySelectorAll("jelly-dialog").forEach(attach);
+  }
+
+  if (window.customElements) {
+    customElements.whenDefined("jelly-dialog").then(attachAll).catch(function () {});
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(function (recs) {
+      for (var i = 0; i < recs.length; i++) {
+        var added = recs[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var node = added[j];
+          if (node.nodeType !== 1) continue;
+          if (node.tagName === "JELLY-DIALOG") attach(node);
+          if (node.querySelectorAll) node.querySelectorAll("jelly-dialog").forEach(attach);
+        }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+  attachAll();
+  setTimeout(attachAll, 300);
+  setTimeout(attachAll, 1200);
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE DIALOG CLOSE CONTROL
+
+   Jelly ships this as `<button class="close">U+2715</button>` -- a literal
+   multiplication-x in whatever font resolves, measured as Arial. Two problems
+   in one element: the glyph is not a Micon, so the single icon inside the
+   component came from nowhere in our system; and a bare <button> has none of
+   the jelly physics that every other control on the page has, so the dialog
+   was the one place a press did nothing.
+
+   Both are fixed by swapping the node for a real <jelly-icon-button> holding
+   the exported cross-2-line Micon. The physics then comes from Jelly itself
+   rather than being imitated, and the glyph is the same component Figma uses.
+
+   Jelly binds its own click handler to the node it built, so replacing that
+   node takes the handler with it and the dialog has to be closed here. Use the
+   `open` PROPERTY, never removeAttribute: the setter runs the exit animation
+   and only then drops the attribute, while removing it directly cuts the
+   animation off (jelly.js, the open setter).
+   ═════════════════════════════════════════════════════════════════════════ */
+(function minaaDialogClose() {
+  'use strict';
+
+  function swap(dialog) {
+    if (!dialog.shadowRoot) return false;
+    var old = dialog.shadowRoot.querySelector('button.close');
+    if (!old) return !!dialog.shadowRoot.querySelector('.minaa-close');
+    if (typeof MICONS === 'undefined' || !MICONS.close) return false;
+
+    var btn = document.createElement('jelly-icon-button');
+    btn.className = 'minaa-close';
+    btn.setAttribute('shape', 'circle');
+    btn.setAttribute('label', old.getAttribute('aria-label') || 'Close');
+    /* Inlined, not <use>: the sprite lives in the document and a <use> cannot
+       reach across into a shadow root -- it renders nothing at all. Same
+       reason the toasts inline their marks. */
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" ' +
+                    'focusable="false" style="display:block">' + MICONS.close + '</svg>';
+    btn.addEventListener('click', function () { dialog.open = false; });
+
+    /* Hover and keyboard focus drive the same state, so the disc appears for
+       a keyboard user too. */
+    var on  = function () { btn.setAttribute('data-hover', ''); };
+    var off = function () { btn.removeAttribute('data-hover'); };
+    btn.addEventListener('pointerenter', on);
+    btn.addEventListener('pointerleave', off);
+    btn.addEventListener('focusin', on);
+    btn.addEventListener('focusout', off);
+
+    old.replaceWith(btn);
+    return true;
+  }
+
+  function swapAll() {
+    document.querySelectorAll('jelly-dialog').forEach(swap);
+  }
+
+  if (window.customElements) {
+    Promise.all([
+      customElements.whenDefined('jelly-dialog'),
+      customElements.whenDefined('jelly-icon-button')
+    ]).then(swapAll).catch(function () {});
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(function (recs) {
+      for (var i = 0; i < recs.length; i++) {
+        var added = recs[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var node = added[j];
+          if (node.nodeType !== 1) continue;
+          if (node.tagName === 'JELLY-DIALOG') swap(node);
+          if (node.querySelectorAll) node.querySelectorAll('jelly-dialog').forEach(swap);
+        }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+  swapAll();
+  setTimeout(swapAll, 300);
+  setTimeout(swapAll, 1200);
 })();

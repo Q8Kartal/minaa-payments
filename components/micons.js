@@ -127,6 +127,27 @@ const MICONS = {
      this stands in until it is: a dialog is a conversation with the reader,
      which is the nearest subject the set actually holds. */
   dialog: '<path d="M21.0889 5.4707C21.999 6.6607 22 8.53324 22 12C22 15.7712 21.9997 17.6566 20.8281 18.8281C19.6566 19.9997 17.7712 20 14 20H10C6.22876 20 4.34345 19.9997 3.17188 18.8281C2.0003 17.6566 2 15.7712 2 12C2 8.53369 2.00041 6.66072 2.91016 5.4707L7.61328 10.1738C7.37903 10.7377 7.25 11.3556 7.25 12C7.25 12.8906 7.50026 13.7361 7.94238 14.4531C8.18356 14.8597 8.49284 15.2277 8.84863 15.5361C9.68017 16.2901 10.7829 16.75 12 16.75C13.7298 16.75 15.236 15.8264 16.0576 14.4531L16.0586 14.4541C16.3122 14.0434 16.5031 13.5757 16.6113 13.0947L16.6104 13.0938C16.7026 12.7379 16.75 12.3731 16.75 12C16.75 11.3562 16.6177 10.7403 16.3818 10.1777L21.0889 5.4707ZM14 4C16.9094 4 18.6956 4.0021 19.8984 4.54004L15.5654 8.87305C15.5525 8.8583 15.5405 8.8427 15.5273 8.82812H15.5264C14.6657 7.85226 13.3947 7.25 12 7.25C10.6712 7.25 9.45932 7.7964 8.59277 8.68652C8.53595 8.74497 8.48053 8.80484 8.42676 8.86621L4.10059 4.54004C5.30341 4.00173 7.08993 4 10 4H14Z" fill="currentColor"/><path d="M12 8.5C13.933 8.5 15.5 10.067 15.5 12C15.5 13.933 13.933 15.5 12 15.5C10.067 15.5 8.5 13.933 8.5 12C8.5 10.067 10.067 8.5 12 8.5ZM12 9.75C11.5858 9.75 11.25 10.0858 11.25 10.5V11.25H10.5C10.0858 11.25 9.75 11.5858 9.75 12C9.75 12.4142 10.0858 12.75 10.5 12.75H11.25V13.5C11.25 13.9142 11.5858 14.25 12 14.25C12.4142 14.25 12.75 13.9142 12.75 13.5V12.75H13.5C13.9142 12.75 14.25 12.4142 14.25 12C14.25 11.5858 13.9142 11.25 13.5 11.25H12.75V10.5C12.75 10.0858 12.4142 9.75 12 9.75Z" fill="currentColor"/>',
+
+  /* interface/cross-2-line, and the ONLY reason it is an outline mark in a set
+     that is otherwise solid is that the library has no alternative: there is no
+     bare cross in Micons at all. cross-solid, cross-line, cross-2/3/4-line and
+     tag-cross-line are every cross it holds, and each one encloses the mark in
+     a shape -- rounded square, circle, starburst, hexagon. Searched close,
+     dismiss, remove, exit, times and multiply before accepting that.
+
+     Consequence to fix upstream rather than live with: the dialog puts this on
+     a filled disc on hover, so a ring lands inside a disc. A plain
+     interface/close-line would remove the problem in one component.
+
+     Exported, not redrawn, per the rule at the top of this file -- and it is
+     STROKED, not filled, so the 1.5 weight on the 24 grid is real geometry.
+     Never render it at a size other than 24 without regenerating: scaling the
+     box scales the stroke off the grid, and Figma clips the artwork rather
+     than scaling it, which sliced the right edge off the circle when it was
+     first tried at 20. */
+  close: '<path d="M9.87868 10.1213L14.1213 14.364" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
+         '<path d="M14.1213 10.1213L9.87868 14.364" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
+         '<circle cx="12" cy="12" r="9.25" stroke="currentColor" stroke-width="1.5"/>',
 };
 
 /* One sprite, referenced by <use>, so each path is stored once no matter how
