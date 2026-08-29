@@ -1678,7 +1678,8 @@ jelly-tooltip > :not([slot]) {
 jelly-tooltip {
   --jelly-tooltip-background:     var(--m-anchored-surface);
   --jelly-tooltip-color:          var(--m-overlay-ink);
-  --jelly-tooltip-radius:         var(--radius-8);
+  --jelly-tooltip-radius:         var(--radius-8);    /* pre-paint fallback */
+  --m-squircle-radius:            var(--m-overlay-corner);
   --jelly-tooltip-padding-block:  var(--space-075);
   --jelly-tooltip-padding-inline: var(--space-150);
   --jelly-tooltip-font-size:      var(--text-sm);

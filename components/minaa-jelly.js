@@ -376,14 +376,20 @@
 (function minaaSquircle() {
   'use strict';
 
-  /* Every overlay that owns a panel big enough for the curve to read. The
-     popover joined once it took the family corner: at radius-16 the claim that
-     "a superellipse and a rounded corner are the same few pixels" was true, but
-     at 64 on a ~270x90 panel it plainly is not.
+  /* Every overlay that owns a panel. Each joined once it took the family
+     corner rather than its own: at radius-16 the old claim here -- that a
+     superellipse and a rounded corner are the same few pixels -- was true, and
+     at the family corner it is not, even on a chip.
 
-     jelly-tooltip stays out. It is a chip at radius-8, where that claim still
-     holds, and it has no wrapper to lift its shadow onto. */
-  var TAGS = ['jelly-dialog', 'jelly-drawer', 'jelly-popover'];
+     The tooltip was the last in and the cheapest: alone among these it ships
+     NO box-shadow, so clipping it costs nothing and it needs no wrapper. */
+  var TAGS = ['jelly-dialog', 'jelly-drawer', 'jelly-popover', 'jelly-tooltip'];
+
+  /* Panels that must have their shadow moved to an inserted wrapper. Only the
+     popover: the dialog hangs its shadow on .wrap, the drawer on :host, and the
+     tooltip has none to hang. Wrapping the others would be a change with no
+     purpose, and the wrapper is not free -- it is a viewport-sized layer. */
+  var LIFT = ['jelly-popover'];
   var OVERLAYS = TAGS.join(', ');
 
   /* EXPONENT. CSS spells the family superellipse(s), and s is NOT the exponent
@@ -466,7 +472,7 @@
     if (!dialog.shadowRoot) return false;
     /* .dialog on a jelly-dialog, .sheet on a jelly-drawer -- one selector for
        both, so the two overlays cannot drift apart. */
-    var panel = dialog.shadowRoot.querySelector('.dialog, .sheet, .panel');
+    var panel = dialog.shadowRoot.querySelector('.dialog, .sheet, .panel, .bubble');
     if (!panel) return false;
     if (panel.__sqBound) return true;
     panel.__sqBound = true;
@@ -482,7 +488,8 @@
        One is inserted. Checked before relying on it -- Jelly positions the
        panel with inline styles and finds it with querySelector, and both
        survive: same rect to the pixel before and after wrapping. */
-    if (panel.parentNode && panel.parentNode.nodeType === 11) {
+    if (LIFT.indexOf(dialog.tagName.toLowerCase()) >= 0 &&
+        panel.parentNode && panel.parentNode.nodeType === 11) {
       var lift = document.createElement('div');
       lift.setAttribute('data-minaa-lift', '');
       panel.parentNode.insertBefore(lift, panel);
