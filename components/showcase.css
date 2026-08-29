@@ -582,3 +582,14 @@ body {
   border-radius: var(--radius-16);
   overflow-x: auto;
 }
+
+/* The dialog's own heading. jelly-dialog renders no title of its own -- `label`
+   is the accessible name and nothing more -- so an entry that wants a visible
+   one slots it, and this is what that slot should look like. */
+.dlg-title {
+  margin: 0 0 var(--space-150);
+  font-family: var(--font-bold);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg-lh);
+  color: var(--m-ink);
+}

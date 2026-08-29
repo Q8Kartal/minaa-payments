@@ -380,7 +380,19 @@
     applyLength();
   }
 
-  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts(); wireOtpDemo(); }
+  /* ── The dialog (entry 18) ──────────────────────────────────────────────
+     Open by attribute rather than by the showModal() method, because that is
+     what the snippet shows and the two must not disagree. Closing is Jelly's
+     own: its close control and Escape both clear `open`. */
+  function wireDialog() {
+    const dlg = document.getElementById('dlg-demo');
+    const btn = document.getElementById('dlg-open');
+    if (!dlg || !btn || btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', () => dlg.setAttribute('open', ''));
+  }
+
+  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts(); wireOtpDemo(); wireDialog(); }
 
   if (window.customElements) {
     Promise.all(

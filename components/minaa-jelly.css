@@ -149,6 +149,12 @@ jelly-theme {
      one place the set is not self-consistent — see the dark block. */
   --m-toggle-label: var(--primary);     /* Primary 700 */
   --m-hairline:    var(--cream-200);   /* Neutral 200 */
+  /* The overlay scrim, and the ONE semantic token deliberately not repeated
+     per mode. A scrim's job does not change with the theme -- it pushes the
+     page back so the thing on top reads -- and Primary 950 is the floor of
+     the ramp in both. Written as a mix off the token rather than an eight
+     digit hex so the colour still comes from the ramp. */
+  --m-scrim: color-mix(in srgb, var(--primary-950) 62%, transparent);
   /* Disabled, both modes now drawn in the Figma file rather than derived:
      dark is a Primary 900 box with a Primary 950 mark and a Primary 900 label;
      light is a Secondary 300 box with a Primary 700 label. Light keeps the
@@ -1337,3 +1343,45 @@ jelly-toaster::part(tone-danger)  { background: var(--error);   }
 .toast-trigger[data-tone="success"] { --jelly-fill: var(--success); --jelly-accent: var(--success-deep); }
 .toast-trigger[data-tone="warning"] { --jelly-fill: var(--warning); --jelly-accent: var(--warning-deep); }
 .toast-trigger[data-tone="danger"]  { --jelly-fill: var(--error);   --jelly-accent: var(--error-deep); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE DIALOG  (spiked before building: see the note on scope below)
+
+   jelly-dialog PORTALS ITSELF to document.body when it opens, leaving a
+   comment placeholder behind and restoring the node on close. Two consequences
+   worth knowing before any other overlay is built on the same base:
+
+     1. The bridge still reaches it, but only because the forced-mode blocks
+        also match :root. That was added to stop <body> being left behind by a
+        theme attribute; it is now load-bearing for every overlay too.
+
+     2. A SCOPED provider does NOT reach it. A dialog written inside
+        <jelly-theme mode="light"> measured Neutral 50 before opening and
+        Primary 950 after, because by then it is a child of body. That is a
+        property of the portal, not something CSS can answer, so an overlay
+        entry cannot use the nested-provider trick entries 01 and 07 use.
+   ═════════════════════════════════════════════════════════════════════════ */
+/* The ink is --m-ink, not the global default. The bridge maps
+   --jelly-color-foreground-default to --m-value, which is the ink for a value
+   you have TYPED into a field -- Secondary 600 in light. A dialog holds prose,
+   and it rendered its paragraph in red until this line existed. */
+jelly-dialog {
+  --jelly-color-foreground-default: var(--m-ink);
+  --jelly-dialog-radius:  var(--radius-24);
+  --jelly-dialog-padding: var(--space-300);   /* 24, against Jelly's 26 */
+}
+
+/* Jelly derives the scrim from the TEXT colour:
+     color-mix(in srgb, var(--jelly-color-foreground-default) 42%, transparent)
+   Measured through the bridge that is Neutral 100 at 42% in dark and Secondary
+   600 at 42% in light -- a cream haze that brightens the page it is meant to
+   push back, and a red wash over everything in light. It gets its own token. */
+jelly-dialog::part(backdrop) { background: var(--m-scrim); }
+
+/* The surface takes the card colour, which in dark is Primary 950 -- the same
+   end of the ramp the scrim sits at, so the panel would have no edge against
+   its own backdrop. The 1.5 Secondary 600 stroke is what every field on the
+   page already uses, and it separates the panel in both modes. */
+jelly-dialog::part(dialog) {
+  border: var(--control-stroke) solid var(--m-stroke);
+}
