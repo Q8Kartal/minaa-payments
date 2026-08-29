@@ -667,3 +667,13 @@ body {
   line-height: var(--text-lg-lh);
   color: var(--m-overlay-ink);
 }
+
+/* The confirm sits at the inline end, after the quiet option, so the reader
+   passes "keep it" on the way to "delete" rather than the other way round. */
+.dlg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-150);
+  justify-content: flex-end;
+  margin-block-start: var(--space-300);
+}

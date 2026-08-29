@@ -390,6 +390,44 @@
     if (!dlg || !btn || btn.dataset.wired) return;
     btn.dataset.wired = '1';
     btn.addEventListener('click', () => dlg.setAttribute('open', ''));
+
+    /* Both answers close, through the `open` PROPERTY rather than the
+       attribute, so the exit animation runs -- removing the attribute cuts it.
+       The confirm also raises a toast, because a confirmation whose confirm
+       button silently closes teaches the wrong thing: the demo should show the
+       action completing, not just the dialog going away. */
+    /* EACH BUTTON CARRIES ITS OWN FLAG, not one shared with dlg-open. start()
+       runs twice by design -- once when Jelly defines its elements and again on
+       a 2500ms fallback so the page documents itself even if Jelly never
+       arrives -- and a single guard keyed to one element let the other two be
+       wired on both passes. Measured, not theorised: one click produced two
+       calls to jellyToast and two identical toasts. */
+    const once = (el, fn) => {
+      if (!el || el.dataset.wired) return;
+      el.dataset.wired = '1';
+      el.addEventListener('click', fn);
+    };
+
+    /* THE CLOSE IS DEFERRED OUT OF THE CLICK, and it has to be. Closing this
+       dialog UN-PORTALS it: Jelly moves the element from document.body back to
+       its placeholder in the page. Doing that while the click that triggered it
+       is still propagating is a race, and it lost about a quarter of the time --
+       the attribute came off and went straight back on, leaving the dialog open.
+       Measured over four runs: cancel failed once, confirm failed once, so it
+       was never about which button, only about timing.
+
+       One frame is enough. The click finishes, then the dialog tears down. */
+    const close = () => requestAnimationFrame(() => { dlg.open = false; });
+
+    once(document.getElementById('dlg-cancel'), close);
+    once(document.getElementById('dlg-confirm'), () => {
+      close();
+      /* A confirmation whose confirm button just closes teaches the wrong
+         thing -- the demo should show the action completing. */
+      if (typeof jellyToast === 'function') {
+        jellyToast('Payment deleted', { tone: 'success' });
+      }
+    });
   }
 
   /* ── The drawer (entry 19) ───────────────────────────────────────────────

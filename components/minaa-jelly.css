@@ -1693,6 +1693,33 @@ jelly-tooltip > :not([slot]),
   --jelly-fill: var(--m-overlay-surface);
 }
 
+/* ACTIONS INSIDE AN OVERLAY are the inverse problem to the triggers outside it.
+   A button on the page sits on --m-page and takes the accent; a button inside a
+   dialog sits ON the accent, so it cannot also be the accent -- it would be a
+   brand fill on a brand fill, invisible in the way the popover was before its
+   panel inverted.
+
+   So the panel's ink becomes the button and the panel's surface becomes the
+   label: a cream button lettered in the panel colour, in both modes, from the
+   two tokens the panel already uses. Nothing new is named.
+
+   The quiet action carries no fill at all. Jelly's variant attribute is not
+   available to us -- it paints a pale membrane and leaves --jelly-label on the
+   accent ink, which is the invisible-label bug documented above jelly-button --
+   so the secondary style is a transparent membrane, which still deforms under
+   the pointer exactly like a filled one. */
+jelly-dialog jelly-button,
+jelly-drawer jelly-button {
+  --jelly-fill: transparent;
+  --jelly-label: var(--m-overlay-ink);
+}
+
+jelly-dialog jelly-button[data-primary],
+jelly-drawer jelly-button[data-primary] {
+  --jelly-fill: var(--m-overlay-ink);
+  --jelly-label: var(--m-overlay-surface);
+}
+
 jelly-tooltip {
   --jelly-tooltip-background:     var(--m-anchored-surface);
   --jelly-tooltip-color:          var(--m-overlay-ink);

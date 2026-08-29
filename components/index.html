@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260831k"></script>
+<script src="../gate.js?v=20260831p"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260831k"></script>
+<script type="module" src="vendor/jelly.js?v=20260831p"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260831k">
-<link rel="stylesheet" href="showcase.css?v=20260831k">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260831p">
+<link rel="stylesheet" href="showcase.css?v=20260831p">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -533,13 +533,26 @@
       <!-- label sets the accessible name only -- it is never rendered -- so the
            heading is slotted as well. Passing label alone gives a modal that
            screen readers announce and sighted readers see untitled. -->
+      <!-- THE ACTIONS ARE SLOTTED. jelly-dialog ships a panel and a dismiss
+           control and nothing else, so a confirmation has to bring its own
+           buttons -- and a confirmation without them is not a smaller demo, it
+           is a broken one: the x means "dismiss", never "no", so a dialog
+           asking to delete something offered no way to answer it. -->
       <jelly-dialog id="dlg-demo" label="Delete this payment?">
         <h3 class="dlg-title">Delete this payment?</h3>
         <p>Bay 4 &middot; 150.000 KWD. This cannot be undone.</p>
+        <div class="dlg-actions">
+          <jelly-button id="dlg-cancel">Keep it</jelly-button>
+          <jelly-button id="dlg-confirm" data-primary>Delete payment</jelly-button>
+        </div>
       </jelly-dialog>
       <template data-snippet-text>&lt;jelly-dialog label="Delete this payment?"&gt;
   &lt;h3&gt;Delete this payment?&lt;/h3&gt;
   &lt;p&gt;Bay 4 &middot; 150.000 KWD. This cannot be undone.&lt;/p&gt;
+  &lt;div class="dlg-actions"&gt;
+    &lt;jelly-button&gt;Keep it&lt;/jelly-button&gt;
+    &lt;jelly-button data-primary&gt;Delete payment&lt;/jelly-button&gt;
+  &lt;/div&gt;
 &lt;/jelly-dialog&gt;
 
 dialog.setAttribute('open', '');   // or dialog.showModal()</template>
@@ -702,8 +715,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260831k"></script>
-<script src="minaa-jelly.js?v=20260831k"></script>
-<script src="showcase.js?v=20260831k" defer></script>
+<script src="micons.js?v=20260831p"></script>
+<script src="minaa-jelly.js?v=20260831p"></script>
+<script src="showcase.js?v=20260831p" defer></script>
 </body>
 </html>
