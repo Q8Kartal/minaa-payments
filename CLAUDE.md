@@ -240,6 +240,12 @@ DESIGN.md             ← Design system: colour, type, spacing, components
 PRODUCT.md            ← Users, purpose, brand personality
 docs/superpowers/     ← Design specs and implementation plans
 .claude/launch.json   ← Local static server on :3000
+.claude/skills/squircle/
+                      ← `/squircle`. Invoke before shaping ANY surface — card,
+                        panel, box, component. Carries the calibrated geometry,
+                        the paint-don't-clip rule, and the four traps that have
+                        already shipped as bugs (fixed-position descendants,
+                        borders, shadows, scroll containers).
 ```
 
 ---
