@@ -150,7 +150,11 @@
 
       copy.addEventListener('click', async () => {
         try {
-          await navigator.clipboard.writeText(text);
+          /* code.textContent, not the `text` this closure captured. Entry 07's
+             snippet is rewritten as its controls move, and copying the string
+             from build time would hand over a snippet the page is no longer
+             showing. */
+          await navigator.clipboard.writeText(code.textContent);
           copy.textContent = 'Copied';
         } catch (e) {
           /* Clipboard can be refused (permission, insecure context). Select the
@@ -287,7 +291,96 @@
     });
   }
 
-  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts(); }
+  /* ── The OTP controls (entry 07) ────────────────────────────────────────
+     The only entry on the page with controls instead of specimens, and it is
+     `length` that earns them: a free number cannot be enumerated as examples,
+     so any fixed pair is an arbitrary pair.
+
+     LENGTH IS CLAMPED IN TWO PLACES, and both are needed. min/max on the host
+     do nothing -- jelly-input forwards exactly nine attributes to its inner
+     input and neither is among them -- so they are set on that inner element
+     directly, which is what makes the spinner stop at the ends. That still
+     leaves typing and pasting, so the value is clamped again on the way
+     through. A pasted 40 would otherwise render forty boxes and take the card
+     with it. */
+  const OTP_MIN = 4;
+  const OTP_MAX = 8;
+
+  function wireOtpDemo() {
+    const otp   = document.getElementById('otp-demo');
+    const theme = document.getElementById('otp-theme');
+    const len   = document.getElementById('otp-length');
+    const size  = document.getElementById('otp-size');
+    const dis   = document.getElementById('otp-disabled');
+    const mode  = document.getElementById('otp-mode');
+    if (!otp || !theme || !len || !size || !dis || !mode || otp.dataset.wired) return;
+    otp.dataset.wired = '1';
+
+    /* A pill group behaves like a radio set: click one, it becomes the pressed
+       one and the others are released. Returns a setter, so the initial state
+       can be applied without firing a synthetic click through the handler. */
+    function pills(root, onPick) {
+      const select = (v) => root.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === v)));
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        select(b.dataset.value);
+        onPick(b.dataset.value);
+      });
+      return select;
+    }
+
+    /* Start the capsule on whatever the page resolved to, so the specimen does
+       not contradict what surrounds it. The control can still flip it. */
+    const page = document.querySelector('body > jelly-theme');
+    const startMode = (page && page.resolvedMode) ||
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    theme.setAttribute('mode', startMode);
+
+    /* The inner input is reachable and its min/max are not decoration: without
+       them the spinner runs to infinity in both directions. */
+    const inner = len.shadowRoot && len.shadowRoot.querySelector('input');
+    if (inner) { inner.min = String(OTP_MIN); inner.max = String(OTP_MAX); inner.step = '1'; }
+
+    function snippet() {
+      const box = document.querySelector('#c-07 .code code');
+      if (!box) return;
+      const attrs = ['length="' + otp.getAttribute('length') + '"'];
+      if (otp.getAttribute('size') && otp.getAttribute('size') !== 'medium') {
+        attrs.push('size="' + otp.getAttribute('size') + '"');
+      }
+      if (otp.hasAttribute('disabled')) attrs.push('disabled');
+      box.textContent = '<jelly-otp ' + attrs.join(' ') + '></jelly-otp>';
+    }
+
+    function applyLength() {
+      const raw = parseInt(len.value, 10);
+      const clamped = Number.isFinite(raw) ? Math.min(OTP_MAX, Math.max(OTP_MIN, raw)) : OTP_MIN;
+      /* Write the clamped figure back so the field shows what the component is
+         actually doing. Typing 40 and seeing 40 beside eight boxes is worse
+         than being corrected. */
+      if (String(clamped) !== String(len.value)) len.value = String(clamped);
+      otp.setAttribute('length', String(clamped));
+      snippet();
+    }
+
+    len.addEventListener('change', applyLength);
+    len.addEventListener('input', applyLength);
+
+    pills(size, (v) => { otp.setAttribute('size', v); snippet(); });
+
+    /* toggleAttribute, not .disabled: on a web component the property is a
+       no-op unless the component defines it, and this one does not. */
+    pills(dis, (v) => { otp.toggleAttribute('disabled', v === 'true'); snippet(); });
+
+    const setMode = pills(mode, (v) => theme.setAttribute('mode', v));
+    setMode(startMode);
+
+    applyLength();
+  }
+
+  function start() { buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts(); wireOtpDemo(); }
 
   if (window.customElements) {
     Promise.all(

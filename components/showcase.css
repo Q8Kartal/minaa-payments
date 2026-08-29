@@ -50,8 +50,15 @@ body {
 
 /* ── Shell ───────────────────────────────────────────────────────────────── */
 
+/* 1280, not the 1080 this started at. The demo column is whatever is left
+   after a 400 prose column and a 64 gutter, so the cap decided the preview
+   width -- 568 at every screen size, even at 1920. The widest case the OTP
+   controls can produce is 532, which did not fit, and the answer to that was
+   never a scrollbar: the library this documents gives its preview roughly 930
+   and the component sits in it with air. This buys 200 of that back for every
+   entry, not just entry 07. */
 .wrap {
-  max-width: 1080px;
+  max-width: 1280px;
   margin-inline: auto;
   padding-inline: var(--space-300);      /* 24 */
   padding-block: var(--space-800) var(--space-1000);
@@ -63,7 +70,16 @@ body {
    component in the place it will actually be used, not a specimen -- which is
    also the honest test of it: anything wrong with the control shows up here
    first, on every visit, rather than in a demo card someone has to scroll to. */
-.masthead { position: relative; margin-block-end: var(--space-1000); }   /* 80 */
+.masthead {
+  position: relative;
+  margin-block-end: var(--space-1000);   /* 80 */
+  /* overflow-x: clip because the theme switch sits hard against the inline end
+     and Jelly bleeds its canvas about 40px past the host so the wobble has
+     room. That pushed the masthead 48 past the wrap and gave the whole PAGE a
+     horizontal scrollbar -- 24px of it, on every view, at every width. Invisible
+     unless you measure: the overhang is transparent. */
+  overflow-x: clip;
+}
 
 .masthead-switch {
   position: absolute;
@@ -350,7 +366,12 @@ body {
   margin: 0;
   padding: var(--space-300);             /* 24 */
   padding-inline-end: var(--space-1000); /* 80 — room for the copy button */
-  overflow-x: auto;
+  /* Wrap rather than scroll. Every one of the fifteen snippets overflowed its
+     400px column and carried its own horizontal scrollbar -- fifteen bars down
+     the page, each hiding the end of the line it belonged to. A snippet exists
+     to be read, and a reader should not have to drag to finish a tag. */
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
   /* The one place a non-brand family is correct: this is code, and Minaã has
      no monospace face. Brand type here would misrepresent what is on screen. */
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -466,4 +487,92 @@ body {
   .preview { padding: var(--space-300); }
   .controls { gap: var(--space-200); }
   .ctl { gap: var(--space-150); }
+}
+
+/* Entry 07 puts its controls in the PROSE column, beside the preview rather
+   than stacked above it, which is where the library being documented puts
+   them and where Ahmad asked for them.
+
+   Stacked rather than the wrapping row the theming demo uses: that row works
+   at the full width of a demo card and breaks in arbitrary places at 400,
+   which is all the prose column gets. One control per line with the labels in
+   a column of their own is the only arrangement that stays readable there. */
+/* overflow-x: clip for the same reason .demo has it: Jelly paints into a canvas
+   that is deliberately wider than its host so the wobble has room, and in the
+   demo card that spare width is clipped. In the prose column nothing clipped
+   it, so at 375 the OTP field hung 93px past the column and the whole PAGE
+   scrolled sideways. Measured, not guessed -- it is invisible at desktop width
+   because the overhang lands in the 64px gutter. */
+.controls--stacked {
+  overflow-x: clip;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  margin-block-end: var(--space-400);
+}
+
+.controls--stacked .ctl {
+  gap: var(--space-200);
+  padding-block: var(--space-200);
+  border-block-start: 1px solid var(--m-hairline);
+}
+
+.controls--stacked .ctl:first-child { border-block-start: 0; padding-block-start: 0; }
+
+/* One width for every label so the controls line up down the column instead of
+   each starting wherever its own word ends. */
+.controls--stacked .ctl-name { flex: 0 0 var(--space-1000); }   /* 80 */
+
+/* ── Pill controls ─────────────────────────────────────────────────────────
+   Separate pills rather than one connected segmented track, matching the shape
+   the library being documented uses for the same job. jelly-segmented is a
+   component in its own right with an entry of its own; borrowing it as page
+   chrome made the OTP controls look like four more specimens.
+
+   Plain buttons, like the accent swatches in entry 01 — page furniture is not
+   a component. Quiet fill when unchosen, brand fill when chosen, both off the
+   semantic layer so they follow the mode with everything else. */
+.pillset { display: flex; flex-wrap: wrap; gap: var(--space-100); }
+
+/* jelly-button, not a plain one: these are pills you press, and a pill that
+   does not squish beside fifteen components that do is the odd thing on the
+   page. Its defaults are built for a page CTA -- 62 tall with a 168 min-width
+   -- so all four dimensions are restated for a control that sits in a 400px
+   column. */
+.pill {
+  --jelly-button-height:         var(--control-40);
+  --jelly-button-min-width:      0;
+  --jelly-button-padding-inline: var(--space-200);
+  --jelly-button-font-size:      var(--text-sm);
+  --jelly-button-radius:         var(--radius-full);
+  --jelly-fill:  var(--m-hairline);
+  --jelly-label: var(--m-ink);
+}
+
+/* Secondary 600, not the accent. These are page chrome, and Primary 700 is
+   what the components themselves fill with -- a pressed pill in that same blue
+   read as one more specimen. */
+.pill[aria-pressed="true"] {
+  --jelly-fill:  var(--m-thumb);
+  --jelly-label: var(--m-on-accent);
+}
+
+
+
+/* ── The OTP stage ─────────────────────────────────────────────────────────
+   Deliberately NOT .preview. That class draws a bordered card, and a rounded
+   card around a rounded capsule reads as a capsule inside a capsule.
+
+   It also could not hold the widest case: at length 8 and size large the OTP
+   measures 532 against a 472 card, escaping it by 92px and pushing past the
+   demo card behind it. Scrolling is the honest answer — the boxes have fixed
+   widths and cannot shrink — and `safe center` keeps the row centred until it
+   overflows, then pins it to the start so the first box is never cut off. */
+.otp-stage {
+  display: flex;
+  justify-content: safe center;
+  padding: var(--space-400);
+  background: var(--m-page);
+  border-radius: var(--radius-16);
+  overflow-x: auto;
 }

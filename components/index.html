@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260829n"></script>
+<script src="../gate.js?v=20260829x"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260829n"></script>
+<script type="module" src="vendor/jelly.js?v=20260829x"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260829n">
-<link rel="stylesheet" href="showcase.css?v=20260829n">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260829x">
+<link rel="stylesheet" href="showcase.css?v=20260829x">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -212,16 +212,66 @@
     <p class="entry-num">Forms · 07</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-otp"/></svg> &lt;jelly-otp&gt;</h2>
     <p class="entry-note">One box per digit, with typing, backspace, arrow and paste handling.
-       Boxes are radius-16 rather than the capsule the text field uses, so a code reads as
-       discrete cells rather than one continuous run.</p>
+       <code>length</code> and <code>size</code> are independent. Mode is scoped to the capsule.</p>
+
+    <!-- Controls rather than specimens, and only on this entry. `length` is a
+         free number: any pair of fixed examples is an arbitrary pair, which is
+         what the old two-specimen row was. The rest of the page stays a
+         catalogue until this earns its place.
+
+         Jelly's own playground offers a `variant` row here -- azure, rose,
+         amber, mint, graphite, platinum, white. Those are Jelly's palette,
+         which is the exact thing the bridge exists to replace, and a showcase
+         teaches whatever it demonstrates. Light and dark is the axis that
+         actually varies in Minaã, so it takes that slot. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">length</span>
+        <jelly-input id="otp-length" type="number" value="6" label="4 to 8"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="otp-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="otp-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">mode</span>
+        <div class="pillset" id="otp-mode" role="group" aria-label="Mode">
+          <jelly-button class="pill" data-value="light" aria-pressed="true">light</jelly-button>
+          <jelly-button class="pill" data-value="dark" aria-pressed="false">dark</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen"><jelly-otp length="6" label="One-time code"></jelly-otp><figcaption>Six digits</figcaption></figure>
-      </div>
-      <div class="row">
-        <figure class="specimen"><jelly-otp length="4" size="small" label="Short code"></jelly-otp><figcaption>Four digits, small</figcaption></figure>
-      </div>
+      <!-- Scoped, like the theming demo: flipping the capsule must not drag the
+           page with it. Unlike that demo it STARTS on whatever the page resolved
+           to, because there the mismatch is the point and here it is a
+           distraction -- you came to look at an OTP, not at two themes. -->
+      <jelly-theme id="otp-theme" mode="light">
+        <!-- Not .preview. That class draws a bordered card, and a rounded card
+             around a rounded capsule reads as a capsule inside a capsule -- the
+             outline Ahmad spotted. It also could not hold the widest case: at
+             length 8 and large the OTP measures 532 against a 472 card and
+             escaped it by 92px, past the demo card as well. This is a plain
+             surface that scrolls instead of overflowing, tinted --m-page so the
+             scoped mode is visible behind the capsule. -->
+        <div class="otp-stage">
+          <jelly-otp id="otp-demo" length="6" label="One-time code"></jelly-otp>
+        </div>
+      </jelly-theme>
+
+      <template data-snippet-text>&lt;jelly-otp length="6"&gt;&lt;/jelly-otp&gt;</template>
     </div>
   </section>
 
@@ -480,8 +530,8 @@
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260829n"></script>
-<script src="minaa-jelly.js?v=20260829n"></script>
-<script src="showcase.js?v=20260829n" defer></script>
+<script src="micons.js?v=20260829x"></script>
+<script src="minaa-jelly.js?v=20260829x"></script>
+<script src="showcase.js?v=20260829x" defer></script>
 </body>
 </html>
