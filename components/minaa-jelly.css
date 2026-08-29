@@ -165,6 +165,7 @@ jelly-theme {
      would have been invisible against its own surface. */
   --m-overlay-surface:  var(--primary);    /* Primary 700 */
   --m-anchored-surface: var(--secondary);  /* Secondary 600 - see below */
+  --m-menu-selected:    var(--primary-300);/* Primary 300 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
 
   /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
@@ -245,6 +246,7 @@ jelly-theme {
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
   --m-anchored-surface: var(--primary);    /* Primary 700 - see below */
+  --m-menu-selected:    var(--secondary);  /* Secondary 600 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
@@ -287,6 +289,7 @@ jelly-theme[mode="dark"] {
   --m-hairline:    var(--primary-900); /* Primary 900 — a lift off the 950 card */
   --m-overlay-surface:  var(--secondary);  /* Secondary 600 */
   --m-anchored-surface: var(--primary);    /* Primary 700 - see below */
+  --m-menu-selected:    var(--secondary);  /* Secondary 600 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
@@ -335,6 +338,7 @@ jelly-theme[mode="light"] {
      would have been invisible against its own surface. */
   --m-overlay-surface:  var(--primary);    /* Primary 700 */
   --m-anchored-surface: var(--secondary);  /* Secondary 600 - see below */
+  --m-menu-selected:    var(--primary-300);/* Primary 300 */
   --m-overlay-ink:      var(--cream);      /* Neutral 100 - both modes */
 
   /* Rest and hover deliberately share ONE colour. The disc adopts the mark`s
@@ -1671,6 +1675,7 @@ jelly-popover::part(panel) { border: 0; }
    :not([slot]) picks the tooltip trigger, which is default-slotted; its other
    slot is the named "content". */
 jelly-popover > [slot="trigger"],
+jelly-menu > [slot="trigger"],
 jelly-tooltip > :not([slot]) {
   --jelly-fill: var(--m-overlay-surface);
 }

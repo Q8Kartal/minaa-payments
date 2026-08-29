@@ -166,6 +166,48 @@
       }
       [data-minaa-lift] > .panel { pointer-events: auto; }`,
 
+    /* The selected row. Jelly paints hover, focus and .active as a 12% tint of
+       the accent -- a wash rather than a colour, and the one place on this page
+       where a state was left as arithmetic on a token instead of a token of its
+       own. It becomes a solid fill: Primary 300 in light, Secondary 600 in dark.
+
+       The rule lives HERE, on jelly-menu, and that is not where it looks like it
+       should go. jelly-menu-item has NO shadow root at all -- checked, not
+       assumed -- and the three .item elements are built inside the menu's own
+       root, so a patch aimed at jelly-menu-item would attach to nothing.
+
+       The ink is deliberately absent. In light the row is already Secondary 600
+       through --jelly-color-foreground-default and stays that way on the Primary
+       300 fill; in dark it is cream and stays cream. Neither needs a selected
+       state of its own, and writing one would only be a second place to keep in
+       step with the first.
+
+       DISABLED rows are excluded, and Jelly does not exclude them. Its selector
+       is a bare .item:hover, so a disabled row highlights like any other; at a
+       12% tint nobody could see it, and at a solid fill it is obvious -- a row
+       that cannot be chosen was offering the appearance of being chosen. Opacity
+       .4 is not a substitute, it just makes the wrong thing paler.
+
+       [data-danger] keeps its own rose tint -- it is unused on this page and is
+       Jelly's semantics, not ours, so it is left alone rather than half-mapped. */
+    'jelly-menu': `
+      .item:not([aria-disabled="true"]):hover,
+      .item:not([aria-disabled="true"]):focus,
+      .item:not([aria-disabled="true"]):focus-visible,
+      .item:not([aria-disabled="true"]).active {
+        background: var(--m-menu-selected);
+      }
+      /* Excluding the disabled row from OUR rule is not enough on its own:
+         Jelly's bare .item:hover still matches it, so it kept a 12% wash.
+         Cleared outright -- a row that cannot be chosen shows no sign of
+         being chosen. */
+      .item[aria-disabled="true"]:hover,
+      .item[aria-disabled="true"]:focus,
+      .item[aria-disabled="true"]:focus-visible,
+      .item[aria-disabled="true"].active {
+        background: transparent;
+      }`,
+
     /* jelly-segmented draws its pill from `.segment`, which hardcodes
        `padding-block: 0` with no token behind it and carries no part. The pill
        collapses to its 28px line box, and the track came out 44 tall where the
