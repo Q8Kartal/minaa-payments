@@ -419,7 +419,16 @@ jelly-tooltip {
    per mode.
    ═════════════════════════════════════════════════════════════════════════ */
 
+/* The label is ink ON A BRAND FILL, not prose ink. The shared block above
+   hands every component --jelly-label: var(--m-ink), which is right for a
+   label BESIDE a control and wrong for the text INSIDE a filled one: a button
+   is filled with the accent, so Primary 700 ink on a Primary 700 fill made the
+   label vanish outright in light. It survived in dark only by coincidence,
+   because --m-ink and --m-on-accent are both Neutral 100 there -- which is why
+   this went unnoticed until a button appeared outside the toast row, where
+   every trigger sets its own label colour. */
 jelly-button {
+  --jelly-label:                 var(--m-on-accent);
   --jelly-button-height:         var(--control-48);
   --jelly-button-padding-inline: var(--space-250);
   --jelly-button-gap:            var(--space-100);
@@ -428,6 +437,9 @@ jelly-button {
 }
 
 jelly-icon-button {
+  /* Same reasoning as jelly-button above: filled, so the mark on it is
+     --m-on-accent rather than the prose ink. */
+  --jelly-label:                 var(--m-on-accent);
   --jelly-icon-button-size:      var(--control-48);
   --jelly-icon-button-icon-size: var(--control-icon-20);
   --jelly-icon-button-radius:    var(--radius-full);
