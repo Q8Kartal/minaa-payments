@@ -1493,6 +1493,20 @@ jelly-toaster::part(tone-danger)  { background: var(--error);   }
 jelly-dialog {
   --jelly-color-foreground-default: var(--m-overlay-ink);
   --jelly-color-background-surface: var(--m-overlay-surface);
+
+  /* THE CAP, and the dialog was the last overlay without it. It was left on the
+     generator's default -- as round as the shape can be -- on the grounds that
+     at 508x129 the default and the cap agreed to within half a pixel, and the
+     shape was signed off. That reasoning was only true at one size.
+
+     Adding the action buttons made the panel 186 tall instead of 129, so half
+     the short side became 93 and the corner grew with it. Reported from a
+     landscape phone: a 493x186 panel drawing 93 while the desktop drew 64.5 --
+     the same component, two shapes, and the only overlay still free to drift.
+
+     With the cap it is 64 everywhere, and the panel can grow as tall as its
+     content needs without its corner following. */
+  --m-squircle-radius: var(--m-surface-corner);
   /* THE PANEL IS NOT SHAPED BY THIS RADIUS. It is shaped by a generated SVG
      path -- see minaaSquircle() in minaa-jelly.js -- and this value is only
      the fallback for the instant before that runs, or if it never does.
@@ -1601,11 +1615,13 @@ jelly-dialog::part(dialog) {
    superellipse and a plain rounded corner are the same few pixels. The drawer
    simply did not look squircled, while the dialog beside it drew 64.5.
 
-   The dialog is still left on the default and therefore still self-computes its
-   corner. At its present size the two agree to within half a pixel, and the
-   shape is signed off, so it is not touched here. Pointing it at the same token
-   would cost 0.5px, make the family exactly consistent and remove its own
-   grow-into-a-capsule risk -- worth doing, but it is a change to approved work.
+   The dialog was left on the default here, on the grounds that at its size the
+   two agreed to within half a pixel and the shape was signed off. That held
+   until the dialog changed size: action buttons took it from 129 tall to 186,
+   half the short side became 93, and a landscape phone showed a 493x186 panel
+   drawing 93 next to a desktop drawing 64.5. It now carries the cap like the
+   rest of them. "The default and the cap agree at this size" is a statement
+   about one measurement, not about a component.
    ========================================================================== */
 jelly-drawer {
   --jelly-color-foreground-default: var(--m-overlay-ink);

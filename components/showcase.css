@@ -576,6 +576,42 @@ body {
    each starting wherever its own word ends. */
 .controls--stacked .ctl-name { flex: 0 0 var(--space-1000); }   /* 80 */
 
+/* THE VALUE SIDE MUST BE ALLOWED TO SHRINK. jelly-input is 280px wide by
+   default, and a flex item's min-width: auto resolves to its own min-content --
+   which for a fixed-width host is that same 280. flex-shrink then has nothing
+   to act on, so the row measured 80 + 16 + 280 = 376 inside a 327 column and
+   the last 49px were cut off by the clip above.
+
+   Every row was 376, not just the one holding the input: in a stretch column
+   they all take the width of the widest, so one unshrinkable control dragged
+   the whole set past the edge.
+
+   min-width: 0 restores the shrink and the input settles at whatever is left.
+   The label keeps its 80 because flex-basis with shrink 0 is unaffected.
+
+   IT TAKES BOTH DECLARATIONS, and min-width alone is not enough -- measured,
+   twice. Clearing min-width on the input changed nothing, because the ROW was
+   never asked to shrink in the first place. Clearing it on the row as well
+   changed nothing either: align-items: stretch did not hold the row to the
+   column, and it stayed 376 with min-width: 0px computed on it.
+
+   max-width is what actually binds the row to the column. min-width: 0 is still
+   required -- it is what lets the input give up the difference once the row is
+   bounded -- but on its own it has nothing to act against. Row 376 -> 327,
+   input 280 -> 231.
+
+   The clip above stays, but it is now a backstop rather than the fix. It exists
+   so an overflowing control can never scroll the whole PAGE sideways -- the
+   worse failure -- and it is also why this went unseen for so long: it hides
+   overflow instead of reporting it. Anything added to these rows should be
+   measured against the column, not trusted to fit. */
+.controls--stacked .ctl {
+  max-width: 100%;
+}
+
+.controls--stacked .ctl,
+.controls--stacked .ctl > * { min-width: 0; }
+
 /* ── Pill controls ─────────────────────────────────────────────────────────
    Separate pills rather than one connected segmented track, matching the shape
    the library being documented uses for the same job. jelly-segmented is a
