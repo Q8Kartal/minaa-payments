@@ -709,3 +709,284 @@
   setTimeout(swapAll, 300);
   setTimeout(swapAll, 1200);
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE ALERT'S GLYPHS
+
+   jelly-alert draws two marks from Jelly's own icon set: a tone glyph picked
+   out of an internal map, and a `dismiss` cross on the close button. Neither
+   is ours, and the rule for this page is that every glyph comes from the Minaã
+   Icons library.
+
+   The four tones map one-for-one onto the marks the toasts already carry --
+   toast-info / -success / -warning / -danger -- so an alert and a toast now
+   say the same thing with the same drawing. That is the whole point of having
+   a library: the same meaning cannot arrive as two different pictures.
+
+   The glyph needs no colour of its own. Jelly's `.icon` rule is
+   `color: var(--tone)`, and Micons export as currentColor, so the mark takes
+   the tone the stylesheet already set and the four-line tone remap in
+   minaa-jelly.css keeps working untouched.
+
+   INLINED, not <use>. The sprite is a document-level <symbol> set, and a <use>
+   cannot reach across into a shadow root -- it renders nothing at all. Same
+   reason the toasts and the dialog close inline their marks.
+
+   RE-DRESSED ON TONE CHANGE, which is not belt-and-braces. Jelly's
+   attributeChangedCallback for `tone` replaces .jelly-content's innerHTML
+   outright and rewires the close button, so a swap done once is discarded the
+   moment the tone changes, and the alert silently falls back to Jelly's glyph.
+   The specimens on this page are static, so nothing here exercises it -- but a
+   tone is exactly the attribute an application flips at runtime, which is when
+   it would break with nobody watching. Verified by setting the attribute and
+   reading the path back: the glyph changes, and restores.
+
+   A MutationObserver callback is a microtask and attributeChangedCallback is
+   synchronous, so ours reliably runs after Jelly has finished rebuilding.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+(function minaaAlertIcons() {
+  'use strict';
+
+  var TONES = {
+    info:    'toast-info',
+    success: 'toast-success',
+    warning: 'toast-warning',
+    danger:  'toast-danger'
+  };
+
+  /* width and height are spelled out, and they are not decoration. An <svg>
+     carrying only a viewBox has an intrinsic size of auto; Chrome resolves it
+     against the parent box, Safari collapses it to zero when the svg is a flex
+     item. The toast marks rendered on desktop and vanished on iPhone before
+     this was understood. 100% of a box whose side is a token is still
+     token-derived.
+
+     fill:none is in the STYLE, not only in the attribute, and that is the
+     whole fix for the dismiss mark. Jelly ships `.close svg { fill:
+     currentColor }`, and a CSS rule beats a presentation attribute -- so the
+     `fill="none"` here lost, `close` inherited a solid fill, and because that
+     glyph is a circle with two lines knocked across it rather than a bare
+     cross, the circle filled in and swallowed the cross. It rendered as a
+     plain blue disc. Inline style outranks the shadow rule and restores it.
+
+     Harmless to the four tone marks: each is a single compound path that sets
+     its own fill, so the wrapper's value never reaches them. Checked rather
+     than assumed, because it is the kind of thing that silently blanks an
+     icon. */
+  function mark(glyph) {
+    return '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" ' +
+           'aria-hidden="true" focusable="false" style="display:block;fill:none">' +
+           glyph + '</svg>';
+  }
+
+  function dress(alert) {
+    if (!alert.shadowRoot) return false;
+    if (typeof MICONS === 'undefined') return false;
+
+    var tone  = alert.getAttribute('tone') || 'info';
+    var glyph = MICONS[TONES[tone] || TONES.info];
+
+    /* Keyed to the tone, not to a plain "done" flag: after a tone change the
+       node is a fresh one with an empty dataset, so this re-runs, and on a
+       repaint that did not change the tone it does not. */
+    var icon = alert.shadowRoot.querySelector('.icon');
+    if (icon && glyph && icon.dataset.minaaTone !== tone) {
+      icon.innerHTML = mark(glyph);
+      icon.dataset.minaaTone = tone;
+    }
+
+    var close = alert.shadowRoot.querySelector('button.close');
+    if (close && MICONS.close && !close.dataset.minaaClose) {
+      close.innerHTML = mark(MICONS.close);
+      close.dataset.minaaClose = '1';
+    }
+    return !!icon;
+  }
+
+  function watch(alert) {
+    if (alert.dataset.minaaWatched) return;
+    alert.dataset.minaaWatched = '1';
+    new MutationObserver(function () { dress(alert); })
+      .observe(alert, { attributes: true, attributeFilter: ['tone', 'dismissible'] });
+  }
+
+  function dressAll() {
+    var all = document.querySelectorAll('jelly-alert');
+    var pending = 0;
+    all.forEach(function (a) { watch(a); if (!dress(a)) pending++; });
+    return pending === 0;
+  }
+
+  /* Same shape as the dialog close and the toasts: the shadow root does not
+     exist on the first pass for a component upgraded later, so retry a couple
+     of times and keep an observer for anything added afterwards. */
+  if (!dressAll()) {
+    setTimeout(dressAll, 300);
+    setTimeout(dressAll, 1200);
+  }
+
+  new MutationObserver(function (records) {
+    for (var i = 0; i < records.length; i++) {
+      var added = records[i].addedNodes;
+      for (var j = 0; j < added.length; j++) {
+        var node = added[j];
+        if (node.nodeType !== 1) continue;
+        if (node.tagName.toLowerCase() === 'jelly-alert') { watch(node); dress(node); }
+        if (node.querySelectorAll) {
+          node.querySelectorAll('jelly-alert').forEach(function (a) { watch(a); dress(a); });
+        }
+      }
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+
+/* ===========================================================================
+   THE SKELETON'S RECT TAKES THE SQUIRCLE
+
+   The one opt-in on the page. jelly-skeleton is canvas-painted -- its outline
+   comes from the physics membrane, not from a CSS box -- so neither of the two
+   methods in the squircle skill reaches it: there is no border-radius to
+   replace and no element to clip. The shape has to come from the rest geometry
+   that seeds the membrane.
+
+   vendor/jelly.js therefore takes an optional corner exponent that DEFAULTS TO
+   THE CIRCLE IT ALWAYS DREW, with the original line kept as an explicit fast
+   path. Deciding which components get the squircle happens HERE, not there, so
+   the library keeps no opinion about Minaa and one selector is the whole blast
+   radius.
+
+   Only shape="rect" opts in, and that is Ahmad's call, not an inference:
+     - `line` is a thin bar whose corner is capped at 7px by Jelly's shape();
+       at that size a superellipse and a circle are a couple of pixels apart.
+     - `circle` must stay a circle. Roundness is an affordance, and a blanket
+       version of this change turned jelly-radio into a squircle and made it
+       near-indistinguishable from our checkbox.
+
+   resize() is what regenerates the membrane, and the component calls it itself
+   whenever it is measured again, so the flag has to live on the body's config
+   rather than be applied once -- set it and every later regeneration keeps it.
+   =========================================================================== */
+
+(function minaaSkeletonSquircle() {
+  'use strict';
+
+  /* Superellipse N = 4 -> the parametric exponent is 2/N. The same number as
+     minaaSquirclePath() above, which is the SVG half of this shape. */
+  var SQUIRCLE = 2 / 4;
+  var CIRCLE = 1;
+
+  /* THE CORNER IS OWNED BY shape(), SO THAT IS WHERE IT IS SET.
+
+     First attempt pushed a radius in through body.resize() and it silently
+     reverted to 7. Jelly recomputes the radius from the component's own
+     shape() every time it re-measures, and a MutationObserver on the `shape`
+     attribute never sees that -- so the corner was correct for a moment and
+     gone by the next repaint. Measured: 32 immediately after applying, 7 a
+     couple of seconds later.
+
+     Wrapping shape() makes the value authoritative wherever Jelly asks for it,
+     with no resets to chase. The original is still called and its result is
+     only adjusted, so `line` and `circle` keep Jelly's own geometry exactly.
+
+     The number is the CARD's token read off the host -- the ask was literally
+     "our card shapes have this style" -- capped the way every other surface in
+     this system is capped, so 64 becomes 32 on a 64-tall rect. Jelly's own
+     cap for the skeleton is min(height / 2, 7), and at a 7px corner a
+     superellipse and a circle differ by under 3px across a 332px block: the
+     shape was right and completely invisible, which is not the same as done. */
+  function patchShape() {
+    var Ctor = customElements.get('jelly-skeleton');
+    if (!Ctor || Ctor.prototype.__minaaShaped) return;
+    var orig = Ctor.prototype.shape;
+    if (typeof orig !== 'function') return;
+    Ctor.prototype.__minaaShaped = true;
+    Ctor.prototype.shape = function (w, h) {
+      var out = orig.call(this, w, h);
+      if (this.getAttribute('shape') === 'rect') {
+        var c = parseFloat(getComputedStyle(this).getPropertyValue('--m-surface-corner'));
+        if (isFinite(c)) out.radius = Math.min(c, w / 2, h / 2);
+      }
+      return out;
+    };
+  }
+
+  function apply(el) {
+    var body = el.body;
+    if (!body || !body.config || !body.resize) return false;
+
+    var rect = el.getAttribute('shape') === 'rect';
+    var want = rect ? SQUIRCLE : CIRCLE;
+
+    /* The exponent DOES persist: it lives on the body's config and gt() reads
+       it on every regeneration, so unlike the radius it survives Jelly's own
+       resizes. Only re-apply when it actually differs. */
+    if (body.config.superellipse === want) return true;
+    body.config.superellipse = want;
+
+    /* applyShape() re-runs the wrapped shape() above, so this picks up both the
+       new exponent and the right radius in one pass. */
+    if (el.applyShape) el.applyShape();
+    else body.resize(body.width, body.height, body.radius);
+    if (el.requestFrame) el.requestFrame();
+    return true;
+  }
+
+  function watch(el) {
+    if (el.dataset.minaaSqWatched) return;
+    el.dataset.minaaSqWatched = '1';
+    new MutationObserver(function () { apply(el); })
+      .observe(el, { attributes: true, attributeFilter: ['shape'] });
+    /* A shape attribute is not the only thing that resets the radius -- Jelly
+       re-measures on any size change and shape() hands back its own 7 again.
+       Without this the corner silently reverts on a window resize. */
+    if (window.ResizeObserver) new ResizeObserver(function () { apply(el); }).observe(el);
+  }
+
+  function applyAll() {
+    var all = document.querySelectorAll('jelly-skeleton');
+    var pending = 0;
+    all.forEach(function (el) { watch(el); if (!apply(el)) pending++; });
+    return pending === 0;
+  }
+
+  /* Same shape as the other passes in this file: the body does not exist until
+     the component upgrades and measures itself, so retry a couple of times and
+     keep an observer for anything added later. */
+  /* jelly.js is a MODULE and therefore deferred; this file is a classic script
+     and runs at its parse position, which is earlier. So the custom element is
+     not defined yet on the first pass and patchShape() found nothing to wrap --
+     the exponent applied and the radius silently stayed at Jelly's 7. Waiting
+     for the definition is the fix, and every skeleton already on the page is
+     re-measured once the wrap is in so it picks up the new corner. */
+  if (window.customElements && customElements.whenDefined) {
+    customElements.whenDefined('jelly-skeleton').then(function () {
+      patchShape();
+      document.querySelectorAll('jelly-skeleton').forEach(function (el) {
+        apply(el);
+        if (el.applyShape) el.applyShape();
+        if (el.requestFrame) el.requestFrame();
+      });
+    });
+  }
+
+  patchShape();
+  if (!applyAll()) {
+    setTimeout(applyAll, 300);
+    setTimeout(applyAll, 1200);
+  }
+
+  new MutationObserver(function (records) {
+    for (var i = 0; i < records.length; i++) {
+      var added = records[i].addedNodes;
+      for (var j = 0; j < added.length; j++) {
+        var node = added[j];
+        if (node.nodeType !== 1) continue;
+        if (node.tagName.toLowerCase() === 'jelly-skeleton') { watch(node); apply(node); }
+        if (node.querySelectorAll) {
+          node.querySelectorAll('jelly-skeleton').forEach(function (el) { watch(el); apply(el); });
+        }
+      }
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true });
+})();

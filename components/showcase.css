@@ -753,3 +753,36 @@ body {
     width: 100%;
   }
 }
+
+/* The skeleton is the one specimen that cannot size itself. It stands in for
+   content that has not arrived, so by definition nothing inside it implies a
+   height -- Jelly gives the host `width: 200px; height: 16px` and leaves the
+   rest to the page. These come off the scale rather than sitting inline in the
+   markup.
+
+   THE SIZES ARE THE PAGE'S DOING, NOT THE COMPONENT'S, and that is the honest
+   part. In our vendored build shape() only special-cases `circle`; `line` and
+   `rect` take the same branch and produce identical geometry. What separates
+   them in Jelly's own documentation is the size the docs page hands them, so
+   the control here does the same thing and the difference is real rather than
+   pretended. */
+.skeleton-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* min-height carries the tallest shape, so the card does not jump on every
+     click. Three shapes you cannot compare because the box resizes under them
+     is a worse preview than no control at all.
+
+     The page sets `* { box-sizing: border-box }`, so min-height INCLUDES the
+     padding -- written as a bare 64 it left 0 of content box and the stage
+     measured 80 for the line and 128 for the rect, jumping on exactly the
+     click it was meant to absorb. The calc is the tallest shape plus both
+     paddings, and every term in it is a step on the scale. */
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);       /* 32 */
+}
+
+.skeleton-spec[data-shape="line"]   { width: 100%; height: var(--space-200); }
+.skeleton-spec[data-shape="rect"]   { width: 60%;  height: var(--space-800); }
+.skeleton-spec[data-shape="circle"] { width: var(--space-800); height: var(--space-800); }

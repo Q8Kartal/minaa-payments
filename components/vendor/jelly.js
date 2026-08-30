@@ -148,7 +148,16 @@ function Vt(n, t, e, i, s) {
   const r = Math.min(s, e, i), o = Math.abs(n) - (e - r), l = Math.abs(t) - (i - r), d = Math.hypot(Math.max(o, 0), Math.max(l, 0)), h = Math.min(Math.max(o, l), 0);
   return d + h - r;
 }
-function gt(n, t, e, i) {
+/* MINAA FORK, and the ONLY change to this file. `se` is the corner exponent
+   term: se = 1 is exactly the cos/sin circle this function always drew, and it
+   is the default, so every component that does not ask for anything else is
+   bit-identical -- the se === 1 branch below is the original line untouched.
+   se = 0.5 gives the Minaa squircle (superellipse N = 4); keep that number in
+   step with minaaSquirclePath() in minaa-jelly.js, which is the same maths for
+   SVG and cannot share code across the module boundary.
+   Opting in is done from the bridge via body.config.superellipse, not here, so
+   nothing in this library decides which components get the shape. */
+function gt(n, t, e, i, se = 1) {
   const s = n / 2, r = t / 2, o = Math.min(e, s, r), l = [], d = (v, x) => {
     l.push({ x: v, y: x });
   }, h = 48, a = 48;
@@ -161,7 +170,10 @@ function gt(n, t, e, i) {
   function p(v, x, y, w) {
     for (let S = 1; S <= a; S++) {
       const M = y + (w - y) * (S / a);
-      d(v + Math.cos(M) * o, x + Math.sin(M) * o);
+      if (se === 1) { d(v + Math.cos(M) * o, x + Math.sin(M) * o); continue; }
+      const cs = Math.cos(M), sn = Math.sin(M);
+      d(v + Math.sign(cs) * Math.pow(Math.abs(cs), se) * o,
+        x + Math.sign(sn) * Math.pow(Math.abs(sn), se) * o);
     }
   }
   c(-s + o, -r, s - o, -r, !0), p(s - o, -r + o, -Math.PI / 2, 0), c(s, -r + o, s, r - o, !1), p(s - o, r - o, 0, Math.PI / 2), c(s - o, r, -s + o, r, !1), p(-s + o, r - o, Math.PI / 2, Math.PI), c(-s, r - o, -s, -r + o, !1), p(-s + o, -r + o, Math.PI, Math.PI * 1.5);
@@ -225,7 +237,7 @@ function Q(n, t, e = nt.curveTension) {
 }
 class D {
   constructor({ width: t, height: e, radius: i, config: s }) {
-    this.width = t, this.height = e, this.radius = i ?? Math.min(t, e) / 2, this.config = { ...nt, ...s ?? {} }, this.lean = 0, this.leanAmount = 0, this.membrane = gt(t, e, this.radius, this.config.samples), this.state = {
+    this.width = t, this.height = e, this.radius = i ?? Math.min(t, e) / 2, this.config = { ...nt, ...s ?? {} }, this.lean = 0, this.leanAmount = 0, this.membrane = gt(t, e, this.radius, this.config.samples, this.config.superellipse ?? 1), this.state = {
       clickDepth: 0,
       clickDepthV: 0,
       targetClickDepth: 0,
@@ -255,7 +267,7 @@ class D {
   }
   // Rebuild the ring for a new size, preserving no motion (used on resize)
   resize(t, e, i) {
-    this.width = t, this.height = e, this.radius = i ?? Math.min(t, e) / 2, this.membrane = gt(t, e, this.radius, this.config.samples), this.baseArea = _(this.getSurfacePoints());
+    this.width = t, this.height = e, this.radius = i ?? Math.min(t, e) / 2, this.membrane = gt(t, e, this.radius, this.config.samples, this.config.superellipse ?? 1), this.baseArea = _(this.getSurfacePoints());
   }
   // Signed distance from a local point to the resting surface
   sdf(t, e) {

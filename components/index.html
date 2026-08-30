@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260831v"></script>
+<script src="../gate.js?v=20260901n"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260831v"></script>
+<script type="module" src="vendor/jelly.js?v=20260901n"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260831v">
-<link rel="stylesheet" href="showcase.css?v=20260831v">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260901n">
+<link rel="stylesheet" href="showcase.css?v=20260901n">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -64,6 +64,7 @@
       <li>Forms · 12 components</li>
       <li>1 theme switch</li>
       <li>Overlays · 6 of 6</li>
+      <li>Feedback · 6 of 6</li>
       <li>1 token bridge</li>
       <li>3 forked tokens</li>
       <li>Minaã Blue throughout</li>
@@ -694,6 +695,137 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
 &lt;jelly-menu-item disabled&gt;Disabled&lt;/jelly-menu-item&gt;</template>
     </div>
   </section>
+  <section class="entry" id="c-24">
+    <div class="entry-text">
+    <p class="entry-num">Feedback &middot; 24</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-toast-warning"/></svg> &lt;jelly-alert&gt;</h2>
+    <p class="entry-note">Four tones, and Jelly derives every one of them from a single internal
+       <code>--tone</code>: the surface is that colour mixed to 15%, the edge the same mix at 34%, the glyph
+       it flat. So the bridge recolours the whole component in <b>four declarations</b> rather than twelve.
+       It also had to replace both marks &mdash; the alert draws its tone glyph and its dismiss cross from
+       Jelly&rsquo;s icon set, not ours &mdash; and switching tone rebuilds the alert&rsquo;s content outright,
+       so that swap re-runs on every change.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="stack" data-controls>
+        <jelly-alert tone="info">Rates last refreshed 4 minutes ago.</jelly-alert>
+        <jelly-alert tone="success">Payment saved.</jelly-alert>
+        <jelly-alert tone="warning">Three payments fall due this week.</jelly-alert>
+        <jelly-alert tone="danger" dismissible>Could not reach the rates service &mdash; showing fallback rates.</jelly-alert>
+        <jelly-alert tone="info" size="small">Small: the same alert at the tighter step.</jelly-alert>
+      </div>
+      <template data-snippet-text>&lt;jelly-alert tone="success"&gt;Payment saved.&lt;/jelly-alert&gt;
+&lt;jelly-alert tone="danger" dismissible&gt;
+  Could not reach the rates service.
+&lt;/jelly-alert&gt;</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-25">
+    <div class="entry-text">
+    <p class="entry-num">Feedback &middot; 25</p>
+    <!-- icon pending: `badge` is one of the glyphs still to be drawn -->
+    <h2 class="entry-title">&lt;jelly-badge&gt;</h2>
+    <p class="entry-note">The smallest component here, and the only one that can announce itself:
+       <code>live</code> gives it <code>role="status"</code> and <code>aria-live="polite"</code>, so a count
+       that changes is read out rather than silently updating. It owns exactly <b>one</b> custom property,
+       <code>--jelly-badge-radius</code>; everything else about the pill sits behind
+       <code>part="badge"</code>, which is the only way in for its padding.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row" data-controls>
+        <jelly-badge>12</jelly-badge>
+        <jelly-badge shape="square">KWD</jelly-badge>
+        <jelly-badge size="small">3</jelly-badge>
+        <jelly-badge size="large" live>Due</jelly-badge>
+      </div>
+      <template data-snippet-text>&lt;jelly-badge&gt;12&lt;/jelly-badge&gt;
+&lt;jelly-badge shape="square"&gt;KWD&lt;/jelly-badge&gt;
+&lt;jelly-badge live&gt;Due&lt;/jelly-badge&gt;</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-26">
+    <div class="entry-text">
+    <p class="entry-num">Feedback &middot; 26</p>
+    <!-- icon pending: `progress` is one of the glyphs still to be drawn -->
+    <h2 class="entry-title">&lt;jelly-progress&gt;</h2>
+    <p class="entry-note">Its filled portion is <code>--jelly-fill</code> &mdash; the same token that is the
+       <b>field surface</b> on an input and the <b>filled track</b> on a slider. One name, three jobs, which
+       is exactly why the bridge assigns it per component and never across the library. The bar is always a
+       capsule whatever the size: <code>shape()</code> returns <code>radius = track / 2</code>.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="stack" data-controls>
+        <jelly-progress value="64" max="100" label="Budget used"></jelly-progress>
+        <jelly-progress value="28" max="100" size="small" label="Quarterly"></jelly-progress>
+        <jelly-progress indeterminate size="large" label="Fetching rates"></jelly-progress>
+      </div>
+      <template data-snippet-text>&lt;jelly-progress value="64" max="100" label="Budget used"&gt;&lt;/jelly-progress&gt;
+&lt;jelly-progress indeterminate label="Fetching rates"&gt;&lt;/jelly-progress&gt;</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-27">
+    <div class="entry-text">
+    <p class="entry-num">Feedback &middot; 27</p>
+    <!-- icon pending: `skeleton` is one of the glyphs still to be drawn -->
+    <h2 class="entry-title">&lt;jelly-skeleton&gt;</h2>
+
+    <!-- No prose on this entry: the control says it. What the note used to
+         explain in a paragraph -- that the three shapes exist and what each
+         one looks like -- is a thing you can now click, which is the better
+         documentation of the two.
+
+         The two facts the paragraph carried that the control cannot show are
+         kept here rather than lost. First, only shape="circle" changes the
+         drawing: `line` and `rect` take the same branch of shape() and are
+         geometrically identical, so the visible difference between them is the
+         SIZE this page gives them, exactly as in Jelly's own documentation.
+         Second, the corner is the one measurement on the page no stylesheet
+         can reach -- shape() computes min(height / 2, 7) at paint time, so that
+         7 is a raw number inside the canvas painter and binding it to the scale
+         would mean forking the fork. -->
+    <div class="controls" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">shape</span>
+        <div class="pillset" id="skeleton-shape" role="group" aria-label="Shape">
+          <jelly-button class="pill" data-value="line" aria-pressed="true">line</jelly-button>
+          <jelly-button class="pill" data-value="rect" aria-pressed="false">rect</jelly-button>
+          <jelly-button class="pill" data-value="circle" aria-pressed="false">circle</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="skeleton-stage" data-controls>
+        <jelly-skeleton id="skeleton-demo" class="skeleton-spec" data-shape="line"></jelly-skeleton>
+      </div>
+      <template data-snippet-text>&lt;jelly-skeleton&gt;&lt;/jelly-skeleton&gt;</template>
+    </div>
+  </section>
+
+  <section class="entry" id="c-28">
+    <div class="entry-text">
+    <p class="entry-num">Feedback &middot; 28</p>
+    <!-- icon pending: `spinner` is one of the glyphs still to be drawn -->
+    <h2 class="entry-title">&lt;jelly-spinner&gt;</h2>
+    <p class="entry-note">Two entirely different components behind one attribute.
+       <code>type="dots"</code> is a gooey SVG filter and the canvas body goes unused &mdash;
+       <code>frame()</code> returns immediately, so the physics loop does no work at all. Any other value
+       paints a morphing blob onto the canvas instead, and <code>shape()</code> hands back different
+       geometry for each. The same element, drawn by two unrelated renderers.</p>
+    </div>
+    <div class="demo" data-demo>
+      <div class="row" data-controls>
+        <jelly-spinner label="Loading rates"></jelly-spinner>
+        <jelly-spinner type="blob" label="Saving"></jelly-spinner>
+        <jelly-spinner type="blob" size="small" label="Small"></jelly-spinner>
+      </div>
+      <template data-snippet-text>&lt;jelly-spinner label="Loading rates"&gt;&lt;/jelly-spinner&gt;
+&lt;jelly-spinner type="blob" label="Saving"&gt;&lt;/jelly-spinner&gt;</template>
+    </div>
+  </section>
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
        through a token bridge. The library is vendored here rather than loaded from its own origin, and
@@ -715,8 +847,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260831v"></script>
-<script src="minaa-jelly.js?v=20260831v"></script>
-<script src="showcase.js?v=20260831v" defer></script>
+<script src="micons.js?v=20260901n"></script>
+<script src="minaa-jelly.js?v=20260901n"></script>
+<script src="showcase.js?v=20260901n" defer></script>
 </body>
 </html>

@@ -85,6 +85,34 @@ expects are recorded in the Minaã Components Figma file, page `Components`.
 | `MINAA_KNOB` | slider | `--jelly-slider-knob` |
 | `MINAA_KNOB` | range | `--jelly-range-knob`, falling back through `--jelly-slider-knob` so one value drives both |
 | `MINAA_BORDER` etc. | switch | `--jelly-switch-thumb-size` and `--jelly-switch-inset` |
+| `MINAA FORK` in `gt()` | *(none — geometry, not a token)* | optional corner exponent `se`, default `1` |
+
+### The corner exponent is the only NON-token change in this file
+
+`gt()` builds the rest positions of every physics membrane, and its four corner
+arcs were `cos/sin` at the radius — a circle. It now takes an optional fifth
+argument, `se`, and **`se = 1` is the default and reproduces that circle
+exactly**: the original line is kept verbatim behind an `if (se === 1)` fast
+path, so a component that asks for nothing is bit-identical. `se = 0.5` gives
+the Minaã squircle, superellipse N = 4.
+
+Two things make this safe to keep and easy to drop:
+
+- **Nothing in this library opts in.** `class D` passes
+  `this.config.superellipse ?? 1`, and the only thing that ever sets it is
+  `minaaSkeletonSquircle()` in `../minaa-jelly.js`, for `jelly-skeleton` with
+  `shape="rect"` and nothing else. Verified by measurement: with the rect
+  active, **1 of 85** canvas-backed elements on the page has a non-default
+  exponent.
+- **The exponent is duplicated, and that is the one real cost.** It also lives
+  in `minaaSquirclePath()` in `../minaa-jelly.js`, which is the SVG half of the
+  same shape. The two cannot share code across the module boundary. If N ever
+  changes, it changes in both places.
+
+A blanket version of this shipped for about ten minutes and was reverted: with
+every component opted in, `jelly-radio` stopped being a circle and became
+near-indistinguishable from our checkbox. Roundness is an affordance. If this
+is ever widened, exempt anything whose radius is half its short side.
 
 The switch pair is a different shape of problem and worth reading before
 touching either token. Jelly derives the thumb diameter AND its resting inset

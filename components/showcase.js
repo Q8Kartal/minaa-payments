@@ -380,6 +380,57 @@
     applyLength();
   }
 
+  /* ── The skeleton (entry 27) ────────────────────────────────────────────
+     A control instead of a paragraph. Three shapes described in prose is worse
+     documentation than three shapes you can click between, and this entry now
+     carries no note at all.
+
+     The control writes TWO things, and the second is not padding. In our
+     vendored build shape() only special-cases `circle`; `line` and `rect` take
+     the same branch and are geometrically identical. What separates them in
+     Jelly's own documentation is the size the docs page gives them -- so this
+     sets `shape` for the component and `data-shape` for the stylesheet, and
+     the size difference is honestly the page's, not a pretended API. */
+  function wireSkeletonDemo() {
+    const spec = document.getElementById('skeleton-demo');
+    const set  = document.getElementById('skeleton-shape');
+    if (!spec || !set || set.dataset.wired) return;
+    set.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-27 .code code');
+      if (!box) return;
+      const v = spec.dataset.shape;
+      /* `line` is the default, so the snippet shows the bare element for it --
+         printing shape="line" would teach an attribute that does nothing. */
+      box.textContent = v === 'line'
+        ? '<jelly-skeleton></jelly-skeleton>'
+        : '<jelly-skeleton shape="' + v + '"></jelly-skeleton>';
+    }
+
+    set.addEventListener('click', (e) => {
+      const b = e.target.closest('.pill');
+      if (!b) return;
+      const v = b.dataset.value;
+      set.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === v)));
+
+      spec.dataset.shape = v;
+      /* The attribute is set for `rect` even though our build's shape() does
+         not read it, because the snippet prints it and the two must not
+         disagree -- a code sample showing an attribute the live demo is not
+         carrying is the sample lying about the demo. `rect` is a real value in
+         Jelly's vocabulary; this build just draws it the same as the default,
+         so setting it costs nothing and starts working the day the vendored
+         copy differentiates. `line` IS the default, so it is left off. */
+      if (v === 'line') spec.removeAttribute('shape');
+      else spec.setAttribute('shape', v);
+      snippet();
+    });
+
+    snippet();
+  }
+
   /* ── The dialog (entry 18) ──────────────────────────────────────────────
      Open by attribute rather than by the showModal() method, because that is
      what the snippet shows and the two must not disagree. Closing is Jelly's
@@ -589,7 +640,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

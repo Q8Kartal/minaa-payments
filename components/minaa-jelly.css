@@ -1464,6 +1464,185 @@ jelly-toaster::part(tone-danger)  { background: var(--error);   }
 .toast-trigger[data-tone="danger"]  { --jelly-fill: var(--error);   --jelly-accent: var(--error-deep); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   FEEDBACK — alert, badge, progress, skeleton, spinner
+
+   All five extend Jelly's physics base and declare a shape(), so every one is
+   CANVAS-PAINTED and its corner comes from the body, not from a CSS box. Two
+   consequences, both load-bearing:
+
+     · The SVG squircle cannot reach them. There is no border-radius to
+       replace and no element to clip -- the rounding is drawn. They keep
+       Jelly's rounded rectangle, and that is not a shortcut, it is the only
+       shape available short of forking the painter.
+     · They must never sit flush against a clipping ancestor. Jelly reserves a
+       wide canvas bleed for the wobble and slices it off if the room is not
+       there -- see Known Quirks in CLAUDE.md, which cost a real bug. Inside
+       the unclipped .demo cards they have all the room they need.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* THE ALERT'S TONES, in four declarations rather than twelve.
+
+   Jelly derives the entire alert from one internal --tone: the surface is
+   `color-mix(in srgb, var(--tone) 15%, surface)`, the edge the same mix at
+   34%, and the icon is --tone flat. Set that one variable and the fill, the
+   border and the glyph all follow, in both modes, without repeating a palette.
+
+   The toaster block above already remaps Jelly's mint/amber/rose, but it is
+   scoped to jelly-toaster, so the alert still arrived wearing Jelly's own
+   hues. --tone is Jelly's variable, declared on its :host; an outer-document
+   rule outranks a shadow root's :host whatever the specificity, which is the
+   same mechanism the font rule relies on.
+
+   Semantic colours are never brand and never mode-dependent: an error is
+   Orange 500 whatever surface is behind it. Identical in light and dark, for
+   the same reason the toast is. */
+/* The copy takes the page's ink, not Jelly's default foreground.
+
+   MEASURED, because this one is not a matter of taste. Jelly builds the alert
+   surface as the tone mixed to 15% of the page surface, and in light mode the
+   bridge's --jelly-color-foreground-default is Secondary 600. Red on a pale
+   tint gives 3.06 : 1 on info, 3.25 on success, 3.27 on danger, 3.49 on
+   warning -- every one of them under the 4.5 that body copy needs. Dark mode
+   was never affected: cream on the deep tint measures 10.5 to 12.0.
+
+   --m-ink carries 4.75 / 5.05 / 5.09 / 5.43 across the same four, so it clears
+   AA on all of them and stays mode-aware. It is also the correct token on
+   principle rather than only on contrast: the tone is already carried by the
+   glyph, the tint and the edge, so the copy does not need to repeat it. Same
+   rule the payment types follow -- told apart by icon and label, not by hue.
+
+   Deep semantic inks per tone were the other candidate and were rejected on
+   the numbers: warning-deep lands on 4.49, which fails by a hundredth. */
+jelly-alert { color: var(--m-ink); }
+
+jelly-alert                 { --tone: var(--primary); }  /* default = info, Primary 600 */
+jelly-alert[tone="info"]    { --tone: var(--primary); }  /* Primary 600 */
+jelly-alert[tone="success"] { --tone: var(--success); }  /* Green 600  */
+jelly-alert[tone="warning"] { --tone: var(--warning); }  /* Yellow 400 */
+jelly-alert[tone="danger"]  { --tone: var(--error);   }  /* Orange 500 */
+
+/* Every measurement Jelly ships for the alert, and only three land on the
+   scale. Unlike the toast, the alert NAMES all of them, so they bind from the
+   host and its shadow root is left alone -- no injected rule, no breach.
+
+                        Jelly (md/sm/lg)      bound
+     padding-block      15 / 12 / 18          16 / 12 / 20
+     padding-inline     16 / 13 / 20          16 / 12 / 20
+     gap                12 /  9 / 14          12 /  8 / 16
+     font-size        14.5 / 13 / 16          --text-sm / sm / md
+     icon               22 / 19 / 26          20 / 16 / 24
+     close              24 / 22 / 28          24 / 20 / 24
+
+   Icon and close take --control-icon-*, not spacing steps: they size a glyph,
+   not a gap, and this page already sizes every Micon from that family.
+
+   Small keeps --text-sm because the type scale has no step below 14. The three
+   sizes therefore differ by BOX, not by type -- which is the honest outcome of
+   the scale we have, not an oversight to correct with a raw 13px.
+
+   The RADIUS is deliberately one value across all three. Jelly ramps it
+   14/16/18; here a corner is a family trait, not a size trait, the same
+   reasoning that gave the overlays one --m-surface-corner cap instead of a
+   radius that tracks the panel. */
+jelly-alert {
+  --jelly-alert-padding-block:  var(--space-200);
+  --jelly-alert-padding-inline: var(--space-200);
+  --jelly-alert-gap:            var(--space-150);
+  --jelly-alert-font-size:      var(--text-sm);
+  --jelly-alert-icon:           var(--control-icon-20);
+  --jelly-alert-close:          var(--control-icon-24);
+  --jelly-alert-radius:         var(--radius-16);
+}
+jelly-alert[size="small"] {
+  --jelly-alert-padding-block:  var(--space-150);
+  --jelly-alert-padding-inline: var(--space-150);
+  --jelly-alert-gap:            var(--space-100);
+  --jelly-alert-icon:           var(--control-icon-16);
+  --jelly-alert-close:          var(--control-icon-20);
+}
+jelly-alert[size="large"] {
+  --jelly-alert-padding-block:  var(--space-250);
+  --jelly-alert-padding-inline: var(--space-250);
+  --jelly-alert-gap:            var(--space-200);
+  --jelly-alert-font-size:      var(--text-md);
+  --jelly-alert-icon:           var(--control-icon-24);
+}
+
+/* The dismiss button is a bare <button>, and Jelly never resets the user
+   agent's `padding: 1px 6px` on it -- it had no reason to, because it draws a
+   fixed 14px glyph that ignores the content box. Ours fills the button, so
+   that default squashed a 24x24 control's mark to 12x22: a thin sliver that
+   read as a smudge rather than a cross. It carries part="close", so this is a
+   stylesheet rule and not another entry in PATCHES.
+
+   The mark also inherits rather than taking a colour. Jelly paints it
+   `--jelly-color-foreground-muted`, which through this bridge is
+   --m-placeholder, Primary 300: a PLACEHOLDER tone doing a control's job, and
+   the same pale blue in both modes -- fine on the dark panel, nearly invisible
+   on the light one, where the surface is the tone mixed to 15% of cream.
+
+   `inherit` takes the alert's own body ink instead, which is already
+   mode-aware and is by definition legible on that surface. It also sidesteps
+   giving the cross a semantic colour: a Secondary 600 dismiss on a success
+   alert would read as a rejection, which is not what the control does. Same
+   reasoning as the select's tick. */
+jelly-alert::part(close) {
+  padding: 0;
+  color: inherit;
+}
+
+/* THE BADGE. One token of its own, and the rest behind part="badge".
+   --jelly-fill is the chip surface here -- the same name that is the FIELD on
+   an input and the FILLED TRACK on a slider, which is why it is assigned per
+   component rather than globally.
+
+   Jelly's pill radius is 999px, ours is --radius-full; the same shape, but
+   from the scale. Square ramps 6/8/10 by size and is bound to one --radius-8,
+   the family-trait rule again. Padding-inline 9/7/12 and the large height of
+   30px are the off-scale values; height 24 and 20 already land. */
+jelly-badge {
+  --jelly-badge-radius: var(--radius-full);
+  --jelly-fill:  var(--m-accent);
+  --jelly-label: var(--m-on-accent);
+  font-size: var(--text-sm);
+}
+jelly-badge[shape="square"],
+jelly-badge[shape="square"][size="small"],
+jelly-badge[shape="square"][size="large"] { --jelly-badge-radius: var(--radius-8); }
+jelly-badge[size="large"] { height: var(--space-400); }
+jelly-badge::part(badge)                { padding-inline: var(--space-100); }
+jelly-badge[size="small"]::part(badge)  { padding-inline: var(--space-100); }
+jelly-badge[size="large"]::part(badge)  { padding-inline: var(--space-150); }
+
+/* PROGRESS already takes --jelly-fill: var(--m-accent) from the group above,
+   shared with slider, range and switch -- on all four that token is the FILLED
+   portion. The unfilled remainder is --jelly-track, which is global. Nothing
+   further to bind: it is the one component in this group Jelly draws entirely
+   from tokens the bridge already owns. */
+
+/* SKELETON is a placeholder, so it has to read as ABSENT. That is a contrast
+   requirement pointing the opposite way to every other one in this file: the
+   number must be LOW.
+
+   This was --m-track-off, and measured against the card it came out at 1.55:1
+   in light and 13.49:1 in dark -- brighter than body copy. The placeholder was
+   the loudest thing on the card, standing in for content it out-shouted. The
+   token was not a careless pick, it was the wrong JOB: a switch's off track
+   must be visible as a control, and in dark that resolves to Neutral 100. One
+   name, two opposite requirements, the same trap as --jelly-fill.
+
+   --m-field is the surface of an empty control, which is what a placeholder
+   is, and it measures 1.55:1 light and 1.51:1 dark -- present in both modes
+   and matched across them. --m-hairline was the other candidate at 1.23 / 1.51
+   and was passed over for being lopsided between modes, and for being a
+   divider rather than a surface. */
+jelly-skeleton { --jelly-fill: var(--m-field); }
+
+/* SPINNER paints from --jelly-fill for both of its two implementations. It is
+   an activity indicator, not a surface, so it takes the accent. */
+jelly-spinner { --jelly-fill: var(--m-accent); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
    THE DIALOG  (spiked before building: see the note on scope below)
 
    jelly-dialog PORTALS ITSELF to document.body when it opens, leaving a
