@@ -192,6 +192,30 @@ top bar and icon rail.
     screenshot taken a moment early "shows" a spacing bug that is not there.
   - Sub-pixel offsets round badly: the gap measured 11px until it was read as
     a float (130.09 − 98.09 = 12.00). Round the difference, never the operands.
+- **A canvas-backed Jelly control needs its bleed — never place one flush
+  against a clipping ancestor.** Jelly paints the membrane into a canvas much
+  larger than the host and deforms outward into that margin: the theme switch is
+  an 80×46 host inside a 176×136 canvas — **48px of bleed on every side**. Clip
+  the margin away and a press has nowhere to go, so it bulges on the free side
+  and is sliced flat on the clipped one, and the capsule renders as a lopsided
+  blob. The switch sat at `inset-inline-end: 0` in a masthead with `overflow-x:
+  clip`: its painted track ended at 1136.6 against a clip edge at 1137 —
+  **0.6px of clearance**, with all 48px of reserved bleed outside the clip.
+  Fixed by insetting the control by the bleed (`--space-600`), never by touching
+  the physics; the canvas now stops *on* the clip edge instead of crossing it,
+  so the page still gets no horizontal scrollbar.
+  - **A clip is a backstop, never the fix.** `overflow-x: clip` went on the
+    masthead to kill a 24px page-wide scrollbar caused by that same bleed. It
+    worked, and it silently created this bug. Give the control its room first,
+    then keep the clip for anything that still overhangs.
+  - **Diagnose geometry before physics.** This presented as a press/animation
+    bug — "it deforms when I click it" — and was pure layout. Measuring the
+    spring proved only that the spring was fine. Compare the control's
+    **painted** extent (walk the canvas alpha; the host box and the canvas box
+    both lie) against every clipping ancestor's edge.
+  - Clipped *empty* canvas is harmless. A `jelly-input` in the OTP `.controls`
+    scroller overhangs 20px and still has 28px of painted clearance — leave it
+    alone rather than reopening a scroller that was fixed for another reason.
 - **RTL:** always use logical properties (`padding-inline`, `margin-inline-start`, `text-align: start/end`). Physical sides flip wrongly — this produced a real spacing bug in the rates strip
 - **Direction is fixed, never adaptive.** This page is the **Arabic RTL version at all times** (`<html lang="ar" dir="rtl">`). An English payment name must not flip its card, field, alignment or icon order to LTR — Latin text keeps its own character order via the bidi algorithm, and that is enough.
   - **Never use `unicode-bidi: plaintext`.** It derives direction from the first strong character, which is exactly the content-based detection this rule forbids. It was on `.pay-name` and flipped English rows to LTR.

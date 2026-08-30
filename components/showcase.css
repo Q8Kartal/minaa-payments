@@ -73,18 +73,27 @@ body {
 .masthead {
   position: relative;
   margin-block-end: var(--space-1000);   /* 80 */
-  /* overflow-x: clip because the theme switch sits hard against the inline end
-     and Jelly bleeds its canvas about 40px past the host so the wobble has
-     room. That pushed the masthead 48 past the wrap and gave the whole PAGE a
-     horizontal scrollbar -- 24px of it, on every view, at every width. Invisible
-     unless you measure: the overhang is transparent. */
+  /* overflow-x: clip stops the switch's canvas bleed handing the whole PAGE a
+     horizontal scrollbar -- 24px of it, on every view, at every width, and
+     invisible unless you measure, because the overhang is transparent.
+     It is a backstop now, not the fix. Making it the fix was the bug: see
+     .masthead-switch. */
   overflow-x: clip;
 }
 
+/* Inset by the canvas bleed, not by taste. Jelly draws the switch into a
+   176x136 canvas for an 80x46 host -- 48px on every side for the membrane to
+   deform into. Pinned at inset-inline-end: 0, the painted track ended at
+   1136.6 against a clip edge at 1137: 0.6px of clearance, with all 48px of the
+   reserved bleed falling outside the clip. So every press had its wobble
+   sliced flat on the end side while the start side bulged freely, and the
+   capsule rendered as a lopsided blob. Nothing was wrong with the switch or
+   its physics -- it had nowhere to move. 48 is --space-600 and is the bleed
+   exactly, so the canvas now stops on the clip edge instead of crossing it. */
 .masthead-switch {
   position: absolute;
   top: 0;
-  inset-inline-end: 0;
+  inset-inline-end: var(--space-600);   /* 48 -- the canvas bleed */
 }
 
 .eyebrow {
