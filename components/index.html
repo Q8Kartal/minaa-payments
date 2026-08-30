@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260901n"></script>
+<script src="../gate.js?v=20260901t"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260901n"></script>
+<script type="module" src="vendor/jelly.js?v=20260901t"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260901n">
-<link rel="stylesheet" href="showcase.css?v=20260901n">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260901t">
+<link rel="stylesheet" href="showcase.css?v=20260901t">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -699,25 +699,48 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
     <div class="entry-text">
     <p class="entry-num">Feedback &middot; 24</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-toast-warning"/></svg> &lt;jelly-alert&gt;</h2>
-    <p class="entry-note">Four tones, and Jelly derives every one of them from a single internal
-       <code>--tone</code>: the surface is that colour mixed to 15%, the edge the same mix at 34%, the glyph
-       it flat. So the bridge recolours the whole component in <b>four declarations</b> rather than twelve.
-       It also had to replace both marks &mdash; the alert draws its tone glyph and its dismiss cross from
-       Jelly&rsquo;s icon set, not ours &mdash; and switching tone rebuilds the alert&rsquo;s content outright,
-       so that swap re-runs on every change.</p>
+    <p class="entry-note">Four tones and an optional dismiss, wearing the <b>toast&rsquo;s</b> colours so the
+       same four meanings never arrive as two different treatments. Both marks are Micons &mdash; the alert
+       draws its tone glyph and its cross from Jelly&rsquo;s own icon set.</p>
+
+    <!-- One specimen and a control, not a row of five. Five static alerts
+         showed the tones and nothing else; the attributes that actually vary
+         -- dismissible, size -- were invisible. Jelly rebuilds the alert's
+         content outright when `tone` changes, which is exactly what the
+         Micons swap has to survive, so the control exercises the one code
+         path most likely to break silently. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">tone</span>
+        <div class="pillset" id="alert-tone" role="group" aria-label="Tone">
+          <jelly-button class="pill" data-value="info" aria-pressed="true">info</jelly-button>
+          <jelly-button class="pill" data-value="success" aria-pressed="false">success</jelly-button>
+          <jelly-button class="pill" data-value="warning" aria-pressed="false">warning</jelly-button>
+          <jelly-button class="pill" data-value="danger" aria-pressed="false">danger</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">dismissible</span>
+        <div class="pillset" id="alert-dismissible" role="group" aria-label="Dismissible">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="alert-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="stack" data-controls>
-        <jelly-alert tone="info">Rates last refreshed 4 minutes ago.</jelly-alert>
-        <jelly-alert tone="success">Payment saved.</jelly-alert>
-        <jelly-alert tone="warning">Three payments fall due this week.</jelly-alert>
-        <jelly-alert tone="danger" dismissible>Could not reach the rates service &mdash; showing fallback rates.</jelly-alert>
-        <jelly-alert tone="info" size="small">Small: the same alert at the tighter step.</jelly-alert>
+      <div class="alert-stage" data-controls>
+        <jelly-alert id="alert-demo" tone="info">Rates last refreshed 4 minutes ago.</jelly-alert>
       </div>
-      <template data-snippet-text>&lt;jelly-alert tone="success"&gt;Payment saved.&lt;/jelly-alert&gt;
-&lt;jelly-alert tone="danger" dismissible&gt;
-  Could not reach the rates service.
-&lt;/jelly-alert&gt;</template>
+      <template data-snippet-text>&lt;jelly-alert tone="info"&gt;Rates last refreshed 4 minutes ago.&lt;/jelly-alert&gt;</template>
     </div>
   </section>
 
@@ -847,8 +870,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260901n"></script>
-<script src="minaa-jelly.js?v=20260901n"></script>
-<script src="showcase.js?v=20260901n" defer></script>
+<script src="micons.js?v=20260901t"></script>
+<script src="minaa-jelly.js?v=20260901t"></script>
+<script src="showcase.js?v=20260901t" defer></script>
 </body>
 </html>

@@ -47,6 +47,19 @@
         border-color: var(--m-accent);
       }`,
 
+    /* jelly-alert's `.icon` carries no part attribute, so neither ::part() nor
+       a custom property reaches it, and it nudges itself with a raw
+       `margin-top: 1px`. One pixel is not a step on the scale, and the rule
+       that a shadow root is not exempt from it is the same one that bound the
+       toast's gaps.
+
+       It is also not doing anything: measured against the copy beside it, the
+       icon sits 0.5px off centre with the nudge and 0.5px off the other way
+       without it. So this is the scale being honoured, not a visual fix -- the
+       glyph does not move perceptibly either way. */
+    'jelly-alert': `
+      .icon { margin-top: var(--space-0); }`,
+
     /* jelly-dialog's close control carries NO part attribute -- the dialog
        exposes only `backdrop` and `dialog`, so ::part() cannot reach it and a
        rule has to be injected.
@@ -99,6 +112,15 @@
          clipped element is generated from the unclipped box and then cut away.
          drop-shadow takes no spread, so the two layers are retuned by eye
          against the original rather than transcribed. */
+      /* Jelly sets the panel to font: 400 15px/1.55, and copy slotted into
+         the dialog inherits it -- 15/23.25, and neither is a step on the
+         Foundations scale. 16/24 is Text md, the step it rounds to.
+         NOTE: no backticks in these strings -- PATCHES values are template
+         literals and a stray pair closes the CSS early. */
+      .dialog {
+        font-size: var(--text-md);
+        line-height: var(--text-md-lh);
+      }
       .dialog { box-shadow: none; }
       .wrap {
         filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .34))
@@ -132,6 +154,11 @@
       .minaa-close[data-hover] {
         --jelly-fill: var(--m-close-disc);
         --jelly-label: var(--m-close-mark-hover);
+      }
+      /* Identical 15/1.55 to the dialog, on .sheet rather than .dialog. */
+      .sheet {
+        font-size: var(--text-md);
+        line-height: var(--text-md-lh);
       }
       .sheet { box-shadow: none; }
       :host {
@@ -876,6 +903,26 @@
   var SQUIRCLE = 2 / 4;
   var CIRCLE = 1;
 
+  /* Two opt-ins, and they qualify differently.
+
+       jelly-alert     always. It is a card, and cards take the family corner.
+                       Its radius already comes from --jelly-alert-radius, a
+                       property the stylesheet owns, so it needs no shape()
+                       wrap -- only the exponent.
+
+       jelly-skeleton  ONLY shape="rect". `line` is a 7px-capped bar where a
+                       superellipse and a circle differ by under 3px, and
+                       `circle` must stay a circle: roundness is an affordance.
+                       Its radius is hardcoded in shape(), hence the wrap. */
+  var TAGS = ['jelly-alert', 'jelly-skeleton'];
+  var TARGETS = TAGS.join(', ');
+
+  function wantsSquircle(el) {
+    var tag = el.tagName.toLowerCase();
+    if (tag === 'jelly-alert') return true;
+    return el.getAttribute('shape') === 'rect';
+  }
+
   /* THE CORNER IS OWNED BY shape(), SO THAT IS WHERE IT IS SET.
 
      First attempt pushed a radius in through body.resize() and it silently
@@ -915,8 +962,7 @@
     var body = el.body;
     if (!body || !body.config || !body.resize) return false;
 
-    var rect = el.getAttribute('shape') === 'rect';
-    var want = rect ? SQUIRCLE : CIRCLE;
+    var want = wantsSquircle(el) ? SQUIRCLE : CIRCLE;
 
     /* The exponent DOES persist: it lives on the body's config and gt() reads
        it on every regeneration, so unlike the radius it survives Jelly's own
@@ -944,7 +990,7 @@
   }
 
   function applyAll() {
-    var all = document.querySelectorAll('jelly-skeleton');
+    var all = document.querySelectorAll(TARGETS);
     var pending = 0;
     all.forEach(function (el) { watch(el); if (!apply(el)) pending++; });
     return pending === 0;
@@ -962,7 +1008,7 @@
   if (window.customElements && customElements.whenDefined) {
     customElements.whenDefined('jelly-skeleton').then(function () {
       patchShape();
-      document.querySelectorAll('jelly-skeleton').forEach(function (el) {
+      document.querySelectorAll(TARGETS).forEach(function (el) {
         apply(el);
         if (el.applyShape) el.applyShape();
         if (el.requestFrame) el.requestFrame();
@@ -982,9 +1028,9 @@
       for (var j = 0; j < added.length; j++) {
         var node = added[j];
         if (node.nodeType !== 1) continue;
-        if (node.tagName.toLowerCase() === 'jelly-skeleton') { watch(node); apply(node); }
+        if (TAGS.indexOf(node.tagName.toLowerCase()) >= 0) { watch(node); apply(node); }
         if (node.querySelectorAll) {
-          node.querySelectorAll('jelly-skeleton').forEach(function (el) { watch(el); apply(el); });
+          node.querySelectorAll(TARGETS).forEach(function (el) { watch(el); apply(el); });
         }
       }
     }

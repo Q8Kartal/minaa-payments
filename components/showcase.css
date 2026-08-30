@@ -786,3 +786,17 @@ body {
 .skeleton-spec[data-shape="line"]   { width: 100%; height: var(--space-200); }
 .skeleton-spec[data-shape="rect"]   { width: 60%;  height: var(--space-800); }
 .skeleton-spec[data-shape="circle"] { width: var(--space-800); height: var(--space-800); }
+
+/* The alert specimen is centred in a stage that does not resize under the
+   control. The alert is inline-block so it hugs its text, and `dismissible`
+   and `size` both change its box -- without a floor the card jumped on every
+   click, which is the one thing that makes three states hard to compare.
+   border-box means min-height includes the padding, so the floor is the
+   tallest specimen plus both paddings, every term a step on the scale. */
+.alert-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}

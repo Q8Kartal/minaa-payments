@@ -50,6 +50,12 @@
   --font-medium:  "29LT Idris Round Medium", sans-serif;
   --font-bold:    "29LT Idris Round ExtraBold", sans-serif;
 
+  /* Mirrors the Foundations Typography page (node 4008:3624) exactly -- size
+     and line height read from the variables, not transcribed by eye. Three
+     weights exist there and only three: Regular 400, Medium 500, ExtraBold
+     800, which is why Jelly's 500/600/640/650 all collapse onto Medium.
+     font-family-display and font-family-text are the same face. */
+  --text-xs: 12px;  --text-xs-lh: 18px;
   --text-sm: 14px;  --text-sm-lh: 20px;
   --text-md: 16px;  --text-md-lh: 24px;
   --text-lg: 18px;  --text-lg-lh: 28px;
@@ -57,6 +63,9 @@
   --display-xs: 24px; --display-xs-lh: 32px;
   --display-sm: 32px; --display-sm-lh: 40px;
   --display-md: 40px; --display-md-lh: 44px;
+  --display-lg: 48px; --display-lg-lh: 60px;
+  --display-xl: 60px; --display-xl-lh: 72px;
+  --display-2xl: 72px; --display-2xl-lh: 90px;
 
   --primary-300: #A1CFFF;   /* Primary 300  — light-mode fields and tracks */
   --primary-600: #007FDA;   /* Primary 600  */
@@ -498,6 +507,46 @@ jelly-switch, jelly-tab-panel, jelly-tabs, jelly-textarea, jelly-toaster,
 jelly-tooltip {
   font-family: var(--font-regular);
 }
+
+/* ── And the ones that never wanted Regular ────────────────────────────────
+   The rule above forces our face onto every host, which fixed the typeface
+   and introduced a quieter problem: it also flattened the WEIGHT. Each Minaã
+   weight is its own family, so a numeric `font-weight` cannot select one --
+   a component asking for 600 gets whatever family is set, and every one of
+   these was asking for more than Regular and being handed Regular.
+
+   Measured by instantiating the whole library and reading back what each host
+   asks for, not by reading the source and hoping:
+
+     400            regular   accordion, dialog, drawer, label, menu, otp,
+                              popover, progress, range, slider, spinner,
+                              tabs, tooltip and the rest
+     500 / 600 /
+     640 / 650      MEDIUM    the twelve below
+     750 / 800      bold      only ever inside a shadow root -- see the note
+
+   Jelly's four mid weights all land on one face here, because we have three
+   faces and it has a ramp. That is a real compression and the right one: the
+   alternative is synthesising, which mangles Arabic.
+
+   jelly-option and jelly-menu-item are deliberately absent. Their own hosts
+   declare 400; on the page they measured 600 because they inherit it from the
+   select and the menu, so listing the parents covers them and listing the
+   children would set a weight their own stylesheet never asked for. */
+jelly-alert, jelly-badge, jelly-button, jelly-checkbox, jelly-chip,
+jelly-input, jelly-kbd, jelly-radio, jelly-segmented, jelly-select,
+jelly-switch, jelly-textarea {
+  font-family: var(--font-medium);
+}
+
+/* The one heavy weight a stylesheet can reach. Jelly gives <strong> inside an
+   alert `font-weight: 750`, and slotted content lives in the LIGHT dom, so a
+   document rule styles it. Every other 750/800 in the library -- a selected
+   segment, a selected menu row, a label's required mark, the current page of
+   a pagination -- is shadow-internal, so those emphases still resolve to the
+   same face as their neighbours and read flat. Worth knowing before relying
+   on one of them to carry hierarchy. */
+jelly-alert strong { font-family: var(--font-bold); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PER-COMPONENT TOKENS
@@ -1496,30 +1545,61 @@ jelly-toaster::part(tone-danger)  { background: var(--error);   }
    Semantic colours are never brand and never mode-dependent: an error is
    Orange 500 whatever surface is behind it. Identical in light and dark, for
    the same reason the toast is. */
-/* The copy takes the page's ink, not Jelly's default foreground.
+/* THE ALERT WEARS THE TOAST'S COLOURS.
 
-   MEASURED, because this one is not a matter of taste. Jelly builds the alert
-   surface as the tone mixed to 15% of the page surface, and in light mode the
-   bridge's --jelly-color-foreground-default is Secondary 600. Red on a pale
-   tint gives 3.06 : 1 on info, 3.25 on success, 3.27 on danger, 3.49 on
-   warning -- every one of them under the 4.5 that body copy needs. Dark mode
-   was never affected: cream on the deep tint measures 10.5 to 12.0.
+   Ahmad's call, and the right one: an alert and a toast carry the same four
+   meanings, so they should not be two different colour treatments. The toast
+   is a SOLID semantic pill with cream copy and a cream mark; the alert now is
+   too, instead of Jelly's 15% tint.
 
-   --m-ink carries 4.75 / 5.05 / 5.09 / 5.43 across the same four, so it clears
-   AA on all of them and stays mode-aware. It is also the correct token on
-   principle rather than only on contrast: the tone is already carried by the
-   glyph, the tint and the edge, so the copy does not need to repeat it. Same
-   rule the payment types follow -- told apart by icon and label, not by hue.
+   That also retires a contrast problem rather than working around it. On the
+   tint, light-mode copy measured 3.06 to 3.49 against the 4.5 body text needs
+   and had to be moved to --m-ink to clear it. Cream on the solid fill is the
+   toast's own pairing, already shipping and already approved, and it is
+   identical in both modes -- semantic colours are never mode-dependent.
 
-   Deep semantic inks per tone were the other candidate and were rejected on
-   the numbers: warning-deep lands on 4.49, which fails by a hundredth. */
-jelly-alert { color: var(--m-ink); }
+   Jelly derives everything from --tone: the surface is `color-mix(--tone 15%,
+   surface)`, the edge the same mix at 34%, and `.icon { color: var(--tone) }`.
+   So the two roles are split here: --jelly-fill takes the semantic colour
+   directly as the pill, and --tone becomes CREAM so the glyph and the edge
+   follow the copy rather than the surface. Setting --tone to the semantic
+   colour instead would repaint the icon in the same hue as the pill it sits
+   on, which is invisible. */
+jelly-alert {
+  color: var(--cream);
+  --tone: var(--cream);
+  --jelly-fill: var(--primary);          /* default = info, Primary 600 */
+  --jelly-label: var(--cream);
 
-jelly-alert                 { --tone: var(--primary); }  /* default = info, Primary 600 */
-jelly-alert[tone="info"]    { --tone: var(--primary); }  /* Primary 600 */
-jelly-alert[tone="success"] { --tone: var(--success); }  /* Green 600  */
-jelly-alert[tone="warning"] { --tone: var(--warning); }  /* Yellow 400 */
-jelly-alert[tone="danger"]  { --tone: var(--error);   }  /* Orange 500 */
+  /* NO STROKE. Jelly paints one onto the canvas from --jelly-alert-border,
+     which it derives as `color-mix(--tone 34%, surface)` -- with --tone now
+     cream that resolved to a pale edge around every card. A solid semantic
+     pill does not need an outline to separate it from the page, and the toast
+     it is matching has none. */
+  --jelly-alert-border: transparent;
+
+  /* TYPE FROM THE SCALE. Jelly's :host sets `font: 500 <size>/1.5`, and 1.5 of
+     14 is 21px -- measured, and not a step. The scale pairs 14 with 20.
+     The family carries the weight, because each Minaã weight is its own family
+     and a numeric 500 cannot resolve to one: without this the alert asked for
+     500, got the Regular face, and Jelly's intended medium was silently
+     flattened. This rule sits after the library-wide font rule, so it wins on
+     order at equal specificity. */
+  line-height: var(--text-sm-lh);        /* 20 */
+}
+jelly-alert[size="large"] { line-height: var(--text-md-lh); }   /* 24 */
+
+/* The close button's hover was `background: var(--jelly-alert-border)`, which
+   is now transparent -- so removing the stroke silently removed the hover
+   affordance with it. It comes back on its own terms, off the copy colour
+   rather than off an edge that no longer exists. */
+jelly-alert::part(close):hover {
+  background: color-mix(in srgb, var(--cream) 22%, transparent);
+}
+jelly-alert[tone="info"]    { --jelly-fill: var(--primary); }  /* Primary 600 */
+jelly-alert[tone="success"] { --jelly-fill: var(--success); }  /* Green 600  */
+jelly-alert[tone="warning"] { --jelly-fill: var(--warning); }  /* Yellow 400 */
+jelly-alert[tone="danger"]  { --jelly-fill: var(--error);   }  /* Orange 500 */
 
 /* Every measurement Jelly ships for the alert, and only three land on the
    scale. Unlike the toast, the alert NAMES all of them, so they bind from the
@@ -1536,9 +1616,9 @@ jelly-alert[tone="danger"]  { --tone: var(--error);   }  /* Orange 500 */
    Icon and close take --control-icon-*, not spacing steps: they size a glyph,
    not a gap, and this page already sizes every Micon from that family.
 
-   Small keeps --text-sm because the type scale has no step below 14. The three
-   sizes therefore differ by BOX, not by type -- which is the honest outcome of
-   the scale we have, not an oversight to correct with a raw 13px.
+   Small takes --text-xs. It was --text-sm on the belief that the scale stopped
+   at 14; it does not -- Foundations carries Text xs at 12/18, and the bridge
+   was simply missing it. Jelly asks 13 there, so 12 is the step it rounds to.
 
    The RADIUS is deliberately one value across all three. Jelly ramps it
    14/16/18; here a corner is a family trait, not a size trait, the same
@@ -1551,14 +1631,25 @@ jelly-alert {
   --jelly-alert-font-size:      var(--text-sm);
   --jelly-alert-icon:           var(--control-icon-20);
   --jelly-alert-close:          var(--control-icon-24);
-  --jelly-alert-radius:         var(--radius-16);
+  /* The family corner, not a field's. Jelly caps this at half the height in
+     its own shape(), so 64 resolves to whatever the card can carry -- the same
+     cap every other surface in this system gets. One value across all three
+     sizes: a corner is a family trait, not a size trait. */
+  --jelly-alert-radius:         var(--m-surface-corner);
+  /* Minimal, per the reference. Jelly gives the host `display: block`, so the
+     alert stretched the full width of the demo card and read as a banner
+     rather than a card. It should be as wide as what it says. */
+  display: inline-block;
+  max-width: 100%;
 }
 jelly-alert[size="small"] {
   --jelly-alert-padding-block:  var(--space-150);
   --jelly-alert-padding-inline: var(--space-150);
   --jelly-alert-gap:            var(--space-100);
+  --jelly-alert-font-size:      var(--text-xs);
   --jelly-alert-icon:           var(--control-icon-16);
   --jelly-alert-close:          var(--control-icon-20);
+  line-height: var(--text-xs-lh);        /* 18 */
 }
 jelly-alert[size="large"] {
   --jelly-alert-padding-block:  var(--space-250);
@@ -1604,8 +1695,13 @@ jelly-badge {
   --jelly-badge-radius: var(--radius-full);
   --jelly-fill:  var(--m-accent);
   --jelly-label: var(--m-on-accent);
-  font-size: var(--text-sm);
+  /* Jelly ramps 11 / 12.5 / 14 by size. All three were bound to --text-sm on
+     the belief that the scale stopped there; with Text xs in place the ramp
+     is two real steps instead of one flattened one. */
+  font-size: var(--text-xs);             /* 12 */
 }
+jelly-badge[size="small"] { font-size: var(--text-xs); }   /* 12 */
+jelly-badge[size="large"] { font-size: var(--text-sm); }   /* 14 */
 jelly-badge[shape="square"],
 jelly-badge[shape="square"][size="small"],
 jelly-badge[shape="square"][size="large"] { --jelly-badge-radius: var(--radius-8); }

@@ -380,6 +380,57 @@
     applyLength();
   }
 
+  /* ── The alert (entry 24) ───────────────────────────────────────────────
+     One specimen driven by three controls, replacing five static alerts that
+     showed the tones and hid everything else.
+
+     `tone` is the interesting one: Jelly's attributeChangedCallback for it
+     replaces the alert's content outright and rewires the close button, which
+     throws away the Micons swap. minaaAlertIcons() re-dresses on exactly that,
+     so this control is also the live test of it -- if the glyph ever reverts
+     to Jelly's own, clicking a tone here is where it shows. */
+  function wireAlertDemo() {
+    const el = document.getElementById('alert-demo');
+    const tone = document.getElementById('alert-tone');
+    const dis = document.getElementById('alert-dismissible');
+    const size = document.getElementById('alert-size');
+    if (!el || !tone || !dis || !size || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-24 .code code');
+      if (!box) return;
+      const attrs = ['tone="' + (el.getAttribute('tone') || 'info') + '"'];
+      /* medium is the default, so printing it would document an attribute that
+         changes nothing. Same rule the skeleton's `line` follows. */
+      if (el.getAttribute('size') && el.getAttribute('size') !== 'medium') {
+        attrs.push('size="' + el.getAttribute('size') + '"');
+      }
+      if (el.hasAttribute('dismissible')) attrs.push('dismissible');
+      box.textContent = '<jelly-alert ' + attrs.join(' ') + '>'
+        + el.textContent.trim() + '</jelly-alert>';
+    }
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+
+    pills(tone, (v) => el.setAttribute('tone', v));
+    pills(size, (v) => el.setAttribute('size', v));
+    /* toggleAttribute, not .dismissible: on a web component the property is a
+       no-op unless the component defines one, and this one does not. */
+    pills(dis, (v) => el.toggleAttribute('dismissible', v === 'true'));
+
+    snippet();
+  }
+
   /* ── The skeleton (entry 27) ────────────────────────────────────────────
      A control instead of a paragraph. Three shapes described in prose is worse
      documentation than three shapes you can click between, and this entry now
@@ -640,7 +691,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireAlertDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {
