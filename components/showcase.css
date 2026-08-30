@@ -677,3 +677,34 @@ body {
   justify-content: flex-end;
   margin-block-start: var(--space-300);
 }
+
+/* ON A PHONE THEY STACK, and the cause is a MINIMUM WIDTH rather than long
+   labels. jelly-button carries --jelly-button-min-width: 168px, so a pair needs
+   168 + 168 + 12 = 348px, while the panel -- min(460px, 100vw - 48px) -- leaves
+   a 279px content box at 375px. They can never sit side by side on a phone.
+
+   Left alone they wrapped but kept their natural width and stayed pinned to the
+   inline end, reading as two unrelated buttons stranded at the right rather
+   than as a pair of answers to the question above them.
+
+   DOM order is preserved -- no column-reverse -- so visual order and focus
+   order stay the same, and top to bottom still passes the safe option before
+   the destructive one.
+
+   The breakpoint is derived, not chosen by eye: the pair fits while the content
+   box is at least 348px, which needs a 396px panel and so a 444px viewport.
+   28rem is the first ordinary step above that.
+
+   BOTH the host and ::part(button) need the width. The host alone stretches the
+   custom element while the button inside keeps its own min-width -- the same
+   trap CLAUDE.md records for `block`. */
+@media (max-width: 28rem) {
+  .dlg-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dlg-actions > jelly-button,
+  .dlg-actions > jelly-button::part(button) {
+    width: 100%;
+  }
+}
