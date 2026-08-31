@@ -125,6 +125,12 @@
      its own token precisely so making the card's edge stronger cannot thicken
      every field on the page. */
   --m-surface-stroke: 2px;
+  /* The focus ring the Buttons page specifies, and the one the page chrome
+     already uses on its swatches and Copy button. TO TURN THE RING OFF, set
+     this to 0 -- an outline of zero width draws nothing. See the field focus
+     block for what else to restore if you want the old colour-swap back. */
+  --m-focus-ring: 3px;
+  --m-focus-offset: 3px;
   /* The tick and dash inside a checkbox. A MARK is not a BORDER: the field
      stroke is 1.5 and this is 3, and conflating them is what made the tick
      render as a hairline. The Figma specification draws it at 3 on a 20 box. */
@@ -1258,9 +1264,73 @@ jelly-textarea::part(ring) {
   border-color: var(--m-stroke);
 }
 
-jelly-input:focus-within::part(ring),
-jelly-textarea:focus-within::part(ring) {
-  border-color: var(--m-accent);
+/* THE 3px RING, and the edge no longer moves.
+
+   Focus used to change two things at once: this edge swapped Secondary 600 to
+   Primary 700 AND Jelly painted its own ring on the canvas. Removing the canvas
+   ring left one indicator, but a weak one -- 1.14px shifting between two
+   mid-tones measures 1.55:1 between the states, against the 3:1 WCAG 2.4.11
+   asks of a focus indicator. You could not see it.
+
+   So the edge is now CONSTANT and the ring is what appears. 3px solid at a 3px
+   offset is the Buttons page's specification and is already what this page's
+   own chrome uses, so the two libraries finally agree.
+
+   THE RING IS --m-accent IN BOTH MODES, and dark is a deliberate deviation.
+   Measured against the card behind it: 5.96 in light, 2.43 in dark, where
+   WCAG 2.4.11 asks 3:1 of a focus indicator. Secondary 600 would have cleared
+   it at roughly 3.8. Ahmad was shown both numbers and chose to keep Primary
+   700 -- it is still a large improvement on the 1.55 it replaced, and the
+   decision is his. Do not quietly "fix" this to Secondary 600.
+
+   TO UNDO: set --m-focus-ring to 0 for the ring alone, or restore the old
+   behaviour by deleting this block and putting back
+
+     jelly-input:focus-within::part(ring),
+     jelly-textarea:focus-within::part(ring) { border-color: var(--m-accent); }
+     jelly-select:focus-within::part(trigger) { border-color: var(--m-accent); }
+
+   An outline needs a radius to follow: the HOST is square -- border-radius 0 --
+   while the fields are capsules and the textarea is 24, so without this the
+   ring would draw a rectangle around a pill. The host has no background or
+   border of its own, so a radius on it does nothing but shape the outline. */
+jelly-input:focus-within,
+jelly-textarea:focus-within,
+jelly-select:focus-within {
+  outline: var(--m-focus-ring) solid var(--m-accent);
+  outline-offset: var(--m-focus-offset);
+}
+jelly-input:focus-within    { border-radius: var(--jelly-input-radius); }
+jelly-textarea:focus-within { border-radius: var(--jelly-textarea-radius); }
+jelly-select:focus-within   { border-radius: var(--jelly-select-radius); }
+
+/* ONE FOCUS INDICATOR, NOT TWO.
+
+   These three carry a permanent edge that changes colour on focus -- the rule
+   above and the select's trigger below -- and Jelly ALSO paints a ring onto
+   the canvas from focusRing(). Both fired for the same event, in the same
+   Primary 700, one inside the other. Measured down the canvas centre of a
+   focused field: blurred gives a single band, focused gives three -- 6px of
+   Primary 700, the surface, 6px of Primary 700 again.
+
+   THE COLOUR IS THE LEVER, AND THE WIDTH IS NOT. Zeroing --jelly-ring-width
+   looks like the obvious way and silently does nothing: focusRing() reads it
+   as `parseFloat(...) || H.width`, and 0 is falsy, so a zero width falls
+   straight through to Jelly's 4.5 default. Setting it changed the ring from
+   6px to 8px rather than removing it -- measured, and a good reminder that a
+   declaration landing is not the same as a declaration working.
+
+   ringColor() resolves --jelly-ring and multiplies its alpha by H.alpha, so a
+   transparent value paints nothing. The gap it also returns is 0 by default,
+   so nothing shifts on focus either.
+
+   Scoped to the three fields ON PURPOSE. --jelly-ring stays as it is for the
+   whole library: thirteen components call focusRing(), and a button, a
+   checkbox or a switch has no permanent edge of its own, so the canvas ring is
+   the only focus they have. Removing it globally would strip focus from every
+   one of them. */
+jelly-input, jelly-textarea, jelly-select {
+  --jelly-ring: transparent;
 }
 
 /* ── The knob ──────────────────────────────────────────────────────────────
@@ -1276,9 +1346,7 @@ jelly-select::part(trigger) {
   border: var(--control-stroke) solid var(--m-stroke);
 }
 
-jelly-select:focus-within::part(trigger) {
-  border-color: var(--m-accent);
-}
+
 
 /* ---- Disabled fields -----------------------------------------------------
    Jelly renders a disabled field by swapping --jelly-fill to its neutral and
