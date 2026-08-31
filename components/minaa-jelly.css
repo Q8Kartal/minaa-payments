@@ -1119,7 +1119,22 @@ jelly-segmented[size="medium"], jelly-segmented[size="md"] {
 jelly-segmented[size="large"], jelly-segmented[size="lg"] {
   height: var(--control-64);
   --m-seg-pill-h:                   var(--space-600);
-  --jelly-segmented-padding:        var(--space-150);
+  /* 8, NOT 12, AND THE ARITHMETIC IS THE REASON. A segmented control is a pill
+     inside a track, so the pill and its two paddings have to add up to the
+     track height or the pill has nowhere to sit:
+
+       small    36 + 6 + 6  = 48   the host height
+       medium   40 + 8 + 8  = 56   the host height
+       large    48 + 12 + 12 = 72  against a host of 64
+
+     At 12 the pill was 8px taller than the track could hold and bulged past
+     its own edge -- reported from the page, then measured. 8 is the step that
+     closes it: 48 + 8 + 8 = 64.
+
+     The other way to close it is a 40 pill at 12 padding, and that is wrong:
+     it would leave large with the same pill as medium while the track and the
+     type both grew. The pill is what should grow. */
+  --jelly-segmented-padding:        var(--space-100);
   --jelly-segmented-padding-inline: var(--space-250);
   --jelly-segmented-gap:            var(--space-100);
   --jelly-segmented-font-size:      var(--text-lg);
