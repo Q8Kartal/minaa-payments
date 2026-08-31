@@ -994,6 +994,22 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Centred and floored. The three geometries are 96x48 / 80x40 / 64x32 plus the
+   label line, so the host tops out around 57 and 64 is the step that clears it.
+
+   CENTRED IS ALSO THE SAFETY HERE. This control paints into a canvas 48px
+   larger than itself on every side, and .demo carries overflow-x: clip -- a
+   theme switch flush against a clip edge is the exact bug that shipped once
+   from the masthead, bulging on the free side and slicing flat on the clipped
+   one. In the middle of a card it has hundreds of pixels of room. */
+.themeswitch-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* Centred and floored. `size` carries a width here as well as a height --
    206x48 / 256x56 / 296x64 -- so no width is set; the track is the component's
    own. 64 is the tallest and is itself a step.

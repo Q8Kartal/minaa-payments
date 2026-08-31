@@ -1008,6 +1008,56 @@
     sync();
   }
 
+  function wireThemeSwitchDemo() {
+    const el = document.getElementById('ts-demo');
+    const geom = document.getElementById('ts-geom');
+    const mode = document.getElementById('ts-mode');
+    if (!el || !geom || !mode || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const sw = el.querySelector('jelly-switch');
+
+    function snippet() {
+      const box = document.querySelector('#c-16 .code code');
+      if (!box || !sw) return;
+      /* The whole composition is the snippet -- a lone jelly-switch would not
+         reproduce this, which is why the markup carries data-snippet-root. The
+         geometry rides on data-size, so it is printed where the reader would
+         type it. */
+      const lines = [
+        '<span class="theme-switch" data-theme-switch data-size="' + (el.dataset.size || 'desktop') + '">',
+        '  <jelly-switch aria-label="Theme"' + (sw.checked ? ' checked' : '') + '></jelly-switch>',
+        '  <svg class="mi mi-moon"><use href="#mi-moon"/></svg>',
+        '  <svg class="mi mi-sun"><use href="#mi-sun"/></svg>',
+        '</span>'];
+      box.textContent = lines.join('\n');
+    }
+
+    /* Checked is LIGHT -- the drawing rests the thumb at the start for dark and
+       at the end for light, and in an LTR page the start is unchecked. */
+    function sync() {
+      const light = !!(sw && sw.checked);
+      mode.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'light') === light)));
+      snippet();
+    }
+
+    /* GEOMETRY NEEDS A RE-CONNECT, for the same reason entry 14's size row does.
+       The three platform sizes are --jelly-switch-width/height, set by
+       .theme-switch[data-size] in the bridge, and jelly-switch reads them once
+       on connect: measured, all three geometries rendered 80x49 while the
+       attribute changed underneath. Re-appending the switch runs disconnected
+       then connected and it picks the new pair up. Same node, so the theme
+       wiring and its listeners survive. */
+    pillRow(geom, (v) => {
+      el.dataset.size = v;
+      if (sw && sw.parentElement) sw.parentElement.insertBefore(sw, sw.parentElement.firstChild);
+    }, snippet);
+    pillRow(mode, (v) => { if (sw) { sw.checked = v === 'light'; sw.dispatchEvent(new Event('change', {bubbles: true})); } }, sync);
+    if (sw) sw.addEventListener('change', sync);
+
+    sync();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1487,7 +1537,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireThemeSwitchDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

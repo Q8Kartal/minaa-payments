@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903x"></script>
+<script src="../gate.js?v=20260904b"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903x"></script>
+<script type="module" src="vendor/jelly.js?v=20260904b"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903x">
-<link rel="stylesheet" href="showcase.css?v=20260903x">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260904b">
+<link rel="stylesheet" href="showcase.css?v=20260904b">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -847,45 +847,55 @@
     </div>
   </section>
 
+  <!-- ── 16 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-16">
     <div class="entry-text">
-    <p class="entry-num">Theming · 16</p>
+    <p class="entry-num">Theming &middot; 16</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-theme"/></svg> theme switch</h2>
-    <p class="entry-note">A <code>&lt;jelly-switch&gt;</code> at the geometry of Figma 253:26, driving this page's
-       <code>&lt;jelly-theme&gt;</code>. Checked is light: the drawing rests the thumb at the start for dark and at
-       the end for light, and in an LTR page the start is the unchecked position. The icon sits in whichever
-       half the thumb has left, and the two cross-fade rather than swap, because a swap at the end of the
-       travel pops while the track colour is still crossfading.</p>
+    <p class="entry-note">A <code>&lt;jelly-switch&gt;</code> at the geometry of Figma 253:26, driving this
+       page's <code>&lt;jelly-theme&gt;</code>. Checked is light; the icon sits in whichever half the thumb
+       has left.</p>
+
+    <!-- A COMPOSITION, NOT A COMPONENT, so the rows are the page's own and not
+         jelly-switch's. `geometry` is the drawing's three platform sizes and
+         `mode` is the state -- there is no `size` or `disabled` here, because
+         neither belongs to a theme control.
+
+         The three sizes were separate specimens until now. They are the same
+         composition at three geometries rather than three things, which is
+         exactly what a controller is for.
+
+         mode is re-read on `change`: this switch is live, it drives the
+         page's own theme, and clicking it is the point. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">geometry</span>
+        <div class="pillset" id="ts-geom" role="group" aria-label="Geometry">
+          <jelly-button class="pill" data-value="android" aria-pressed="false">android</jelly-button>
+          <jelly-button class="pill" data-value="desktop" aria-pressed="true">desktop</jelly-button>
+          <jelly-button class="pill" data-value="ios" aria-pressed="false">ios</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">mode</span>
+        <div class="pillset" id="ts-mode" role="group" aria-label="Mode">
+          <jelly-button class="pill" data-value="dark" aria-pressed="true">dark</jelly-button>
+          <jelly-button class="pill" data-value="light" aria-pressed="false">light</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen">
-          <span class="theme-switch" data-theme-switch data-size="android">
-            <jelly-switch aria-label="Theme, Android"></jelly-switch>
-            <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
-            <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
-          </span>
-          <figcaption>android &middot; 96&times;48</figcaption>
-        </figure>
-        <figure class="specimen">
-          <span class="theme-switch" data-theme-switch data-snippet-root data-size="desktop">
-            <jelly-switch aria-label="Theme, desktop"></jelly-switch>
-            <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
-            <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
-          </span>
-          <figcaption>desktop &middot; 80&times;40</figcaption>
-        </figure>
-        <figure class="specimen">
-          <span class="theme-switch" data-theme-switch data-size="ios">
-            <jelly-switch aria-label="Theme, iOS"></jelly-switch>
-            <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
-            <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
-          </span>
-          <figcaption>ios &middot; 64&times;32</figcaption>
-        </figure>
+      <div class="themeswitch-stage" data-controls>
+        <span class="theme-switch" id="ts-demo" data-theme-switch data-snippet-root data-size="desktop">
+          <jelly-switch aria-label="Theme"></jelly-switch>
+          <svg class="mi mi-moon" aria-hidden="true" focusable="false"><use href="#mi-moon"/></svg>
+          <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
+        </span>
       </div>
     </div>
   </section>
+
   <section class="entry" id="c-17">
     <div class="entry-text">
     <p class="entry-num">Feedback · 17</p>
@@ -1401,8 +1411,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903x"></script>
-<script src="minaa-jelly.js?v=20260903x"></script>
-<script src="showcase.js?v=20260903x" defer></script>
+<script src="micons.js?v=20260904b"></script>
+<script src="minaa-jelly.js?v=20260904b"></script>
+<script src="showcase.js?v=20260904b" defer></script>
 </body>
 </html>
