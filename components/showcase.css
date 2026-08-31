@@ -275,12 +275,16 @@ body {
   line-height: var(--text-sm-lh);
 }
 
-/* Field specimens deliberately carry NO width rule. Jelly declares a width AND a
-   height on each of these, per size — textarea 280/320/380, select 210/240/280,
-   slider 200/240/300, range 220/260/320 — and those numbers are the component's
-   API, not a default to improve on. The `width: 100%` that used to live here
-   stretched a 240px slider to 553 and squeezed a 320px textarea to 260, so the
-   page documented sizes the library does not have.
+/* NO WIDTH RULE LIVES HERE, deliberately. Jelly declares a width AND a height on
+   each of these, per size — textarea 280/320/380, slider 200/240/300, range
+   220/260/320, select 210/240/280 — and those numbers are the component's API,
+   not a default to improve on. The `width: 100%` that used to sit here stretched
+   a 240px slider to 553 and squeezed a 320px textarea to 260, so the page
+   documented sizes the library does not have.
+
+   Select has since moved to a controller and its floor is `.select-stage`, which
+   carries the same warning; textarea, slider and range are still plain
+   specimens and simply size themselves.
 
    This is the fourth override of a component-defined size to be written and then
    removed (input, progress, skeleton, these). If a specimen looks too narrow for
@@ -322,6 +326,17 @@ body {
   border-radius: var(--radius-full);
   box-shadow: 0 0 0 1px var(--m-hairline);
   cursor: pointer;
+}
+
+/* A control whose content grows downward instead of running along the row --
+   the select's `value`, where pills wrap and an input to add more sits under
+   them. `.ctl` centres its children, which is right for a single pillset and
+   wrong for a two-part stack, so this column starts them at the top edge. */
+.ctl-grow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-150);                 /* 12 */
 }
 
 /* Brand hues only. Green, Yellow and Orange are semantic — success, warning,

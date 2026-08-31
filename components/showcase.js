@@ -540,13 +540,15 @@
     const value = document.getElementById('sel-value');
     const size = document.getElementById('sel-size');
     const dis = document.getElementById('sel-disabled');
-    if (!el || !value || !size || !dis || el.dataset.wired) return;
+    const add = document.getElementById('sel-add');
+    if (!el || !value || !size || !dis || !add || el.dataset.wired) return;
     el.dataset.wired = '1';
 
-    /* The option list is declared once, here and in the markup, and the
-       snippet is rebuilt from this -- so a copied snippet always lists the
-       options the specimen is actually showing. */
-    const OPTIONS = [['KWD', 'Kuwaiti Dinar'], ['USD', 'US Dollar'], ['EUR', 'Euro']];
+    /* Read the options out of the DOM every time rather than holding a list
+       here. The reader can add their own, so a constant would print a snippet
+       that stopped matching the specimen the moment they did. */
+    const options = () => [...el.querySelectorAll('jelly-option')].map(
+      (o) => [o.getAttribute('value') || o.textContent.trim(), o.textContent.trim()]);
 
     function snippet() {
       const box = document.querySelector('#c-12 .code code');
@@ -565,7 +567,7 @@
       if (sz && sz !== 'medium') a.push('size="' + sz + '"');
       if (el.hasAttribute('disabled')) a.push('disabled');
       const lines = ['<jelly-select' + (a.length ? ' ' + a.join(' ') : '') + '>'];
-      OPTIONS.forEach(
+      options().forEach(
         (o) => lines.push('  <jelly-option value="' + o[0] + '">' + o[1] + '</jelly-option>'));
       lines.push('</jelly-select>');
       box.textContent = lines.join('\n');
@@ -589,6 +591,40 @@
     /* toggleAttribute, never el.disabled -- assigning the property on a web
        component that does not define it silently no-ops. */
     pills(dis, (v) => el.toggleAttribute('disabled', v === 'true'));
+    /* ADDING AN OPTION. Three currencies were only ever an example, and a fixed
+       set of three documented a ceiling the component does not have -- so the
+       reader can type their own and watch the panel grow.
+
+       jelly-select builds its rows from the slotted jelly-option elements, so
+       appending one is the entire operation; a matching pill goes into the
+       value row, and the pill handler above is delegated, so the new one is
+       live without being wired individually. */
+    function addOption(raw) {
+      const v = String(raw == null ? '' : raw).trim();
+      if (!v) return false;
+      /* A duplicate value would give the select two rows it cannot tell apart,
+         and picking either would light both pills. */
+      if (options().some((o) => o[0] === v)) return false;
+      const opt = document.createElement('jelly-option');
+      opt.setAttribute('value', v);
+      opt.textContent = v;
+      el.appendChild(opt);
+      const pill = document.createElement('jelly-button');
+      pill.className = 'pill';
+      pill.dataset.value = v;
+      pill.setAttribute('aria-pressed', 'false');
+      pill.textContent = v;
+      value.appendChild(pill);
+      snippet();
+      return true;
+    }
+    /* Enter, on the host: jelly-input's keydown crosses the shadow boundary
+       composed, so there is no need to reach inside for the real input. */
+    add.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (addOption(add.value)) add.value = '';
+    });
 
     snippet();
   }

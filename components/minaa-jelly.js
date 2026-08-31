@@ -270,7 +270,20 @@
       .row[aria-disabled="true"].active {
         background: transparent;
       }
-      .row .tick { color: inherit; }`,
+      .row .tick { color: inherit; }
+
+      /* AN UNFILLED ROW TAKES PRIMARY 700 INK. The rows carry no part, so the
+         colour is injected here and read off the host rather than written as a
+         literal.
+
+         :not(.active) is the condition, NOT :not([aria-selected]) -- .active is
+         the row wearing --m-row-selected, and ink has to answer to the fill
+         actually behind it. A selected row that has lost .active to the pointer
+         is on the panel like every other unfilled row and wants the same ink.
+
+         This is a no-op in light, where the rows already inherit Primary 700
+         from the host; in dark they inherited Cream. */
+      .row:not(.active) { color: var(--primary); }`,
 
     /* jelly-segmented draws its pill from `.segment`, which hardcodes
        `padding-block: 0` with no token behind it and carries no part. The pill

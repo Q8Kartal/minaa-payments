@@ -1177,6 +1177,26 @@ jelly-select {
   --jelly-menu-item-radius:         var(--radius-8);
   --jelly-menu-font-size:           var(--text-md);
 }
+/* THE PANEL'S EDGE IS PRIMARY 700, in both modes.
+
+   Jelly paints the dropdown from two colours and neither is a border token:
+
+     fill   --jelly-color-background-surface
+     border --jelly-color-background-neutral   (1px)
+
+   which is why grepping for a border colour found nothing -- the edge is
+   canvas, not CSS, and `background-neutral` is the slider-track token doing
+   second duty. Left alone it drew Cream in dark and Primary 300 in light: a
+   near-white halo round a Primary 950 panel in one mode and a barely-there
+   edge in the other, so the panel read as two different components.
+
+   Sampled off the canvas rather than inferred -- the host box and the computed
+   style both report a transparent panel with no border, because the paint is
+   pixels. Anything checking this must read the canvas. */
+jelly-select {
+  --jelly-color-background-neutral: var(--primary);   /* Primary 700 */
+}
+
 jelly-select[size="small"], jelly-select[size="sm"] {
   --jelly-select-padding-inline:     var(--space-200);
   --jelly-select-gap:                var(--space-075);

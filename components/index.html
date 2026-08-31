@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903d"></script>
+<script src="../gate.js?v=20260903g"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903d"></script>
+<script type="module" src="vendor/jelly.js?v=20260903g"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903d">
-<link rel="stylesheet" href="showcase.css?v=20260903d">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903g">
+<link rel="stylesheet" href="showcase.css?v=20260903g">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -453,12 +453,22 @@
          mint, graphite, platinum, white -- and none of it is ours, the same
          reason 07, 08, 25, 26 and 28 leave it out. -->
     <div class="controls controls--stacked" data-controls>
+      <!-- The one control that GROWS. KWD, USD and EUR are examples, not the
+           component's range, and a fixed set of three quietly documented a
+           limit that does not exist -- so the reader can add options and watch
+           the panel take as many as they type. The snippet is rebuilt from the
+           options actually in the DOM, never from a list held in the script,
+           so a copied snippet always matches what is on screen. -->
       <div class="ctl">
         <span class="ctl-name">value</span>
-        <div class="pillset" id="sel-value" role="group" aria-label="Value">
-          <jelly-button class="pill" data-value="KWD" aria-pressed="true">KWD</jelly-button>
-          <jelly-button class="pill" data-value="USD" aria-pressed="false">USD</jelly-button>
-          <jelly-button class="pill" data-value="EUR" aria-pressed="false">EUR</jelly-button>
+        <div class="ctl-grow">
+          <div class="pillset" id="sel-value" role="group" aria-label="Value">
+            <jelly-button class="pill" data-value="KWD" aria-pressed="true">KWD</jelly-button>
+            <jelly-button class="pill" data-value="USD" aria-pressed="false">USD</jelly-button>
+            <jelly-button class="pill" data-value="EUR" aria-pressed="false">EUR</jelly-button>
+          </div>
+          <jelly-input id="sel-add" size="small" label="Add an option"
+                       placeholder="Add an option, then Enter"></jelly-input>
         </div>
       </div>
       <div class="ctl">
@@ -1105,8 +1115,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903d"></script>
-<script src="minaa-jelly.js?v=20260903d"></script>
-<script src="showcase.js?v=20260903d" defer></script>
+<script src="micons.js?v=20260903g"></script>
+<script src="minaa-jelly.js?v=20260903g"></script>
+<script src="showcase.js?v=20260903g" defer></script>
 </body>
 </html>
