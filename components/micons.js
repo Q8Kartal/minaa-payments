@@ -5,6 +5,38 @@
    page 108:30) and inlined as one <symbol> sprite. No third party, no CDN, no
    network hop: the glyphs paint with the first frame.
 
+   THE MOON IS ONE FILLED OUTLINE, AND THE STROKED VERSION WAS UNRECOVERABLE.
+   It used to be the three vectors Figma exports from the 24px icon -- a filled
+   crescent and two stroked sparkles. Reported from the page as "the icon lost
+   its detail", and both sparkles were wrong, for two different reasons:
+
+     the larger  exported with stroke-linejoin="round", which rounds a
+                 four-pointed star into a blob. Figma's canvas draws mitre.
+     the smaller exported DEGENERATE -- four curve segments where a star needs
+                 eight, spanning 0.085 units against a 1.5 stroke. No join can
+                 make a star out of that; the shape simply is not in the path.
+
+   Both were measured, not guessed, and a scan of all 39 paths in this file for
+   the same signature -- a span smaller than twice its own stroke -- found only
+   these two. The fix for the first was a join; there was no honest fix for the
+   second, because the geometry was gone.
+
+   So the glyph is now the OUTLINE, taken from node 312:67 of the Components
+   file, where the moon is drawn large and flattened to a single boolean shape:
+   three subpaths, 45 curves, one fill, no strokes at all. Nothing to infer --
+   no join, no weight, no reconstruction.
+
+   IT IS REGISTERED, NOT EYEBALLED. The source frame is 133x141; it is scaled
+   by 19.866/141 and offset so its bounding box lands exactly where the old
+   crescent PAINTED -- 18.81 x 19.866 at (2.339, 2.134). That target was
+   computed from the old path plus half its 1.5 stroke, and independently
+   confirmed by Figma's own per-vector export, which reports the crescent as
+   18.8096 x 19.866. Two routes to the same number.
+
+   A LARGE FLATTENED NODE BEATS A SMALL STROKED ONE for any glyph whose detail
+   lives in the stroke. If another Micon ever loses its detail, ask for it at
+   size before trying to repair the export.
+
    HOW THESE WERE PRODUCED, AND HOW NOT TO PRODUCE THEM
    Via Figma's own SVG exporter — node.exportAsync({ format: 'SVG' }) — and
    then only two textual edits: the library's paint (#E8411D) swapped for
@@ -94,9 +126,7 @@ const MICONS = {
      2. Against the rule at the top of this file that says decide the tier for
      a whole set, that is a mismatch -- the moon carries visibly more weight
      than the sun at the same size. It is what the library holds today. */
-  moon: '<path d="M10.8077 2.89062C10.8184 2.8957 10.8392 2.9088 10.8605 2.94141C10.9067 3.01239 10.9275 3.13131 10.8761 3.25098C9.86031 5.61727 9.21856 8.73023 10.3927 11.3799C11.602 14.1089 14.5903 16.0485 20.1544 16.3379C20.2616 16.3435 20.3394 16.399 20.3761 16.4561C20.3933 16.4828 20.3979 16.5041 20.3986 16.5166C20.399 16.526 20.3979 16.5436 20.381 16.5732C18.7879 19.3682 15.7829 21.25 12.339 21.25C7.23036 21.25 3.08899 17.1086 3.08899 12C3.08899 7.43579 6.3959 3.64215 10.7443 2.88672C10.7843 2.87984 10.8011 2.88752 10.8077 2.89062Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
-        '<path d="M18.4121 9.24512C18.3384 9.3808 18.2498 9.509 18.1367 9.62207C18.0238 9.73494 17.8962 9.82381 17.7607 9.89746C17.8962 9.97111 18.0238 10.06 18.1367 10.1729C18.2496 10.2857 18.3385 10.4134 18.4121 10.5488C18.4858 10.4134 18.5746 10.2857 18.6875 10.1729C18.8006 10.0598 18.9288 9.97119 19.0645 9.89746C18.9288 9.82373 18.8006 9.73515 18.6875 9.62207C18.5744 9.50899 18.4858 9.38081 18.4121 9.24512Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
-        '<path d="M14.75 5.89453C14.7361 5.90894 14.7224 5.92358 14.708 5.9375C14.7222 5.95126 14.7362 5.96525 14.75 5.97949C14.7639 5.96509 14.7786 5.95142 14.793 5.9375C14.7784 5.92342 14.7641 5.90911 14.75 5.89453Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+  moon: '<path d="M58.5215 0.0993528C63.8827 -0.83526 67.3853 5.00474 65.2393 10.0242C51.3198 42.5711 49.6451 91.4951 126.246 95.4949C131.212 95.7547 134.644 100.779 132.185 105.116C120.016 126.548 97.0426 141 70.709 141C31.6577 141 0 109.222 0 70.0222C0.00123151 34.9956 25.279 5.89675 58.5215 0.0993528ZM113.651 36.0798C114.161 36.0808 114.437 36.9249 114.991 38.6023L115.329 39.6003L116.518 43.2117C117.613 46.5311 118.164 48.1912 119.349 49.3806C120.534 50.57 122.187 51.1222 125.494 52.2224L131.184 54.1218C132.125 54.4589 132.598 54.7158 132.6 55.0994C132.599 55.4839 132.126 55.7395 131.184 56.0769L129.092 56.7761L125.494 57.9753L123.36 58.697C121.412 59.3807 120.246 59.9175 119.349 60.8171C118.164 62.0062 117.613 63.6679 116.518 66.9861L115.329 70.5906L114.991 71.5954L114.625 72.698C114.345 73.4869 114.119 73.9452 113.831 74.0769L113.651 74.1189C113.141 74.1186 112.866 73.2749 112.312 71.5954L111.98 70.5906L110.786 66.9861C109.691 63.6674 109.14 62.0063 107.955 60.8171C107.059 59.9178 105.896 59.3798 103.95 58.697L101.81 57.9753L98.2188 56.7761L97.2178 56.4441C95.7521 55.9566 94.9271 55.6839 94.7451 55.279L94.7041 55.0994C94.7067 54.5884 95.547 54.3104 97.2178 53.7546L98.2188 53.4148L101.81 52.2224C105.116 51.1226 106.77 50.5698 107.955 49.3806C109.139 48.1913 109.691 46.5301 110.786 43.2117L111.98 39.6003L112.678 37.5007C113.014 36.5554 113.268 36.08 113.651 36.0798ZM87.8955 15.2439C88.2989 15.3259 88.5302 16.032 88.9932 17.4343L89.3037 18.3562C90.0372 20.5574 90.492 21.7635 91.3066 22.7087L92.0244 23.4294L92.9014 24.0535C93.8743 24.6182 95.1856 25.0553 97.2793 25.7517L98.8682 26.3269C99.2246 26.4928 99.4205 26.6533 99.4619 26.8542C99.4793 26.9434 99.479 27.0423 99.4619 27.1316L99.3994 27.2771C99.1904 27.5986 98.5001 27.827 97.2793 28.2331C94.4894 29.1612 93.0897 29.6306 92.0244 30.5554C91.7688 30.7775 91.528 31.0196 91.3066 31.2761C90.3847 32.3454 89.9176 33.7502 88.9932 36.5505L88.4199 38.1453C88.2966 38.4122 88.1758 38.5889 88.04 38.6785L87.8955 38.741C87.8059 38.7586 87.7088 38.7585 87.6191 38.741L87.4746 38.6785C87.3384 38.5891 87.2184 38.413 87.0947 38.1453L86.5215 36.5505C85.5969 33.7499 85.13 32.3454 84.208 31.2761C83.9864 31.0193 83.7461 30.7778 83.4902 30.5554C82.5491 29.738 81.3506 29.2733 79.1602 28.5378L78.2354 28.2331C77.0136 27.8267 76.3243 27.5988 76.1152 27.2771L76.0527 27.1316C76.0356 27.0422 76.0354 26.9435 76.0527 26.8542C76.1364 26.4504 76.8394 26.2161 78.2354 25.7517C81.0257 24.8235 82.4249 24.355 83.4902 23.4294C83.7458 23.2072 83.9867 22.9653 84.208 22.7087C85.1292 21.6394 85.597 20.2347 86.5215 17.4343C86.9845 16.0319 87.2156 15.3255 87.6191 15.2439C87.7085 15.2265 87.8062 15.2263 87.8955 15.2439Z" transform="translate(2.3746 2.134) scale(0.1408936)" fill="currentColor"/>',
 
   sun: '<path d="M7.75 12.75C7.75 10.4028 9.65279 8.5 12 8.5C14.3472 8.5 16.25 10.4028 16.25 12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
        '<path d="M12 3.25V5.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
