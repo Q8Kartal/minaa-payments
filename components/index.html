@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260902y"></script>
+<script src="../gate.js?v=20260903b"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260902y"></script>
+<script type="module" src="vendor/jelly.js?v=20260903b"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260902y">
-<link rel="stylesheet" href="showcase.css?v=20260902y">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903b">
+<link rel="stylesheet" href="showcase.css?v=20260903b">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -328,18 +328,52 @@
   <!-- ── 08 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-08">
     <div class="entry-text">
-    <p class="entry-num">Forms · 08</p>
+    <p class="entry-num">Forms &middot; 08</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radio"/></svg> &lt;jelly-radio&gt;</h2>
-    <p class="entry-note">Radios sharing a <code>name</code> under the same root form a group with
-       roving tabindex and direction-aware arrow keys. The dot is Secondary 600 on Primary 700, the thumb colour every control shares.</p>
+    <p class="entry-note">A radio button; radios sharing a <code>name</code> under the same root form a
+       group with roving tabindex and arrow-key navigation.</p>
+
+    <!-- NO `variant` ROW: Jelly's own palette, the thing this bridge replaces.
+         Same reasoning as 07, 25, 26 and 28.
+
+         The dot is Secondary 600 on Primary 700 -- the thumb colour every
+         control on this page shares -- which is the one thing the control
+         cannot show you, since there is no colour axis here to click.
+
+         A lone radio cannot be UNCHECKED by clicking it, so `checked` is a
+         control rather than something you toggle on the specimen: a radio only
+         clears when a sibling in its group takes over, and there is no sibling
+         here. That is the component behaving correctly, not the demo failing. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">checked</span>
+        <div class="pillset" id="radio-checked" role="group" aria-label="Checked">
+          <jelly-button class="pill" data-value="false" aria-pressed="false">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="true">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="radio-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="radio-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen"><jelly-radio name="pay" value="monthly" checked>Monthly</jelly-radio><figcaption>Selected</figcaption></figure>
-        <figure class="specimen"><jelly-radio name="pay" value="quarterly">Quarterly</jelly-radio><figcaption>Unselected</figcaption></figure>
-        <figure class="specimen"><jelly-radio name="pay" value="onetime">One-time</jelly-radio><figcaption>Unselected</figcaption></figure>
-        <figure class="specimen"><jelly-radio name="pay" value="none" disabled>Unavailable</jelly-radio><figcaption>Disabled</figcaption></figure>
+      <div class="radio-stage" data-controls>
+        <jelly-radio id="radio-demo" name="pay" value="monthly" checked>Monthly</jelly-radio>
       </div>
+      <template data-snippet-text>&lt;jelly-radio name="pay" value="monthly" checked&gt;Monthly&lt;/jelly-radio&gt;</template>
     </div>
   </section>
 
@@ -1037,8 +1071,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260902y"></script>
-<script src="minaa-jelly.js?v=20260902y"></script>
-<script src="showcase.js?v=20260902y" defer></script>
+<script src="micons.js?v=20260903b"></script>
+<script src="minaa-jelly.js?v=20260903b"></script>
+<script src="showcase.js?v=20260903b" defer></script>
 </body>
 </html>

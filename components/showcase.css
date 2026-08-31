@@ -846,7 +846,10 @@ svg[data-sq-fill] {
      padding -- written as a bare 64 it left 0 of content box and the card
      jumped on exactly the click it was meant to absorb. The calc is the
      tallest shape (square, 88) plus both paddings. */
-  min-height: calc(var(--space-1000) + var(--space-400) * 2);  /* 80 + 32 + 32 */
+  /* 88 is the square's height and is not a step, so it is built from two:
+     80 + 8. Without the extra 8 the card stepped 144 -> 152 on the one click
+     the floor exists to absorb. */
+  min-height: calc(var(--space-1000) + var(--space-100) + var(--space-400) * 2);  /* 80 + 8 + 32 + 32 */
   padding-block: var(--space-400);       /* 32 */
 }
 
@@ -922,5 +925,18 @@ svg[data-sq-fill] {
   align-items: center;
   justify-content: center;
   min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
+/* Centred and floored. jelly-radio declares no width or height of its own --
+   it sizes to its label -- so nothing here overrides the component; the floor
+   is only so the card does not step as `size` moves the control. */
+.radio-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The large radio measures 36 tall, so a 32 floor let the card step 96 -> 100
+     on that one click. 40 is the next step up and clears it. */
+  min-height: calc(var(--space-500) + var(--space-400) * 2);   /* 40 + 32 + 32 */
   padding-block: var(--space-400);                             /* 32 */
 }

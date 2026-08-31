@@ -412,6 +412,52 @@
     applyLength();
   }
 
+  /* ── The radio (entry 08) ───────────────────────────────────────────────
+     `checked` is a control rather than something you click on the specimen,
+     and that is the component being correct: a radio only clears when a
+     sibling in its group takes over, so a lone one cannot be unchecked by
+     clicking it. The pill can set the property directly.
+
+     .checked, not toggleAttribute -- unlike disabled and readonly on the
+     field, jelly-radio DOES define this property, and going through it keeps
+     the component's own group bookkeeping in step rather than writing the
+     attribute behind its back. */
+  function wireRadioDemo() {
+    const el = document.getElementById('radio-demo');
+    const chk = document.getElementById('radio-checked');
+    const size = document.getElementById('radio-size');
+    const dis = document.getElementById('radio-disabled');
+    if (!el || !chk || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-08 .code code');
+      if (!box) return;
+      const a = ['name="pay"', 'value="monthly"'];
+      if (el.getAttribute('size') && el.getAttribute('size') !== 'medium') a.push('size="' + el.getAttribute('size') + '"');
+      if (el.checked) a.push('checked');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-radio ' + a.join(' ') + '>' + el.textContent.trim() + '</jelly-radio>';
+    }
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+
+    pills(chk, (v) => { el.checked = v === 'true'; });
+    pills(size, (v) => v === 'medium' ? el.removeAttribute('size') : el.setAttribute('size', v));
+    pills(dis, (v) => el.toggleAttribute('disabled', v === 'true'));
+
+    snippet();
+  }
+
   /* ── The field (entry 05) ───────────────────────────────────────────────
      Six controls, all of them the component's own observed attributes. Two are
      free text, because a placeholder and a value are strings and any pair of
@@ -968,7 +1014,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireRadioDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {
