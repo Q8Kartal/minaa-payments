@@ -800,3 +800,15 @@ body {
   min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
   padding-block: var(--space-400);                             /* 32 */
 }
+
+/* The badge is the smallest specimen on the page, so it needs the stage more
+   than the others: at 20-32px tall, a card that resizes under the size control
+   makes the three steps impossible to compare. Floor is the tallest badge plus
+   both paddings, every term a step on the scale. */
+.badge-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-400) + var(--space-400) * 2);   /* 32 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}

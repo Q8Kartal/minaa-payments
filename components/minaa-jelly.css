@@ -146,6 +146,14 @@ jelly-theme {
   --m-placeholder: var(--primary);      /* Primary 700 — before writing */
   --m-value:       var(--secondary);    /* Secondary 600 — while and after writing */
   --m-accent:      var(--primary);      /* Primary 700 — filled tracks, radio ring */
+  /* The badge is Secondary 600 in DARK and Primary 700 in light -- Ahmad's
+     call, and the same flip the overlays already make. It is its own token
+     rather than a change to --m-accent, which drives filled tracks, focus
+     rings and the radio mark across the whole library: moving that would
+     have repainted a dozen components to recolour one.
+     Jelly draws the outline variant's RIM from the same source, so this
+     carries both. */
+  --m-badge-fill:  var(--primary);   /* Primary 700 */
   --m-on-accent:   var(--cream);        /* Neutral 100 — text and marks on accent */
   --m-track-off:   var(--primary-300);  /* Primary 300 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
@@ -250,6 +258,7 @@ jelly-theme {
     --m-placeholder: var(--primary-300);
     --m-value:       var(--cream);
     --m-accent:      var(--primary);
+    --m-badge-fill:  var(--secondary);   /* Secondary 600 */
     --m-on-accent:   var(--cream);
     --m-track-off:   var(--cream);
     --m-thumb:       var(--secondary);
@@ -293,6 +302,7 @@ jelly-theme[mode="dark"] {
   --m-placeholder: var(--primary-300);
   --m-value:       var(--cream);
   --m-accent:      var(--primary);
+  --m-badge-fill:  var(--secondary);   /* Secondary 600 */
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--cream);
   --m-thumb:       var(--secondary);
@@ -328,6 +338,7 @@ jelly-theme[mode="light"] {
   --m-placeholder: var(--primary);
   --m-value:       var(--secondary);
   --m-accent:      var(--primary);
+  --m-badge-fill:  var(--primary);   /* Primary 700 */
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--primary-300);
   --m-thumb:       var(--secondary);
@@ -1693,7 +1704,9 @@ jelly-alert::part(close) {
    30px are the off-scale values; height 24 and 20 already land. */
 jelly-badge {
   --jelly-badge-radius: var(--radius-full);
-  --jelly-fill:  var(--m-accent);
+  /* Primary 700 in light, Secondary 600 in dark -- see --m-badge-fill. Jelly
+     paints the outline variant's rim from the same source, so both follow. */
+  --jelly-fill:  var(--m-badge-fill);
   --jelly-label: var(--m-on-accent);
   /* Jelly ramps 11 / 12.5 / 14 by size. All three were bound to --text-sm on
      the belief that the scale stopped there; with Text xs in place the ramp

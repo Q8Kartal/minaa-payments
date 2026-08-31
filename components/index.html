@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260901t"></script>
+<script src="../gate.js?v=20260901x"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260901t"></script>
+<script type="module" src="vendor/jelly.js?v=20260901x"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260901t">
-<link rel="stylesheet" href="showcase.css?v=20260901t">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260901x">
+<link rel="stylesheet" href="showcase.css?v=20260901x">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -699,16 +699,27 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
     <div class="entry-text">
     <p class="entry-num">Feedback &middot; 24</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-toast-warning"/></svg> &lt;jelly-alert&gt;</h2>
-    <p class="entry-note">Four tones and an optional dismiss, wearing the <b>toast&rsquo;s</b> colours so the
-       same four meanings never arrive as two different treatments. Both marks are Micons &mdash; the alert
-       draws its tone glyph and its cross from Jelly&rsquo;s own icon set.</p>
+    <p class="entry-note">A callout banner on a jelly surface with four tones and an optional dismiss button.</p>
 
-    <!-- One specimen and a control, not a row of five. Five static alerts
-         showed the tones and nothing else; the attributes that actually vary
-         -- dismissible, size -- were invisible. Jelly rebuilds the alert's
-         content outright when `tone` changes, which is exactly what the
-         Micons swap has to survive, so the control exercises the one code
-         path most likely to break silently. -->
+    <!-- One line, then the control: what the component IS belongs in prose,
+         everything else is a thing to click. The note here used to also carry
+         the two facts below, which is the control's job done badly.
+
+         COLOURS ARE THE TOAST'S. A solid semantic pill with cream copy and a
+         cream mark, not Jelly's 15% tint -- an alert and a toast carry the
+         same four meanings and should not be two treatments. Verified against
+         the rendered toast rather than the token.
+
+         BOTH MARKS ARE MICONS. The alert draws its tone glyph and its dismiss
+         cross from Jelly's own icon set; minaaAlertIcons() replaces them and
+         re-runs on every tone change, because Jelly rebuilds the alert's
+         content outright when that attribute moves. The tone control is
+         therefore also the live test of that swap: if the glyph ever reverts
+         to Jelly's, clicking a tone here is where it shows.
+
+         One specimen and a control, not the row of five this started as --
+         five static alerts showed the tones and hid dismissible and size
+         entirely. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">tone</span>
@@ -749,22 +760,65 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
     <p class="entry-num">Feedback &middot; 25</p>
     <!-- icon pending: `badge` is one of the glyphs still to be drawn -->
     <h2 class="entry-title">&lt;jelly-badge&gt;</h2>
-    <p class="entry-note">The smallest component here, and the only one that can announce itself:
-       <code>live</code> gives it <code>role="status"</code> and <code>aria-live="polite"</code>, so a count
-       that changes is read out rather than silently updating. It owns exactly <b>one</b> custom property,
-       <code>--jelly-badge-radius</code>; everything else about the pill sits behind
-       <code>part="badge"</code>, which is the only way in for its padding.</p>
+    <p class="entry-note">A small jelly badge / tag / status pill that pops whenever its text changes.</p>
+
+    <!-- One line, then the control. The long note that used to sit here was
+         doing the control's job badly; what a reader needs in prose is what
+         the component IS, and everything else is a thing to click.
+
+         Two facts the control cannot show are kept here. `live` is the only reason this component is more than a styled
+         span -- it sets role="status" and aria-live="polite", so a count that
+         changes is read out instead of updating silently. And the badge owns
+         exactly one custom property, --jelly-badge-radius; everything else
+         about the pill sits behind part="badge", which is the only way in for
+         its padding.
+
+         NO `variant` ROW, and that is deliberate rather than an omission.
+         Jelly's own playground offers azure / rose / amber / mint / graphite /
+         platinum / white there. Those are Jelly's palette, which is the exact
+         thing this bridge exists to replace, and a showcase teaches whatever
+         it demonstrates -- the same reasoning that kept it off entry 07.
+
+         `instant` is left out for a duller reason: it only decides whether a
+         FILL CHANGE eases, and with no variant row nothing here changes fill,
+         so the control would demonstrate nothing. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="badge-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">shape</span>
+        <div class="pillset" id="badge-shape" role="group" aria-label="Shape">
+          <jelly-button class="pill" data-value="pill" aria-pressed="true">pill</jelly-button>
+          <jelly-button class="pill" data-value="square" aria-pressed="false">square</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">outline</span>
+        <div class="pillset" id="badge-outline" role="group" aria-label="Outline">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">live</span>
+        <div class="pillset" id="badge-live" role="group" aria-label="Live">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <jelly-badge>12</jelly-badge>
-        <jelly-badge shape="square">KWD</jelly-badge>
-        <jelly-badge size="small">3</jelly-badge>
-        <jelly-badge size="large" live>Due</jelly-badge>
+      <div class="badge-stage" data-controls>
+        <jelly-badge id="badge-demo">12</jelly-badge>
       </div>
-      <template data-snippet-text>&lt;jelly-badge&gt;12&lt;/jelly-badge&gt;
-&lt;jelly-badge shape="square"&gt;KWD&lt;/jelly-badge&gt;
-&lt;jelly-badge live&gt;Due&lt;/jelly-badge&gt;</template>
+      <template data-snippet-text>&lt;jelly-badge&gt;12&lt;/jelly-badge&gt;</template>
     </div>
   </section>
 
@@ -794,8 +848,9 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
     <p class="entry-num">Feedback &middot; 27</p>
     <!-- icon pending: `skeleton` is one of the glyphs still to be drawn -->
     <h2 class="entry-title">&lt;jelly-skeleton&gt;</h2>
+    <p class="entry-note">A loading placeholder that gently breathes &mdash; a soft jelly wobble instead of a shimmer.</p>
 
-    <!-- No prose on this entry: the control says it. What the note used to
+    <!-- One line, then the control. What the note used to
          explain in a paragraph -- that the three shapes exist and what each
          one looks like -- is a thing you can now click, which is the better
          documentation of the two.
@@ -870,8 +925,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260901t"></script>
-<script src="minaa-jelly.js?v=20260901t"></script>
-<script src="showcase.js?v=20260901t" defer></script>
+<script src="micons.js?v=20260901x"></script>
+<script src="minaa-jelly.js?v=20260901x"></script>
+<script src="showcase.js?v=20260901x" defer></script>
 </body>
 </html>

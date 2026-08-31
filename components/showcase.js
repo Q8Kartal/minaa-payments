@@ -431,6 +431,59 @@
     snippet();
   }
 
+  /* ── The badge (entry 25) ───────────────────────────────────────────────
+     Four axes, and the two absentees are the interesting part. `variant` is
+     Jelly's own palette, which is the thing the bridge replaces. `instant`
+     only decides whether a FILL CHANGE eases, and with no variant row nothing
+     changes fill, so it would sit there doing nothing.
+
+     `size` is CSS-only -- it is not in the component's observedAttributes, so
+     it is styled by :host([size]) rules and never announced. It still belongs
+     on the control: a reader setting it in markup needs to know it exists. */
+  function wireBadgeDemo() {
+    const el = document.getElementById('badge-demo');
+    const size = document.getElementById('badge-size');
+    const shape = document.getElementById('badge-shape');
+    const outline = document.getElementById('badge-outline');
+    const live = document.getElementById('badge-live');
+    if (!el || !size || !shape || !outline || !live || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-25 .code code');
+      if (!box) return;
+      const a = [];
+      /* medium and pill are the defaults, so printing them would document
+         attributes that change nothing. */
+      if (el.getAttribute('size') && el.getAttribute('size') !== 'medium') a.push('size="' + el.getAttribute('size') + '"');
+      if (el.getAttribute('shape') === 'square') a.push('shape="square"');
+      if (el.hasAttribute('outline')) a.push('outline');
+      if (el.hasAttribute('live')) a.push('live');
+      box.textContent = '<jelly-badge' + (a.length ? ' ' + a.join(' ') : '') + '>'
+        + el.textContent.trim() + '</jelly-badge>';
+    }
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+
+    pills(size, (v) => v === 'medium' ? el.removeAttribute('size') : el.setAttribute('size', v));
+    pills(shape, (v) => v === 'pill' ? el.removeAttribute('shape') : el.setAttribute('shape', v));
+    /* toggleAttribute, not the property: on a web component a property is a
+       no-op unless the component defines one, and neither of these does. */
+    pills(outline, (v) => el.toggleAttribute('outline', v === 'true'));
+    pills(live, (v) => el.toggleAttribute('live', v === 'true'));
+
+    snippet();
+  }
+
   /* ── The skeleton (entry 27) ────────────────────────────────────────────
      A control instead of a paragraph. Three shapes described in prose is worse
      documentation than three shapes you can click between, and this entry now
@@ -691,7 +744,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireAlertDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireAlertDemo(); wireBadgeDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {
