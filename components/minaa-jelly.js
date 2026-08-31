@@ -36,6 +36,27 @@
                 Jelly draws none — its fields have no border concept at all,
                 only a transparent focus ring. Every other field gets this
                 through ::part(ring), which this component does not offer. */
+    /* THE LABEL'S LEADING WAS 24 AT EVERY SIZE, so two of the three sizes sat
+       off their Foundations pair: 14 wants 20 and 18 wants 28, and both got 24.
+       16/24 was right by coincidence, which is why nothing looked obviously
+       broken -- the default size was the one that happened to be correct.
+
+       The cause is a shorthand. Jelly draws the label with
+
+         font: 650 var(--jelly-label-font-size)/1.3 var(--jelly-font-display)
+
+       and a `font` shorthand sets line-height too, inside the shadow root where
+       the bridge's per-size `line-height` on the host cannot reach it. The host
+       is right -- it computes 20 / 24 / 28 -- the inner element simply never
+       read it.
+
+       `inherit` picks the host's value back up. IT NEEDS !important: an
+       injected rule of equal specificity, appended after Jelly's, does not win
+       here -- tested both ways round, 40px landed only with it. That is an
+       observation, not a claim about why. */
+    'jelly-label': `
+      label { line-height: inherit !important; }`,
+
     'jelly-otp': `
       input {
         font-family: var(--font-medium);
