@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903s"></script>
+<script src="../gate.js?v=20260903u"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903s"></script>
+<script type="module" src="vendor/jelly.js?v=20260903u"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903s">
-<link rel="stylesheet" href="showcase.css?v=20260903s">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903u">
+<link rel="stylesheet" href="showcase.css?v=20260903u">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -648,26 +648,55 @@
     </div>
   </section>
 
-  <!-- ── 14 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 14 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-14">
     <div class="entry-text">
-    <p class="entry-num">Forms · 14</p>
+    <p class="entry-num">Forms &middot; 14</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-switch"/></svg> &lt;jelly-switch&gt;</h2>
-    <p class="entry-note">A draggable switch whose thumb stretches like a liquid drop and whose track
-       crossfades between off and on. The track carries the state: off is Primary 300 in light and
-       Neutral 100 in dark, on is Primary 700 in both. The thumb stays Secondary 600 throughout.</p>
+    <p class="entry-note">A draggable switch whose thumb stretches like a liquid drop while the track
+       crossfades between off and on.</p>
+
+    <!-- `checked` goes through the PROPERTY and the row is re-read from the
+         element on `change`, because this specimen can be worked directly:
+         click it, drag the thumb, or focus it and press space. A pill row that
+         only wrote one way would fall out of step the first time anyone
+         touched the switch itself.
+
+         `size` moves the TRACK, 40x20 / 48x24 / 64x32, which is the part worth
+         watching -- the host is wider than that and grows with the label, so
+         measuring the host tells you about the text, not the control.
+
+         No `variant` row: Jelly's palette, as in 04, 07, 08, 12, 25, 26, 28. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">checked</span>
+        <div class="pillset" id="sw-checked" role="group" aria-label="Checked">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="sw-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="sw-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen"><jelly-switch>Off</jelly-switch><figcaption>Rest</figcaption></figure>
-        <figure class="specimen"><jelly-switch checked>On</jelly-switch><figcaption>Checked</figcaption></figure>
-        <figure class="specimen"><jelly-switch disabled>Unavailable</jelly-switch><figcaption>Disabled</figcaption></figure>
+      <div class="switch-stage" data-controls>
+        <jelly-switch id="sw-demo">Notifications</jelly-switch>
       </div>
-      <div class="row">
-        <figure class="specimen"><jelly-switch size="small" checked>Small</jelly-switch><figcaption>small</figcaption></figure>
-        <figure class="specimen"><jelly-switch size="medium" checked>Medium</jelly-switch><figcaption>medium</figcaption></figure>
-        <figure class="specimen"><jelly-switch size="large" checked>Large</jelly-switch><figcaption>large</figcaption></figure>
-      </div>
+      <template data-snippet-text>&lt;jelly-switch&gt;Notifications&lt;/jelly-switch&gt;</template>
     </div>
   </section>
 
@@ -1288,8 +1317,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903s"></script>
-<script src="minaa-jelly.js?v=20260903s"></script>
-<script src="showcase.js?v=20260903s" defer></script>
+<script src="micons.js?v=20260903u"></script>
+<script src="minaa-jelly.js?v=20260903u"></script>
+<script src="showcase.js?v=20260903u" defer></script>
 </body>
 </html>

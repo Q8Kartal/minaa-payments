@@ -850,6 +850,63 @@
     snippet();
   }
 
+  function wireSwitchDemo() {
+    const el = document.getElementById('sw-demo');
+    const chk = document.getElementById('sw-checked');
+    const size = document.getElementById('sw-size');
+    const dis = document.getElementById('sw-disabled');
+    if (!el || !chk || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-14 .code code');
+      if (!box) return;
+      const a = [];
+      /* el.checked, not the attribute: dragging the thumb does not write one,
+         so the snippet would print the state it loaded with. */
+      if (el.checked) a.push('checked');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-switch' + (a.length ? ' ' + a.join(' ') : '')
+        + '>Notifications</jelly-switch>';
+    }
+
+    /* The specimen is workable by hand -- click, drag, or space -- so the
+       checked row is pushed back from the element rather than assumed from
+       whichever pill was last pressed. */
+    function sync() {
+      chk.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'true') === !!el.checked)));
+      snippet();
+    }
+
+    pillRow(chk, (v) => { el.checked = v === 'true'; }, sync);
+    /* SIZE NEEDS A RE-CONNECT, and this is the component, not the page.
+       jelly-switch observes `size` and updates its own sizeKey, but it reads
+       the track geometry once and does not rebuild it: measured, the attribute
+       and sizeKey both went small / large / medium while trackSize stayed
+       48x24 throughout. Elements built with a size before being connected are
+       correct -- 40x20 / 48x24 / 64x32 -- so the geometry is settled on
+       connect and never revisited.
+
+       Re-appending the SAME node runs disconnected then connected again, and
+       the track is rebuilt. It stays the same element, so every listener above
+       survives, and `checked` survives with it -- both verified rather than
+       assumed. Without this the row would move a number nobody can see, which
+       is the one thing a control row must never do. */
+    pillRow(size, (v) => {
+      el.setAttribute('size', v);
+      if (el.parentElement) el.parentElement.appendChild(el);
+    }, snippet);
+    /* toggleAttribute: jelly-switch defines accessors for checked and value,
+       and not for disabled. */
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    el.addEventListener('change', sync);
+
+    sync();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1329,7 +1386,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

@@ -994,6 +994,26 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Centred and floored. The switch declares no width -- it grows with its label
+   -- so nothing here sets one; the floor only stops the card stepping, and the
+   host reaches 42 tall at large, so 48 is the step that clears it.
+
+   CENTRED, WHICH ALSO KEEPS IT AWAY FROM THE CLIP. This control paints into a
+   canvas far wider than itself, and .demo carries overflow-x: clip for the
+   page-scrollbar reason documented there. A switch flush against that edge is
+   the bug the theme switch already shipped once -- it bulged on the free side
+   and sliced flat on the clipped one. Here it sits in the middle of a card
+   with hundreds of pixels either side, so the bleed has all the room it needs.
+   Measured after the fact rather than assumed, because the host box and the
+   canvas box report different widths and only one of them is the paint. */
+.switch-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-600) + var(--space-400) * 2);   /* 48 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* Centred and floored. jelly-label sets no width or height of its own -- it is
    an inline-block that sizes to its text -- so nothing here overrides it. The
    label is 24 / 24 / 28 tall across the three sizes, so 32 is the step that
