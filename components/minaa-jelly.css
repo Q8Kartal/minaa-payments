@@ -131,17 +131,6 @@
      block for what else to restore if you want the old colour-swap back. */
   --m-focus-ring: 3px;
   --m-focus-offset: 3px;
-  /* HOW A DISABLED CONTROL RECEDES, and it is one number rather than a palette.
-
-     Dark has only two surface steps -- Primary 900 for a field, Primary 950 for
-     the card -- and both are spoken for, so there is no third colour a disabled
-     field could take that is not already the field or already the card. Light
-     had room and dark did not, which is why the two modes had drifted into
-     opposite treatments. A dim needs no step, so it works in both.
-
-     .55 is Jelly's own figure, kept deliberately: the panel already fades its
-     un-choosable rows, and matching it means one idea of "off" on the page. */
-  --m-disabled-dim: 0.55;
   /* The tick and dash inside a checkbox. A MARK is not a BORDER: the field
      stroke is 1.5 and this is 3, and conflating them is what made the tick
      render as a hairline. The Figma specification draws it at 3 on a 20 box. */
@@ -270,6 +259,7 @@ jelly-theme {
      unchecked, so nothing draws a disabled tick. Primary 700 follows the label
      rather than the Neutral 100 a live checkbox uses, which would all but
      vanish on the pale Secondary 300 surface. */
+  --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
   --m-disabled-thumb: var(--secondary);     /* Secondary 600 - see the note on the switch */
@@ -309,6 +299,7 @@ jelly-theme {
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
   --m-close-mark-hover: var(--cream);      /* Neutral 100 */
+  --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
   --m-disabled-thumb: var(--primary-950);
@@ -354,6 +345,7 @@ jelly-theme[mode="dark"] {
   --m-close-disc:       var(--primary);    /* Primary 700 */
   --m-close-mark:       var(--primary);    /* Primary 700 */
   --m-close-mark-hover: var(--cream);      /* Neutral 100 */
+  --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
   --m-disabled-thumb: var(--primary-950);
@@ -421,6 +413,7 @@ jelly-theme[mode="light"] {
      unchecked, so nothing draws a disabled tick. Primary 700 follows the label
      rather than the Neutral 100 a live checkbox uses, which would all but
      vanish on the pale Secondary 300 surface. */
+  --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
   --m-disabled-thumb: var(--secondary);     /* Secondary 600 - see the note on the switch */
@@ -1400,39 +1393,25 @@ jelly-select::part(trigger) {
    dark structure -- surface takes the card colour, edge and text take the
    light disabled colours already chosen for the checkbox -- rather than
    inventing a third palette. */
-/* THE FIELD IS DIMMED, NOT RECOLOURED, and this replaces the treatment above.
-
-   Taking the card's colour made a disabled field vanish INTO the card -- 1.00:1
-   against it, in both modes, so it had no surface at all. An enabled field does
-   have one, so the pair read backwards: the live control looked emphasised and
-   the dead one looked like an ordinary resting field. Reported from the page,
-   then measured.
-
-   Matching the checkbox instead was the obvious repair and it does not work.
-   --m-disabled-box IS Primary 900 in dark, which is exactly --m-field, so a
-   disabled field would have become indistinguishable from a live one. Light had
-   a spare step and dark did not.
-
-   So the colours stay put and the whole control fades. A dim needs no step, is
-   the same idea in both modes, and cannot collide with a surface because it is
-   not a surface.
-
-   THE .55 IS BACK, BUT THE BUG IT CAUSED IS NOT. Jelly fades a disabled host to
-   .55 AND swaps its fill to a cream neutral, and it was that pairing -- cream at
-   55 per cent over a Primary 950 card -- that produced the grey belonging to no
-   Minaa ramp. Pinning the fill to --m-field keeps the surface in the family, so
-   the fade darkens a blue instead of greying a cream. Never restore the fade
-   without also pinning the fill; that is the combination that misbehaved.
-
-   Figma 229:910 draws the dark disabled field as a Primary 950 surface with a
-   Primary 900 edge, which is the treatment this replaces. Ahmad was shown the
-   node and the measurements and chose the dim for both modes. */
 jelly-input[disabled], jelly-textarea[disabled], jelly-select[disabled] {
-  opacity: var(--m-disabled-dim);
-  /* Not decoration: Jelly paints a disabled field's surface, its inner input
-     and its canvas edge from these two, and left alone all three go cream. */
-  --jelly-fill:                     var(--m-field);
-  --jelly-color-background-neutral: var(--m-field);
+  opacity: 1;
+  --jelly-fill:                     var(--m-disabled-field);
+  --jelly-color-background-neutral: var(--m-disabled-field);
+  --jelly-label:                    var(--m-disabled-label);
+}
+
+jelly-input[disabled]::part(ring),
+jelly-textarea[disabled]::part(ring) {
+  border-color: var(--m-disabled-box);
+}
+
+jelly-select[disabled]::part(trigger) {
+  border-color: var(--m-disabled-box);
+}
+
+jelly-input[disabled]::part(input)::placeholder,
+jelly-textarea[disabled]::part(textarea)::placeholder {
+  color: var(--m-disabled-label);
 }
 
 /* ---- Disabled: radio, switch, slider, range ------------------------------
@@ -1442,12 +1421,8 @@ jelly-input[disabled], jelly-textarea[disabled], jelly-select[disabled] {
 
      the shape that carries the state  -> --m-disabled-box    (checkbox box)
      the detail drawn on that shape    -> --m-disabled-mark   (checkbox tick)
+     a large surface that should recede -> --m-disabled-field (field surface)
      any text                          -> --m-disabled-label
-
-   There is no "large surface" row any more. It pointed at --m-disabled-field,
-   which the fields stopped using when they moved to a dim, and nothing here
-   ever used it -- the slider note below says so outright. The token went with
-   it rather than being left declared four times and read none.
 
    Dark offers only two steps -- Primary 900 and Primary 950 -- so no control
    can show three distinct parts. That is the file's constraint, not a
