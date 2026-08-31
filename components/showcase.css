@@ -847,3 +847,15 @@ body {
   padding-block: var(--space-400);                             /* 32 */
 }
 .progress-stage > jelly-progress { width: 100%; }
+
+/* Floored, like the other specimen stages. The spinner changes box on BOTH
+   controls -- dots are a wide capsule and the blob is a circle, 42x18 against
+   44x44 at medium and 54x22 against 56x56 at large -- so without this the card
+   stepped on every click in two directions at once. */
+.spinner-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}

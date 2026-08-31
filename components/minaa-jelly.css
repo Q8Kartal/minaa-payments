@@ -146,14 +146,16 @@ jelly-theme {
   --m-placeholder: var(--primary);      /* Primary 700 — before writing */
   --m-value:       var(--secondary);    /* Secondary 600 — while and after writing */
   --m-accent:      var(--primary);      /* Primary 700 — filled tracks, radio ring */
-  /* The badge is Secondary 600 in DARK and Primary 700 in light -- Ahmad's
-     call, and the same flip the overlays already make. It is its own token
-     rather than a change to --m-accent, which drives filled tracks, focus
-     rings and the radio mark across the whole library: moving that would
-     have repainted a dozen components to recolour one.
-     Jelly draws the outline variant's RIM from the same source, so this
-     carries both. */
-  --m-badge-fill:  var(--primary);   /* Primary 700 */
+  /* A SMALL SOLID BRAND MARK: Primary 700 in light, Secondary 600 in dark --
+     Ahmad's call, and the same flip the overlays already make. The badge and
+     the spinner both want exactly this pair, so they share one token rather
+     than carrying a near-identical one each.
+
+     It is not a change to --m-accent, which drives filled tracks, focus rings
+     and the radio mark across the whole library: moving that would have
+     repainted a dozen components to recolour two. Jelly draws the badge's
+     outline RIM from the same source, so that follows too. */
+  --m-brand-fill:  var(--primary);   /* Primary 700 */
   /* The unpressed control pill. Primary 300 in light; Primary 950 in DARK,
      where it cannot use --m-field: that resolves to Primary 900, which is
      also --m-page, so the pill painted its own background and vanished --
@@ -266,7 +268,7 @@ jelly-theme {
     --m-placeholder: var(--primary-300);
     --m-value:       var(--cream);
     --m-accent:      var(--primary);
-    --m-badge-fill:  var(--secondary);   /* Secondary 600 */
+    --m-brand-fill:  var(--secondary);   /* Secondary 600 */
     --m-pill-fill: var(--primary-950);   /* Primary 950 - a step below --m-page */
     --m-progress-track: var(--primary);   /* Primary 700 - a lift off the 950 card */
     --m-on-accent:   var(--cream);
@@ -312,7 +314,7 @@ jelly-theme[mode="dark"] {
   --m-placeholder: var(--primary-300);
   --m-value:       var(--cream);
   --m-accent:      var(--primary);
-  --m-badge-fill:  var(--secondary);   /* Secondary 600 */
+  --m-brand-fill:  var(--secondary);   /* Secondary 600 */
   --m-pill-fill: var(--primary-950);   /* Primary 950 - a step below --m-page */
   --m-progress-track: var(--primary);   /* Primary 700 - a lift off the 950 card */
   --m-on-accent:   var(--cream);
@@ -350,7 +352,7 @@ jelly-theme[mode="light"] {
   --m-placeholder: var(--primary);
   --m-value:       var(--secondary);
   --m-accent:      var(--primary);
-  --m-badge-fill:  var(--primary);   /* Primary 700 */
+  --m-brand-fill:  var(--primary);   /* Primary 700 */
   --m-pill-fill: var(--primary-300);   /* Primary 300 */
   --m-progress-track: var(--primary-300);   /* Primary 300 */
   --m-on-accent:   var(--cream);
@@ -1740,9 +1742,9 @@ jelly-alert::part(close) {
    30px are the off-scale values; height 24 and 20 already land. */
 jelly-badge {
   --jelly-badge-radius: var(--radius-full);
-  /* Primary 700 in light, Secondary 600 in dark -- see --m-badge-fill. Jelly
+  /* Primary 700 in light, Secondary 600 in dark -- see --m-brand-fill. Jelly
      paints the outline variant's rim from the same source, so both follow. */
-  --jelly-fill:  var(--m-badge-fill);
+  --jelly-fill:  var(--m-brand-fill);
   --jelly-label: var(--m-on-accent);
   /* Jelly ramps 11 / 12.5 / 14 by size. All three were bound to --text-sm on
      the belief that the scale stopped there; with Text xs in place the ramp
@@ -1783,9 +1785,13 @@ jelly-badge[size="large"]::part(badge)  { padding-inline: var(--space-150); }
    divider rather than a surface. */
 jelly-skeleton { --jelly-fill: var(--m-field); }
 
-/* SPINNER paints from --jelly-fill for both of its two implementations. It is
-   an activity indicator, not a surface, so it takes the accent. */
-jelly-spinner { --jelly-fill: var(--m-accent); }
+/* SPINNER paints from --jelly-fill for both of its two implementations -- the
+   gooey dots and the canvas blob alike. It is an activity indicator, not a
+   surface, and it takes the same small-solid-brand pair as the badge: Primary
+   700 in light, Secondary 600 in dark. It was on --m-accent, which is Primary
+   700 in BOTH modes, and that left it the one mark in this group still reading
+   Primary in dark after the badge and the progress fill had moved. */
+jelly-spinner { --jelly-fill: var(--m-brand-fill); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    THE DIALOG  (spiked before building: see the note on scope below)

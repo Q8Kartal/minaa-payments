@@ -554,6 +554,49 @@
     apply();
   }
 
+  /* ── The spinner (entry 28) ─────────────────────────────────────────────
+     `type` switches between two unrelated renderers rather than restyling one,
+     which is the whole point of putting it first: dots is an SVG gooey filter
+     with the canvas body unused, the blob is painted on the canvas. `dots` is
+     the default and so is left off the snippet, the same rule the skeleton's
+     `line` and the badge's `pill` follow.
+
+     `label` stays in the snippet and out of the controls: it sets aria-label
+     and nothing visible, and the component already carries role="status". */
+  function wireSpinnerDemo() {
+    const el = document.getElementById('spin-demo');
+    const type = document.getElementById('spin-type');
+    const size = document.getElementById('spin-size');
+    if (!el || !type || !size || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-28 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.getAttribute('type') === 'blob') a.push('type="blob"');
+      if (el.getAttribute('size') && el.getAttribute('size') !== 'medium') a.push('size="' + el.getAttribute('size') + '"');
+      a.push('label="' + el.getAttribute('label') + '"');
+      box.textContent = '<jelly-spinner ' + a.join(' ') + '></jelly-spinner>';
+    }
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+
+    pills(type, (v) => v === 'dots' ? el.removeAttribute('type') : el.setAttribute('type', v));
+    pills(size, (v) => v === 'medium' ? el.removeAttribute('size') : el.setAttribute('size', v));
+
+    snippet();
+  }
+
   /* ── The skeleton (entry 27) ────────────────────────────────────────────
      A control instead of a paragraph. Three shapes described in prose is worse
      documentation than three shapes you can click between, and this entry now
@@ -814,7 +857,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

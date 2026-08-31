@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260902c"></script>
+<script src="../gate.js?v=20260902e"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260902c"></script>
+<script type="module" src="vendor/jelly.js?v=20260902e"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260902c">
-<link rel="stylesheet" href="showcase.css?v=20260902c">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260902e">
+<link rel="stylesheet" href="showcase.css?v=20260902e">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -918,22 +918,52 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
     <p class="entry-num">Feedback &middot; 28</p>
     <!-- icon pending: `spinner` is one of the glyphs still to be drawn -->
     <h2 class="entry-title">&lt;jelly-spinner&gt;</h2>
-    <p class="entry-note">Two entirely different components behind one attribute.
-       <code>type="dots"</code> is a gooey SVG filter and the canvas body goes unused &mdash;
-       <code>frame()</code> returns immediately, so the physics loop does no work at all. Any other value
-       paints a morphing blob onto the canvas instead, and <code>shape()</code> hands back different
-       geometry for each. The same element, drawn by two unrelated renderers.</p>
+    <p class="entry-note">A loading indicator in two forms &mdash; gooey dots, or a single blob that morphs
+       as it spins.</p>
+
+    <!-- TWO UNRELATED RENDERERS BEHIND ONE ATTRIBUTE, which is the fact the
+         control makes visible and the reason `type` is the first row.
+         type="dots" is an SVG gooey filter and the canvas body goes unused --
+         frame() returns immediately, so the physics loop does no work at all.
+         Any other value paints a morphing blob onto the canvas instead, and
+         shape() hands back different geometry for each: a wide capsule for
+         dots, a circle for the blob. The boxes differ accordingly, 42x18
+         against 44x44 at medium.
+
+         NO `variant` ROW: Jelly's palette again, same reasoning as 07, 25
+         and 26.
+
+         NO `label` ROW either, for a different reason. It sets aria-label and
+         nothing else, so a control for it would change something invisible --
+         the component already carries role="status", and the label is how a
+         screen reader is told WHAT is loading. It belongs in the snippet,
+         which shows it, rather than in a row that appears to do nothing. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">type</span>
+        <div class="pillset" id="spin-type" role="group" aria-label="Type">
+          <jelly-button class="pill" data-value="dots" aria-pressed="true">dots</jelly-button>
+          <jelly-button class="pill" data-value="blob" aria-pressed="false">blob</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="spin-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <jelly-spinner label="Loading rates"></jelly-spinner>
-        <jelly-spinner type="blob" label="Saving"></jelly-spinner>
-        <jelly-spinner type="blob" size="small" label="Small"></jelly-spinner>
+      <div class="spinner-stage" data-controls>
+        <jelly-spinner id="spin-demo" label="Loading rates"></jelly-spinner>
       </div>
-      <template data-snippet-text>&lt;jelly-spinner label="Loading rates"&gt;&lt;/jelly-spinner&gt;
-&lt;jelly-spinner type="blob" label="Saving"&gt;&lt;/jelly-spinner&gt;</template>
+      <template data-snippet-text>&lt;jelly-spinner label="Loading rates"&gt;&lt;/jelly-spinner&gt;</template>
     </div>
   </section>
+
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
        through a token bridge. The library is vendored here rather than loaded from its own origin, and
@@ -955,8 +985,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260902c"></script>
-<script src="minaa-jelly.js?v=20260902c"></script>
-<script src="showcase.js?v=20260902c" defer></script>
+<script src="micons.js?v=20260902e"></script>
+<script src="minaa-jelly.js?v=20260902e"></script>
+<script src="showcase.js?v=20260902e" defer></script>
 </body>
 </html>
