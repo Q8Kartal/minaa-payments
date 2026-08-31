@@ -907,6 +907,55 @@
     sync();
   }
 
+  function wireRadioGroupDemo() {
+    const el = document.getElementById('rg-demo');
+    const lbl = document.getElementById('rg-label');
+    const dir = document.getElementById('rg-direction');
+    const size = document.getElementById('rg-size');
+    if (!el || !lbl || !dir || !size || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-09 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.getAttribute('label')) a.push('label="' + el.getAttribute('label') + '"');
+      /* horizontal is the component's default -- measured, a group with no
+         direction lays out the same as one set to horizontal -- so only the
+         other value is worth printing. */
+      const d = el.getAttribute('direction');
+      if (d && d !== 'horizontal') a.push('direction="' + d + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      /* Built from the radios that are actually slotted, so the snippet cannot
+         drift from the specimen. */
+      const lines = ['<jelly-radio-group' + (a.length ? ' ' + a.join(' ') : '') + '>'];
+      el.querySelectorAll('jelly-radio').forEach((r) => {
+        const at = ['name="type"', 'value="' + r.getAttribute('value') + '"'];
+        if (r.checked) at.push('checked');
+        lines.push('  <jelly-radio ' + at.join(' ') + '>' + r.textContent.trim() + '</jelly-radio>');
+      });
+      lines.push('</jelly-radio-group>');
+      box.textContent = lines.join('\n');
+    }
+
+    const applyLabel = () => {
+      const v = lbl.value == null ? '' : String(lbl.value);
+      if (v) el.setAttribute('label', v); else el.removeAttribute('label');
+      snippet();
+    };
+    lbl.addEventListener('input', applyLabel);
+    lbl.addEventListener('change', applyLabel);
+
+    pillRow(dir, (v) => el.setAttribute('direction', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* Picking a radio changes which one carries `checked`, and the snippet
+       prints that, so it has to follow the group rather than only the pills. */
+    el.addEventListener('change', snippet);
+
+    snippet();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1386,7 +1435,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

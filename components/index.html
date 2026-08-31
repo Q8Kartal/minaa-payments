@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903u"></script>
+<script src="../gate.js?v=20260903v"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903u"></script>
+<script type="module" src="vendor/jelly.js?v=20260903v"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903u">
-<link rel="stylesheet" href="showcase.css?v=20260903u">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903v">
+<link rel="stylesheet" href="showcase.css?v=20260903v">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -438,22 +438,58 @@
     </div>
   </section>
 
-  <!-- ── 09 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 09 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-09">
     <div class="entry-text">
-    <p class="entry-num">Forms · 09</p>
+    <p class="entry-num">Forms &middot; 09</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radiogroup"/></svg> &lt;jelly-radio-group&gt;</h2>
-    <p class="entry-note">A labelled container that carries the legend, the layout and the size for
-       its radios — including ones slotted in later.</p>
+    <p class="entry-note">A labelled container carrying the legend, the layout and the size for its
+       radios, including ones slotted in later.</p>
+
+    <!-- `size` IS THE GROUP'S, NOT EACH RADIO'S. The group writes the attribute
+         onto its children, so one row here sizes all three -- which is the
+         whole reason this component exists next to a bare jelly-radio.
+
+         Both rows work at RUNTIME, checked rather than assumed: setting size
+         re-sizes the slotted radios and setting direction reflows them, live.
+         That is not a given -- jelly-switch settles its geometry on connect and
+         ignores a later size change, so entry 14 has to re-connect its node.
+         This one does not need that. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">label</span>
+        <jelly-input id="rg-label" size="small" value="Payment type" label="Group legend"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">direction</span>
+        <div class="pillset" id="rg-direction" role="group" aria-label="Direction">
+          <jelly-button class="pill" data-value="vertical" aria-pressed="true">vertical</jelly-button>
+          <jelly-button class="pill" data-value="horizontal" aria-pressed="false">horizontal</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="rg-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <jelly-radio-group label="Payment type" direction="vertical">
-          <jelly-radio name="type" value="monthly" checked>Recurring monthly</jelly-radio>
-          <jelly-radio name="type" value="quarterly">Every three months</jelly-radio>
-          <jelly-radio name="type" value="onetime">One-time payment</jelly-radio>
+      <div class="radiogroup-stage" data-controls>
+        <jelly-radio-group id="rg-demo" label="Payment type" direction="vertical">
+          <jelly-radio name="rg-type" value="monthly" checked>Recurring monthly</jelly-radio>
+          <jelly-radio name="rg-type" value="quarterly">Every three months</jelly-radio>
+          <jelly-radio name="rg-type" value="onetime">One-time payment</jelly-radio>
         </jelly-radio-group>
       </div>
+      <template data-snippet-text>&lt;jelly-radio-group label="Payment type" direction="vertical"&gt;
+  &lt;jelly-radio name="type" value="monthly" checked&gt;Recurring monthly&lt;/jelly-radio&gt;
+  &lt;jelly-radio name="type" value="quarterly"&gt;Every three months&lt;/jelly-radio&gt;
+  &lt;jelly-radio name="type" value="onetime"&gt;One-time payment&lt;/jelly-radio&gt;
+&lt;/jelly-radio-group&gt;</template>
     </div>
   </section>
 
@@ -1317,8 +1353,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903u"></script>
-<script src="minaa-jelly.js?v=20260903u"></script>
-<script src="showcase.js?v=20260903u" defer></script>
+<script src="micons.js?v=20260903v"></script>
+<script src="minaa-jelly.js?v=20260903v"></script>
+<script src="showcase.js?v=20260903v" defer></script>
 </body>
 </html>
