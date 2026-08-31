@@ -484,6 +484,76 @@
     snippet();
   }
 
+  /* ── The progress bar (entry 26) ────────────────────────────────────────
+     value and max are free numbers. The states worth seeing on a progress bar
+     are its ends -- empty, full, and a value past max -- and typing reaches
+     them where three preset buttons never would. They are clamped on the way
+     in and the clamped figure is written back, so the field always shows what
+     the component is actually doing; entry 07 does the same and for the same
+     reason: typing 400 and seeing 400 beside a full bar is worse than being
+     corrected.
+
+     `indeterminate` makes value meaningless, so Jelly drops aria-valuenow and
+     the number fields are disabled to match -- a control that cannot affect
+     anything should not look live. */
+  function wireProgressDemo() {
+    const el = document.getElementById('prog-demo');
+    const val = document.getElementById('prog-value');
+    const max = document.getElementById('prog-max');
+    const ind = document.getElementById('prog-indeterminate');
+    const size = document.getElementById('prog-size');
+    if (!el || !val || !max || !ind || !size || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-26 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.hasAttribute('indeterminate')) a.push('indeterminate');
+      else a.push('value="' + el.getAttribute('value') + '"', 'max="' + el.getAttribute('max') + '"');
+      if (el.getAttribute('size') && el.getAttribute('size') !== 'medium') a.push('size="' + el.getAttribute('size') + '"');
+      a.push('label="Budget used"');
+      box.textContent = '<jelly-progress ' + a.join(' ') + '></jelly-progress>';
+    }
+
+    function apply() {
+      const m = Math.max(1, parseInt(max.value, 10) || 1);
+      const v = Math.min(m, Math.max(0, parseInt(val.value, 10) || 0));
+      if (String(m) !== String(max.value)) max.value = String(m);
+      if (String(v) !== String(val.value)) val.value = String(v);
+      el.setAttribute('max', String(m));
+      el.setAttribute('value', String(v));
+      snippet();
+    }
+
+    [val, max].forEach((f) => {
+      f.addEventListener('change', apply);
+      f.addEventListener('input', apply);
+    });
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+
+    pills(size, (v) => v === 'medium' ? el.removeAttribute('size') : el.setAttribute('size', v));
+    pills(ind, (v) => {
+      const on = v === 'true';
+      el.toggleAttribute('indeterminate', on);
+      /* toggleAttribute, not .disabled: on a web component the property is a
+         no-op unless the component defines one, and jelly-input does not. */
+      [val, max].forEach((f) => f.toggleAttribute('disabled', on));
+    });
+
+    apply();
+  }
+
   /* ── The skeleton (entry 27) ────────────────────────────────────────────
      A control instead of a paragraph. Three shapes described in prose is worse
      documentation than three shapes you can click between, and this entry now
@@ -744,7 +814,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireAlertDemo(); wireBadgeDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

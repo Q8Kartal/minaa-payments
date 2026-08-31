@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260901x"></script>
+<script src="../gate.js?v=20260902c"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260901x"></script>
+<script type="module" src="vendor/jelly.js?v=20260902c"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260901x">
-<link rel="stylesheet" href="showcase.css?v=20260901x">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260902c">
+<link rel="stylesheet" href="showcase.css?v=20260902c">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -827,19 +827,49 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
     <p class="entry-num">Feedback &middot; 26</p>
     <!-- icon pending: `progress` is one of the glyphs still to be drawn -->
     <h2 class="entry-title">&lt;jelly-progress&gt;</h2>
-    <p class="entry-note">Its filled portion is <code>--jelly-fill</code> &mdash; the same token that is the
-       <b>field surface</b> on an input and the <b>filled track</b> on a slider. One name, three jobs, which
-       is exactly why the bridge assigns it per component and never across the library. The bar is always a
-       capsule whatever the size: <code>shape()</code> returns <code>radius = track / 2</code>.</p>
+    <p class="entry-note">A progress bar whose leading edge wobbles as it advances; indeterminate sends a
+       blob bouncing wall to wall.</p>
+
+    <!-- NO `variant` ROW. Jelly's own playground offers azure / rose / amber /
+         mint / graphite / platinum / white there; those are Jelly's palette,
+         which is the thing this bridge exists to replace. Same reasoning as
+         entries 07 and 25.
+
+         `value` and `max` are free numbers rather than pills: any pair of
+         fixed examples is an arbitrary pair, and the interesting states of a
+         progress bar are the ends -- 0, full, and past max. Typing gets there;
+         three preset buttons do not. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">value</span>
+        <jelly-input id="prog-value" type="number" value="64" label="0 to max"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">max</span>
+        <jelly-input id="prog-max" type="number" value="100" label="1 or more"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">indeterminate</span>
+        <div class="pillset" id="prog-indeterminate" role="group" aria-label="Indeterminate">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="prog-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="stack" data-controls>
-        <jelly-progress value="64" max="100" label="Budget used"></jelly-progress>
-        <jelly-progress value="28" max="100" size="small" label="Quarterly"></jelly-progress>
-        <jelly-progress indeterminate size="large" label="Fetching rates"></jelly-progress>
+      <div class="progress-stage" data-controls>
+        <jelly-progress id="prog-demo" value="64" max="100" label="Budget used"></jelly-progress>
       </div>
-      <template data-snippet-text>&lt;jelly-progress value="64" max="100" label="Budget used"&gt;&lt;/jelly-progress&gt;
-&lt;jelly-progress indeterminate label="Fetching rates"&gt;&lt;/jelly-progress&gt;</template>
+      <template data-snippet-text>&lt;jelly-progress value="64" max="100" label="Budget used"&gt;&lt;/jelly-progress&gt;</template>
     </div>
   </section>
 
@@ -925,8 +955,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260901x"></script>
-<script src="minaa-jelly.js?v=20260901x"></script>
-<script src="showcase.js?v=20260901x" defer></script>
+<script src="micons.js?v=20260902c"></script>
+<script src="minaa-jelly.js?v=20260902c"></script>
+<script src="showcase.js?v=20260902c" defer></script>
 </body>
 </html>

@@ -154,6 +154,14 @@ jelly-theme {
      Jelly draws the outline variant's RIM from the same source, so this
      carries both. */
   --m-badge-fill:  var(--primary);   /* Primary 700 */
+  /* The unpressed control pill. Primary 300 in light; Primary 950 in DARK,
+     where it cannot use --m-field: that resolves to Primary 900, which is
+     also --m-page, so the pill painted its own background and vanished --
+     an unpressed pill showed as bare text with nothing behind it. 950 is
+     the step below the page, so the pill reads as a recess rather than a
+     lift, which is the right direction for something not yet chosen. */
+  --m-pill-fill: var(--primary-300);   /* Primary 300 */
+  --m-progress-track: var(--primary-300);   /* Primary 300 */
   --m-on-accent:   var(--cream);        /* Neutral 100 — text and marks on accent */
   --m-track-off:   var(--primary-300);  /* Primary 300 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
@@ -259,6 +267,8 @@ jelly-theme {
     --m-value:       var(--cream);
     --m-accent:      var(--primary);
     --m-badge-fill:  var(--secondary);   /* Secondary 600 */
+    --m-pill-fill: var(--primary-950);   /* Primary 950 - a step below --m-page */
+    --m-progress-track: var(--primary);   /* Primary 700 - a lift off the 950 card */
     --m-on-accent:   var(--cream);
     --m-track-off:   var(--cream);
     --m-thumb:       var(--secondary);
@@ -303,6 +313,8 @@ jelly-theme[mode="dark"] {
   --m-value:       var(--cream);
   --m-accent:      var(--primary);
   --m-badge-fill:  var(--secondary);   /* Secondary 600 */
+  --m-pill-fill: var(--primary-950);   /* Primary 950 - a step below --m-page */
+  --m-progress-track: var(--primary);   /* Primary 700 - a lift off the 950 card */
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--cream);
   --m-thumb:       var(--secondary);
@@ -339,6 +351,8 @@ jelly-theme[mode="light"] {
   --m-value:       var(--secondary);
   --m-accent:      var(--primary);
   --m-badge-fill:  var(--primary);   /* Primary 700 */
+  --m-pill-fill: var(--primary-300);   /* Primary 300 */
+  --m-progress-track: var(--primary-300);   /* Primary 300 */
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--primary-300);
   --m-thumb:       var(--secondary);
@@ -490,8 +504,30 @@ jelly-input, jelly-textarea, jelly-select {
   --jelly-label: var(--m-value);
 }
 
-jelly-slider, jelly-range, jelly-switch, jelly-progress {
+jelly-slider, jelly-range, jelly-switch {
   --jelly-fill: var(--m-accent);
+}
+
+/* PROGRESS is no longer in that group. Its filled portion is Secondary 600 in
+   BOTH modes -- Ahmad's call -- where slider, range and switch stay on the
+   accent, so one shared declaration could not carry both any more.
+
+   Its track leaves --m-track-off for the same reason: that token is a switch's
+   off state, which in dark must read as a control and resolves to Neutral 100.
+   A progress track is the unfilled REMAINDER, not a control, and cream made it
+   the brightest thing on the card while the bar it was measuring sat quieter.
+   --m-progress-track is Primary 300 in light and Primary 700 in dark, so the
+   remainder is a lift off the surface in both. */
+jelly-progress {
+  /* --jelly-accent, NOT --jelly-fill. The progress bar is the one component in
+     this group that paints its filled portion from the accent: its :host
+     declares --jelly-accent and its styles() ask for `color: --jelly-accent`,
+     while --jelly-fill reaches nothing here. Setting the wrong one left the
+     bar Primary 700 and, once the track moved to Primary 700 in dark, fill and
+     track measured 1:1 -- an invisible bar that looked like a colour choice
+     rather than a mis-targeted variable. */
+  --jelly-accent: var(--secondary);         /* Secondary 600 - both modes */
+  --jelly-track:  var(--m-progress-track);
 }
 
 /* ── The brand face, forced onto every Jelly host ──────────────────────────
