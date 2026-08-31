@@ -629,6 +629,149 @@
     snippet();
   }
 
+  /* SLIDER, RANGE AND TEXTAREA share one shape: a pill row per attribute, one
+     specimen, and a snippet rebuilt from the element after every change.
+
+     None of the three gets a control for its own VALUE. On a slider and a
+     range the specimen is already the value control -- drag a knob, or focus
+     and use the arrows -- and on a textarea a one-line input would be the
+     wrong shape for a multi-line field. In all three the snippet listens to
+     the component's own `input` event instead, so the code follows the
+     specimen however the value got there. */
+
+  /* One pill row, delegated. Shared by the three wirings below rather than
+     written out three times. */
+  function pillRow(root, onPick, after) {
+    root.addEventListener('click', (e) => {
+      const b = e.target.closest('.pill');
+      if (!b) return;
+      root.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+      onPick(b.dataset.value);
+      after();
+    });
+  }
+
+  function wireSliderDemo() {
+    const el = document.getElementById('sld-demo');
+    const step = document.getElementById('sld-step');
+    const size = document.getElementById('sld-size');
+    const dis = document.getElementById('sld-disabled');
+    if (!el || !step || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-13 .code code');
+      if (!box) return;
+      const a = [];
+      /* el.value, not the attribute: jelly-slider does not reflect a dragged
+         value back to the attribute, so reading getAttribute would print the
+         number the element was born with. The same trap the select had. */
+      a.push('value="' + el.value + '"');
+      const st = el.getAttribute('step');
+      if (st && st !== '1') a.push('step="' + st + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-slider ' + a.join(' ') + '></jelly-slider>';
+    }
+
+    pillRow(step, (v) => el.setAttribute('step', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    el.addEventListener('input', snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireRangeDemo() {
+    const el = document.getElementById('rng-demo');
+    const step = document.getElementById('rng-step');
+    const size = document.getElementById('rng-size');
+    const dis = document.getElementById('rng-disabled');
+    if (!el || !step || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-10 .code code');
+      if (!box) return;
+      /* THERE IS NO .low OR .high. jelly-range exposes ONE accessor, `value`,
+         and it returns the pair as a comma string -- "150,750" -- so reading
+         el.low printed undefined into the snippet. Checked against the
+         prototype's own accessors rather than guessed a second time.
+
+         The attributes are the fallback, not the source: like the slider, a
+         dragged knob does not write back to them. */
+      const pair = String(el.value == null ? '' : el.value).split(',');
+      const low = (pair[0] || el.getAttribute('low') || '').trim();
+      const high = (pair[1] || el.getAttribute('high') || '').trim();
+      /* min and max are always printed: they are the scale the interval is
+         measured on, and low/high mean nothing without them. */
+      const a = ['min="' + (el.getAttribute('min') || '0') + '"',
+                 'max="' + (el.getAttribute('max') || '100') + '"',
+                 'low="' + low + '"',
+                 'high="' + high + '"'];
+      const st = el.getAttribute('step');
+      if (st && st !== '1') a.push('step="' + st + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-range ' + a.join(' ') + '></jelly-range>';
+    }
+
+    pillRow(step, (v) => el.setAttribute('step', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    el.addEventListener('input', snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireTextareaDemo() {
+    const el = document.getElementById('ta-demo');
+    const ph = document.getElementById('ta-placeholder');
+    const rows = document.getElementById('ta-rows');
+    const size = document.getElementById('ta-size');
+    const dis = document.getElementById('ta-disabled');
+    const ro = document.getElementById('ta-readonly');
+    if (!el || !ph || !rows || !size || !dis || !ro || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-15 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.getAttribute('placeholder')) a.push('placeholder="' + el.getAttribute('placeholder') + '"');
+      /* rows 2 is Jelly's own default -- measured: an element with no rows
+         attribute reports rows 2 on its inner textarea -- so printing it would
+         document an attribute that changes nothing. */
+      const rw = el.getAttribute('rows');
+      if (rw && rw !== '2') a.push('rows="' + rw + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.value) a.push('value="' + el.value + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      if (el.hasAttribute('readonly')) a.push('readonly');
+      box.textContent = '<jelly-textarea' + (a.length ? ' ' + a.join(' ') : '') + '></jelly-textarea>';
+    }
+
+    const applyPh = () => {
+      const v = ph.value == null ? '' : String(ph.value);
+      if (v) el.setAttribute('placeholder', v); else el.removeAttribute('placeholder');
+      snippet();
+    };
+    ph.addEventListener('input', applyPh);
+    ph.addEventListener('change', applyPh);
+
+    pillRow(rows, (v) => el.setAttribute('rows', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    pillRow(ro, (v) => el.toggleAttribute('readonly', v === 'true'), snippet);
+    el.addEventListener('input', snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1108,7 +1251,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireRadioDemo(); wireSelectDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

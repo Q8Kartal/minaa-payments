@@ -959,6 +959,41 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Centred and floored, like the other single-specimen stages.
+
+   NO WIDTH ON ANY OF THESE THREE. `size` carries a width as well as a height
+   on all of them -- slider 200x30 / 240x36 / 300x44, range 220x30 / 260x36 /
+   320x44, textarea 280x76 / 320x96 / 380x124 -- so a width from the page
+   overrides the very thing the size row exists to show. That is exactly what
+   the old `width: 100%` did to these three before they had controllers.
+
+   The floors are read off the tallest state each control can reach through
+   its own controls, not off the size it happens to load at:
+
+     slider / range   44 at large, so 48 is the next step up
+     textarea         rows and size BOTH move the height and they COMPOUND,
+                      so the floor is the tallest pair, not the tallest of
+                      either. Measured across all nine combinations: large at
+                      rows 6 is 220, where `size` alone tops out at 124 and a
+                      first guess of 192 would still have let the card step. */
+.slider-stage,
+.range-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-600) + var(--space-400) * 2);   /* 48 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
+.textarea-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 224 clears the measured 220, built from steps: 80 + 80 + 64. */
+  min-height: calc(var(--space-1000) * 2 + var(--space-800) + var(--space-400) * 2);
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* Centred and floored. jelly-radio declares no width or height of its own --
    it sizes to its label -- so nothing here overrides the component; the floor
    is only so the card does not step as `size` moves the control. */

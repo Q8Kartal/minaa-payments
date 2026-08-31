@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903j"></script>
+<script src="../gate.js?v=20260903o"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903j"></script>
+<script type="module" src="vendor/jelly.js?v=20260903o"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903j">
-<link rel="stylesheet" href="showcase.css?v=20260903j">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903o">
+<link rel="stylesheet" href="showcase.css?v=20260903o">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -396,18 +396,52 @@
     </div>
   </section>
 
-  <!-- ── 10 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 10 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-10">
     <div class="entry-text">
-    <p class="entry-num">Forms · 10</p>
+    <p class="entry-num">Forms &middot; 10</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-range"/></svg> &lt;jelly-range&gt;</h2>
-    <p class="entry-note">Two knobs picking a low/high interval, each carrying its own focus and ARIA.
-       Track and thumb share the slider's geometry so the two read as one family.</p>
+    <p class="entry-note">Two knobs picking a low/high interval, each with its own focus and ARIA, on the
+       slider's track and thumb so the two read as one family.</p>
+
+    <!-- NO `low`/`high` ROWS. They are what the component is FOR, and the
+         specimen already sets them the way a reader would: by dragging a knob.
+         The snippet follows both, so the interval in the code is always the
+         interval on screen.
+
+         `size` carries a WIDTH as well as a height -- 220x30 / 260x36 / 320x44
+         -- which is why nothing here sets a width of its own. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">step</span>
+        <div class="pillset" id="rng-step" role="group" aria-label="Step">
+          <jelly-button class="pill" data-value="1" aria-pressed="false">1</jelly-button>
+          <jelly-button class="pill" data-value="10" aria-pressed="true">10</jelly-button>
+          <jelly-button class="pill" data-value="50" aria-pressed="false">50</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="rng-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="rng-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen"><jelly-range min="0" max="1000" low="150" high="750" step="10" label="Rent"></jelly-range><figcaption>0–1000, step 10</figcaption></figure>
+      <div class="range-stage" data-controls>
+        <jelly-range id="rng-demo" min="0" max="1000" low="150" high="750" step="10" label="Rent"></jelly-range>
       </div>
+      <template data-snippet-text>&lt;jelly-range min="0" max="1000" low="150" high="750" step="10"&gt;&lt;/jelly-range&gt;</template>
     </div>
   </section>
 
@@ -504,21 +538,52 @@
     </div>
   </section>
 
-  <!-- ── 13 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 13 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-13">
     <div class="entry-text">
-    <p class="entry-num">Forms · 13</p>
+    <p class="entry-num">Forms &middot; 13</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-slider"/></svg> &lt;jelly-slider&gt;</h2>
     <p class="entry-note">A single value on a track, backed by a hidden native range input so it still
-       participates in a form and answers to the keyboard.</p>
+       posts with a form and answers to the keyboard.</p>
+
+    <!-- NO `value` ROW, because the specimen IS the value control -- drag it,
+         or focus it and use the arrow keys, and the snippet follows. A row of
+         preset values would be a worse copy of the thing itself.
+
+         `step` earns a row for the opposite reason: it changes how the knob
+         MOVES rather than where it sits, which stays invisible until you drag
+         with each one selected. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">step</span>
+        <div class="pillset" id="sld-step" role="group" aria-label="Step">
+          <jelly-button class="pill" data-value="1" aria-pressed="true">1</jelly-button>
+          <jelly-button class="pill" data-value="10" aria-pressed="false">10</jelly-button>
+          <jelly-button class="pill" data-value="25" aria-pressed="false">25</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="sld-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="sld-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen"><jelly-slider value="60" label="Occupancy"></jelly-slider><figcaption>0–100</figcaption></figure>
+      <div class="slider-stage" data-controls>
+        <jelly-slider id="sld-demo" value="60" label="Occupancy"></jelly-slider>
       </div>
-      <div class="row">
-        <figure class="specimen"><jelly-slider value="30" min="0" max="100" step="10" label="Steps of ten"></jelly-slider><figcaption>step="10"</figcaption></figure>
-      </div>
+      <template data-snippet-text>&lt;jelly-slider value="60"&gt;&lt;/jelly-slider&gt;</template>
     </div>
   </section>
 
@@ -545,19 +610,66 @@
     </div>
   </section>
 
-  <!-- ── 15 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 15 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-15">
     <div class="entry-text">
-    <p class="entry-num">Forms · 15</p>
+    <p class="entry-num">Forms &middot; 15</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-textarea"/></svg> &lt;jelly-textarea&gt;</h2>
-    <p class="entry-note">Multi-line text that auto-grows between a minimum and maximum height while the
-       membrane follows. Radius-24 rather than the field capsule, because a growing box cannot stay a capsule.</p>
+    <p class="entry-note">Multi-line text that auto-grows between a minimum and a maximum while the membrane
+       follows. Radius-24 rather than the field capsule, because a growing box cannot stay a capsule.</p>
+
+    <!-- NO `value` ROW: type into the specimen. A one-line control standing in
+         for a multi-line field is the wrong shape for the thing it sets, and
+         the snippet follows the specimen either way.
+
+         `rows` AND `size` both move the height, and they are not the same
+         knob. size sets the whole field, width included -- 280x76 / 320x96 /
+         380x124 -- while rows sets how many lines the box opens at: 2 / 4 / 6
+         measured 96 / 144 / 192 at medium. Measured before the row was built,
+         because a control documenting an attribute that does nothing would be
+         worse than no control at all. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">placeholder</span>
+        <jelly-input id="ta-placeholder" size="small" value="Anything the team should know" label="Placeholder text"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">rows</span>
+        <div class="pillset" id="ta-rows" role="group" aria-label="Rows">
+          <jelly-button class="pill" data-value="2" aria-pressed="true">2</jelly-button>
+          <jelly-button class="pill" data-value="4" aria-pressed="false">4</jelly-button>
+          <jelly-button class="pill" data-value="6" aria-pressed="false">6</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="ta-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="ta-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">readonly</span>
+        <div class="pillset" id="ta-readonly" role="group" aria-label="Readonly">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen"><jelly-textarea label="Note" placeholder="Anything the team should know"></jelly-textarea><figcaption>Empty</figcaption></figure>
-        <figure class="specimen"><jelly-textarea label="Note" value="Bay 4 renewed for twelve months. Rate held at last year's figure."></jelly-textarea><figcaption>Filled</figcaption></figure>
+      <div class="textarea-stage" data-controls>
+        <jelly-textarea id="ta-demo" label="Note" placeholder="Anything the team should know"></jelly-textarea>
       </div>
+      <template data-snippet-text>&lt;jelly-textarea placeholder="Anything the team should know"&gt;&lt;/jelly-textarea&gt;</template>
     </div>
   </section>
 
@@ -1115,8 +1227,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903j"></script>
-<script src="minaa-jelly.js?v=20260903j"></script>
-<script src="showcase.js?v=20260903j" defer></script>
+<script src="micons.js?v=20260903o"></script>
+<script src="minaa-jelly.js?v=20260903o"></script>
+<script src="showcase.js?v=20260903o" defer></script>
 </body>
 </html>
