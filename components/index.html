@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903b"></script>
+<script src="../gate.js?v=20260903d"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903b"></script>
+<script type="module" src="vendor/jelly.js?v=20260903d"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903b">
-<link rel="stylesheet" href="showcase.css?v=20260903b">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903d">
+<link rel="stylesheet" href="showcase.css?v=20260903d">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -406,7 +406,7 @@
     </div>
     <div class="demo" data-demo>
       <div class="row">
-        <figure class="specimen field"><jelly-range min="0" max="1000" low="150" high="750" step="10" label="Rent"></jelly-range><figcaption>0–1000, step 10</figcaption></figure>
+        <figure class="specimen"><jelly-range min="0" max="1000" low="150" high="750" step="10" label="Rent"></jelly-range><figcaption>0–1000, step 10</figcaption></figure>
       </div>
     </div>
   </section>
@@ -434,29 +434,63 @@
     </div>
   </section>
 
-  <!-- ── 12 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 12 ───────────────────────────────────────────────────────── -->
   <section class="entry" id="c-12">
     <div class="entry-text">
-    <p class="entry-num">Forms · 12</p>
+    <p class="entry-num">Forms &middot; 12</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-select"/></svg> &lt;jelly-select&gt;</h2>
-    <p class="entry-note">A combobox whose trigger and option panel are both soft-body surfaces; the
-       panel unfolds out of the field and flips above it when the viewport has no room below.</p>
+    <p class="entry-note">A combobox whose trigger and panel are both soft-body surfaces; the panel
+       unfolds out of the field and flips above it when there is no room below.</p>
+
+    <!-- `size` carries a WIDTH as well as a height on this component --
+         210x46 / 240x54 / 280x62 -- which is what makes it worth a control
+         row, and also why the page must set no width of its own. The old
+         two-specimen version did exactly that (`width: 100%`), stretching the
+         field to 553px, and that is why the sizes had looked identical: the
+         heights were moving and the widths could not.
+
+         No `variant` row. That is Jelly's own palette -- azure, rose, amber,
+         mint, graphite, platinum, white -- and none of it is ours, the same
+         reason 07, 08, 25, 26 and 28 leave it out. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">value</span>
+        <div class="pillset" id="sel-value" role="group" aria-label="Value">
+          <jelly-button class="pill" data-value="KWD" aria-pressed="true">KWD</jelly-button>
+          <jelly-button class="pill" data-value="USD" aria-pressed="false">USD</jelly-button>
+          <jelly-button class="pill" data-value="EUR" aria-pressed="false">EUR</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="sel-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="sel-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen field">
-          <jelly-select label="Currency" placeholder="Choose a currency" value="KWD">
-            <jelly-option value="KWD">Kuwaiti Dinar</jelly-option>
-            <jelly-option value="USD">US Dollar</jelly-option>
-            <jelly-option value="EUR">Euro</jelly-option>
-          </jelly-select>
-          <figcaption>Three options</figcaption>
-        </figure>
-        <figure class="specimen field">
-          <jelly-select label="Locked" placeholder="Unavailable" disabled></jelly-select>
-          <figcaption>Disabled</figcaption>
-        </figure>
+      <div class="select-stage" data-controls>
+        <jelly-select id="sel-demo" label="Currency" placeholder="Choose a currency" value="KWD">
+          <jelly-option value="KWD">Kuwaiti Dinar</jelly-option>
+          <jelly-option value="USD">US Dollar</jelly-option>
+          <jelly-option value="EUR">Euro</jelly-option>
+        </jelly-select>
       </div>
+      <template data-snippet-text>&lt;jelly-select value="KWD"&gt;
+  &lt;jelly-option value="KWD"&gt;Kuwaiti Dinar&lt;/jelly-option&gt;
+  &lt;jelly-option value="USD"&gt;US Dollar&lt;/jelly-option&gt;
+  &lt;jelly-option value="EUR"&gt;Euro&lt;/jelly-option&gt;
+&lt;/jelly-select&gt;</template>
     </div>
   </section>
 
@@ -470,10 +504,10 @@
     </div>
     <div class="demo" data-demo>
       <div class="row">
-        <figure class="specimen field"><jelly-slider value="60" label="Occupancy"></jelly-slider><figcaption>0–100</figcaption></figure>
+        <figure class="specimen"><jelly-slider value="60" label="Occupancy"></jelly-slider><figcaption>0–100</figcaption></figure>
       </div>
       <div class="row">
-        <figure class="specimen field"><jelly-slider value="30" min="0" max="100" step="10" label="Steps of ten"></jelly-slider><figcaption>step="10"</figcaption></figure>
+        <figure class="specimen"><jelly-slider value="30" min="0" max="100" step="10" label="Steps of ten"></jelly-slider><figcaption>step="10"</figcaption></figure>
       </div>
     </div>
   </section>
@@ -511,8 +545,8 @@
     </div>
     <div class="demo" data-demo>
       <div class="row">
-        <figure class="specimen field"><jelly-textarea label="Note" placeholder="Anything the team should know"></jelly-textarea><figcaption>Empty</figcaption></figure>
-        <figure class="specimen field"><jelly-textarea label="Note" value="Bay 4 renewed for twelve months. Rate held at last year's figure."></jelly-textarea><figcaption>Filled</figcaption></figure>
+        <figure class="specimen"><jelly-textarea label="Note" placeholder="Anything the team should know"></jelly-textarea><figcaption>Empty</figcaption></figure>
+        <figure class="specimen"><jelly-textarea label="Note" value="Bay 4 renewed for twelve months. Rate held at last year's figure."></jelly-textarea><figcaption>Filled</figcaption></figure>
       </div>
     </div>
   </section>
@@ -1071,8 +1105,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903b"></script>
-<script src="minaa-jelly.js?v=20260903b"></script>
-<script src="showcase.js?v=20260903b" defer></script>
+<script src="micons.js?v=20260903d"></script>
+<script src="minaa-jelly.js?v=20260903d"></script>
+<script src="showcase.js?v=20260903d" defer></script>
 </body>
 </html>

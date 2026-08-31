@@ -535,6 +535,64 @@
      throws away the Micons swap. minaaAlertIcons() re-dresses on exactly that,
      so this control is also the live test of it -- if the glyph ever reverts
      to Jelly's own, clicking a tone here is where it shows. */
+  function wireSelectDemo() {
+    const el = document.getElementById('sel-demo');
+    const value = document.getElementById('sel-value');
+    const size = document.getElementById('sel-size');
+    const dis = document.getElementById('sel-disabled');
+    if (!el || !value || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    /* The option list is declared once, here and in the markup, and the
+       snippet is rebuilt from this -- so a copied snippet always lists the
+       options the specimen is actually showing. */
+    const OPTIONS = [['KWD', 'Kuwaiti Dinar'], ['USD', 'US Dollar'], ['EUR', 'Euro']];
+
+    function snippet() {
+      const box = document.querySelector('#c-12 .code code');
+      if (!box) return;
+      const a = [];
+      /* el.value, NOT the attribute. jelly-select does not reflect value back
+         to the attribute, so reading getAttribute here printed the value the
+         element was born with and the snippet lagged the control by one pick
+         -- measured, not assumed. */
+      if (el.value) a.push('value="' + el.value + '"');
+      /* medium is printed only when it is not the default. Jelly's base :host
+         already carries 240x54, so `size="medium"` would document an attribute
+         that changes nothing -- the opposite of jelly-input, whose base :host
+         has no width at all and whose snippet must always carry a size. */
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      const lines = ['<jelly-select' + (a.length ? ' ' + a.join(' ') : '') + '>'];
+      OPTIONS.forEach(
+        (o) => lines.push('  <jelly-option value="' + o[0] + '">' + o[1] + '</jelly-option>'));
+      lines.push('</jelly-select>');
+      box.textContent = lines.join('\n');
+    }
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+    /* .value, the PROPERTY, the same call entry 08 makes for the radio:
+       jelly-select owns the trigger label and the panel's selected row, and
+       setting the attribute behind its back leaves those two disagreeing. */
+    pills(value, (v) => { el.value = v; });
+    pills(size, (v) => el.setAttribute('size', v));
+    /* toggleAttribute, never el.disabled -- assigning the property on a web
+       component that does not define it silently no-ops. */
+    pills(dis, (v) => el.toggleAttribute('disabled', v === 'true'));
+
+    snippet();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1014,7 +1072,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireRadioDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireRadioDemo(); wireSelectDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

@@ -275,15 +275,16 @@ body {
   line-height: var(--text-sm-lh);
 }
 
-/* A field specimen needs its control to fill the column rather than hug.
-   Jelly gives several of these a fixed intrinsic width — select is 210/240/280
-   by size, and slider defaults to 240 — so filling has to be asked for. */
-.specimen.field { align-self: stretch; flex: 1 1 260px; }
-.specimen.field jelly-input,
-.specimen.field jelly-select,
-.specimen.field jelly-textarea,
-.specimen.field jelly-slider,
-.specimen.field jelly-range { width: 100%; }
+/* Field specimens deliberately carry NO width rule. Jelly declares a width AND a
+   height on each of these, per size — textarea 280/320/380, select 210/240/280,
+   slider 200/240/300, range 220/260/320 — and those numbers are the component's
+   API, not a default to improve on. The `width: 100%` that used to live here
+   stretched a 240px slider to 553 and squeezed a 320px textarea to 260, so the
+   page documented sizes the library does not have.
+
+   This is the fourth override of a component-defined size to be written and then
+   removed (input, progress, skeleton, these). If a specimen looks too narrow for
+   its column, that IS the component — change `size`, or let the row wrap. */
 
 /* ── The theming demo ───────────────────────────────────────────────────────
    A composed preview rather than a lone control, because <jelly-theme> does
@@ -921,6 +922,21 @@ svg[data-sq-fill] {
    prints size even though "medium" reads like a default: copied without it,
    the field would have no width. */
 .input-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
+/* Centred and floored, like the other single-specimen stages. `size` moves the
+   select 210x46 / 240x54 / 280x62, so the card needs a floor or it would step
+   on every click. 62 is the tallest, and 64 is the next step up.
+
+   NO WIDTH HERE. On this component `size` carries a width as well as a height,
+   so a width from the page overrides the one thing the control exists to show
+   -- which is precisely what the old `width: 100%` did to it. */
+.select-stage {
   display: flex;
   align-items: center;
   justify-content: center;
