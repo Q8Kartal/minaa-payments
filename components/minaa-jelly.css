@@ -67,6 +67,7 @@
   --display-xl: 60px; --display-xl-lh: 72px;
   --display-2xl: 72px; --display-2xl-lh: 90px;
 
+  --primary-200: #C8E3FF;   /* Primary 200  — dark-mode disabled slider fill */
   --primary-300: #A1CFFF;   /* Primary 300  — light-mode fields and tracks */
   --primary-600: #007FDA;   /* Primary 600  */
   --primary:     #0062AD;   /* Primary 700  — Minaã Blue */
@@ -262,6 +263,13 @@ jelly-theme {
   --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
+  /* The slider and range read these three instead of box/mark, because a track
+     has an anatomy those two cannot describe: an unfilled part, a filled part
+     and a knob. Light keeps exactly what box/mark already gave it, so nothing
+     moves here; dark is the mode that was redrawn. */
+  --m-disabled-track: var(--m-disabled-box);
+  --m-disabled-fill:  var(--m-disabled-mark);
+  --m-disabled-knob:  var(--m-disabled-mark);
   --m-disabled-thumb: var(--secondary);     /* Secondary 600 - see the note on the switch */
   --m-disabled-label: var(--primary);       /* Primary 700 */
 }
@@ -302,6 +310,23 @@ jelly-theme {
   --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
+  /* DISABLED KEEPS THE ENABLED ANATOMY AND STEPS THE BRAND COLOURS LIGHTER.
+     Enabled dark is a cream track, a Primary 700 fill and a Secondary 600 knob;
+     disabled is the same drawing with the two brand hues stepped down, so it
+     reads as the same control switched off rather than as a different one.
+
+     The old mapping had it as a Primary 900 track with a Primary 950 fill and
+     knob -- two near-identical darks on a Primary 950 card, which is why it
+     looked nothing like the specification. Measured before it was changed.
+
+     Primary 200 was not in this project -- the bridge carried 300, 600, 700,
+     900 and 950 only -- and it was NOT interpolated from the neighbours. It was
+     read off the Colour Foundations page as #C8E3FF and added to the palette
+     above. A brand ramp is not a gradient, and the same fetch confirmed the
+     five steps already here still match the file. */
+  --m-disabled-track: var(--cream);          /* Neutral 100 - as the enabled track */
+  --m-disabled-fill:  var(--primary-200);    /* Primary 200 */
+  --m-disabled-knob:  var(--secondary-300);  /* Secondary 300 */
   --m-disabled-thumb: var(--primary-950);
   --m-disabled-label: var(--primary-900);
   }
@@ -348,6 +373,23 @@ jelly-theme[mode="dark"] {
   --m-disabled-field: var(--primary-950);
   --m-disabled-box:   var(--primary-900);
   --m-disabled-mark:  var(--primary-950);
+  /* DISABLED KEEPS THE ENABLED ANATOMY AND STEPS THE BRAND COLOURS LIGHTER.
+     Enabled dark is a cream track, a Primary 700 fill and a Secondary 600 knob;
+     disabled is the same drawing with the two brand hues stepped down, so it
+     reads as the same control switched off rather than as a different one.
+
+     The old mapping had it as a Primary 900 track with a Primary 950 fill and
+     knob -- two near-identical darks on a Primary 950 card, which is why it
+     looked nothing like the specification. Measured before it was changed.
+
+     Primary 200 was not in this project -- the bridge carried 300, 600, 700,
+     900 and 950 only -- and it was NOT interpolated from the neighbours. It was
+     read off the Colour Foundations page as #C8E3FF and added to the palette
+     above. A brand ramp is not a gradient, and the same fetch confirmed the
+     five steps already here still match the file. */
+  --m-disabled-track: var(--cream);          /* Neutral 100 - as the enabled track */
+  --m-disabled-fill:  var(--primary-200);    /* Primary 200 */
+  --m-disabled-knob:  var(--secondary-300);  /* Secondary 300 */
   --m-disabled-thumb: var(--primary-950);
   --m-disabled-label: var(--primary-900);
 }
@@ -416,6 +458,13 @@ jelly-theme[mode="light"] {
   --m-disabled-field: var(--cream-50);      /* Neutral 50 - the card it sits on */
   --m-disabled-box:   var(--secondary-300); /* Secondary 300 */
   --m-disabled-mark:  var(--primary);       /* Primary 700 - derived, see above */
+  /* The slider and range read these three instead of box/mark, because a track
+     has an anatomy those two cannot describe: an unfilled part, a filled part
+     and a knob. Light keeps exactly what box/mark already gave it, so nothing
+     moves here; dark is the mode that was redrawn. */
+  --m-disabled-track: var(--m-disabled-box);
+  --m-disabled-fill:  var(--m-disabled-mark);
+  --m-disabled-knob:  var(--m-disabled-mark);
   --m-disabled-thumb: var(--secondary);     /* Secondary 600 - see the note on the switch */
   --m-disabled-label: var(--primary);       /* Primary 700 */
 }
@@ -1482,12 +1531,16 @@ jelly-switch[disabled] {
    knob goes through the fork token so it still deforms with the blob. */
 jelly-slider[disabled], jelly-range[disabled] {
   opacity: 1;
-  --jelly-track:                   var(--m-disabled-box);
-  --jelly-fill:                    var(--m-disabled-mark);
-  --jelly-accent:                  var(--m-disabled-mark);
-  --jelly-color-background-accent: var(--m-disabled-mark);
-  --jelly-slider-knob:             var(--m-disabled-mark);
-  --jelly-range-knob:              var(--m-disabled-mark);
+  /* Three parts, three tokens. The fill is named by --jelly-fill AND by the two
+     accent properties because Jelly paints the filled span from the accent and
+     the connecting bar from the fill; pointing them at one token is what stops
+     the two halves of the same stripe drifting apart. */
+  --jelly-track:                   var(--m-disabled-track);
+  --jelly-fill:                    var(--m-disabled-fill);
+  --jelly-accent:                  var(--m-disabled-fill);
+  --jelly-color-background-accent: var(--m-disabled-fill);
+  --jelly-slider-knob:             var(--m-disabled-knob);
+  --jelly-range-knob:              var(--m-disabled-knob);
   color:                           var(--m-disabled-label);
 }
 
