@@ -702,12 +702,14 @@
      documentation than three shapes you can click between, and this entry now
      carries no note at all.
 
-     The control writes TWO things, and the second is not padding. In our
-     vendored build shape() only special-cases `circle`; `line` and `rect` take
-     the same branch and are geometrically identical. What separates them in
-     Jelly's own documentation is the size the docs page gives them -- so this
-     sets `shape` for the component and `data-shape` for the stylesheet, and
-     the size difference is honestly the page's, not a pretended API. */
+     The control writes ONE thing, and that is the correction. Jelly sizes
+     every shape itself -- line 220x16, square 220x88, circle 52x52 -- so
+     setting the attribute is the whole job. This used to also write a
+     data-shape for the stylesheet to size from, which overrode the component
+     and made the control look inert.
+
+     The value is `square`, not the `rect` of Jelly's newer documentation:
+     the build vendored here does not define rect. */
   function wireSkeletonDemo() {
     const spec = document.getElementById('skeleton-demo');
     const set  = document.getElementById('skeleton-shape');
@@ -720,9 +722,10 @@
       const v = spec.dataset.shape;
       /* `line` is the default, so the snippet shows the bare element for it --
          printing shape="line" would teach an attribute that does nothing. */
-      box.textContent = v === 'line'
-        ? '<jelly-skeleton></jelly-skeleton>'
-        : '<jelly-skeleton shape="' + v + '"></jelly-skeleton>';
+      /* shape is always printed: the base :host is 200x16 and each shape has
+         its own box, so omitting it does not give you the line you are
+         looking at. */
+      box.textContent = '<jelly-skeleton shape="' + v + '"></jelly-skeleton>';
     }
 
     set.addEventListener('click', (e) => {
@@ -732,16 +735,10 @@
       set.querySelectorAll('.pill').forEach(
         (p) => p.setAttribute('aria-pressed', String(p.dataset.value === v)));
 
-      spec.dataset.shape = v;
-      /* The attribute is set for `rect` even though our build's shape() does
-         not read it, because the snippet prints it and the two must not
-         disagree -- a code sample showing an attribute the live demo is not
-         carrying is the sample lying about the demo. `rect` is a real value in
-         Jelly's vocabulary; this build just draws it the same as the default,
-         so setting it costs nothing and starts working the day the vendored
-         copy differentiates. `line` IS the default, so it is left off. */
-      if (v === 'line') spec.removeAttribute('shape');
-      else spec.setAttribute('shape', v);
+      /* Always set, never removed: every shape including `line` has its own
+         box in Jelly's stylesheet, so an unset shape is a different size
+         rather than the default one. */
+      spec.setAttribute('shape', v);
       snippet();
     });
 

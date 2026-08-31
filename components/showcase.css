@@ -825,18 +825,15 @@ svg[data-sq-fill] {
   }
 }
 
-/* The skeleton is the one specimen that cannot size itself. It stands in for
-   content that has not arrived, so by definition nothing inside it implies a
-   height -- Jelly gives the host `width: 200px; height: 16px` and leaves the
-   rest to the page. These come off the scale rather than sitting inline in the
-   markup.
+/* NO SIZES HERE, and that is a correction rather than an omission. Jelly's
+   :host sizes every shape itself -- line 220x16, square 220x88, circle 52x52 --
+   so the page had no business setting any of them.
 
-   THE SIZES ARE THE PAGE'S DOING, NOT THE COMPONENT'S, and that is the honest
-   part. In our vendored build shape() only special-cases `circle`; `line` and
-   `rect` take the same branch and produce identical geometry. What separates
-   them in Jelly's own documentation is the size the docs page hands them, so
-   the control here does the same thing and the difference is real rather than
-   pretended. */
+   I had concluded the opposite from shape() in the JS, which only
+   special-cases `circle`, and wrote that line and square were geometrically
+   identical and that the difference in Jelly's own docs came from the page
+   sizing them. That was reading half the component: shape() picks the CORNER,
+   the stylesheet picks the BOX, and I only read the first. */
 .skeleton-stage {
   display: flex;
   align-items: center;
@@ -846,17 +843,12 @@ svg[data-sq-fill] {
      is a worse preview than no control at all.
 
      The page sets `* { box-sizing: border-box }`, so min-height INCLUDES the
-     padding -- written as a bare 64 it left 0 of content box and the stage
-     measured 80 for the line and 128 for the rect, jumping on exactly the
-     click it was meant to absorb. The calc is the tallest shape plus both
-     paddings, and every term in it is a step on the scale. */
-  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+     padding -- written as a bare 64 it left 0 of content box and the card
+     jumped on exactly the click it was meant to absorb. The calc is the
+     tallest shape (square, 88) plus both paddings. */
+  min-height: calc(var(--space-1000) + var(--space-400) * 2);  /* 80 + 32 + 32 */
   padding-block: var(--space-400);       /* 32 */
 }
-
-.skeleton-spec[data-shape="line"]   { width: 100%; height: var(--space-200); }
-.skeleton-spec[data-shape="rect"]   { width: 60%;  height: var(--space-800); }
-.skeleton-spec[data-shape="circle"] { width: var(--space-800); height: var(--space-800); }
 
 /* The alert specimen is centred in a stage that does not resize under the
    control. The alert is inline-block so it hugs its text, and `dismissible`
@@ -884,16 +876,17 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
-/* The progress bar is full-width, so unlike the badge it does not need
-   centring -- it needs a floor, because `size` changes its track height and
-   the card would step under the control. */
+/* NO WIDTH HERE, same correction as the skeleton. size on a jelly-progress
+   carries a width as well as a track height -- Jelly's :host gives 200x10 /
+   240x14 / 300x18 -- so a page width overrides the thing the control exists
+   to show, which is exactly what forcing 100% did. */
 .progress-stage {
   display: flex;
   align-items: center;
+  justify-content: center;
   min-height: calc(var(--space-400) + var(--space-400) * 2);   /* 32 + 32 + 32 */
   padding-block: var(--space-400);                             /* 32 */
 }
-.progress-stage > jelly-progress { width: 100%; }
 
 /* Floored, like the other specimen stages. The spinner changes box on BOTH
    controls -- dots are a wide capsule and the blob is a circle, 42x18 against

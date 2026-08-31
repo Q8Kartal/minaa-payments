@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260902r"></script>
+<script src="../gate.js?v=20260902t"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260902r"></script>
+<script type="module" src="vendor/jelly.js?v=20260902t"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260902r">
-<link rel="stylesheet" href="showcase.css?v=20260902r">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260902t">
+<link rel="stylesheet" href="showcase.css?v=20260902t">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -931,21 +931,27 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
          one looks like -- is a thing you can now click, which is the better
          documentation of the two.
 
-         The two facts the paragraph carried that the control cannot show are
-         kept here rather than lost. First, only shape="circle" changes the
-         drawing: `line` and `rect` take the same branch of shape() and are
-         geometrically identical, so the visible difference between them is the
-         SIZE this page gives them, exactly as in Jelly's own documentation.
-         Second, the corner is the one measurement on the page no stylesheet
-         can reach -- shape() computes min(height / 2, 7) at paint time, so that
-         7 is a raw number inside the canvas painter and binding it to the scale
-         would mean forking the fork. -->
+         Two facts the paragraph carried that the control cannot show are kept
+         here. First, shape decides BOTH the corner and the box, in two
+         different places: shape() in the JS special-cases only `circle` for
+         the corner radius, while the stylesheet sizes each shape -- line
+         220x16, square 220x88, circle 52x52. Reading only the first led me to
+         size these from the page, which overrode the component and made the
+         control look like it did nothing.
+
+         Second, the value is `square`. Jelly's newer documentation calls it
+         `rect`; the build vendored here does not define that, so a `rect` pill
+         would have been an inert control that appeared to do something.
+
+         The corner is still the one measurement no stylesheet can reach:
+         shape() computes min(height / 2, 7) at paint time, so that 7 is a raw
+         number living inside the canvas painter. -->
     <div class="controls" data-controls>
       <div class="ctl">
         <span class="ctl-name">shape</span>
         <div class="pillset" id="skeleton-shape" role="group" aria-label="Shape">
           <jelly-button class="pill" data-value="line" aria-pressed="true">line</jelly-button>
-          <jelly-button class="pill" data-value="rect" aria-pressed="false">rect</jelly-button>
+          <jelly-button class="pill" data-value="square" aria-pressed="false">square</jelly-button>
           <jelly-button class="pill" data-value="circle" aria-pressed="false">circle</jelly-button>
         </div>
       </div>
@@ -953,9 +959,9 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
     </div>
     <div class="demo" data-demo>
       <div class="skeleton-stage" data-controls>
-        <jelly-skeleton id="skeleton-demo" class="skeleton-spec" data-shape="line"></jelly-skeleton>
+        <jelly-skeleton id="skeleton-demo" shape="line"></jelly-skeleton>
       </div>
-      <template data-snippet-text>&lt;jelly-skeleton&gt;&lt;/jelly-skeleton&gt;</template>
+      <template data-snippet-text>&lt;jelly-skeleton shape="line"&gt;&lt;/jelly-skeleton&gt;</template>
     </div>
   </section>
 
@@ -1031,8 +1037,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260902r"></script>
-<script src="minaa-jelly.js?v=20260902r"></script>
-<script src="showcase.js?v=20260902r" defer></script>
+<script src="micons.js?v=20260902t"></script>
+<script src="minaa-jelly.js?v=20260902t"></script>
+<script src="showcase.js?v=20260902t" defer></script>
 </body>
 </html>
