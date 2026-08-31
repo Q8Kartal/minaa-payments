@@ -1058,6 +1058,41 @@
     sync();
   }
 
+  /* One sentence per tone, so each still fires the message it was written for
+     rather than a single generic string across all four. */
+  const TOAST_MESSAGE = {
+    info:    'List updated',
+    success: 'Payment saved',
+    warning: 'Exchange rate is stale',
+    danger:  'Could not save'
+  };
+
+  function wireToastDemo() {
+    const el = document.getElementById('tst-demo');
+    const tone = document.getElementById('tst-tone');
+    if (!el || !tone || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-17 .code code');
+      if (!box) return;
+      /* The CALL, not the button. jelly-button is not an entry in this library
+         and printing it would document page furniture. */
+      box.textContent = "jellyToast('" + el.dataset.toast + "', { tone: '"
+        + el.dataset.tone + "' });";
+    }
+
+    /* data-tone recolours the trigger through .toast-trigger[data-tone] in the
+       bridge, and data-toast is read by wireToasts at CLICK time -- so moving
+       the dataset is the whole update, with no re-binding. */
+    pillRow(tone, (v) => {
+      el.dataset.tone = v;
+      el.dataset.toast = TOAST_MESSAGE[v] || el.dataset.toast;
+    }, snippet);
+
+    snippet();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1537,7 +1572,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireThemeSwitchDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

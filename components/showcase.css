@@ -994,6 +994,17 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Centred and floored. The trigger is a jelly-button at its own height, and no
+   width is set -- it is page furniture that fires the component, not the
+   component itself, so nothing here should shape it. */
+.toast-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* Centred and floored. The three geometries are 96x48 / 80x40 / 64x32 plus the
    label line, so the host tops out around 57 and 64 is the step that clears it.
 

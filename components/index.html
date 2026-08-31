@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260904b"></script>
+<script src="../gate.js?v=20260904d"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260904b"></script>
+<script type="module" src="vendor/jelly.js?v=20260904d"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260904b">
-<link rel="stylesheet" href="showcase.css?v=20260904b">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260904d">
+<link rel="stylesheet" href="showcase.css?v=20260904d">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -898,38 +898,45 @@
 
   <section class="entry" id="c-17">
     <div class="entry-text">
-    <p class="entry-num">Feedback · 17</p>
+    <p class="entry-num">Feedback &middot; 17</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-toast-info"/></svg> toasts</h2>
-    <p class="entry-note">The toasts from the Buttons page, unchanged and deliberately identical in both
-       modes: a toast is a momentary overlay, and the four tones are semantic colours, which are never
-       brand and therefore never mode-dependent. An error is Orange 500 whatever is behind it. Jelly gives
-       every toast the same <code>part="toast"</code> with nothing to say which of the four it is, so the
-       tone is read back off the dot and a second part name added; that is the only reason a per-tone
-       colour is reachable from a stylesheet at all. Meaning never rests on the colour: each tone carries
-       its own mark, and Jelly speaks a prefix for a screen reader.</p>
+    <p class="entry-note">The toasts from the Buttons page, fired through <code>jellyToast()</code>. The four
+       tones are semantic, so they are identical in both modes.</p>
+
+    <!-- FIRED, NOT PLACED, so there is no markup to vary and the specimen is a
+         TRIGGER. That is the honest shape for this one: the controller picks
+         the tone, the button fires it, and the snippet shows the CALL rather
+         than the button, because jelly-button is not an entry in this library.
+
+         Four trigger buttons became one. The tone row moves both data-tone --
+         which recolours the trigger through the bridge -- and data-message, so
+         each tone still fires the sentence it was written for rather than one
+         generic string.
+
+         Why the copy that used to be here is gone: the part="toast" workaround
+         is explained where it is implemented, in minaa-jelly.css beside the
+         ::part(tone-*) rules, which is where the next reader will be standing
+         when they need it. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">tone</span>
+        <div class="pillset" id="tst-tone" role="group" aria-label="Tone">
+          <jelly-button class="pill" data-value="info" aria-pressed="false">info</jelly-button>
+          <jelly-button class="pill" data-value="success" aria-pressed="true">success</jelly-button>
+          <jelly-button class="pill" data-value="warning" aria-pressed="false">warning</jelly-button>
+          <jelly-button class="pill" data-value="danger" aria-pressed="false">danger</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <figure class="specimen">
-          <jelly-button class="toast-trigger" data-tone="info" data-toast="List updated">Info</jelly-button>
-          <figcaption>&laquo;List updated&raquo;</figcaption>
-        </figure>
-        <figure class="specimen">
-          <jelly-button class="toast-trigger" data-tone="success" data-toast="Payment saved">Success</jelly-button>
-          <figcaption>&laquo;Payment saved&raquo;</figcaption>
-        </figure>
-        <figure class="specimen">
-          <jelly-button class="toast-trigger" data-tone="warning" data-toast="Exchange rate is stale">Warning</jelly-button>
-          <figcaption>&laquo;Exchange rate is stale&raquo;</figcaption>
-        </figure>
-        <figure class="specimen">
-          <jelly-button class="toast-trigger" data-tone="danger" data-toast="Could not save">Danger</jelly-button>
-          <figcaption>&laquo;Could not save&raquo;</figcaption>
-        </figure>
+      <div class="toast-stage" data-controls>
+        <jelly-button id="tst-demo" class="toast-trigger" data-tone="success"
+                      data-toast="Payment saved">Show a toast</jelly-button>
       </div>
-      <p class="demo-note" data-controls>Fires into the page&rsquo;s one <code>&lt;jelly-toaster&gt;</code>, bottom centre.
-         The buttons are page furniture rather than a specimen &mdash; <code>&lt;jelly-button&gt;</code> is not an entry
-         in this library &mdash; so the snippet below shows the call, not them.</p>
+      <p class="demo-note" data-controls>Fires into the page&rsquo;s one <code>&lt;jelly-toaster&gt;</code>, pinned
+         bottom-end. It already carries <code>position="bottom"</code>, which is what grows the stack
+         upward rather than down.</p>
       <template data-snippet-text>jellyToast('Payment saved', { tone: 'success' });</template>
     </div>
   </section>
@@ -1411,8 +1418,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260904b"></script>
-<script src="minaa-jelly.js?v=20260904b"></script>
-<script src="showcase.js?v=20260904b" defer></script>
+<script src="micons.js?v=20260904d"></script>
+<script src="minaa-jelly.js?v=20260904d"></script>
+<script src="showcase.js?v=20260904d" defer></script>
 </body>
 </html>
