@@ -119,6 +119,12 @@
   --control-icon-24: 24px;
   --control-icon-16: 16px;
   --control-stroke: 1.5px;
+  /* A SURFACE's edge, not a control's. --control-stroke is the hairline on an
+     input, a select and an OTP digit, and at that weight it merges into a
+     553x317 card with a 64px corner rather than reading as an outline. This is
+     its own token precisely so making the card's edge stronger cannot thicken
+     every field on the page. */
+  --m-surface-stroke: 2px;
   /* The tick and dash inside a checkbox. A MARK is not a BORDER: the field
      stroke is 1.5 and this is 3, and conflating them is what made the tick
      render as a hairline. The Figma specification draws it at 3 on a 20 box. */
@@ -638,6 +644,7 @@ jelly-button {
   --jelly-button-padding-inline: var(--space-250);
   --jelly-button-gap:            var(--space-100);
   --jelly-button-font-size:      var(--text-lg);
+  line-height:        var(--text-lg-lh);
   --jelly-button-radius:         var(--radius-full);
 }
 
@@ -649,6 +656,7 @@ jelly-icon-button {
   --jelly-icon-button-icon-size: var(--control-icon-20);
   --jelly-icon-button-radius:    var(--radius-full);
   --jelly-icon-button-font-size: var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 /* The checkbox box is NOT the accent in light mode — it is Primary 300 with a
@@ -678,6 +686,7 @@ jelly-checkbox {
   --jelly-checkbox-gap:          var(--space-100);
   --jelly-checkbox-radius:       var(--radius-4);
   --jelly-checkbox-font-size:    var(--text-md);
+  line-height:        var(--text-md-lh);
   /* The MARK, not a border. This was set to --control-stroke (1.5px, the field
      edge) and rendered as a hairline. Jelly's own defaults are 3.1 / 3.4 / 3.7
      scaled per size and its mark already carries stroke-linecap: round, so the
@@ -736,24 +745,28 @@ jelly-checkbox[size="small"], jelly-checkbox[size="sm"] {
   --jelly-checkbox-size:      var(--control-icon-16);
   --jelly-checkbox-gap:       var(--space-075);
   --jelly-checkbox-font-size: var(--text-sm);
+  line-height:        var(--text-sm-lh);
 }
 
 jelly-checkbox[size="medium"], jelly-checkbox[size="md"] {
   --jelly-checkbox-size:      var(--control-icon-20);
   --jelly-checkbox-gap:       var(--space-100);
   --jelly-checkbox-font-size: var(--text-md);
+  line-height:        var(--text-md-lh);
 }
 
 jelly-checkbox[size="large"], jelly-checkbox[size="lg"] {
   --jelly-checkbox-size:      var(--control-icon-24);
   --jelly-checkbox-gap:       var(--space-150);
   --jelly-checkbox-font-size: var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 jelly-input {
   --jelly-input-radius:         var(--radius-full);
   --jelly-input-padding-inline: var(--space-250);
   --jelly-input-font-size:      var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 /* Sizes. Same defect as the checkbox: pinned flat, so :host([size]) lost and
    the prop did nothing. Medium is what the component already renders; small
@@ -762,21 +775,25 @@ jelly-input {
 jelly-input[size="small"], jelly-input[size="sm"] {
   --jelly-input-padding-inline: var(--space-200);
   --jelly-input-font-size:      var(--text-md);
+  line-height:        var(--text-md-lh);
 }
 
 jelly-input[size="medium"], jelly-input[size="md"] {
   --jelly-input-padding-inline: var(--space-250);
   --jelly-input-font-size:      var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 jelly-input[size="large"], jelly-input[size="lg"] {
   --jelly-input-padding-inline: var(--space-300);
   --jelly-input-font-size:      var(--text-xl);
+  line-height:        var(--text-xl-lh);
 }
 
 
 jelly-label {
   --jelly-label-font-size: var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-label-gap:       var(--space-100);
   /* The required asterisk. Jelly paints it from --jelly-color-background-rose,
      which the bridge never set, so it rendered #01001B -- near-black type on a
@@ -787,16 +804,19 @@ jelly-label {
 }
 jelly-label[size="small"], jelly-label[size="sm"] {
   --jelly-label-font-size: var(--text-sm);
+  line-height:        var(--text-sm-lh);
   --jelly-label-gap:       var(--space-075);
 }
 
 jelly-label[size="medium"], jelly-label[size="md"] {
   --jelly-label-font-size: var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-label-gap:       var(--space-100);
 }
 
 jelly-label[size="large"], jelly-label[size="lg"] {
   --jelly-label-font-size: var(--text-lg);
+  line-height:        var(--text-lg-lh);
   --jelly-label-gap:       var(--space-150);
 }
 
@@ -807,6 +827,7 @@ jelly-otp {
   --jelly-otp-gap:       var(--space-100);
   --jelly-otp-radius:    var(--radius-16);
   --jelly-otp-font-size: var(--text-xl);
+  line-height:        var(--text-xl-lh);
   --jelly-otp-accent:    var(--m-stroke);
   /* The digit surface. jelly-otp is the exception to the field rule above, and
      was dropped from that group because BOTH tokens it granted are dead here:
@@ -838,6 +859,7 @@ jelly-otp[size="small"], jelly-otp[size="sm"] {
   --jelly-otp-height:    var(--control-48);
   --jelly-otp-gap:       var(--space-075);
   --jelly-otp-font-size: var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 jelly-otp[size="medium"], jelly-otp[size="md"] {
@@ -845,6 +867,7 @@ jelly-otp[size="medium"], jelly-otp[size="md"] {
   --jelly-otp-height:    var(--control-56);
   --jelly-otp-gap:       var(--space-100);
   --jelly-otp-font-size: var(--text-xl);
+  line-height:        var(--text-xl-lh);
 }
 
 jelly-otp[size="large"], jelly-otp[size="lg"] {
@@ -852,12 +875,14 @@ jelly-otp[size="large"], jelly-otp[size="lg"] {
   --jelly-otp-height:    var(--control-64);
   --jelly-otp-gap:       var(--space-150);
   --jelly-otp-font-size: var(--text-xl);
+  line-height:        var(--text-xl-lh);
 }
 
 jelly-radio {
   --jelly-radio-size:      var(--control-icon-20);
   --jelly-radio-gap:       var(--space-100);
   --jelly-radio-font-size: var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-radio-dot-size:  var(--space-100);
   --jelly-radio-dot-color: var(--m-thumb);
 }
@@ -870,6 +895,7 @@ jelly-radio[size="small"], jelly-radio[size="sm"] {
   --jelly-radio-dot-size:  var(--space-075);
   --jelly-radio-gap:       var(--space-075);
   --jelly-radio-font-size: var(--text-sm);
+  line-height:        var(--text-sm-lh);
 }
 
 jelly-radio[size="medium"], jelly-radio[size="md"] {
@@ -877,6 +903,7 @@ jelly-radio[size="medium"], jelly-radio[size="md"] {
   --jelly-radio-dot-size:  var(--space-100);
   --jelly-radio-gap:       var(--space-100);
   --jelly-radio-font-size: var(--text-md);
+  line-height:        var(--text-md-lh);
 }
 
 jelly-radio[size="large"], jelly-radio[size="lg"] {
@@ -884,6 +911,7 @@ jelly-radio[size="large"], jelly-radio[size="lg"] {
   --jelly-radio-dot-size:  var(--space-150);
   --jelly-radio-gap:       var(--space-150);
   --jelly-radio-font-size: var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 
@@ -893,12 +921,14 @@ jelly-radio-group {
   --jelly-radio-group-legend-gap:   var(--space-150);
   --jelly-radio-group-legend-color: var(--m-ink);
   --jelly-radio-group-font-size:    var(--text-md);
+  line-height:        var(--text-md-lh);
 }
 jelly-radio-group[size="small"], jelly-radio-group[size="sm"] {
   --jelly-radio-group-row-gap:    var(--space-100);
   --jelly-radio-group-column-gap: var(--space-250);
   --jelly-radio-group-legend-gap: var(--space-100);
   --jelly-radio-group-font-size:  var(--text-sm);
+  line-height:        var(--text-sm-lh);
 }
 
 jelly-radio-group[size="medium"], jelly-radio-group[size="md"] {
@@ -906,6 +936,7 @@ jelly-radio-group[size="medium"], jelly-radio-group[size="md"] {
   --jelly-radio-group-column-gap: var(--space-300);
   --jelly-radio-group-legend-gap: var(--space-150);
   --jelly-radio-group-font-size:  var(--text-md);
+  line-height:        var(--text-md-lh);
 }
 
 jelly-radio-group[size="large"], jelly-radio-group[size="lg"] {
@@ -913,6 +944,7 @@ jelly-radio-group[size="large"], jelly-radio-group[size="lg"] {
   --jelly-radio-group-column-gap: var(--space-400);
   --jelly-radio-group-legend-gap: var(--space-200);
   --jelly-radio-group-font-size:  var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 
@@ -990,6 +1022,7 @@ jelly-segmented {
   --jelly-segmented-padding-inline: var(--space-200);
   --jelly-segmented-gap:            var(--space-050);
   --jelly-segmented-font-size:      var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-segmented-min-width:      var(--space-1000);
 }
 /* The height is a host rule rather than a token -- Jelly offers none here -- so
@@ -1004,6 +1037,7 @@ jelly-segmented[size="small"], jelly-segmented[size="sm"] {
   --jelly-segmented-padding-inline: var(--space-150);
   --jelly-segmented-gap:            var(--space-050);
   --jelly-segmented-font-size:      var(--text-sm);
+  line-height:        var(--text-sm-lh);
   --jelly-segmented-min-width:      var(--space-800);
 }
 
@@ -1014,6 +1048,7 @@ jelly-segmented[size="medium"], jelly-segmented[size="md"] {
   --jelly-segmented-padding-inline: var(--space-200);
   --jelly-segmented-gap:            var(--space-050);
   --jelly-segmented-font-size:      var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-segmented-min-width:      var(--space-1000);
 }
 
@@ -1024,6 +1059,7 @@ jelly-segmented[size="large"], jelly-segmented[size="lg"] {
   --jelly-segmented-padding-inline: var(--space-250);
   --jelly-segmented-gap:            var(--space-100);
   --jelly-segmented-font-size:      var(--text-lg);
+  line-height:        var(--text-lg-lh);
   --jelly-segmented-min-width:      var(--space-1000);
 }
 
@@ -1033,6 +1069,7 @@ jelly-select {
   --jelly-select-padding-inline:     var(--space-250);
   --jelly-select-gap:                var(--space-100);
   --jelly-select-font-size:          var(--text-lg);
+  line-height:        var(--text-lg-lh);
   --jelly-select-chevron-size:       var(--control-icon-20);
   --jelly-select-row-height:         var(--space-500);
   --jelly-select-row-padding-inline: var(--space-200);
@@ -1044,6 +1081,7 @@ jelly-switch {
   --jelly-switch-height:    var(--space-300);
   --jelly-switch-gap:       var(--space-100);
   --jelly-switch-font-size: var(--text-md);
+  line-height:        var(--text-md-lh);
   /* Both thumbs are Secondary 600 — the thumb does not change with state, the
      track does. */
   --jelly-switch-thumb-on:  var(--m-thumb);
@@ -1061,6 +1099,7 @@ jelly-switch[size="small"], jelly-switch[size="sm"] {
   --jelly-switch-height:    var(--space-250);
   --jelly-switch-gap:       var(--space-075);
   --jelly-switch-font-size: var(--text-sm);
+  line-height:        var(--text-sm-lh);
 }
 
 jelly-switch[size="medium"], jelly-switch[size="md"] {
@@ -1068,6 +1107,7 @@ jelly-switch[size="medium"], jelly-switch[size="md"] {
   --jelly-switch-height:    var(--space-300);
   --jelly-switch-gap:       var(--space-100);
   --jelly-switch-font-size: var(--text-md);
+  line-height:        var(--text-md-lh);
 }
 
 jelly-switch[size="large"], jelly-switch[size="lg"] {
@@ -1075,6 +1115,7 @@ jelly-switch[size="large"], jelly-switch[size="lg"] {
   --jelly-switch-height:    var(--space-400);
   --jelly-switch-gap:       var(--space-150);
   --jelly-switch-font-size: var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 jelly-textarea {
@@ -1082,6 +1123,7 @@ jelly-textarea {
   --jelly-textarea-padding-inline: var(--space-250);
   --jelly-textarea-padding-block:  var(--space-200);
   --jelly-textarea-font-size:      var(--text-lg);
+  line-height:        var(--text-lg-lh);
   /* min-height and max-height are deliberately NOT set. Overriding them pinned
      the field to the maximum whether it had content or not — empty and filled
      both measured 452x240. Jelly grows the field from its own measurement. */
@@ -1090,18 +1132,21 @@ jelly-textarea[size="small"], jelly-textarea[size="sm"] {
   --jelly-textarea-padding-inline: var(--space-200);
   --jelly-textarea-padding-block:  var(--space-150);
   --jelly-textarea-font-size:      var(--text-md);
+  line-height:        var(--text-md-lh);
 }
 
 jelly-textarea[size="medium"], jelly-textarea[size="md"] {
   --jelly-textarea-padding-inline: var(--space-250);
   --jelly-textarea-padding-block:  var(--space-200);
   --jelly-textarea-font-size:      var(--text-lg);
+  line-height:        var(--text-lg-lh);
 }
 
 jelly-textarea[size="large"], jelly-textarea[size="lg"] {
   --jelly-textarea-padding-inline: var(--space-300);
   --jelly-textarea-padding-block:  var(--space-250);
   --jelly-textarea-font-size:      var(--text-xl);
+  line-height:        var(--text-xl-lh);
 }
 
 
@@ -1121,6 +1166,7 @@ jelly-select[size="small"], jelly-select[size="sm"] {
   --jelly-select-padding-inline:     var(--space-200);
   --jelly-select-gap:                var(--space-075);
   --jelly-select-font-size:          var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-select-chevron-size:       var(--control-icon-16);
   --jelly-select-row-height:         var(--space-400);
   --jelly-select-row-padding-inline: var(--space-150);
@@ -1130,6 +1176,7 @@ jelly-select[size="medium"], jelly-select[size="md"] {
   --jelly-select-padding-inline:     var(--space-250);
   --jelly-select-gap:                var(--space-100);
   --jelly-select-font-size:          var(--text-lg);
+  line-height:        var(--text-lg-lh);
   --jelly-select-chevron-size:       var(--control-icon-20);
   --jelly-select-row-height:         var(--space-500);
   --jelly-select-row-padding-inline: var(--space-200);
@@ -1139,6 +1186,7 @@ jelly-select[size="large"], jelly-select[size="lg"] {
   --jelly-select-padding-inline:     var(--space-300);
   --jelly-select-gap:                var(--space-150);
   --jelly-select-font-size:          var(--text-xl);
+  line-height:        var(--text-xl-lh);
   --jelly-select-chevron-size:       var(--control-icon-24);
   --jelly-select-row-height:         var(--space-600);
   --jelly-select-row-padding-inline: var(--space-250);
@@ -1561,6 +1609,22 @@ jelly-toaster::part(tone-danger)  { background: var(--error);   }
 .toast-trigger[data-tone="warning"] { --jelly-fill: var(--warning); --jelly-accent: var(--warning-deep); }
 .toast-trigger[data-tone="danger"]  { --jelly-fill: var(--error);   --jelly-accent: var(--error-deep); }
 
+/* ── Three leadings a host rule cannot reach ──────────────────────────────
+   Setting line-height on a host reaches slotted text and anything in the
+   shadow that inherits. These three set their own inside the shadow, so the
+   host is overruled and they kept Jelly's ratios: the label and the radio
+   group's legend at 1.3, the tooltip's bubble at 1.35. Measured, not assumed
+   -- 20.8px on 16 and 18.9px on 14, neither a step.
+
+   The first two carry a `part`, so a stylesheet reaches them. The tooltip
+   exposes NO parts at all, which is why it is handled in PATCHES instead. */
+jelly-label::part(label) {
+  line-height: var(--text-md-lh);        /* 24 */
+}
+jelly-radio-group::part(legend) {
+  line-height: var(--text-md-lh);        /* 24 */
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    FEEDBACK — alert, badge, progress, skeleton, spinner
 
@@ -1678,6 +1742,7 @@ jelly-alert {
   --jelly-alert-padding-inline: var(--space-200);
   --jelly-alert-gap:            var(--space-150);
   --jelly-alert-font-size:      var(--text-sm);
+  line-height:        var(--text-sm-lh);
   --jelly-alert-icon:           var(--control-icon-20);
   --jelly-alert-close:          var(--control-icon-24);
   /* The family corner, not a field's. Jelly caps this at half the height in
@@ -1696,6 +1761,7 @@ jelly-alert[size="small"] {
   --jelly-alert-padding-inline: var(--space-150);
   --jelly-alert-gap:            var(--space-100);
   --jelly-alert-font-size:      var(--text-xs);
+  line-height:        var(--text-xs-lh);
   --jelly-alert-icon:           var(--control-icon-16);
   --jelly-alert-close:          var(--control-icon-20);
   line-height: var(--text-xs-lh);        /* 18 */
@@ -1705,6 +1771,7 @@ jelly-alert[size="large"] {
   --jelly-alert-padding-inline: var(--space-250);
   --jelly-alert-gap:            var(--space-200);
   --jelly-alert-font-size:      var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-alert-icon:           var(--control-icon-24);
 }
 
@@ -1749,10 +1816,11 @@ jelly-badge {
   /* Jelly ramps 11 / 12.5 / 14 by size. All three were bound to --text-sm on
      the belief that the scale stopped there; with Text xs in place the ramp
      is two real steps instead of one flattened one. */
-  font-size: var(--text-xs);             /* 12 */
+  font-size:   var(--text-xs);           /* 12 */
+  line-height: var(--text-xs-lh);        /* 18 */
 }
-jelly-badge[size="small"] { font-size: var(--text-xs); }   /* 12 */
-jelly-badge[size="large"] { font-size: var(--text-sm); }   /* 14 */
+jelly-badge[size="small"] { font-size: var(--text-xs); line-height: var(--text-xs-lh); }   /* 12 / 18 */
+jelly-badge[size="large"] { font-size: var(--text-sm); line-height: var(--text-sm-lh); }   /* 14 / 20 */
 jelly-badge[shape="square"],
 jelly-badge[shape="square"][size="small"],
 jelly-badge[shape="square"][size="large"] { --jelly-badge-radius: var(--radius-8); }
@@ -2007,6 +2075,7 @@ jelly-popover {
   --jelly-popover-padding-block:  var(--space-200);
   --jelly-popover-padding-inline: var(--space-200);
   --jelly-popover-font-size:      var(--text-md);
+  line-height:        var(--text-md-lh);
   --jelly-popover-min-width:      var(--space-1000);
 }
 
@@ -2074,4 +2143,5 @@ jelly-tooltip {
   --jelly-tooltip-padding-block:  var(--space-075);
   --jelly-tooltip-padding-inline: var(--space-150);
   --jelly-tooltip-font-size:      var(--text-sm);
+  line-height:        var(--text-sm-lh);
 }

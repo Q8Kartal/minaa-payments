@@ -187,13 +187,45 @@
     const provider = document.getElementById('theme-demo');
     if (!provider) return;
 
+    /* The preview's job is to show what a mode LOOKS like. When it is showing
+       the mode the page is already in, a filled card is invisible -- it is the
+       same surface as the one behind it -- so it drops its fill and the stroke
+       alone describes it. Both sides resolve `auto` first, because the page
+       runs at auto and the answer depends on the operating system. */
+    const pageProvider = document.querySelector('body > jelly-theme');
+    const resolved = (el) => {
+      if (!el) return 'light';
+      if (el.resolvedMode) return el.resolvedMode;
+      const m = el.getAttribute('mode');
+      if (m === 'light' || m === 'dark') return m;
+      return window.matchMedia
+        && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    const syncPreviewFill = () => {
+      const card = provider.querySelector('.preview');
+      if (!card) return;
+      card.toggleAttribute('data-same-as-page',
+        resolved(provider) === resolved(pageProvider));
+    };
+
     const mode = document.getElementById('theme-mode');
     if (mode) {
       mode.addEventListener('change', () => {
         const v = mode.value || 'light';
         provider.setAttribute('mode', v);
+        syncPreviewFill();
       });
     }
+
+    /* The page can change underneath it two ways: the masthead switch, and the
+       operating system while both sit at auto. */
+    new MutationObserver(syncPreviewFill)
+      .observe(pageProvider, { attributes: true, attributeFilter: ['mode'] });
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', syncPreviewFill);
+    }
+    syncPreviewFill();
 
     const swatches = document.getElementById('theme-accent');
     if (swatches) {
@@ -764,40 +796,6 @@
 
     const SVGNS = 'http://www.w3.org/2000/svg';
 
-    /* The stroke, for cards that ask for one. Inset by half the stroke width:
-       a stroke is centred on its path, so drawing it on the clip boundary would
-       lose the outer half to the clip and leave a stroke of half the weight.
-       The inner superellipse is generated at (w - s, h - s) with its radius
-       reduced by the same half, which is not the true parallel curve of a
-       superellipse but is indistinguishable at these weights. */
-    const ring = (el, w, h, r) => {
-      const cs = getComputedStyle(el);
-      let svg = el.querySelector(':scope > [data-sq-ring]');
-      if (!cs.getPropertyValue('--m-squircle-ring').trim()) {
-        if (svg) svg.remove();
-        return;
-      }
-      const s = parseFloat(cs.getPropertyValue('--control-stroke')) || 1.5;
-      const d = minaaSquirclePath(w - s, h - s, Math.max(0, r - s / 2));
-      if (!d) return;
-      if (!svg) {
-        svg = document.createElementNS(SVGNS, 'svg');
-        svg.setAttribute('data-sq-ring', '');
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
-        /* Absolute so it never joins the grid this card lays out, and inert so
-           it cannot eat a click meant for a control underneath it. */
-        svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
-                            'pointer-events:none';
-        el.appendChild(svg);
-      }
-      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-      svg.innerHTML =
-        '<g transform="translate(' + (s / 2) + ',' + (s / 2) + ')">' +
-        '<path d="' + d + '" fill="none" stroke="currentColor" stroke-width="' + s + '"/>' +
-        '</g>';
-    };
-
     const radius = () => {
       const raw = getComputedStyle(document.documentElement)
         .getPropertyValue('--m-surface-corner');
@@ -825,6 +823,7 @@
        layering bug this was reported as. */
     const fill = (el, d) => {
       let layer = el.querySelector(':scope > [data-sq-fill]');
+      if (layer && layer.tagName.toLowerCase() === 'svg') layer.remove(), layer = null;
       if (!layer) {
         layer = document.createElement('div');
         layer.setAttribute('data-sq-fill', '');
@@ -832,6 +831,47 @@
         el.insertBefore(layer, el.firstChild);
       }
       layer.style.clipPath = 'path("' + d + '")';
+    };
+
+    /* ONE PATH, FILLED AND STROKED -- for surfaces that carry a visible edge.
+
+       Two layers cannot share an edge. A clipped div and a separate stroked
+       svg are rasterised independently, so however exactly their geometry
+       agrees (measured at 0.28px here) the fill still shows as a pale hairline
+       OUTSIDE the stroke: each layer antialiases its own boundary and the two
+       coverages do not cancel. Ahmad saw that seam at the preview's corner and
+       it is not fixable by nudging either curve.
+
+       Filling and stroking the SAME path removes it by construction. The
+       stroke is centred on the boundary, so it covers the fill's own edge with
+       its inner half -- there is no fill pixel left outside it to alias. That
+       is also what "the stroke belongs to the card" means literally: it is the
+       card's edge, not a ring laid over it.
+
+       Inset by half the stroke so the outer half lands on the element bounds
+       rather than outside them, exactly as the separate ring did. */
+    const filledStroke = (el, w, h, r, s) => {
+      const d = minaaSquirclePath(w - s, h - s, Math.max(0, r - s / 2));
+      if (!d) return false;
+      let svg = el.querySelector(':scope > [data-sq-fill]');
+      if (svg && svg.tagName.toLowerCase() !== 'svg') { svg.remove(); svg = null; }
+      if (!svg) {
+        svg = document.createElementNS(SVGNS, 'svg');
+        svg.setAttribute('data-sq-fill', '');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+        el.insertBefore(svg, el.firstChild);
+      }
+      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      svg.setAttribute('preserveAspectRatio', 'none');
+      /* fill and stroke as CSS, not attributes, so both keep following the
+         tokens live -- the scoped provider changes --m-card underneath this
+         and nothing has to repaint. */
+      svg.innerHTML =
+        '<g transform="translate(' + (s / 2) + ',' + (s / 2) + ')">' +
+        '<path d="' + d + '" style="fill:var(--m-squircle-fill, var(--m-card));' +
+        'stroke:currentColor;stroke-width:' + s + 'px"/></g>';
+      return true;
     };
 
     const shape = (el) => {
@@ -842,8 +882,14 @@
       const d = minaaSquirclePath(w, h, r);
       if (!d) return;
       el.__sqW = w; el.__sqH = h;
+      const cs = getComputedStyle(el);
+      const s = parseFloat(cs.getPropertyValue('--m-surface-stroke'))
+        || parseFloat(cs.getPropertyValue('--control-stroke')) || 1.5;
+      /* A surface with a visible edge paints as ONE filled-and-stroked path;
+         everything else keeps the clipped layer, which has no edge to seam. */
+      if (cs.getPropertyValue('--m-squircle-ring').trim()
+          && filledStroke(el, w, h, r, s)) return;
       fill(el, d);
-      ring(el, w, h, r);
     };
 
     /* Cards reflow constantly here -- fonts settle, code blocks wrap, a demo

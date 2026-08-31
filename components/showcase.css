@@ -204,7 +204,11 @@ body {
 .foot code {
   padding: 0 var(--space-050);           /* 4 */
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--text-md);             /* 16, against 18px prose */
+  font-size:   var(--text-md);           /* 16, against 18px prose */
+  /* Paired. It sits inside an 18/28 paragraph, so without this it inherited
+     that 28px leading on 16px type and rode visibly proud of the line it
+     belongs to. */
+  line-height: var(--text-md-lh);        /* 24 */
   background: var(--m-page);
   border-radius: var(--radius-4);
 }
@@ -335,12 +339,17 @@ body {
    option either: this surface is --m-card sitting on a .demo that is also
    --m-card, so the stroke is the only thing telling the two apart.
 
-   --m-squircle-ring asks wireSquircleCards() for an SVG path following the same
-   superellipse as the clip, inset by half its own width so the whole stroke
-   lands inside it. The colour comes from `color` below, through currentColor,
-   so it stays a CSS decision rather than a string read out of JavaScript.
+   --m-squircle-ring asks wireSquircleCards() to paint this surface as ONE
+   filled-and-stroked path rather than a clipped layer with a stroke over it.
+   That is not a refactor, it is the fix: two layers cannot share an edge, so
+   a clipped div and a separate stroked svg each antialias their own boundary
+   and the fill shows as a pale hairline outside the stroke. Filling and
+   stroking the same path leaves no fill pixel outside the stroke to alias.
 
-   position: relative is load-bearing -- the ring is absolutely positioned. */
+   The colour comes from `color` below, through currentColor, so it stays a
+   CSS decision rather than a string read out of JavaScript.
+
+   position: relative is load-bearing -- the painted layer is absolute. */
 .preview {
   position: relative;
   display: grid;
@@ -354,10 +363,16 @@ body {
   color: var(--m-ink);
 }
 
-/* The painted squircle. It carries the card fill and the clip, so the card
+/* The painted squircle, in whichever of its two forms the surface asked for.
+
+   A <div> is the default: it carries the card fill and the clip, so the card
    itself carries neither -- content, and any overlay panel inside it, is never
-   clipped by the shape. Inherits --m-card, so inside .preview it follows the
-   scoped provider exactly as the old background did. */
+   clipped by the shape. An <svg> is what a surface with a visible edge gets
+   instead, one path carrying both fill and stroke; the rule below skips the
+   background for it.
+
+   Either way it inherits --m-card, so inside .preview it follows the scoped
+   provider rather than the page. */
 [data-sq-fill] {
   position: absolute;
   inset: 0;
@@ -368,10 +383,31 @@ body {
   pointer-events: none;
 }
 
+/* An <svg> in that slot is the filled-and-stroked form: one path carrying both,
+   so the stroke covers the fill's own edge and no seam can appear between them.
+   It must NOT take the background above -- that would paint a rectangle behind
+   the shape it is meant to be. */
+svg[data-sq-fill] {
+  background: none;
+  width: 100%;
+  height: 100%;
+}
+
 /* Secondary 600 in both modes -- --m-stroke does not invert. currentColor on
    the path means this one declaration is the whole colour decision. */
-.preview > [data-sq-ring] {
+.preview > svg[data-sq-fill] {
   color: var(--m-stroke);
+}
+
+/* WHEN THE PREVIEW SHOWS THE MODE THE PAGE IS ALREADY IN, it paints no fill.
+   Filling it with the surface it is sitting on makes an invisible card whose
+   only evidence is its edge -- measured, both were #00264B in scoped dark on a
+   dark page. So the fill drops to nothing and the stroke alone describes the
+   card. When the scoped mode DIFFERS, the fill is that mode's surface at full
+   strength, which is the whole point of the preview: to show the other mode.
+   The attribute is set by wireThemeDemo, which resolves `auto` on both sides. */
+.preview[data-same-as-page] {
+  --m-squircle-fill: transparent;
 }
 
 .preview-title {
@@ -431,7 +467,10 @@ body {
      no monospace face. Brand type here would misrepresent what is on screen. */
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--text-sm);
-  line-height: var(--text-md-lh);
+  /* --text-sm-lh, not md. This was 14px type on a 24px leading: a real step,
+     but the wrong one, which is exactly the miss CLAUDE.md warns about --
+     a value can be from the scale and still be the wrong step. */
+  line-height: var(--text-sm-lh);        /* 20 */
   color: var(--m-ink);
   /* Code is a technical run: it reads left-to-right whatever the page does. */
   direction: ltr;
@@ -448,6 +487,10 @@ body {
 }
 
 .copy {
+  /* It had no line-height at all, so it fell to the UA's `normal`, which is a
+     ratio rather than a step. */
+  font-size:   var(--text-sm);
+  line-height: var(--text-sm-lh);        /* 14 / 20 */
   position: absolute;
   inset-block-start: var(--space-150);
   inset-inline-end: var(--space-150);
@@ -491,7 +534,8 @@ body {
   padding: var(--space-050) var(--space-150);
   border-radius: var(--radius-full);
   font-family: var(--font-medium);
-  font-size: var(--text-sm);
+  font-size:   var(--text-sm);
+  line-height: var(--text-sm-lh);        /* 20 */
   color: var(--m-ink);
   text-decoration: none;
 }
@@ -638,31 +682,34 @@ body {
    -- so all four dimensions are restated for a control that sits in a 400px
    column. */
 .pill {
+  /* Box */
   --jelly-button-height:         var(--control-40);
   --jelly-button-min-width:      0;
   --jelly-button-padding-inline: var(--space-200);
-  --jelly-button-font-size:      var(--text-sm);
   --jelly-button-radius:         var(--radius-full);
-  /* UNCHECKED. Light is Primary 300 with Secondary 600 copy -- Ahmad's call;
-     it was a Neutral hairline with Primary 700 copy, which read as page
-     furniture rather than as a control you can press.
 
-     --m-value carries the label and needed no new token: it is Secondary 600
-     in light and Neutral 100 in dark, which is exactly the wanted pair.
-     The FILL did need one. --m-field was right in light at Primary 300 but
-     resolved to Primary 900 in dark, which is also --m-page -- so the pill
-     painted its own background and disappeared. --m-pill-fill drops it to
-     Primary 950 there. Found by reading every --m-* token in both modes
-     rather than by picking ones that sounded close. */
+  /* Type. The pair travels with the size: the bridge gives jelly-button 18/28
+     and this drops it to 14 for a control in a 400px column, so the leading has
+     to come down with it or the pill carries a 28px line on 14px text. */
+  --jelly-button-font-size:      var(--text-sm);
+  line-height:                   var(--text-sm-lh);
+
+  /* Colour, unpressed. Light is Primary 300 with Secondary 600 copy; it was a
+     Neutral hairline with Primary 700 copy, which read as page furniture
+     rather than as something you can press.
+
+     --m-value carries the label and needed no new token -- Secondary 600 in
+     light, Neutral 100 in dark, exactly the wanted pair. The FILL did need
+     one: --m-field was right in light at Primary 300 but resolves to Primary
+     900 in dark, which is also --m-page, so the pill painted its own
+     background and disappeared. --m-pill-fill drops it to Primary 950 there.
+
+     BOTH --jelly-label and `color`, and the second is the one that works. A
+     pill's label is SLOTTED light-DOM text, and slotted content inherits from
+     its light-DOM parent -- the host -- not from the <slot> it renders at, so
+     --jelly-label never reached it. The token still colours anything Jelly
+     draws inside the shadow root; `color` is what the words use. */
   --jelly-fill:  var(--m-pill-fill);
-  /* BOTH, and the second is the one that works. A pill's label is SLOTTED
-     light-DOM text, and slotted content inherits from its light-DOM parent --
-     the host -- not from the <slot> it is rendered at. So --jelly-label never
-     reached it: every pill on this page, pressed or not, was drawing its label
-     from the inherited page ink at Primary 700. Measured on the text node's
-     own parent, which is the host, rather than on the token.
-     --jelly-label is kept because it still colours anything Jelly draws inside
-     the shadow root; `color` is what the words actually use. */
   --jelly-label: var(--m-value);
   color:         var(--m-value);
 }

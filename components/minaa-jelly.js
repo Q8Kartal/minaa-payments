@@ -47,6 +47,17 @@
         border-color: var(--m-accent);
       }`,
 
+    /* jelly-tooltip exposes ZERO parts -- verified by querying [part] inside
+       its shadow root and getting an empty list -- so neither ::part() nor a
+       host rule reaches its bubble: it sets its own line-height inside the
+       shadow and overrules anything inherited. Measured at 18.9px on 14px
+       type, which is Jelly's 1.35 ratio and not a step on our scale. The
+       value is read off the host, so it still comes from the scale. */
+    'jelly-tooltip': `
+      .bubble, .tip, [class*="tooltip"] {
+        line-height: var(--text-sm-lh);
+      }`,
+
     /* jelly-alert's `.icon` carries no part attribute, so neither ::part() nor
        a custom property reaches it, and it nudges itself with a raw
        `margin-top: 1px`. One pixel is not a step on the scale, and the rule
