@@ -994,6 +994,21 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Centred and floored. `size` carries a width here as well as a height --
+   206x48 / 256x56 / 296x64 -- so no width is set; the track is the component's
+   own. 64 is the tallest and is itself a step.
+
+   Those heights are OUR numbers, not Jelly's 36/44/52. That deviation is
+   deliberate and marked KEEP THIS where it is declared; this floor follows it
+   rather than the library's. */
+.segmented-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* Centred and floored. The group is a block that would fill whatever it is
    given, so the flex context here lets it hug its content instead -- no width
    is set, and none should be.

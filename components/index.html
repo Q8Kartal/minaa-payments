@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903v"></script>
+<script src="../gate.js?v=20260903x"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903v"></script>
+<script type="module" src="vendor/jelly.js?v=20260903x"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903v">
-<link rel="stylesheet" href="showcase.css?v=20260903v">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903x">
+<link rel="stylesheet" href="showcase.css?v=20260903x">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -542,26 +542,74 @@
     </div>
   </section>
 
-  <!-- ── 11 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 11 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-11">
     <div class="entry-text">
-    <p class="entry-num">Forms · 11</p>
+    <p class="entry-num">Forms &middot; 11</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-segmented&gt;</h2>
     <p class="entry-note">A capsule track of mutually exclusive options with a pill that slides, leans
-       and stretches between segments. <code>roles</code> chooses whether it announces as a radiogroup
-       or a tablist — the look is identical, the semantics are not.</p>
+       and stretches between segments.</p>
+
+    <!-- `roles` IS THE ROW THAT CHANGES NOTHING YOU CAN SEE, and it is here
+         anyway. radiogroup and tablist draw identically; what moves is the
+         announced role, so the difference is real to a screen reader and
+         invisible to everyone else. It is kept because the choice is a
+         decision an implementer has to make, and a library that only documents
+         what photographs well would leave them guessing. The caption it
+         replaces said as much in prose.
+
+         Everything here was checked at RUNTIME after jelly-switch turned out to
+         settle its geometry on connect: size, roles and disabled all take
+         effect live on this component, so no re-connect trick is needed.
+
+         `value` goes through the PROPERTY and is re-read on `change`, because
+         clicking a segment is the obvious way to move it. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">value</span>
+        <div class="pillset" id="sg-value" role="group" aria-label="Value">
+          <jelly-button class="pill" data-value="monthly" aria-pressed="true">monthly</jelly-button>
+          <jelly-button class="pill" data-value="quarterly" aria-pressed="false">quarterly</jelly-button>
+          <jelly-button class="pill" data-value="onetime" aria-pressed="false">onetime</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">roles</span>
+        <div class="pillset" id="sg-roles" role="group" aria-label="Roles">
+          <jelly-button class="pill" data-value="radiogroup" aria-pressed="true">radiogroup</jelly-button>
+          <jelly-button class="pill" data-value="tablist" aria-pressed="false">tablist</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="sg-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="sg-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen">
-          <jelly-segmented label="Period">
-            <jelly-segment value="monthly" selected>Monthly</jelly-segment>
-            <jelly-segment value="quarterly">Quarterly</jelly-segment>
-            <jelly-segment value="onetime">One-time</jelly-segment>
-          </jelly-segmented>
-          <figcaption>roles="radiogroup" (default)</figcaption>
-        </figure>
+      <div class="segmented-stage" data-controls>
+        <jelly-segmented id="sg-demo" label="Period">
+          <jelly-segment value="monthly" selected>Monthly</jelly-segment>
+          <jelly-segment value="quarterly">Quarterly</jelly-segment>
+          <jelly-segment value="onetime">One-time</jelly-segment>
+        </jelly-segmented>
       </div>
+      <template data-snippet-text>&lt;jelly-segmented label="Period"&gt;
+  &lt;jelly-segment value="monthly" selected&gt;Monthly&lt;/jelly-segment&gt;
+  &lt;jelly-segment value="quarterly"&gt;Quarterly&lt;/jelly-segment&gt;
+  &lt;jelly-segment value="onetime"&gt;One-time&lt;/jelly-segment&gt;
+&lt;/jelly-segmented&gt;</template>
     </div>
   </section>
 
@@ -1353,8 +1401,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903v"></script>
-<script src="minaa-jelly.js?v=20260903v"></script>
-<script src="showcase.js?v=20260903v" defer></script>
+<script src="micons.js?v=20260903x"></script>
+<script src="minaa-jelly.js?v=20260903x"></script>
+<script src="showcase.js?v=20260903x" defer></script>
 </body>
 </html>

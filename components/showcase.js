@@ -956,6 +956,58 @@
     snippet();
   }
 
+  function wireSegmentedDemo() {
+    const el = document.getElementById('sg-demo');
+    const val = document.getElementById('sg-value');
+    const roles = document.getElementById('sg-roles');
+    const size = document.getElementById('sg-size');
+    const dis = document.getElementById('sg-disabled');
+    if (!el || !val || !roles || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-11 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.getAttribute('label')) a.push('label="' + el.getAttribute('label') + '"');
+      /* radiogroup is the default, so only tablist is worth printing. */
+      const r = el.getAttribute('roles');
+      if (r && r !== 'radiogroup') a.push('roles="' + r + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      /* `selected` is printed onto the segment the component reports, not the
+         one that started with the attribute -- clicking moves the selection
+         without rewriting anyone's markup. */
+      const lines = ['<jelly-segmented' + (a.length ? ' ' + a.join(' ') : '') + '>'];
+      el.querySelectorAll('jelly-segment').forEach((sg) => {
+        const v = sg.getAttribute('value');
+        lines.push('  <jelly-segment value="' + v + '"' + (v === el.value ? ' selected' : '')
+          + '>' + sg.textContent.trim() + '</jelly-segment>');
+      });
+      lines.push('</jelly-segmented>');
+      box.textContent = lines.join('\n');
+    }
+
+    /* Clicking a segment is the obvious way to move the selection, so the value
+       row is pushed back from the element rather than assumed from the pills. */
+    function sync() {
+      val.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === el.value)));
+      snippet();
+    }
+
+    pillRow(val, (v) => { el.value = v; }, sync);
+    pillRow(roles, (v) => el.setAttribute('roles', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* toggleAttribute: jelly-segmented defines accessors for value, isTablist
+       and stateAttribute -- not for disabled. */
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    el.addEventListener('change', sync);
+
+    sync();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1435,7 +1487,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {
