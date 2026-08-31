@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260902n"></script>
+<script src="../gate.js?v=20260902r"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260902n"></script>
+<script type="module" src="vendor/jelly.js?v=20260902r"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260902n">
-<link rel="stylesheet" href="showcase.css?v=20260902n">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260902r">
+<link rel="stylesheet" href="showcase.css?v=20260902r">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -165,23 +165,69 @@
   <!-- ── 05 ─────────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-05">
     <div class="entry-text">
-    <p class="entry-num">Forms · 05</p>
+    <p class="entry-num">Forms &middot; 05</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-input"/></svg> &lt;jelly-input&gt;</h2>
-    <p class="entry-note">A single-line field. Focus lifts and rings the membrane, and each keystroke
-       ripples the surface at the caret. Focus shows twice over: the permanent Secondary 600 edge
-       turns Primary 700, and Jelly paints a ring of its own on the canvas beneath it. That doubling
-       is measured and recorded in the stylesheet rather than hidden. Neither is <b>the 3px solid
-       ring the Buttons page specifies</b>; the two libraries do not agree on focus yet.</p>
+    <p class="entry-note">A single-line text field on a soft jelly surface: focus lifts and rings the
+       membrane, and each keystroke ripples the surface at the caret.</p>
+
+    <!-- FOCUS SHOWS TWICE OVER, and that is the finding this entry used to
+         spend a paragraph on. The permanent Secondary 600 edge turns Primary
+         700 AND Jelly paints a ring of its own on the canvas beneath it, so
+         two things move for one event. It is measured and recorded in the
+         stylesheet rather than hidden. Neither is the 3px solid ring the
+         Buttons page specifies: the two libraries do not agree on focus yet.
+
+         The controls are the component's own observed attributes -- value,
+         placeholder, type, disabled, readonly, size -- and nothing else.
+         `autocomplete` and `no-autofill` are real too but change nothing you
+         can see here; iOS autofill is masked through ::part(input) and is not
+         reproducible in a demo. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">placeholder</span>
+        <jelly-input id="in-placeholder" value="Your name" label="Placeholder text"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">value</span>
+        <jelly-input id="in-value" placeholder="Type here" label="Field value"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">type</span>
+        <div class="pillset" id="in-type" role="group" aria-label="Type">
+          <jelly-button class="pill" data-value="text" aria-pressed="true">text</jelly-button>
+          <jelly-button class="pill" data-value="email" aria-pressed="false">email</jelly-button>
+          <jelly-button class="pill" data-value="password" aria-pressed="false">password</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="in-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="in-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">readonly</span>
+        <div class="pillset" id="in-readonly" role="group" aria-label="Readonly">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen field"><jelly-input label="Warehouse name" placeholder="Warehouse name"></jelly-input><figcaption>Empty</figcaption></figure>
-        <figure class="specimen field"><jelly-input label="Warehouse name" value="Shuwaikh Bay 4"></jelly-input><figcaption>Filled</figcaption></figure>
+      <div class="input-stage" data-controls>
+        <jelly-input id="in-demo" size="medium" label="Warehouse name" placeholder="Your name"></jelly-input>
       </div>
-      <div class="row">
-        <figure class="specimen field"><jelly-input type="email" label="Email" placeholder="name@minaa.co"></jelly-input><figcaption>type="email"</figcaption></figure>
-        <figure class="specimen field"><jelly-input label="Locked" value="Read only" disabled></jelly-input><figcaption>Disabled</figcaption></figure>
-      </div>
+      <template data-snippet-text>&lt;jelly-input size="medium" placeholder="Your name"&gt;&lt;/jelly-input&gt;</template>
     </div>
   </section>
 
@@ -985,8 +1031,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260902n"></script>
-<script src="minaa-jelly.js?v=20260902n"></script>
-<script src="showcase.js?v=20260902n" defer></script>
+<script src="micons.js?v=20260902r"></script>
+<script src="minaa-jelly.js?v=20260902r"></script>
+<script src="showcase.js?v=20260902r" defer></script>
 </body>
 </html>

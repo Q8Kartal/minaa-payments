@@ -906,3 +906,28 @@ svg[data-sq-fill] {
   min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
   padding-block: var(--space-400);                             /* 32 */
 }
+
+/* Centred and floored, like the other single-specimen stages. `size` moves the
+   field's height 46 / 56 / 64, so the card needs a floor or it steps on every
+   click.
+
+   NO WIDTH IS SET HERE, and that is the correction. size on a jelly-input
+   carries a WIDTH as well as a height -- Jelly's own :host blocks give
+   220x46 / 280x56 / 340x64 for small / medium / large, both spellings -- so
+   any width from the page overrides the very thing the control is there to
+   demonstrate. Forcing 100% made a 553px banner and then 60% made every size
+   332px wide, which is why `size` looked like it did nothing: the heights were
+   moving and the widths could not.
+
+   The specimen therefore always carries a size. jelly-input has no width on
+   its base :host at all, so without one it collapses to zero -- measured. That
+   is the component's API, not an oversight here, which is why the snippet
+   prints size even though "medium" reads like a default: copied without it,
+   the field would have no width. */
+.input-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}

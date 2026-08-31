@@ -412,6 +412,74 @@
     applyLength();
   }
 
+  /* ── The field (entry 05) ───────────────────────────────────────────────
+     Six controls, all of them the component's own observed attributes. Two are
+     free text, because a placeholder and a value are strings and any pair of
+     preset buttons would be an arbitrary pair.
+
+     `disabled` and `readonly` are separate rows on purpose: they look alike
+     and are not. A readonly field still takes focus and still lets its value
+     be selected and copied; a disabled one does neither and is skipped by the
+     tab order. Two pills make that difference clickable rather than described.
+
+     toggleAttribute, not the property: on a web component a property is a
+     no-op unless the component defines one, and jelly-input defines neither. */
+  function wireInputDemo() {
+    const el = document.getElementById('in-demo');
+    const ph = document.getElementById('in-placeholder');
+    const val = document.getElementById('in-value');
+    const type = document.getElementById('in-type');
+    const size = document.getElementById('in-size');
+    const dis = document.getElementById('in-disabled');
+    const ro = document.getElementById('in-readonly');
+    if (!el || !ph || !val || !type || !size || !dis || !ro || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-05 .code code');
+      if (!box) return;
+      const a = [];
+      /* text and medium are the defaults, so printing them would document
+         attributes that change nothing. */
+      if (el.getAttribute('type') && el.getAttribute('type') !== 'text') a.push('type="' + el.getAttribute('type') + '"');
+      /* size is ALWAYS printed here, unlike every other entry. On this
+         component it is not a cosmetic default: Jelly's base :host carries no
+         width, so a jelly-input copied without a size renders zero wide. */
+      a.push('size="' + (el.getAttribute('size') || 'medium') + '"');
+      if (el.getAttribute('placeholder')) a.push('placeholder="' + el.getAttribute('placeholder') + '"');
+      if (el.getAttribute('value')) a.push('value="' + el.getAttribute('value') + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      if (el.hasAttribute('readonly')) a.push('readonly');
+      box.textContent = '<jelly-input' + (a.length ? ' ' + a.join(' ') : '') + '></jelly-input>';
+    }
+
+    function text(field, apply) {
+      const run = () => { apply(field.value == null ? '' : String(field.value)); snippet(); };
+      field.addEventListener('input', run);
+      field.addEventListener('change', run);
+    }
+    text(ph, (v) => v ? el.setAttribute('placeholder', v) : el.removeAttribute('placeholder'));
+    text(val, (v) => v ? el.setAttribute('value', v) : el.removeAttribute('value'));
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+    pills(type, (v) => v === 'text' ? el.removeAttribute('type') : el.setAttribute('type', v));
+    /* Never removed -- see the snippet note: no size means no width. */
+    pills(size, (v) => el.setAttribute('size', v));
+    pills(dis, (v) => el.toggleAttribute('disabled', v === 'true'));
+    pills(ro,  (v) => el.toggleAttribute('readonly', v === 'true'));
+
+    snippet();
+  }
+
   /* ── The alert (entry 24) ───────────────────────────────────────────────
      One specimen driven by three controls, replacing five static alerts that
      showed the tones and hid everything else.
@@ -903,7 +971,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {
