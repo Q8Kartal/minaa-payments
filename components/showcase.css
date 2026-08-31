@@ -994,6 +994,19 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Centred and floored. Like the radio, jelly-checkbox declares no width or
+   height of its own -- it sizes to its label -- so nothing here overrides the
+   component; the floor only stops the card stepping as `size` moves it. The
+   box is 25 / 31 / 36 tall at small / medium / large, so 40 is the step that
+   clears the tallest. */
+.checkbox-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-500) + var(--space-400) * 2);   /* 40 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* Centred and floored. jelly-radio declares no width or height of its own --
    it sizes to its label -- so nothing here overrides the component; the floor
    is only so the card does not step as `size` moves the control. */

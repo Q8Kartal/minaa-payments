@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903o"></script>
+<script src="../gate.js?v=20260903q"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903o"></script>
+<script type="module" src="vendor/jelly.js?v=20260903q"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903o">
-<link rel="stylesheet" href="showcase.css?v=20260903o">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903q">
+<link rel="stylesheet" href="showcase.css?v=20260903q">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -137,28 +137,69 @@
     </div>
   </section>
 
-  <!-- ── 04 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 04 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-04">
     <div class="entry-text">
-    <p class="entry-num">Forms · 04</p>
+    <p class="entry-num">Forms &middot; 04</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-checkbox"/></svg> &lt;jelly-checkbox&gt;</h2>
-    <p class="entry-note">A form-associated checkbox with checked and mixed states. The two modes
-       are not one rule applied twice: light draws a Secondary 600 mark on a Primary 300 box,
-       dark a Neutral 100 mark on a Secondary 600 box. Both are drawn that way in the Figma
-       file rather than derived from each other.</p>
+    <p class="entry-note">A form-associated checkbox with checked and mixed states, drawn as a soft
+       square that pops when it is toggled.</p>
+
+    <!-- `checked` and `indeterminate` are SEPARATE rows because they are not
+         opposites. Set through the properties, a box holds BOTH at once --
+         measured, and a plain <input type="checkbox"> does the same, so this
+         is the platform's behaviour rather than Jelly's.
+
+         What DOES drop one is a click on the specimen: it sets checked and
+         clears indeterminate, again exactly as a native box does. That is why
+         the pills are re-read from the element after every change, the
+         specimen's own `change` event included -- otherwise one click would
+         leave the indeterminate=true pill lit for a state the box no longer
+         has, and the controls would be lying about the thing they drive.
+
+         Both go through the PROPERTY. jelly-checkbox defines `checked`,
+         `indeterminate` and `value` as accessors, and both reflect to their
+         attribute in either direction -- measured, not assumed -- so the
+         property is the honest handle and keeps the hidden input in step.
+
+         No `variant` row: Jelly's palette, as in 07, 08, 12, 25, 26 and 28. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">checked</span>
+        <div class="pillset" id="cb-checked" role="group" aria-label="Checked">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">indeterminate</span>
+        <div class="pillset" id="cb-indeterminate" role="group" aria-label="Indeterminate">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="cb-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="cb-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row">
-        <figure class="specimen"><jelly-checkbox>Unchecked</jelly-checkbox><figcaption>Rest</figcaption></figure>
-        <figure class="specimen"><jelly-checkbox checked>Checked</jelly-checkbox><figcaption>Checked</figcaption></figure>
-        <figure class="specimen"><jelly-checkbox indeterminate>Select all</jelly-checkbox><figcaption>Mixed</figcaption></figure>
-        <figure class="specimen"><jelly-checkbox disabled>Disabled</jelly-checkbox><figcaption>Disabled</figcaption></figure>
+      <div class="checkbox-stage" data-controls>
+        <jelly-checkbox id="cb-demo">Subscribe to updates</jelly-checkbox>
       </div>
-      <div class="row">
-        <figure class="specimen"><jelly-checkbox size="small" checked>Small</jelly-checkbox><figcaption>small</figcaption></figure>
-        <figure class="specimen"><jelly-checkbox size="medium" checked>Medium</jelly-checkbox><figcaption>medium</figcaption></figure>
-        <figure class="specimen"><jelly-checkbox size="large" checked>Large</jelly-checkbox><figcaption>large</figcaption></figure>
-      </div>
+      <template data-snippet-text>&lt;jelly-checkbox&gt;Subscribe to updates&lt;/jelly-checkbox&gt;</template>
     </div>
   </section>
 
@@ -1227,8 +1268,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903o"></script>
-<script src="minaa-jelly.js?v=20260903o"></script>
-<script src="showcase.js?v=20260903o" defer></script>
+<script src="micons.js?v=20260903q"></script>
+<script src="minaa-jelly.js?v=20260903q"></script>
+<script src="showcase.js?v=20260903q" defer></script>
 </body>
 </html>

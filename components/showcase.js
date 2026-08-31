@@ -772,6 +772,59 @@
     snippet();
   }
 
+  function wireCheckboxDemo() {
+    const el = document.getElementById('cb-demo');
+    const chk = document.getElementById('cb-checked');
+    const ind = document.getElementById('cb-indeterminate');
+    const size = document.getElementById('cb-size');
+    const dis = document.getElementById('cb-disabled');
+    if (!el || !chk || !ind || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-04 .code code');
+      if (!box) return;
+      const a = [];
+      /* Read the ELEMENT, not the pills. A click on the specimen clears
+         indeterminate and sets checked -- native behaviour, measured here too
+         -- so a snippet built from what was last clicked in the controls would
+         print a state the box no longer has. */
+      if (el.checked) a.push('checked');
+      if (el.indeterminate) a.push('indeterminate');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-checkbox' + (a.length ? ' ' + a.join(' ') : '')
+        + '>Subscribe to updates</jelly-checkbox>';
+    }
+
+    /* Push the element's real state back into both rows. The case that needs
+       it is a click on the specimen: that clears indeterminate, and without
+       this the indeterminate=true pill would stay lit for a state the box has
+       already dropped -- the controls lying about the thing they drive.
+
+       Setting the two through the properties does NOT drop either; a box holds
+       both at once, as a native input does. Verified both ways round. */
+    function sync() {
+      const set = (root, on) => root.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'true') === on)));
+      set(chk, !!el.checked);
+      set(ind, !!el.indeterminate);
+      snippet();
+    }
+
+    pillRow(chk, (v) => { el.checked = v === 'true'; }, sync);
+    pillRow(ind, (v) => { el.indeterminate = v === 'true'; }, sync);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* toggleAttribute, not the property: jelly-checkbox defines accessors for
+       checked, indeterminate and value -- and not for disabled. */
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    /* Clicking the specimen is a real way to change it, so the rows follow. */
+    el.addEventListener('change', sync);
+
+    sync();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1251,7 +1304,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {
