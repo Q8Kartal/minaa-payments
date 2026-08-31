@@ -825,6 +825,31 @@
     sync();
   }
 
+  function wireLabelDemo() {
+    const el = document.getElementById('lb-demo');
+    const req = document.getElementById('lb-required');
+    const size = document.getElementById('lb-size');
+    if (!el || !req || !size || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-06 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.hasAttribute('required')) a.push('required');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-label' + (a.length ? ' ' + a.join(' ') : '')
+        + '>Email address</jelly-label>';
+    }
+
+    /* toggleAttribute, not a property: jelly-label observes for, required and
+       size, and defines an accessor for none of them. */
+    pillRow(req, (v) => el.toggleAttribute('required', v === 'true'), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1304,7 +1329,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
   }
 
   if (window.customElements) {

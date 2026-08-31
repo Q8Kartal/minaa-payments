@@ -994,6 +994,18 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Centred and floored. jelly-label sets no width or height of its own -- it is
+   an inline-block that sizes to its text -- so nothing here overrides it. The
+   label is 24 / 24 / 28 tall across the three sizes, so 32 is the step that
+   clears the tallest and stops the card moving as `size` changes. */
+.label-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-400) * 3);   /* 32 + 32 + 32 */
+  padding-block: var(--space-400);          /* 32 */
+}
+
 /* Centred and floored. Like the radio, jelly-checkbox declares no width or
    height of its own -- it sizes to its label -- so nothing here overrides the
    component; the floor only stops the card stepping as `size` moves it. The

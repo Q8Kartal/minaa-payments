@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260903q"></script>
+<script src="../gate.js?v=20260903s"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260903q"></script>
+<script type="module" src="vendor/jelly.js?v=20260903s"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260903q">
-<link rel="stylesheet" href="showcase.css?v=20260903q">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260903s">
+<link rel="stylesheet" href="showcase.css?v=20260903s">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -272,26 +272,46 @@
     </div>
   </section>
 
-  <!-- ── 06 ─────────────────────────────────────────────────────────────── -->
+  <!-- ── 06 ─────────────────────────────────────────────────────────── -->
   <section class="entry" id="c-06">
     <div class="entry-text">
-    <p class="entry-num">Forms · 06</p>
+    <p class="entry-num">Forms &middot; 06</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-label"/></svg> &lt;jelly-label&gt;</h2>
-    <p class="entry-note">Pairs with any control through <code>for</code>: clicking focuses the target
-       and the text becomes its accessible name. Prefer this over the <code>label</code> attribute
-       whenever the name should be visible.</p>
-    </div>
-    <div class="demo" data-demo>
-      <div class="row">
-        <div class="stack">
-          <jelly-label for="rent">Monthly rent</jelly-label>
-          <jelly-input id="rent" placeholder="150.000 KWD"></jelly-input>
-        </div>
-        <div class="stack">
-          <jelly-label for="ref" required>Reference</jelly-label>
-          <jelly-input id="ref" placeholder="INV-260827-001"></jelly-input>
+    <p class="entry-note">A form label that pairs with any control through <code>for</code>: clicking
+       focuses the target and the text becomes its accessible name.</p>
+
+    <!-- THE SPECIMEN IS A LONE LABEL, so `for` is described here and not shown.
+         The previous entry paired two labels with two inputs, which did
+         demonstrate it, but a control this entry cannot vary is page furniture
+         under the one-specimen pattern. `for` takes an id, not a pill.
+
+         `size` is a real row: it moves the label's own font size, 14 / 16 / 18
+         at small / medium / large. Measured on the INNER label element -- the
+         host stays 16px in all three, so measuring the host says `size` does
+         nothing, which is how this was nearly written off as a no-op row. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">required</span>
+        <div class="pillset" id="lb-required" role="group" aria-label="Required">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
         </div>
       </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="lb-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="label-stage" data-controls>
+        <jelly-label id="lb-demo">Email address</jelly-label>
+      </div>
+      <template data-snippet-text>&lt;jelly-label&gt;Email address&lt;/jelly-label&gt;</template>
     </div>
   </section>
 
@@ -1268,8 +1288,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260903q"></script>
-<script src="minaa-jelly.js?v=20260903q"></script>
-<script src="showcase.js?v=20260903q" defer></script>
+<script src="micons.js?v=20260903s"></script>
+<script src="minaa-jelly.js?v=20260903s"></script>
+<script src="showcase.js?v=20260903s" defer></script>
 </body>
 </html>
