@@ -1008,7 +1008,16 @@ jelly-segmented {
      behaves: the canvas tracked the resize and the pill came out at 40, which
      is the figure the specification draws. Paired with the min-height on
      `.segment` in minaa-jelly.js, without which the pill collapses to its
-     line box and floats in the taller track. */
+     line box and floats in the taller track.
+
+     KEEP THIS. It is a deliberate deviation from Jelly's own ramp -- 36 / 44 /
+     52 against our 48 / 56 / 64 -- and it will look like the bug that was
+     removed from the field, the progress bar and the skeleton, where a page
+     width overrode a dimension the component's `size` was there to
+     demonstrate. It is not the same thing: the ramp still steps, every size
+     moves together, and the point is that a segmented control has to stand the
+     same height as the input beside it. Jelly's 44 next to a 56 field reads as
+     a mismatch. Audited and confirmed by Ahmad. */
   height: var(--control-56);
 
   /* The track is painted from --jelly-track, not from a surface token — that
@@ -1824,7 +1833,12 @@ jelly-badge[size="large"] { font-size: var(--text-sm); line-height: var(--text-s
 jelly-badge[shape="square"],
 jelly-badge[shape="square"][size="small"],
 jelly-badge[shape="square"][size="large"] { --jelly-badge-radius: var(--radius-8); }
-jelly-badge[size="large"] { height: var(--space-400); }
+/* 32, where Jelly's own ramp is 20 / 24 / 30. Only the last of the three is
+   off the spacing scale, so only the last is bound -- small and medium already
+   land on 20 and 24. Same note as the segmented height: this deviates from the
+   library on purpose and is not the override that was removed elsewhere, where
+   a page dimension defeated the size control. The ramp still steps. */
+jelly-badge[size="large"] { height: var(--space-400); }   /* 32 */
 jelly-badge::part(badge)                { padding-inline: var(--space-100); }
 jelly-badge[size="small"]::part(badge)  { padding-inline: var(--space-100); }
 jelly-badge[size="large"]::part(badge)  { padding-inline: var(--space-150); }
