@@ -1986,63 +1986,41 @@ jelly-chip[tone="neutral"] {
 }
 
 /* ── Collapsible, and the accordion that holds them ────────────────────────
-   Every measurement Jelly ships here is named, so all of it binds from the
-   host and the shadow root is left alone. Not one of the stock values is a
-   step on either scale:
+   NOTHING IS REBOUND HERE. The size scale is Jelly's own -- 10/13/16
+   padding-block, 12/14/18 inline, 8/10/12 gap, 13.5/15/16.5 header type,
+   13/14.5/15.5 body, 14/16/18 chevron, 10/12/14 radius -- and it stays that
+   way on Ahmad's instruction: match the API, do not invent a scale for it.
 
-                       Jelly (sm/md/lg)        bound
-     padding-block     10 / 13 / 16            8 / 12 / 16
-     padding-inline    12 / 14 / 18            12 / 16 / 20
-     gap                8 / 10 / 12            6 / 8 / 12
-     header font       13.5 / 15 / 16.5        14 / 16 / 18
-     body font         13 / 14.5 / 15.5        12 / 14 / 16
-     chevron           14 / 16 / 18            16 / 20 / 24
+   This carried a full rebinding onto the spacing scale for four builds, and it
+   made the component a different shape rather than a Minaa-flavoured version
+   of the same one. Two rounds of correction went into the numbers I had chosen
+   -- first the radius not stepping, then the radius stepping -- and both were
+   arguments about a scale that should not have been imposed. Rebinding is
+   right where the component's own values are arbitrary; it is wrong where they
+   are the component's PROPORTIONS. The 22px spread between this header's small
+   and large is proportion.
 
-   THE ACCORDION NEEDS NOTHING OF ITS OWN, and that is worth stating because
-   the tabs bar needed everything. jelly-accordion's shadow root is a bare
-   <slot>, so its jelly-collapsible children stay in the LIGHT dom where these
-   element selectors reach them normally. jelly-tabs builds its segmented
-   INSIDE its shadow root, which is why that one needed ::part(). The
-   difference is where the child lives, not how the parent is written -- check
-   before assuming a wrapper repeats the problem. */
-jelly-collapsible {
-  --jelly-collapsible-padding-block:  var(--space-150);   /* 12 */
-  --jelly-collapsible-padding-inline: var(--space-200);   /* 16 */
-  --jelly-collapsible-gap:            var(--space-100);   /*  8 */
-  --jelly-collapsible-header-font:    var(--text-md);     /* 16 */
-  --jelly-collapsible-body-font:      var(--text-sm);     /* 14 */
-  --jelly-collapsible-chevron:        var(--control-icon-20);
-  --jelly-collapsible-radius:         var(--radius-16);
-}
+   The colours below are a separate matter and stay for now.
 
-jelly-collapsible[size="small"], jelly-collapsible[size="sm"] {
-  --jelly-collapsible-padding-block:  var(--space-100);   /*  8 */
-  --jelly-collapsible-padding-inline: var(--space-150);   /* 12 */
-  --jelly-collapsible-gap:            var(--space-075);   /*  6 */
-  --jelly-collapsible-header-font:    var(--text-sm);     /* 14 */
-  --jelly-collapsible-body-font:      var(--text-xs);     /* 12 */
-  --jelly-collapsible-chevron:        var(--control-icon-16);
-}
+   THE ACCORDION NEEDS NOTHING OF ITS OWN. jelly-accordion's shadow root is a
+   bare <slot>, so its jelly-collapsible children stay in the LIGHT dom where
+   these element selectors reach them normally -- unlike jelly-tabs, which
+   builds its segmented INSIDE its shadow root and needed ::part(). The
+   difference is where the child lives, not how the parent is written.
 
-/* THE HEADER SURFACE, which Jelly does not give it. `.head` is
+   THE HEADER SURFACE, which Jelly does not give it. `.head` is
    `background: transparent` with a 7%-accent tint on hover and nothing at
    rest, so a collapsible was a line of text with a chevron -- and in light the
    text came out Secondary 600, because --jelly-color-foreground-default maps
-   to --m-value. Ahmad asked for a real surface: Primary 300 in light,
-   Secondary 600 in dark.
+   to --m-value. Primary 300 in light, Secondary 600 in dark, per Ahmad; he has
+   said the colours get another pass.
 
    ::part(header) reaches it -- Jelly does put a part on that button -- so this
    is a page rule and not an injection. The hover has to be restated because an
    outer ::part rule outranks the shadow's own `.head:hover`, which would
-   otherwise be dead; it is now a 12% shift toward the ink rather than a tint
-   of the accent, so it moves against whichever surface the mode supplies.
-
-   Contrast is the pair already used across the library: Primary 700 on Primary
-   300 is 3.85 in light, Cream on Secondary 600 is 3.57 in dark.
-
-   The ACCORDION gets this for free. Its items are light-dom jelly-collapsible
-   children, so this selector reaches them -- the same reason it needed no
-   sizing rules of its own. */
+   otherwise be dead; it is a 12% shift toward the ink, so it moves against
+   whichever surface the mode supplies. The accordion's items pick all of this
+   up for the light-dom reason above. */
 jelly-collapsible::part(header) {
   background: var(--m-disclosure-surface);
   color:      var(--m-disclosure-ink);
@@ -2050,35 +2028,6 @@ jelly-collapsible::part(header) {
 
 jelly-collapsible::part(header):hover {
   background: color-mix(in srgb, var(--m-disclosure-ink) 12%, var(--m-disclosure-surface));
-}
-
-jelly-collapsible[size="large"], jelly-collapsible[size="lg"] {
-  --jelly-collapsible-padding-block:  var(--space-200);   /* 16 */
-  --jelly-collapsible-padding-inline: var(--space-250);   /* 20 */
-  --jelly-collapsible-gap:            var(--space-150);   /* 12 */
-  --jelly-collapsible-header-font:    var(--text-lg);     /* 18 */
-  --jelly-collapsible-body-font:      var(--text-md);     /* 16 */
-  --jelly-collapsible-chevron:        var(--control-icon-24);
-}
-
-/* THE RADIUS DOES STEP HERE, AND THE EARLIER CALL NOT TO WAS WRONG. One bound
-   value read fine at medium and large and turned the small header into a pill:
-   against the header heights the single 16 gave
-
-     small   16 / 34 = 0.47
-     medium  16 / 45 = 0.36
-     large   16 / 56 = 0.29
-
-   -- half its own height at small, which is a different shape, not a smaller
-   one. Reported from the page, then measured. "A corner treatment is not a
-   dimension" holds for a chip, whose small and large differ by 16px; it does
-   not hold across a 22px spread.
-
-   Small drops to 8 (0.24) and the three read as one family. Medium and large
-   share 16 because the next step up is 24, and 24/56 = 0.43 would make large
-   the roundest of the three. */
-jelly-collapsible[size="small"], jelly-collapsible[size="sm"] {
-  --jelly-collapsible-radius: var(--radius-8);
 }
 
 /* ── Card ──────────────────────────────────────────────────────────────────
