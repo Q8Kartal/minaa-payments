@@ -1005,6 +1005,7 @@
 (function minaaSkeletonSquircle() {
   'use strict';
 
+
   /* Superellipse N = 4 -> the parametric exponent is 2/N. The same number as
      minaaSquirclePath() above, which is the SVG half of this shape. */
   var SQUIRCLE = 2 / 4;
