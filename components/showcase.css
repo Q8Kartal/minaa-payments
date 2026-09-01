@@ -994,6 +994,20 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* One chip, centred. A chip is inline-flex and carries its own width from its
+   label, so the stage sets none -- and no height either, because the chip's own
+   size ramp (32 / 40 / 48) is the thing the size row is there to show.
+
+   The floor is the largest chip plus its padding, so switching sizes moves the
+   chip without moving the card. */
+.chip-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--control-48) + var(--space-400) * 2);
+  padding-block: var(--space-400);
+}
+
 /* The tab bar plus one panel. NO FIXED HEIGHT, and that is the point: the
    panels hold different amounts of copy, so pinning a height would either clip
    the longest or leave the shortest floating. A floor keeps the card from

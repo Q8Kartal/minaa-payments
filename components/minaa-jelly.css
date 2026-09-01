@@ -1867,10 +1867,104 @@ jelly-alert[size="large"] { line-height: var(--text-md-lh); }   /* 24 */
 jelly-alert::part(close):hover {
   background: color-mix(in srgb, var(--cream) 22%, transparent);
 }
-jelly-alert[tone="info"]    { --jelly-fill: var(--primary); }  /* Primary 600 */
+jelly-alert[tone="info"]    { --jelly-fill: var(--primary); }  /* Primary 700 */
 jelly-alert[tone="success"] { --jelly-fill: var(--success); }  /* Green 600  */
 jelly-alert[tone="warning"] { --jelly-fill: var(--warning); }  /* Yellow 400 */
 jelly-alert[tone="danger"]  { --jelly-fill: var(--error);   }  /* Orange 500 */
+
+/* ── Chip ──────────────────────────────────────────────────────────────────
+   A chip crossfades between two fills: --jelly-fill at rest and --jelly-on
+   when selected, eased over roughly 200ms by mixColor(). Both endpoints are
+   re-resolved on every paint, so a token change recolours it -- measured, and
+   it holds even after the body has come to rest, so no repaint nudge is
+   needed. (requestFrame() exists and is public; it closes the last 1/255 of
+   the ease and nothing more.)
+
+   NOT `variant`. Jelly's variant palette -- white, rose, amber, azure, mint,
+   platinum, graphite -- is off limits through this bridge, for the reason set
+   out above jelly-button: none is a Minaa colour and the label is painted
+   unconditionally for the accent fill, which once shipped a pill with cream
+   text on cream. `tone` is ours. Jelly does not observe it and does not need
+   to; CSS reads the attribute and the tokens do the rest, the same way the
+   drawer reads `side`.
+
+   THE SEMANTICS ARE THE BRAND SEMANTIC COLOURS, AT THEIR OWN STEPS. Green 600,
+   Yellow 400 and Orange 500 -- the three the guidelines define, and the same
+   three the toaster paints from, so a success chip and a success toast are one
+   colour rather than two that nearly match.
+
+   This was first built at the deep steps instead, on a contrast argument, and
+   that was the wrong call to make alone: "semantic" names a palette in the
+   guidelines, not a licence to pick the step that measures best. Ahmad chose
+   the semantic palette knowing the numbers.
+
+   The numbers, recorded because they are real, not because they overrule
+   anything. Against Cream:
+
+     Green 600  #05AA00   2.75
+     Orange 500 #E56E1F   2.83
+     Yellow 400 #E5B11F   1.75
+
+   The toaster carries the same three on Cream, so the chip is no worse than
+   what already ships and is now consistent with it. If this is revisited it
+   goes THERE FIRST, across the semantic set at once -- a chip using a
+   different green from the toast beside it is a worse outcome than a known
+   contrast figure.
+
+   Primary 700 is 5.55, Secondary 600 is 3.57, and Neutral 100 is 5.55 the
+   other way up: it takes Primary 700 ink instead of Cream, because a cream
+   chip with cream text is the exact failure the variant rule was written
+   about. That one is not a preference -- it is an invisible label.
+
+   The rest fill is --m-field, the same surface the inputs use: Primary 300 in
+   light at 3.85 against Primary 700 ink, Primary 900 in dark at 8.90 against
+   Cream. Not --m-track-off, which is Cream in dark and would put cream ink on
+   a cream chip. */
+jelly-chip {
+  --jelly-fill:     var(--m-field);       /* Primary 300 light / Primary 900 dark */
+  --jelly-label:    var(--m-ink);         /* Primary 700 light / Neutral 100 dark */
+  --jelly-on:       var(--m-accent);      /* Primary 700 -- the default tone */
+  --jelly-label-on: var(--m-on-accent);   /* Neutral 100 */
+
+  /* Jelly ships 36 / 30 / 42 at 14 / 12.5 / 15.5, and not one of those is a
+     step on either scale. Bound to the control ramp a size below the fields,
+     so a chip reads as smaller than the input beside it. */
+  height:                var(--control-40);
+  --jelly-chip-font-size: var(--text-md);
+  font-size:             var(--text-md);
+  line-height:           var(--text-md-lh);
+  --jelly-chip-radius:   var(--radius-full);
+}
+
+jelly-chip[size="small"], jelly-chip[size="sm"] {
+  height:                var(--control-32);
+  --jelly-chip-font-size: var(--text-sm);
+  font-size:             var(--text-sm);
+  line-height:           var(--text-sm-lh);
+}
+
+jelly-chip[size="large"], jelly-chip[size="lg"] {
+  height:                var(--control-48);
+  --jelly-chip-font-size: var(--text-lg);
+  font-size:             var(--text-lg);
+  line-height:           var(--text-lg-lh);
+}
+
+/* Jelly draws the square chip at 11 / 9 / 13. One bound value across all three
+   sizes instead: the radius is a corner treatment, not a dimension, and it has
+   no reason to step with the height. */
+jelly-chip[shape="square"] { --jelly-chip-radius: var(--radius-8); }
+
+/* The tones. Only --jelly-on moves -- the rest fill is the same quiet surface
+   for every chip, so an unselected row reads as one set rather than six. */
+jelly-chip[tone="secondary"] { --jelly-on: var(--secondary);    }  /* Secondary 600 */
+jelly-chip[tone="success"]   { --jelly-on: var(--success);      }  /* Green 600     */
+jelly-chip[tone="warning"]   { --jelly-on: var(--warning);      }  /* Yellow 400    */
+jelly-chip[tone="error"]     { --jelly-on: var(--error);        }  /* Orange 500    */
+jelly-chip[tone="neutral"] {
+  --jelly-on:       var(--cream);         /* Neutral 100 */
+  --jelly-label-on: var(--primary);       /* Primary 700 -- see above */
+}
 
 /* Every measurement Jelly ships for the alert, and only three land on the
    scale. Unlike the toast, the alert NAMES all of them, so they bind from the

@@ -648,7 +648,12 @@
       root.querySelectorAll('.pill').forEach(
         (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
       onPick(b.dataset.value);
-      after();
+      /* Optional, and it matters: this runs INSIDE the click handler, so a
+         missing `after` threw a TypeError that aborted the rest of the
+         handler. The visible symptom was a row that moved the component but
+         left the snippet stale -- which reads as a snippet bug, not a wiring
+         one. Caught on the chip, whose selected row passed two arguments. */
+      if (after) after();
     });
   }
 
@@ -960,6 +965,66 @@
      everything the segmented wiring knows applies -- but nothing here reaches
      into that shadow: `value` and `size` are host attributes and the component
      forwards them down itself. */
+  /* Entry 30. Seven rows, the most of any entry, because jelly-chip has the
+     widest attribute surface in the library. */
+  function wireChipDemo() {
+    const el = document.getElementById('cp-demo');
+    const rows = ['tone','selected','selectable','removable','shape','size','disabled']
+      .reduce((a, k) => (a[k] = document.getElementById('cp-' + k), a), {});
+    if (!el || Object.values(rows).some((r) => !r) || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-30 .code code');
+      if (!box) return;
+      const a = [];
+      const tone = el.getAttribute('tone');
+      if (tone && tone !== 'primary') a.push('tone="' + tone + '"');
+      const shape = el.getAttribute('shape');
+      if (shape) a.push('shape="' + shape + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      /* Bare attributes last, in the order Jelly reads them. */
+      ['selectable','removable','selected','disabled'].forEach((k) => {
+        if (el.hasAttribute(k)) a.push(k);
+      });
+      box.textContent = '<jelly-chip' + (a.length ? ' ' + a.join(' ') : '') + '>Monthly</jelly-chip>';
+    }
+
+    /* The chip toggles ITSELF when selectable -- clicking it fires `change` --
+       so the selected row is pushed back from the element rather than assumed.
+       Same reason the segmented and tabs rows are. */
+    function sync() {
+      rows.selected.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed',
+          String((p.dataset.value === 'true') === el.hasAttribute('selected'))));
+      snippet();
+    }
+
+    pillRow(rows.tone, (v) => el.setAttribute('tone', v), snippet);
+    /* toggleAttribute for all four booleans: `selected` has a property but the
+       other three do not, and one shape for all of them is easier to trust. */
+    pillRow(rows.selected,   (v) => el.toggleAttribute('selected', v === 'true'), sync);
+    pillRow(rows.selectable, (v) => el.toggleAttribute('selectable', v === 'true'), snippet);
+    pillRow(rows.removable,  (v) => el.toggleAttribute('removable',  v === 'true'), snippet);
+    pillRow(rows.disabled,   (v) => el.toggleAttribute('disabled',   v === 'true'), snippet);
+    /* `round` is the absence of shape, not a value Jelly knows. */
+    pillRow(rows.shape, (v) => {
+      if (v === 'square') el.setAttribute('shape', 'square');
+      else el.removeAttribute('shape');
+    }, snippet);
+    pillRow(rows.size, (v) => el.setAttribute('size', v), snippet);
+
+    el.addEventListener('change', sync);
+    /* The chip removes itself from the layout on `remove`, which would leave
+       the stage empty and every row pointing at nothing. Cancel it: this is a
+       specimen, and the removable row is here to show the affordance, not to
+       demonstrate deletion. */
+    el.addEventListener('remove', (e) => e.preventDefault());
+
+    sync();
+  }
+
   function wireTabsDemo() {
     const el = document.getElementById('tb-demo');
     const val = document.getElementById('tb-value');
@@ -1739,7 +1804,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {
