@@ -1036,7 +1036,14 @@
   function wantsSquircle(el) {
     var tag = el.tagName.toLowerCase();
     if (tag === 'jelly-alert' || tag === 'jelly-card') return true;
-    return el.getAttribute('shape') === 'rect';
+    /* BOTH SPELLINGS. Jelly gives the rectangular skeleton two names in one
+       rule -- :host([shape="rect"]), :host([shape="square"]) -- and this test
+       knew only the first. The page's control was changed from `rect` to
+       `square` later, which is a valid value and sized correctly, so the
+       specimen looked right while quietly losing its squircle: the shape it
+       reported matched no branch here and fell through to the round corner. */
+    var shape = el.getAttribute('shape');
+    return shape === 'rect' || shape === 'square';
   }
 
   /* THE CORNER IS OWNED BY shape(), SO THAT IS WHERE IT IS SET.

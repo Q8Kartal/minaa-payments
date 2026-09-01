@@ -1796,7 +1796,11 @@
     function snippet() {
       const box = document.querySelector('#c-27 .code code');
       if (!box) return;
-      const v = spec.dataset.shape;
+      /* Read from the ATTRIBUTE. This used to read spec.dataset.shape, and
+         data-shape was removed when the stylesheet stopped sizing the
+         specimen -- so the snippet has been printing shape="undefined"
+         ever since, on every shape including the one it loads with. */
+      const v = spec.getAttribute('shape');
       /* `line` is the default, so the snippet shows the bare element for it --
          printing shape="line" would teach an attribute that does nothing. */
       /* shape is always printed: the base :host is 200x16 and each shape has
