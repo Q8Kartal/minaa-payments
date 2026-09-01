@@ -193,17 +193,50 @@ const MICONS = {
      thing. Where even that fails it is said so.
 
      Names here are entry names, not library names -- the library path is on
-     each line, because interface/menu-2-solid labelling the DRAWER entry is
-     exactly the sort of thing that looks like a mistake six months later. */
+     each line, so a mark can always be traced back to what the library calls
+     it. The DRAWER no longer carries one: it used to be interface/menu-2-solid
+     and is now drawn, for reasons kept at its entry. It is the only glyph in
+     this file with no library path, and that is deliberate, not an omission. */
 
-  /* interface/menu-2-solid. The hamburger is not a drawer; it is the control
-     that opens one, and it is the most universally read drawer affordance
-     there is. Deliberately NOT given to the menu entry, which would be the
-     literal-minded choice: nothing on this page opens a jelly-menu with a
-     hamburger, while a drawer is opened with one everywhere. */
-  drawer: '<path d="M3 6L21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
-          '<path d="M3 12L21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
-          '<path d="M3 18L21 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  /* DRAWN FOR THIS SET -- the only glyph here that is not lifted from Micons.
+
+     The hamburger was here, with a documented reason: it is the control that
+     opens a drawer, and the most universally read affordance for one. Two
+     things broke it.
+
+     It is the MENU's glyph. interface/menu-2-solid is what the library itself
+     calls the menu mark, so one drawing was doing duty for two entries four
+     apart on the same page -- and entry 22 documents jelly-menu.
+
+     And it was the only OUTLINE mark among five solid siblings. Dialog,
+     popover, tooltip, menu and menu-item are all solid; three stroked lines
+     read visibly lighter and broke the row.
+
+     A REPLACEMENT WAS LOOKED FOR FIRST, VISUALLY, AND THERE IS NONE. The scan
+     recorded above searched names; this one searched pictures, which matters,
+     because names in that file cannot be trusted: navigation/side-* are turn
+     arrows, arrows/stage-* is a bar chart, e-commerce/rbox is a shipping box,
+     communication/inbox is an envelope, and all ten glyphs in the first row of
+     the code-design frame -- ten different drawings -- are called clock-6. The
+     three closest SHAPES each mean something else: date-time/calander (a panel
+     with a header band), code-design 234:1137 (a terminal window) and
+     interface/category (2x2 tiles).
+
+     So it is drawn ON THE LIBRARY'S OWN SILHOUETTE rather than a new one. The
+     first subpath is subpath 0 of interface/done-solid, copied verbatim -- the
+     same squircle carrying menuitem, tooltip and popover. Only the knockout is
+     new, so this sits in the row as family rather than as a guest.
+
+     evenodd, container then page: the page is cut out of a solid body, leaving
+     a frame plus a band. The band is on the RIGHT, the start edge in Arabic,
+     which is the side a drawer opens from here.
+
+     IT IS NOT IN FIGMA YET. Until it is added to Micons the sprite holds a
+     mark the library does not, and that is real drift. This is the record. */
+  drawer: '<path fill-rule="evenodd" fill="currentColor" d="'
+          + 'M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2Z'
+          + 'M8.25 4.75H14.5V19.25H8.25A3.5 3.5 0 0 1 4.75 15.75V8.25A3.5 3.5 0 0 1 8.25 4.75Z'
+          + '"/>',
 
   /* communication/sms-solid, and the WEAKEST mark in this file -- it is an
      envelope. A popover is a small panel tethered to its trigger, so the mark
