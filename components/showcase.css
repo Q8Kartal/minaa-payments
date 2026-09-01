@@ -994,6 +994,58 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Layout, navigation and content stages.
+
+   NONE OF THESE PIN A HEIGHT except the resizable, and that one has to: a
+   jelly-resizable takes its height from its parent and renders as a 600x0
+   strip without one -- measured, and the reason it first looked broken.
+
+   The divider gets a ROW rather than a box, because a vertical divider is
+   `flex: 1 1 100%` with `align-self: center` and collapses to nothing in a
+   block container. Giving it siblings to sit between is the stage's job. */
+.card-stage,
+.pagination-stage,
+.breadcrumbs-stage,
+.kbd-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);
+}
+
+/* The card is a surface: it should take the stage width rather than shrink to
+   its text, which is how it will be used. */
+.card-stage jelly-card { inline-size: 100%; }
+
+.divider-stage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-200);
+  min-height: calc(var(--space-800) + var(--space-400) * 2);
+  padding-block: var(--space-400);
+}
+.divider-side { color: var(--m-ink); font-size: var(--text-md); white-space: nowrap; }
+/* Vertical needs a run of height to draw down; horizontal takes the free width. */
+.divider-stage jelly-divider[direction="vertical"] { block-size: var(--space-800); }
+
+.resizable-stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(var(--space-1000) * 2 + var(--space-400));
+  padding-block: var(--space-400);
+}
+.resizable-stage jelly-resizable { block-size: var(--control-96); }
+.rz-pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: 100%;
+  color: var(--m-ink);
+  font-size: var(--text-md);
+}
+
 /* Disclosure. Both of these CHANGE HEIGHT as they open, which is the whole
    point of them, so neither stage pins one -- a fixed height would either clip
    the open panel or leave a hole under the closed one.

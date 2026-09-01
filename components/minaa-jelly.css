@@ -2023,6 +2023,147 @@ jelly-collapsible[size="large"], jelly-collapsible[size="lg"] {
   --jelly-collapsible-radius: var(--radius-16);
 }
 
+/* ── Card ──────────────────────────────────────────────────────────────────
+   All four measurements are named, so all four bind.
+
+                       Jelly (sm/md/lg)     bound
+     padding-block     16 / 22 / 28         16 / 20 / 24
+     padding-inline    18 / 24 / 30         20 / 24 / 32
+     font              13.5 / 15 / 16.5     14 / 16 / 18
+
+   The radius does NOT step. Jelly moves it 18 / 22 / 26; one bound value
+   across all three, the same call made for the square chip and the
+   collapsible -- a corner treatment is not a dimension. */
+jelly-card {
+  --jelly-card-padding-block:  var(--space-250);   /* 20 */
+  --jelly-card-padding-inline: var(--space-300);   /* 24 */
+  --jelly-card-font-size:      var(--text-md);     /* 16 */
+  line-height:                 var(--text-md-lh);
+  --jelly-radius:              var(--radius-24);
+}
+
+jelly-card[size="small"], jelly-card[size="sm"] {
+  --jelly-card-padding-block:  var(--space-200);   /* 16 */
+  --jelly-card-padding-inline: var(--space-250);   /* 20 */
+  --jelly-card-font-size:      var(--text-sm);     /* 14 */
+  line-height:                 var(--text-sm-lh);
+}
+
+jelly-card[size="large"], jelly-card[size="lg"] {
+  --jelly-card-padding-block:  var(--space-300);   /* 24 */
+  --jelly-card-padding-inline: var(--space-400);   /* 32 */
+  --jelly-card-font-size:      var(--text-lg);     /* 18 */
+  line-height:                 var(--text-lg-lh);
+}
+
+
+/* ── Divider ───────────────────────────────────────────────────────────────
+   The rule colour already arrives from the broad token block above as
+   --jelly-divider: var(--m-stroke). Only the label type and its gap are left,
+   and neither was on the scale: 11 / 12 / 13.5 and 10 / 14 / 18. */
+jelly-divider {
+  --jelly-divider-font-size: var(--text-sm);   /* 14 */
+  --jelly-divider-gap:       var(--space-200); /* 16 */
+}
+
+jelly-divider[size="small"], jelly-divider[size="sm"] {
+  --jelly-divider-font-size: var(--text-xs);   /* 12 */
+  --jelly-divider-gap:       var(--space-150); /* 12 */
+}
+
+jelly-divider[size="large"], jelly-divider[size="lg"] {
+  --jelly-divider-font-size: var(--text-md);   /* 16 */
+  --jelly-divider-gap:       var(--space-250); /* 20 */
+}
+
+
+/* ── Pagination ────────────────────────────────────────────────────────────
+   The button is a real control and lands on the control ramp; everything else
+   is spacing and type.
+
+                       Jelly (sm/md/lg)     bound
+     button            34 / 40 / 48         32 / 40 / 48
+     button padding     8 / 10 / 12          8 / 12 / 16
+     gap                5 /  7 /  9          6 /  8 / 12
+     gap padding        1 /  2 /  3          0 /  2 /  4
+     font              12.5 / 14 / 15.5     12 / 14 / 16 */
+jelly-pagination {
+  --jelly-pagination-button:      var(--control-40);
+  --jelly-pagination-button-pad:  var(--space-150);  /* 12 */
+  --jelly-pagination-gap:         var(--space-100);  /*  8 */
+  --jelly-pagination-gap-padding: var(--space-025);  /*  2 */
+  --jelly-pagination-font-size:   var(--text-sm);    /* 14 */
+}
+
+jelly-pagination[size="small"], jelly-pagination[size="sm"] {
+  --jelly-pagination-button:      var(--control-32);
+  --jelly-pagination-button-pad:  var(--space-100);  /*  8 */
+  --jelly-pagination-gap:         var(--space-075);  /*  6 */
+  --jelly-pagination-gap-padding: var(--space-0);    /*  0 */
+  --jelly-pagination-font-size:   var(--text-xs);    /* 12 */
+}
+
+jelly-pagination[size="large"], jelly-pagination[size="lg"] {
+  --jelly-pagination-button:      var(--control-48);
+  --jelly-pagination-button-pad:  var(--space-200);  /* 16 */
+  --jelly-pagination-gap:         var(--space-150);  /* 12 */
+  --jelly-pagination-gap-padding: var(--space-050);  /*  4 */
+  --jelly-pagination-font-size:   var(--text-md);    /* 16 */
+}
+
+
+/* ── Breadcrumbs ───────────────────────────────────────────────────────────
+   Jelly's padding steps in ones -- 3/4/5 block, 6/8/10 inline, 3/4/5 gap --
+   which no scale can follow, so these round to the nearest steps and the ramp
+   stays legible: 2/4/6, 6/8/12, 2/4/6. The radius is one value again. */
+jelly-breadcrumbs {
+  --jelly-breadcrumbs-font-size:      var(--text-sm);    /* 14 */
+  --jelly-breadcrumbs-padding-block:  var(--space-050);  /*  4 */
+  --jelly-breadcrumbs-padding-inline: var(--space-100);  /*  8 */
+  --jelly-breadcrumbs-gap:            var(--space-050);  /*  4 */
+  --jelly-breadcrumbs-radius:         var(--radius-8);
+}
+
+jelly-breadcrumbs[size="small"], jelly-breadcrumbs[size="sm"] {
+  --jelly-breadcrumbs-font-size:      var(--text-xs);    /* 12 */
+  --jelly-breadcrumbs-padding-block:  var(--space-025);  /*  2 */
+  --jelly-breadcrumbs-padding-inline: var(--space-075);  /*  6 */
+  --jelly-breadcrumbs-gap:            var(--space-025);  /*  2 */
+}
+
+jelly-breadcrumbs[size="large"], jelly-breadcrumbs[size="lg"] {
+  --jelly-breadcrumbs-font-size:      var(--text-md);    /* 16 */
+  --jelly-breadcrumbs-padding-block:  var(--space-075);  /*  6 */
+  --jelly-breadcrumbs-padding-inline: var(--space-150);  /* 12 */
+  --jelly-breadcrumbs-gap:            var(--space-075);  /*  6 */
+}
+
+
+/* ── Kbd ───────────────────────────────────────────────────────────────────
+   The only one here with NO dimension token at all: Jelly writes height into
+   its :host rule as 24 / 28 / 34, so the height goes on the host the way the
+   segmented's does. Font follows at 11 / 12 / 13 -> 12 / 14 / 16.
+
+   The cap's own padding-inline is 8 and its min-width 16; both are already
+   steps, so the shadow root is left alone. */
+jelly-kbd {
+  height:      var(--space-400);    /* 32 */
+  font-size:   var(--text-sm);      /* 14 */
+  line-height: var(--text-sm-lh);
+}
+
+jelly-kbd[size="small"], jelly-kbd[size="sm"] {
+  height:      var(--space-300);    /* 24 */
+  font-size:   var(--text-xs);      /* 12 */
+  line-height: var(--text-xs-lh);
+}
+
+jelly-kbd[size="large"], jelly-kbd[size="lg"] {
+  height:      var(--space-500);    /* 40 */
+  font-size:   var(--text-md);      /* 16 */
+  line-height: var(--text-md-lh);
+}
+
 /* Every measurement Jelly ships for the alert, and only three land on the
    scale. Unlike the toast, the alert NAMES all of them, so they bind from the
    host and its shadow root is left alone -- no injected rule, no breach.

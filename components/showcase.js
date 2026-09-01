@@ -968,6 +968,158 @@
   /* Entry 30. Seven rows, the most of any entry, because jelly-chip has the
      widest attribute surface in the library. */
   /* Entries 31 and 32. */
+  /* Entries 33 to 38. */
+
+  function wireCardDemo() {
+    const el = document.getElementById('cd-demo');
+    const squish = document.getElementById('cd-squish');
+    const size = document.getElementById('cd-size');
+    if (!el || !squish || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-33 .code code');
+      if (!box) return;
+      const a = [];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('squish')) a.push('squish');
+      box.textContent = '<jelly-card' + (a.length ? ' ' + a.join(' ') : '') + '>\n'
+        + '  <b>Bay 4</b>\n'
+        + '  Climate controlled \u00b7 12 m\u00b2 \u00b7 150.000 KWD monthly.\n'
+        + '</jelly-card>';
+    };
+    pillRow(squish, (v) => el.toggleAttribute('squish', v === 'true'), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
+  function wireDividerDemo() {
+    const el = document.getElementById('dv-demo');
+    const dir = document.getElementById('dv-direction');
+    const size = document.getElementById('dv-size');
+    const field = document.getElementById('dv-content');
+    if (!el || !dir || !size || !field || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-34 .code code');
+      if (!box) return;
+      const a = [];
+      const d = el.getAttribute('direction');
+      if (d && d !== 'horizontal') a.push('direction="' + d + '"');
+      const c = el.getAttribute('content');
+      if (c) a.push('content="' + c + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-divider' + (a.length ? ' ' + a.join(' ') : '')
+        + '></jelly-divider>';
+    };
+    /* horizontal is the default, so it is the absence of the attribute. */
+    pillRow(dir, (v) => {
+      if (v === 'vertical') el.setAttribute('direction', 'vertical');
+      else el.removeAttribute('direction');
+    }, snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* `content` is an attribute, not a slot, so an empty field means remove it
+       rather than set it to an empty string -- Jelly draws the gap either way,
+       but the snippet should not print content="". */
+    const apply = () => {
+      const v = field.value == null ? '' : String(field.value).trim();
+      if (v) el.setAttribute('content', v); else el.removeAttribute('content');
+      snippet();
+    };
+    field.addEventListener('input', apply);
+    field.addEventListener('change', apply);
+    snippet();
+  }
+
+  function wireResizableDemo() {
+    const el = document.getElementById('rz-demo');
+    const dir = document.getElementById('rz-direction');
+    if (!el || !dir || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-35 .code code');
+      if (!box) return;
+      box.textContent = '<jelly-resizable direction="'
+        + (el.getAttribute('direction') || 'horizontal') + '">\n'
+        + '  <div>Bays</div>\n'
+        + '  <div>Payments</div>\n'
+        + '</jelly-resizable>';
+    };
+    pillRow(dir, (v) => el.setAttribute('direction', v), snippet);
+    snippet();
+  }
+
+  function wirePaginationDemo() {
+    const el = document.getElementById('pg-demo');
+    const total = document.getElementById('pg-total');
+    const size = document.getElementById('pg-size');
+    if (!el || !total || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-36 .code code');
+      if (!box) return;
+      const a = ['total="' + (el.getAttribute('total') || '1') + '"',
+                 'page="' + (el.page || 1) + '"'];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-pagination ' + a.join(' ') + '></jelly-pagination>';
+    };
+    /* Clicking a number moves the page, so the snippet is re-read on `change`
+       rather than tracked from the rows. Lowering `total` below the current
+       page also moves it, which is the other reason not to assume. */
+    pillRow(total, (v) => el.setAttribute('total', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireBreadcrumbsDemo() {
+    const el = document.getElementById('bc-demo');
+    const size = document.getElementById('bc-size');
+    if (!el || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-37 .code code');
+      if (!box) return;
+      const sz = el.getAttribute('size');
+      const lines = ['<jelly-breadcrumbs' + (sz && sz !== 'medium' ? ' size="' + sz + '"' : '') + '>'];
+      /* Printed from the light dom, so the last crumb shows as the span it is
+         -- that distinction is the component's whole convention. */
+      [...el.children].forEach((c) => {
+        lines.push(c.tagName === 'A'
+          ? '  <a href="' + (c.getAttribute('href') || '#') + '">' + c.textContent.trim() + '</a>'
+          : '  <span>' + c.textContent.trim() + '</span>');
+      });
+      lines.push('</jelly-breadcrumbs>');
+      box.textContent = lines.join('\n');
+    };
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
+  function wireKbdDemo() {
+    const el = document.getElementById('kb-demo');
+    const key = document.getElementById('kb-key');
+    const size = document.getElementById('kb-size');
+    if (!el || !key || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const CAP = { Escape: 'Esc', Enter: 'Enter', '/': '/' };
+    const snippet = () => {
+      const box = document.querySelector('#c-38 .code code');
+      if (!box) return;
+      const a = ['key="' + (el.getAttribute('key') || '') + '"'];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-kbd ' + a.join(' ') + '>' + el.textContent.trim() + '</jelly-kbd>';
+    };
+    /* The cap text follows the key, because a cap reading "Esc" bound to Enter
+       would be a lie about what the component does. */
+    pillRow(key, (v) => { el.setAttribute('key', v); el.textContent = CAP[v] || v; }, snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
   function wireCollapsibleDemo() {
     const el = document.getElementById('col-demo');
     const open = document.getElementById('col-open');
@@ -1875,7 +2027,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {

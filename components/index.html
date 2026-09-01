@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260904v"></script>
+<script src="../gate.js?v=20260904x"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260904v"></script>
+<script type="module" src="vendor/jelly.js?v=20260904x"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260904v">
-<link rel="stylesheet" href="showcase.css?v=20260904v">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260904x">
+<link rel="stylesheet" href="showcase.css?v=20260904x">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -1831,6 +1831,305 @@ drawer.open = true;   // side = start | end | bottom</template>
 &lt;/jelly-accordion&gt;</template>
     </div>
   </section>
+  <section class="entry" id="c-33">
+    <div class="entry-text">
+    <p class="entry-num">Layout &middot; 33</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-dialog"/></svg> &lt;jelly-card&gt;</h2>
+    <p class="entry-note">A soft-body surface to sit content on. With
+       <code>squish</code> it deforms under a press.</p>
+
+    <!-- `squish` IS THE ONLY ATTRIBUTE IT OBSERVES, and `size` still works --
+         a reminder that observedAttributes is not the API. Jelly declares the
+         size variants in its own :host CSS, so the attribute moves the card
+         without the class ever hearing about it. Measured at 53 / 67 / 82 tall
+         before any binding, which is how it was found.
+
+         All four of Jelly's measurements are named tokens, so they bind from
+         the host: 16/22/28 padding-block, 18/24/30 inline and 13.5/15/16.5
+         type become 16/20/24, 20/24/32 and 14/16/18. The radius is one value
+         rather than Jelly's 18/22/26 -- a corner treatment is not a dimension,
+         the same call made for the square chip and the collapsible.
+
+         THE CARD CARRIES A SECONDARY 600 HAIRLINE, AND IT IS NOT FROM HERE.
+         Jelly paints a 1px canvas edge on its surfaces, and the bridge maps
+         --jelly-color-border-default to var(--m-stroke) at the top of the file
+         -- the same Secondary 600 the fields carry. Measured across the edge:
+         #E8411D at the boundary, then the fill at #00264B.
+
+         Left exactly as it is. It is a standing bridge decision rather than
+         anything this entry introduced, and a card is simply the first plain
+         SURFACE in the library to make it visible -- the dialog and the drawer
+         paint their own fills over the same edge. Flagged because a red
+         hairline around every card is a real design statement, it has never
+         been seen on a card before, and changing a global border colour is not
+         a call to make inside one component entry. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">squish</span>
+        <div class="pillset" id="cd-squish" role="group" aria-label="Squish">
+          <jelly-button class="pill" data-value="false" aria-pressed="false">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="true">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="cd-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="card-stage" data-controls>
+        <jelly-card id="cd-demo" squish>
+          <b>Bay 4</b><br>
+          Climate controlled &middot; 12 m&sup2; &middot; 150.000 KWD monthly.
+        </jelly-card>
+      </div>
+      <template data-snippet-text>&lt;jelly-card squish&gt;
+  &lt;b&gt;Bay 4&lt;/b&gt;
+  Climate controlled &middot; 12 m&sup2; &middot; 150.000 KWD monthly.
+&lt;/jelly-card&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-34">
+    <div class="entry-text">
+    <p class="entry-num">Layout &middot; 34</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-label"/></svg> &lt;jelly-divider&gt;</h2>
+    <p class="entry-note">A rule between things, optionally with a word set into
+       it. It turns vertical on <code>direction</code>.</p>
+
+    <!-- THE RULE COLOUR NEEDS NOTHING HERE. --jelly-divider already arrives
+         from the broad token block as var(--m-stroke), so only the label type
+         and its gap were left to bind: 11/12/13.5 and 10/14/18 become 12/14/16
+         and 12/16/20.
+
+         `content` IS AN ATTRIBUTE, NOT A SLOT, so the word cannot carry markup
+         -- the same shape as the tooltip's `text`. It also has a matching
+         property, and setting either works.
+
+         A VERTICAL DIVIDER NEEDS A HEIGHT FROM ITS PARENT. It is
+         `flex: 1 1 100%` with `align-self: center`, so on its own in a block
+         container it collapses to nothing. The stage gives it a row to sit in;
+         that is the stage's job, not the component's. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">direction</span>
+        <div class="pillset" id="dv-direction" role="group" aria-label="Direction">
+          <jelly-button class="pill" data-value="horizontal" aria-pressed="true">horizontal</jelly-button>
+          <jelly-button class="pill" data-value="vertical" aria-pressed="false">vertical</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">content</span>
+        <jelly-input id="dv-content" size="small" label="Label"
+                     placeholder="A word, or nothing"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="dv-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="divider-stage" data-controls>
+        <span class="divider-side">Monthly</span>
+        <jelly-divider id="dv-demo" content="or"></jelly-divider>
+        <span class="divider-side">One-time</span>
+      </div>
+      <template data-snippet-text>&lt;jelly-divider content="or"&gt;&lt;/jelly-divider&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-35">
+    <div class="entry-text">
+    <p class="entry-num">Layout &middot; 35</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-range"/></svg> &lt;jelly-resizable&gt;</h2>
+    <p class="entry-note">Panes the reader can drag apart. Each child is a pane;
+       the handle goes between them.</p>
+
+    <!-- IT HAS NO SIZE AND NO SPACING TOKENS -- only three colours, for the
+         line, the handle and the handle while dragging. That is the whole
+         styling surface, so there is nothing here to bind to the scale and
+         nothing injected: the handle geometry is Jelly's and stays Jelly's.
+
+         `direction` IS THE ONLY ATTRIBUTE, and the values are horizontal and
+         vertical. It reports pane sizes through a `sizes` accessor and fires
+         `change` when a drag settles, which is what the snippet reads.
+
+         IT NEEDS A HEIGHT FROM ITS PARENT in horizontal mode and its children
+         need one in vertical, which is why the panes below carry their own.
+         A resizable with no height renders as a 600x0 strip -- measured, and
+         the reason the first probe of this component looked like it was
+         broken. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">direction</span>
+        <div class="pillset" id="rz-direction" role="group" aria-label="Direction">
+          <jelly-button class="pill" data-value="horizontal" aria-pressed="true">horizontal</jelly-button>
+          <jelly-button class="pill" data-value="vertical" aria-pressed="false">vertical</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="resizable-stage" data-controls>
+        <jelly-resizable id="rz-demo" direction="horizontal">
+          <div class="rz-pane">Bays</div>
+          <div class="rz-pane">Payments</div>
+        </jelly-resizable>
+      </div>
+      <template data-snippet-text>&lt;jelly-resizable direction="horizontal"&gt;
+  &lt;div&gt;Bays&lt;/div&gt;
+  &lt;div&gt;Payments&lt;/div&gt;
+&lt;/jelly-resizable&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-36">
+    <div class="entry-text">
+    <p class="entry-num">Navigation &middot; 36</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-otp"/></svg> &lt;jelly-pagination&gt;</h2>
+    <p class="entry-note">Numbered pages with ellipses when there are too many
+       to show. <code>total</code> and <code>page</code> drive it.</p>
+
+    <!-- THE BUTTON LANDS ON THE CONTROL RAMP, which is the point worth making:
+         a pagination button is a control, so it steps 32 / 40 / 48 with the
+         fields rather than on Jelly's 34 / 40 / 48. Everything else is spacing
+         and type, and none of it was on the scale either:
+
+           button padding   8 / 10 / 12    ->   8 / 12 / 16
+           gap              5 /  7 /  9    ->   6 /  8 / 12
+           gap padding      1 /  2 /  3    ->   0 /  2 /  4
+           font           12.5 / 14 / 15.5 ->  12 / 14 / 16
+
+         `page` GOES THROUGH THE PROPERTY and is re-read on `change`, because
+         clicking a number is the obvious way to move it. The row here sets
+         total instead, since a pagination with a fixed page count is not much
+         of a specimen -- the page row would be six pills that mean nothing at
+         total=1. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">total</span>
+        <div class="pillset" id="pg-total" role="group" aria-label="Total">
+          <jelly-button class="pill" data-value="3" aria-pressed="false">3</jelly-button>
+          <jelly-button class="pill" data-value="8" aria-pressed="true">8</jelly-button>
+          <jelly-button class="pill" data-value="24" aria-pressed="false">24</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="pg-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="pagination-stage" data-controls>
+        <jelly-pagination id="pg-demo" total="8" page="1"></jelly-pagination>
+      </div>
+      <template data-snippet-text>&lt;jelly-pagination total="8" page="1"&gt;&lt;/jelly-pagination&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-37">
+    <div class="entry-text">
+    <p class="entry-num">Navigation &middot; 37</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-menu"/></svg> &lt;jelly-breadcrumbs&gt;</h2>
+    <p class="entry-note">The trail back up. Slot anchors for the steps and
+       plain text for the one you are on.</p>
+
+    <!-- THE LAST CRUMB IS NOT A LINK, and that is the whole convention: an
+         anchor for every step you can go back to, a bare span for where you
+         already are. Jelly reads `href` to decide which is which, so the
+         markup carries the meaning rather than an attribute.
+
+         JELLY'S PADDING STEPS IN ONES -- 3/4/5 block, 6/8/10 inline, 3/4/5 gap
+         -- and no scale can follow that. These round to the nearest steps
+         (2/4/6, 6/8/12, 2/4/6), which keeps the ramp legible in exchange for
+         one pixel at each end. Named tokens throughout, so it binds from the
+         host with nothing injected.
+
+         Only `size` is observed, so that is the only row. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="bc-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="breadcrumbs-stage" data-controls>
+        <jelly-breadcrumbs id="bc-demo">
+          <a href="#c-37">Warehouse</a>
+          <a href="#c-37">Bay 4</a>
+          <span>Payments</span>
+        </jelly-breadcrumbs>
+      </div>
+      <template data-snippet-text>&lt;jelly-breadcrumbs&gt;
+  &lt;a href="/warehouse"&gt;Warehouse&lt;/a&gt;
+  &lt;a href="/warehouse/bay-4"&gt;Bay 4&lt;/a&gt;
+  &lt;span&gt;Payments&lt;/span&gt;
+&lt;/jelly-breadcrumbs&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-38">
+    <div class="entry-text">
+    <p class="entry-num">Content &middot; 38</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-input"/></svg> &lt;jelly-kbd&gt;</h2>
+    <p class="entry-note">A keycap. It presses when the key it names is pressed
+       for real.</p>
+
+    <!-- `key` IS NOT A LABEL, IT IS A BINDING. The cap shows its slotted text,
+         and `key` names the keyboard key that makes it depress -- press Escape
+         with this page focused and the cap moves. That is the only attribute
+         it observes, and it is the whole component.
+
+         THE ONLY ONE HERE WITH NO DIMENSION TOKEN AT ALL. Jelly writes the
+         height straight into its :host rule -- 24 / 28 / 34 -- with nothing to
+         bind, so the height goes on the host the way the segmented's does.
+         Type follows, 11 / 12 / 13 to 12 / 14 / 16.
+
+         Its own cap padding is 8 and its min-width 16; both are already steps,
+         so the shadow root is left alone. Jelly asks for a mono family here
+         and the bridge has none, so the cap inherits Idris Medium along with
+         the rest of the library. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">key</span>
+        <div class="pillset" id="kb-key" role="group" aria-label="Key">
+          <jelly-button class="pill" data-value="Escape" aria-pressed="true">Escape</jelly-button>
+          <jelly-button class="pill" data-value="Enter" aria-pressed="false">Enter</jelly-button>
+          <jelly-button class="pill" data-value="/" aria-pressed="false">/</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="kb-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="kbd-stage" data-controls>
+        <jelly-kbd id="kb-demo" key="Escape">Esc</jelly-kbd>
+      </div>
+      <template data-snippet-text>&lt;jelly-kbd key="Escape"&gt;Esc&lt;/jelly-kbd&gt;</template>
+    </div>
+  </section>
 
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
@@ -1853,8 +2152,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260904v"></script>
-<script src="minaa-jelly.js?v=20260904v"></script>
-<script src="showcase.js?v=20260904v" defer></script>
+<script src="micons.js?v=20260904x"></script>
+<script src="minaa-jelly.js?v=20260904x"></script>
+<script src="showcase.js?v=20260904x" defer></script>
 </body>
 </html>
