@@ -1248,6 +1248,34 @@ jelly-textarea[size="large"], jelly-textarea[size="lg"] {
 }
 
 
+/* ── jelly-card ───────────────────────────────────────────────────
+   THE CARD TAKES THE FAMILY CORNER. It was already a true superellipse -- the
+   painted boundary measured 0.28 to 0.34 mean error against exponent 4, against
+   4.86 to 6.88 for a circle -- so the shape was never the problem. It was the
+   SIZE of the corner: Jelly's own 18 / 22 / 26, which is a rounded rectangle's
+   radius on a shape that is drawn as a squircle.
+
+   --m-surface-corner is the one cap every Minaa surface answers to, and the
+   skill's own table lists cards under it. Jelly's shape() already applies it
+   the way the cap is meant to be applied:
+
+     radius = min(--jelly-radius, min(width, height) / 2)
+
+   THE RAMP DOES NOT FLATTEN, which was the thing worth checking before setting
+   a single value on three sizes. These cards are short, so the cap never wins
+   -- the geometry does -- and the corner still steps with the card:
+
+     small   237 x  74   ->  min(64, 37)    = 37
+     medium  271 x  91   ->  min(64, 45.5)  = 45.5
+     large   305 x 107   ->  min(64, 53.5)  = 53.5
+
+   A pinned 64 would have been the flattening this file has been removing all
+   week. A cap of 64 is the opposite: it is a ceiling the card only reaches once
+   it is tall enough to deserve it. */
+jelly-card {
+  --jelly-radius: var(--m-surface-corner);
+}
+
 /* NO --jelly-menu-* SIZING. Jelly's ramp stands, and it steps on six values:
 
      small   radius 12, padding 5, item 34, inline 10, item-radius  8, font 13

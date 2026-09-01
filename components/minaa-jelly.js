@@ -1020,12 +1020,14 @@
                        (--jelly-radius), so it needs no shape() wrap -- only the
                        exponent.
 
-                       THE RADIUS IS LEFT AT JELLY'S OWN 18/22/26. The skill's
-                       table gives cards the 64 family cap, and that is not
-                       applied here: the instruction on this component has been
-                       match the API and change nothing that is not asked for,
-                       twice over. The ask was the SHAPE. Capping the corner is
-                       one line if it is wanted.
+                       THE RADIUS IS NOW THE 64 FAMILY CAP, asked for and
+                       applied in minaa-jelly.css as --jelly-radius. It sat at
+                       Jelly's own 18/22/26 until then, which is a rounded
+                       rectangle's corner on a shape drawn as a squircle -- the
+                       curve was right and too small to read. The cap does not
+                       flatten the ramp: these cards are short, so shape()'s
+                       min(radius, min(w,h)/2) lets geometry win and the corner
+                       still steps 37 / 45.5 / 53.5.
 
        jelly-skeleton  ONLY the rectangular shape, under either of the two
                        names Jelly gives it. `line` is a 7px-capped bar where a
