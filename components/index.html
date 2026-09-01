@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260907b"></script>
+<script src="../gate.js?v=20260907c"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260907b"></script>
+<script type="module" src="vendor/jelly.js?v=20260907c"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260907b">
-<link rel="stylesheet" href="showcase.css?v=20260907b">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260907c">
+<link rel="stylesheet" href="showcase.css?v=20260907c">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -1170,11 +1170,50 @@ drawer.open = true;   // side = start | end | bottom</template>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-menu"/></svg> &lt;jelly-menu&gt;</h2>
     <p class="entry-note">A list of actions hung off a trigger.</p>
 
-    <!-- It shares its panel tokens with <jelly-select>, which draws its own
-         dropdown rather than opening a menu -- so the bridge declares
-         --jelly-menu-* on both, and a change to one silently moves the other.
+    <!-- ONE COMPONENT, ONE ENTRY. jelly-menu-item had its own entry until
+         now, and that was a split of a single thing. The item is 302
+         characters: two getters, no shadow root, no observedAttributes, and it
+         renders NOTHING. The menu re-reads its children every time it opens
+         and paints its own rows --
 
-         No `size` row: same reason as the popover, measured the same way. -->
+           <div class="item" role="menuitem"
+                aria-disabled=... data-danger=...>{item.innerHTML}</div>
+
+         -- so what you point at on screen belongs to the menu, never to the
+         item. Documenting it separately meant a second entry whose specimen
+         was another whole jelly-menu.
+
+         THE ITEM'S SURFACE, recorded here rather than given rows of its own:
+
+           value      what the select event reports, falling back to the text
+           disabled   renders the row aria-disabled and unpickable. It has a
+                      `disabled` accessor, but ASSIGNING IT DOES NOT TAKE --
+                      measured, item.disabled = true reads back false. The
+                      attribute is the only thing that works, because the row
+                      is a div the menu built from this element rather than
+                      being the element.
+           danger     sets data-danger on the row, which Jelly paints from
+                      --jelly-color-background-rose. Not used in the specimen:
+                      that rose is a colour decision, and colours are Ahmad's.
+
+         `size` IS A REAL ATTRIBUTE and now has a row. The note here used to say
+         there was none, "measured the same way" as the popover -- and the
+         measurement was of our own override, not of the component. The bridge
+         pins six --jelly-menu-* tokens at a single value each, flattening
+         Jelly's three-step ramp, so item height and type could not move and it
+         looked inert. What still moves is the panel: 177 / 207 / 247 measured
+         across small / medium / large.
+
+         The bridge block is shared with <jelly-select>, which draws its own
+         dropdown rather than opening a menu, so unbinding the ramp moves the
+         select too. Flagged, not done.
+
+         THE IDS HERE ARE `menu-`, AND ANY ITEM IDS MUST NOT START `mi-`. That
+         is the icon sprite's namespace: a demo menu once carried id="mi-menu",
+         which is exactly the id the sprite wants for the menu glyph, so
+         <use href="#mi-menu"/> in this entry's own title resolved to the
+         jelly-menu element instead of the symbol and the icon vanished. It
+         read as a missing icon; it was a namespace collision. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">placement</span>
@@ -1185,70 +1224,34 @@ drawer.open = true;   // side = start | end | bottom</template>
           <jelly-button class="pill" data-value="end" aria-pressed="false">end</jelly-button>
         </div>
       </div>
-    </div>
-    </div>
-    <div class="demo" data-demo>
-      <div class="overlay-stage" data-controls>
-        <jelly-menu id="menu-demo" placement="bottom">
-          <jelly-button slot="trigger">Payment actions</jelly-button>
-          <jelly-menu-item>Edit</jelly-menu-item>
-          <jelly-menu-item>Duplicate</jelly-menu-item>
-          <jelly-menu-item>Export as JSON</jelly-menu-item>
-        </jelly-menu>
-      </div>
-      <template data-snippet-text>&lt;jelly-menu placement="bottom"&gt;
-  &lt;jelly-button slot="trigger"&gt;Payment actions&lt;/jelly-button&gt;
-  &lt;jelly-menu-item&gt;Edit&lt;/jelly-menu-item&gt;
-  &lt;jelly-menu-item&gt;Duplicate&lt;/jelly-menu-item&gt;
-&lt;/jelly-menu&gt;</template>
-    </div>
-  </section>
-  <section class="entry" id="c-23">
-    <div class="entry-text">
-    <p class="entry-num">Overlays &middot; 23</p>
-    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-menuitem"/></svg> &lt;jelly-menu-item&gt;</h2>
-    <p class="entry-note">One row of a menu, and the only component here never used alone.</p>
-
-    <!-- It has no tokens of its own: --jelly-menu-item-* are declared by the
-         MENU, so an item outside one falls back to Jelly's defaults and quietly
-         stops matching the rows beside it.
-
-         `disabled` GOES THROUGH THE ATTRIBUTE, NOT THE PROPERTY. The component
-         exposes a `disabled` accessor and assigning it does not take -- measured,
-         `item.disabled = true` read back false. Setting the attribute works and
-         gives the rendered row aria-disabled="true" and opacity .4. The row the
-         menu paints is a div.item in the menu's own shadow, built from this
-         element rather than being it, which is the likely reason.
-
-         THE IDS HERE ARE `mitem-`, NOT `mi-`. `mi-` IS THE ICON SPRITE'S
-         NAMESPACE. The demo menu was `id="mi-menu"` and that is exactly the id
-         the sprite wants for a menu glyph, so `<use href="#mi-menu"/>` two
-         entries up resolved to this jelly-menu instead of a symbol and entry
-         22's title rendered with no icon at all. It looked like a missing
-         icon; it was a namespace collision on top of one. -->
-    <div class="controls controls--stacked" data-controls>
       <div class="ctl">
-        <span class="ctl-name">disabled</span>
-        <div class="pillset" id="mitem-disabled" role="group" aria-label="Disabled">
-          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
-          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="menu-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
         </div>
       </div>
     </div>
     </div>
     <div class="demo" data-demo>
       <div class="overlay-stage" data-controls>
-        <jelly-menu id="mitem-menu" placement="bottom">
-          <jelly-button slot="trigger">Rows</jelly-button>
-          <jelly-menu-item id="mitem-demo">Edit</jelly-menu-item>
-          <jelly-menu-item>Duplicate</jelly-menu-item>
+        <jelly-menu id="menu-demo" placement="bottom">
+          <jelly-button slot="trigger">Payment actions</jelly-button>
+          <jelly-menu-item value="edit">Edit</jelly-menu-item>
+          <jelly-menu-item value="duplicate">Duplicate</jelly-menu-item>
+          <jelly-menu-item value="export">Export as JSON</jelly-menu-item>
         </jelly-menu>
       </div>
-      <template data-snippet-text>&lt;jelly-menu-item&gt;Edit&lt;/jelly-menu-item&gt;
-&lt;jelly-menu-item&gt;Duplicate&lt;/jelly-menu-item&gt;</template>
+      <template data-snippet-text>&lt;jelly-menu placement="bottom"&gt;
+  &lt;jelly-button slot="trigger"&gt;Payment actions&lt;/jelly-button&gt;
+  &lt;jelly-menu-item value="edit"&gt;Edit&lt;/jelly-menu-item&gt;
+  &lt;jelly-menu-item value="duplicate"&gt;Duplicate&lt;/jelly-menu-item&gt;
+  &lt;jelly-menu-item value="export"&gt;Export as JSON&lt;/jelly-menu-item&gt;
+&lt;/jelly-menu&gt;</template>
     </div>
   </section>
-  <section class="entry" id="c-24">
+<section class="entry" id="c-24">
     <div class="entry-text">
     <p class="entry-num">Feedback &middot; 24</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-toast-warning"/></svg> &lt;jelly-alert&gt;</h2>
@@ -2290,8 +2293,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260907b"></script>
-<script src="minaa-jelly.js?v=20260907b"></script>
-<script src="showcase.js?v=20260907b" defer></script>
+<script src="micons.js?v=20260907c"></script>
+<script src="minaa-jelly.js?v=20260907c"></script>
+<script src="showcase.js?v=20260907c" defer></script>
 </body>
 </html>

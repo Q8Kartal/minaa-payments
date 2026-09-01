@@ -1531,39 +1531,38 @@
 
   function wireMenuDemo() {
     const el = document.getElementById('menu-demo');
-    const row = document.getElementById('menu-placement');
-    if (el && row && !el.dataset.wiredCtl) {
-      el.dataset.wiredCtl = '1';
-      const snippet = () => {
-        const box = document.querySelector('#c-22 .code code');
-        if (!box) return;
-        box.textContent = '<jelly-menu placement="' + (el.getAttribute('placement') || 'bottom') + '">\n'
-          + '  <jelly-button slot="trigger">Payment actions</jelly-button>\n'
-          + '  <jelly-menu-item>Edit</jelly-menu-item>\n'
-          + '  <jelly-menu-item>Duplicate</jelly-menu-item>\n'
-          + '</jelly-menu>';
-      };
-      pillRow(row, (v) => el.setAttribute('placement', v), snippet);
-      snippet();
-    }
+    const place = document.getElementById('menu-placement');
+    const size = document.getElementById('menu-size');
+    if (!el || !place || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
 
-    /* Entry 23. toggleAttribute, NOT the property: jelly-menu-item exposes a
-       `disabled` accessor and assigning it does not take -- measured,
-       item.disabled = true read back false. The attribute works, and gives the
-       rendered row aria-disabled="true" and opacity .4. */
-    const item = document.getElementById('mitem-demo');
-    const dis = document.getElementById('mitem-disabled');
-    if (item && dis && !item.dataset.wiredCtl) {
-      item.dataset.wiredCtl = '1';
-      const snip = () => {
-        const box = document.querySelector('#c-23 .code code');
-        if (!box) return;
-        box.textContent = '<jelly-menu-item' + (item.hasAttribute('disabled') ? ' disabled' : '')
-          + '>Edit</jelly-menu-item>\n<jelly-menu-item>Duplicate</jelly-menu-item>';
-      };
-      pillRow(dis, (v) => item.toggleAttribute('disabled', v === 'true'), snip);
-      snip();
-    }
+    /* Built from the items that are actually slotted, so the snippet cannot
+       drift from the specimen -- it used to print two rows while three were on
+       screen. */
+    const snippet = () => {
+      const box = document.querySelector('#c-22 .code code');
+      if (!box) return;
+      const a = ['placement="' + (el.getAttribute('placement') || 'bottom') + '"'];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      const lines = ['<jelly-menu ' + a.join(' ') + '>',
+                     '  <jelly-button slot="trigger">'
+                       + el.querySelector('[slot="trigger"]').textContent.trim()
+                       + '</jelly-button>'];
+      el.querySelectorAll('jelly-menu-item').forEach((it) => {
+        const v = it.getAttribute('value');
+        lines.push('  <jelly-menu-item' + (v ? ' value="' + v + '"' : '')
+          + (it.hasAttribute('danger') ? ' danger' : '')
+          + (it.hasAttribute('disabled') ? ' disabled' : '')
+          + '>' + it.textContent.trim() + '</jelly-menu-item>');
+      });
+      lines.push('</jelly-menu>');
+      box.textContent = lines.join('\n');
+    };
+
+    pillRow(place, (v) => el.setAttribute('placement', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
   }
 
   function wireAlertDemo() {
