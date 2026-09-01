@@ -69,7 +69,6 @@
 
   --primary-200: #C8E3FF;   /* Primary 200  — dark-mode disabled slider fill */
   --primary-300: #A1CFFF;   /* Primary 300  — light-mode fields and tracks */
-  --primary-400: #68B4FF;   /* Primary 400  — the tooltip icon box in light */
   --primary-600: #007FDA;   /* Primary 600  */
   --primary:     #0062AD;   /* Primary 700  — Minaã Blue */
   --primary-900: #00437B;   /* Primary 900  — dark-mode page and fields */
@@ -180,8 +179,7 @@ jelly-theme {
   --m-page-btn:        var(--m-field);    /* Primary 300 */
   --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
   --m-crumb-sep:       var(--secondary);   /* Secondary 600 */
-  --m-tooltip-icon-fill: var(--primary-400);  /* Primary 400  */
-  --m-tooltip-icon-mark: var(--secondary);    /* Secondary 600 */
+  --m-tooltip-icon-mark: var(--primary);      /* Primary 700  */
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
@@ -301,8 +299,7 @@ jelly-theme {
     --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
     --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
   --m-crumb-sep:       var(--cream);       /* Neutral 100 */
-  --m-tooltip-icon-fill: var(--secondary);    /* Secondary 600 */
-  --m-tooltip-icon-mark: var(--cream);        /* Neutral 100  */
+  --m-tooltip-icon-mark: var(--secondary);    /* Secondary 600 */
     --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
     --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
@@ -371,8 +368,7 @@ jelly-theme[mode="dark"] {
   --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
   --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
   --m-crumb-sep:       var(--cream);       /* Neutral 100 */
-  --m-tooltip-icon-fill: var(--secondary);    /* Secondary 600 */
-  --m-tooltip-icon-mark: var(--cream);        /* Neutral 100  */
+  --m-tooltip-icon-mark: var(--secondary);    /* Secondary 600 */
   --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
   --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
@@ -433,8 +429,7 @@ jelly-theme[mode="light"] {
   --m-page-btn:        var(--m-field);    /* Primary 300 */
   --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
   --m-crumb-sep:       var(--secondary);   /* Secondary 600 */
-  --m-tooltip-icon-fill: var(--primary-400);  /* Primary 400  */
-  --m-tooltip-icon-mark: var(--secondary);    /* Secondary 600 */
+  --m-tooltip-icon-mark: var(--primary);      /* Primary 700  */
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
@@ -2612,23 +2607,50 @@ jelly-tooltip {
    general icon button. The ratio is read off his set rather than chosen -- 23
    of 24, 30.67 of 32, 38.33 of 40 -- and it is expressed against the
    component's own size token so it holds if the size attribute changes. */
-/* THE SELECTOR HAS TO OUTRANK THE OVERLAY-TRIGGER RULE, which already claims
-   this element: `jelly-tooltip > :not([slot])` gives every tooltip trigger
-   --m-overlay-surface, and at (0,1,1) it beats a plain `jelly-tooltip
-   jelly-icon-button` at (0,0,2) however much later it is written.
+/* AHMAD CHANGED HIS MIND, AND THIS IS THE THIRD SHAPE THIS TRIGGER HAS HAD.
+   It was a filled squircle with a full-bleed glyph; it is now the glyph ALONE,
+   read off "Minaa-tooltip icon - Light mode" (352:211) and "- Dark mode"
+   (352:242), both of which are a 24px box with NO FILL holding the mark:
 
-   That rule is why the dark mode APPEARED correct before this one landed --
-   --m-overlay-surface is Secondary 600 in dark, which is the same value Ahmad's
-   dark set uses. Light is where the two disagree, and light is where it showed:
-   the box painted Primary 700 while the token beside it resolved Primary 400.
-   Matching the trigger rule's own shape, :not([slot]) included, takes this to
-   (0,1,2) and settles it in both modes for the same reason. */
+     light   Primary 700   #0062AD   (icon-brand)
+     dark    Secondary 600 #E8411D   (icon-brand-secondary)
+
+   THE BOX HAD TO GO, not just change colour. Those two sets cannot sit on the
+   earlier coloured squircle: the dark mark is Secondary 600 and the dark box
+   was Secondary 600, so the glyph would have been invisible on it. An unfilled
+   box is the only reading of the pair that holds in both modes, and it is what
+   his components literally are.
+
+   --jelly-fill: transparent rather than a token, because transparent is the
+   ABSENCE of a colour rather than a colour this system names -- the same call
+   the dialog and drawer buttons already make a few rules above. Jelly still
+   deforms the membrane under the pointer; there is simply nothing painted for
+   it to deform.
+
+   --primary-400 went with the box. It was added one turn ago for exactly that
+   fill and nothing else reads it, so leaving it behind would be a token in the
+   palette that no rule can justify.
+
+   THE SELECTOR STILL HAS TO OUTRANK THE OVERLAY-TRIGGER RULE: `jelly-tooltip >
+   :not([slot])` claims this element for --m-overlay-surface at (0,1,1), which
+   beats a plain descendant selector at (0,0,2) however much later it is
+   written. Without :not([slot]) here the box would paint the overlay surface
+   again and the "no fill" would silently not happen.
+
+   `color` IS SET ALONGSIDE --jelly-label because the glyph is a light-dom
+   <svg class="mi"> painting with currentColor: --jelly-label drives Jelly's
+   canvas, currentColor drives our slotted mark.
+
+   THE GLYPH IS 24, his box size, not the full-bleed ratio the squircle
+   version used. The button stays at Jelly's 40 so the hit area is a comfortable
+   target -- with no fill, the box only decides where you can click, and 24px of
+   ink is a small thing to have to hit. */
 jelly-tooltip > jelly-icon-button:not([slot]) {
-  --jelly-fill:  var(--m-tooltip-icon-fill);
+  --jelly-fill:  transparent;
   --jelly-label: var(--m-tooltip-icon-mark);
   color:         var(--m-tooltip-icon-mark);
 }
 jelly-tooltip > jelly-icon-button:not([slot]) .mi {
-  width:  calc(var(--jelly-icon-button-size) * 0.958);
-  height: calc(var(--jelly-icon-button-size) * 0.958);
+  width:  var(--control-icon-24);
+  height: var(--control-icon-24);
 }
