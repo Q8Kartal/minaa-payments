@@ -2008,23 +2008,25 @@ jelly-chip[tone="neutral"] {
    builds its segmented INSIDE its shadow root and needed ::part(). The
    difference is where the child lives, not how the parent is written.
 
-   A STANDALONE COLLAPSIBLE IS LEFT ENTIRELY ALONE -- no sizing, no colour.
-   Everything about the header surface is scoped to the accordion in the block
-   below. Entry 31 renders Jelly as shipped, which is what Ahmad asked for.
+   NO SIZING IS TOUCHED, on either. The colours below are the only thing this
+   file gives a collapsible; every dimension is Jelly's, verified against its
+   own :host rules at all three sizes.
 
-   One thing that stays visibly wrong there and is not ours to fix in this
-   pass: in light the header text comes out Secondary 600, because
-   --jelly-color-foreground-default maps to --m-value. Flagged, not touched. */
-/* ── The accordion's headers ───────────────────────────────────────────────
-   SCOPED TO jelly-accordion, AND ONLY THERE. A standalone jelly-collapsible
-   keeps Jelly's own behaviour untouched -- transparent at rest, its own 7%
-   hover tint, its own ink. That is entry 31 and it is not ours to restyle;
-   this block previously used a bare `jelly-collapsible::part(header)` and hit
-   both, which was the bug.
+   The header INK is ours now, which also settles a bug: in light Jelly draws
+   that text from --jelly-color-foreground-default, which this bridge maps to
+   --m-value, so it came out Secondary 600. It is Primary 700 below. The panel
+   BODY still reads --m-value and is still Secondary 600 -- that token feeds
+   more than this component and belongs to the colour pass. */
+/* ── The disclosure headers ────────────────────────────────────────────────
+   BOTH THE STANDALONE AND THE ACCORDION'S ITEMS. This was scoped to
+   `jelly-accordion jelly-collapsible` for one build, deliberately, while the
+   treatment was being judged on the accordion alone. Approved there, so it
+   applies to the component itself now -- and one unscoped rule covers both,
+   because an accordion's items ARE jelly-collapsible elements.
 
-   The descendant selector works because the accordion's items are light-dom
-   children, so they are reachable from the page; ::part then crosses into each
-   item's shadow root. Same property that let the accordion skip every sizing
+   ::part(header) crosses into the shadow root; for the accordion's items that
+   works for the extra reason that they are light-dom children and reachable
+   from the page at all. Same property that let the accordion skip every sizing
    rule.
 
    THE SURFACE IS A STATE, NOT A SKIN, which is how Jelly built it:
@@ -2047,16 +2049,16 @@ jelly-chip[tone="neutral"] {
    Light Primary 300, dark Secondary 600, ink Primary 700 and Cream. At full
    opacity the open row measures 3.85 in light and 3.57 in dark -- the same two
    pairs the rest of the library already uses. */
-jelly-accordion jelly-collapsible::part(header) {
+jelly-collapsible::part(header) {
   background: transparent;
   color:      var(--m-disclosure-ink);
 }
 
-jelly-accordion jelly-collapsible::part(header):hover {
+jelly-collapsible::part(header):hover {
   background: color-mix(in srgb, var(--m-disclosure-surface) 65%, transparent);
 }
 
-jelly-accordion jelly-collapsible[open]::part(header) {
+jelly-collapsible[open]::part(header) {
   background: var(--m-disclosure-surface);
 }
 
