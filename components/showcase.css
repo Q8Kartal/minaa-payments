@@ -1233,9 +1233,19 @@ svg[data-sq-fill] {
    its bounce-in is a WAAPI transform -- which moves getBoundingClientRect but
    NOT clientWidth/clientHeight, and the applier measures the latter, so no
    mid-flight box can be baked into the path. */
+/* IT HUGS ITS CONTENT. Stretching was the default -- .tabs-stage is a column
+   flex, so the card took the full 539 of the stage while the bar above it was
+   only 345 wide, and a panel twice the width of its own tab bar reads as a
+   separate element rather than the thing behind it. The reference sits the card
+   under the bar at close to the bar's own width.
+
+   The cap is what makes the text wrap instead of running the box out to the
+   full width on a single line. */
 .tab-card {
   position: relative;
-  padding: var(--space-300);                                   /* 24 */
+  inline-size: fit-content;
+  max-inline-size: min(100%, calc(var(--control-96) * 4));     /* 384 */
+  padding: var(--space-250);                                   /* 20 */
   --m-squircle-radius: var(--radius-24);
   --m-squircle-fill: var(--m-page);
   border-radius: var(--radius-24);       /* pre-paint fallback only */

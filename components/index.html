@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260906u"></script>
+<script src="../gate.js?v=20260906v"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260906u"></script>
+<script type="module" src="vendor/jelly.js?v=20260906v"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260906u">
-<link rel="stylesheet" href="showcase.css?v=20260906u">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260906v">
+<link rel="stylesheet" href="showcase.css?v=20260906v">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -2327,75 +2327,7 @@ drawer.open = true;   // side = start | end | bottom</template>
       <template data-snippet-text>&lt;jelly-segment value="quarterly"&gt;Quarterly&lt;/jelly-segment&gt;</template>
     </div>
   </section>
-  <section class="entry" id="c-41">
-    <div class="entry-text">
-    <p class="entry-num">Navigation &middot; 41</p>
-    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-tab-panel&gt;</h2>
-    <p class="entry-note">One panel of a tab set. It carries the tab's label and
-       holds the content behind it.</p>
-
-    <!-- IT OBSERVES NOTHING. Not one attribute -- the class has no
-         observedAttributes at all, which makes it the only documented element
-         in this library with no runtime API. `label`, `value` and `active` are
-         read ONCE, by jelly-tabs, while it builds its bar.
-
-         SO THE LABEL ROW RE-APPENDS THE TABS TO APPLY, and that is the honest
-         way to show it rather than a row that silently does nothing. The same
-         trick entry 14 needs for the switch, and for the same underlying
-         reason: state settled at connect. Watch the bar rebuild when the field
-         changes -- that IS the documentation.
-
-         What each attribute does, all of it at connect:
-           label    the text on the tab; falls back to the panel's own text,
-                    then to "Tab N"
-           value    what jelly-tabs matches against; falls back to the index
-           active   which panel starts open; the first one wins
-
-         The element also sets role="tabpanel" on itself and mirrors `label`
-         into aria-label, so the accessible name comes from the same place the
-         visible one does. -->
-    <div class="controls controls--stacked" data-controls>
-      <div class="ctl">
-        <span class="ctl-name">label</span>
-        <jelly-input id="tp-label" size="small" label="Tab label"
-                     placeholder="Rebuilds the bar"></jelly-input>
-      </div>
-      <div class="ctl">
-        <span class="ctl-name">active</span>
-        <div class="pillset" id="tp-active" role="group" aria-label="Active">
-          <jelly-button class="pill" data-value="first" aria-pressed="true">first</jelly-button>
-          <jelly-button class="pill" data-value="second" aria-pressed="false">second</jelly-button>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div class="demo" data-demo>
-      <div class="tabs-stage" data-controls>
-        <jelly-tabs id="tp-tabs">
-          <jelly-tab-panel id="tp-demo" value="first" label="Schedule" active>
-            <div class="tab-card">
-              <h3 class="tab-card-title">Schedule</h3>
-              <p class="tab-card-body">150.000 KWD monthly, due on the 1st.</p>
-            </div>
-          </jelly-tab-panel>
-          <jelly-tab-panel value="second" label="History">
-            <div class="tab-card">
-              <h3 class="tab-card-title">History</h3>
-              <p class="tab-card-body">Nine payments, none late.</p>
-            </div>
-          </jelly-tab-panel>
-        </jelly-tabs>
-      </div>
-      <template data-snippet-text>&lt;jelly-tab-panel value="first" label="Schedule" active&gt;
-  &lt;div class="tab-card"&gt;
-    &lt;h3&gt;Schedule&lt;/h3&gt;
-    &lt;p&gt;150.000 KWD monthly, due on the 1st.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/jelly-tab-panel&gt;</template>
-    </div>
-  </section>
-
-  <footer class="foot">
+<footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
        through a token bridge. The library is vendored here rather than loaded from its own origin, and
        carries three added tokens — each one falling back to Jelly's value, none of them touching the
@@ -2416,8 +2348,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260906u"></script>
-<script src="minaa-jelly.js?v=20260906u"></script>
-<script src="showcase.js?v=20260906u" defer></script>
+<script src="micons.js?v=20260906v"></script>
+<script src="minaa-jelly.js?v=20260906v"></script>
+<script src="showcase.js?v=20260906v" defer></script>
 </body>
 </html>
