@@ -1242,7 +1242,17 @@ jelly-icon-button .mi {
   max-inline-size: min(100%, calc(var(--control-96) * 4));     /* 384 */
   padding: var(--space-250);                                   /* 20 */
   --m-squircle-radius: var(--radius-24);
-  --m-squircle-fill: var(--m-page);
+
+  /* THE PANEL CARD IS A BRAND SURFACE IN LIGHT, and prose ink on a page surface
+     in dark. Ahmad asked for the light pair specifically: Neutral 100 becomes
+     Secondary 600 behind, Primary 700 becomes Neutral 100 in front. Dark is
+     untouched and still reads cream on Primary 900.
+
+     The two are named rather than written inline because they invert between
+     modes -- the fill and the ink swap families, so no single existing token
+     carries both. Cream on Secondary 600 is the system's own "text on brand
+     fills" pairing, not a new decision. */
+  --m-squircle-fill: var(--m-tab-card-fill);
   border-radius: var(--radius-24);       /* pre-paint fallback only */
 }
 .tab-card-title {
@@ -1250,13 +1260,13 @@ jelly-icon-button .mi {
   font-family: var(--font-bold);
   font-size: var(--text-lg);
   line-height: var(--text-lg-lh);
-  color: var(--m-ink);
+  color: var(--m-tab-card-ink);
 }
 .tab-card-body {
   margin: 0;
   font-size: var(--text-sm);
   line-height: var(--text-sm-lh);
-  color: var(--m-ink);
+  color: var(--m-tab-card-ink);
 }
 
 /* One stage for all six overlays. Every specimen here is a TRIGGER -- the thing

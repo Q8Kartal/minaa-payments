@@ -189,6 +189,8 @@ jelly-theme {
   --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
   --m-crumb-sep:       var(--secondary);   /* Secondary 600 */
   --m-tooltip-icon-mark: var(--primary);      /* Primary 700  */
+  --m-tab-card-fill:   var(--secondary);      /* Secondary 600 */
+  --m-tab-card-ink:    var(--cream);          /* Neutral 100   */
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
@@ -309,6 +311,8 @@ jelly-theme {
     --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
   --m-crumb-sep:       var(--cream);       /* Neutral 100 */
   --m-tooltip-icon-mark: var(--secondary);    /* Secondary 600 */
+  --m-tab-card-fill:   var(--m-page);         /* Primary 900   */
+  --m-tab-card-ink:    var(--m-ink);          /* Neutral 100   */
     --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
     --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
@@ -378,6 +382,8 @@ jelly-theme[mode="dark"] {
   --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
   --m-crumb-sep:       var(--cream);       /* Neutral 100 */
   --m-tooltip-icon-mark: var(--secondary);    /* Secondary 600 */
+  --m-tab-card-fill:   var(--m-page);         /* Primary 900   */
+  --m-tab-card-ink:    var(--m-ink);          /* Neutral 100   */
   --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
   --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
@@ -439,6 +445,8 @@ jelly-theme[mode="light"] {
   --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
   --m-crumb-sep:       var(--secondary);   /* Secondary 600 */
   --m-tooltip-icon-mark: var(--primary);      /* Primary 700  */
+  --m-tab-card-fill:   var(--secondary);      /* Secondary 600 */
+  --m-tab-card-ink:    var(--cream);          /* Neutral 100   */
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
