@@ -178,6 +178,7 @@ jelly-theme {
   --m-track-off:   var(--primary-300);  /* Primary 300 */
   --m-page-btn:        var(--m-field);    /* Primary 300 */
   --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
+  --m-crumb-sep:       var(--secondary);   /* Secondary 600 */
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
@@ -296,6 +297,7 @@ jelly-theme {
     --m-track-off:   var(--cream);
     --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
     --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
+  --m-crumb-sep:       var(--cream);       /* Neutral 100 */
     --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
     --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
@@ -363,6 +365,7 @@ jelly-theme[mode="dark"] {
   --m-track-off:   var(--cream);
   --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
   --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
+  --m-crumb-sep:       var(--cream);       /* Neutral 100 */
   --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
   --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
@@ -422,6 +425,7 @@ jelly-theme[mode="light"] {
   --m-track-off:   var(--primary-300);
   --m-page-btn:        var(--m-field);    /* Primary 300 */
   --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
+  --m-crumb-sep:       var(--secondary);   /* Secondary 600 */
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
@@ -2118,11 +2122,35 @@ jelly-pagination {
 
 
 /* ── jelly-breadcrumbs ─────────────────────────────────────────────────────
-   NOTHING IS REBOUND, and this is the clearest case of the lot. Jelly's
+   NO SIZING IS REBOUND, and this is the clearest case of the lot. Jelly's
    padding steps in ONES -- 3/4/5 block, 6/8/10 inline, 3/4/5 gap -- and the
    rebinding rounded each to the nearest step on our scale. That reasoning was
    backwards: a one-pixel ramp IS the component's proportion, and rounding it
-   produced nine deviations and a ramp that no longer stepped evenly. */
+   produced nine deviations and a ramp that no longer stepped evenly.
+
+   THE COLOURS ARE AHMAD'S, set against the rendered component in both modes.
+   Three roles, and Jelly reaches each through a different global token, so all
+   three are scoped to the host rather than changed library-wide:
+
+     a          --jelly-color-foreground-muted     the crumbs you can click
+     .current   --jelly-color-foreground-default   where you are
+     .separator --jelly-color-border-default       the arrows
+
+   What changed, measured before and after:
+
+     dark    current    Neutral 100  -> Secondary 600
+     dark    separator  Secondary 600 -> Neutral 100      (they trade places)
+     light   links      Primary 700  -> Primary 300
+
+   which leaves the links on PRIMARY 300 IN BOTH MODES and the current crumb on
+   SECONDARY 600 IN BOTH, so only the separator needs a per-mode token. The
+   arrows cannot follow dark's Neutral 100 into light -- cream on a cream card
+   is nothing -- so light keeps Secondary 600 there. */
+jelly-breadcrumbs {
+  --jelly-color-foreground-muted:   var(--primary-300);  /* Primary 300  */
+  --jelly-color-foreground-default: var(--secondary);    /* Secondary 600 */
+  --jelly-color-border-default:     var(--m-crumb-sep);  /* per mode */
+}
 
 
 /* ── jelly-kbd ─────────────────────────────────────────────────────────────
