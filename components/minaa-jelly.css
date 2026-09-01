@@ -1098,93 +1098,32 @@ jelly-slider[size="large"], jelly-slider[size="lg"] {
    inherit Regular from the host, which is right for body copy. */
 jelly-segmented,
 jelly-tabs::part(tabs) {
-  /* 56, to sit level with the 56px fields beside it. Jelly's own size scale
-     is 36 / 44 / 52 — measured by cycling the attribute — so the height the
-     specification asks for is not reachable through `size`, and there is no
-     height token. Setting it on the host is the remaining option, and it
-     behaves: the canvas tracked the resize and the pill came out at 40, which
-     is the figure the specification draws. Paired with the min-height on
-     `.segment` in minaa-jelly.js, without which the pill collapses to its
-     line box and floats in the taller track.
+  /* NO SIZING. JELLY'S OWN RAMP STANDS -- 36 / 44 / 52 track, with the padding,
+     gap, min-width and type that step alongside it, read from the component:
 
-     KEEP THIS. It is a deliberate deviation from Jelly's own ramp -- 36 / 44 /
-     52 against our 48 / 56 / 64 -- and it will look like the bug that was
-     removed from the field, the progress bar and the skeleton, where a page
-     width overrode a dimension the component's `size` was there to
-     demonstrate. It is not the same thing: the ramp still steps, every size
-     moves together, and the point is that a segmented control has to stand the
-     same height as the input beside it. Jelly's 44 next to a 56 field reads as
-     a mismatch. Audited and confirmed by Ahmad. */
-  height: var(--control-56);
+       small   36 tall, padding 3, min-width 50, gap 5, inline 14, font 13
+       medium  44 tall, padding 4, min-width 60, gap 7, inline 18, font 14.5
+       large   52 tall, padding 5, min-width 74, gap 8, inline 22, font 16
 
-  /* The track is painted from --jelly-track, not from a surface token — that
-     was measured, not assumed. --jelly-pill carries the sliding selection. */
+     This block used to force 48 / 56 / 64 so a segmented control would stand
+     level with the 56px fields beside it, with a matching pill height handed to
+     a shadow patch in minaa-jelly.js. That deviation was audited and kept for a
+     while; Ahmad has now reversed it -- the bar has to match the original.
+
+     THE SHADOW PATCH WENT WITH IT, and had to. It floored `.segment` at 40px,
+     which is taller than the 30px of inner height Jelly's small track has to
+     give (36 less 2x3 padding), so leaving it behind would have burst the small
+     bar open. Nothing replaces it: `.segment` is a flex item in a full-height
+     `.wrap` and stretches to the track on its own -- the floor was only ever
+     needed because the host height had been forced past what the padding
+     assumed.
+
+     The colours below are NOT a scale and stay. The track is painted from
+     --jelly-track rather than a surface token -- measured, not assumed -- and
+     --jelly-pill carries the sliding selection. */
   --jelly-track:                    var(--m-seg-track);
   --jelly-pill:                     var(--m-seg-pill);
   --jelly-color-background-surface: var(--m-seg-track);
-  /* 8, not 4. The specification draws the track 56 tall with a 40 pill inside;
-     at 4 the control came out 44 and read tight against the pill. */
-  --jelly-segmented-padding:        var(--space-100);
-  --jelly-segmented-padding-inline: var(--space-200);
-  --jelly-segmented-gap:            var(--space-050);
-  --jelly-segmented-font-size:      var(--text-md);
-  line-height:        var(--text-md-lh);
-  --jelly-segmented-min-width:      var(--space-1000);
-}
-/* The height is a host rule rather than a token -- Jelly offers none here -- so
-   it is restated per size, alongside the pill height that the shadow patch in
-   minaa-jelly.js now reads off --m-seg-pill-h. Without that the pill would sit
-   at 40 inside a 64 track. min-width holds at 80 for medium and large: the
-   spacing scale ends there, and it is a minimum rather than a size. */
-jelly-segmented[size="small"], jelly-segmented[size="sm"],
-jelly-tabs[size="small"]::part(tabs), jelly-tabs[size="sm"]::part(tabs) {
-  height: var(--control-48);
-  --m-seg-pill-h:                   var(--space-400);
-  --jelly-segmented-padding:        var(--space-075);
-  --jelly-segmented-padding-inline: var(--space-150);
-  --jelly-segmented-gap:            var(--space-050);
-  --jelly-segmented-font-size:      var(--text-sm);
-  line-height:        var(--text-sm-lh);
-  --jelly-segmented-min-width:      var(--space-800);
-}
-
-jelly-segmented[size="medium"], jelly-segmented[size="md"],
-jelly-tabs[size="medium"]::part(tabs), jelly-tabs[size="md"]::part(tabs) {
-  height: var(--control-56);
-  --m-seg-pill-h:                   var(--space-500);
-  --jelly-segmented-padding:        var(--space-100);
-  --jelly-segmented-padding-inline: var(--space-200);
-  --jelly-segmented-gap:            var(--space-050);
-  --jelly-segmented-font-size:      var(--text-md);
-  line-height:        var(--text-md-lh);
-  --jelly-segmented-min-width:      var(--space-1000);
-}
-
-jelly-segmented[size="large"], jelly-segmented[size="lg"],
-jelly-tabs[size="large"]::part(tabs), jelly-tabs[size="lg"]::part(tabs) {
-  height: var(--control-64);
-  --m-seg-pill-h:                   var(--space-600);
-  /* 8, NOT 12, AND THE ARITHMETIC IS THE REASON. A segmented control is a pill
-     inside a track, so the pill and its two paddings have to add up to the
-     track height or the pill has nowhere to sit:
-
-       small    36 + 6 + 6  = 48   the host height
-       medium   40 + 8 + 8  = 56   the host height
-       large    48 + 12 + 12 = 72  against a host of 64
-
-     At 12 the pill was 8px taller than the track could hold and bulged past
-     its own edge -- reported from the page, then measured. 8 is the step that
-     closes it: 48 + 8 + 8 = 64.
-
-     The other way to close it is a 40 pill at 12 padding, and that is wrong:
-     it would leave large with the same pill as medium while the track and the
-     type both grew. The pill is what should grow. */
-  --jelly-segmented-padding:        var(--space-100);
-  --jelly-segmented-padding-inline: var(--space-250);
-  --jelly-segmented-gap:            var(--space-100);
-  --jelly-segmented-font-size:      var(--text-lg);
-  line-height:        var(--text-lg-lh);
-  --jelly-segmented-min-width:      var(--space-1000);
 }
 
 

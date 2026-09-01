@@ -306,16 +306,6 @@
          from the host; in dark they inherited Cream. */
       .row:not(.active) { color: var(--primary); }`,
 
-    /* jelly-segmented draws its pill from `.segment`, which hardcodes
-       `padding-block: 0` with no token behind it and carries no part. The pill
-       collapses to its 28px line box, and the track came out 44 tall where the
-       specification draws it 56 — visibly shorter than the 56px fields beside
-       it. A minimum height is the smallest correction, read off the host as
-       space-500 rather than written as 40 here. */
-    'jelly-segmented': `
-      .segment {
-        min-height: var(--m-seg-pill-h, var(--space-500));
-      }`,
   };
 
   const sheets = new Map();
@@ -374,11 +364,16 @@
      component was never patched at all.
 
      jelly-tabs is the case that exposed it: its tab bar is a
-     `<jelly-segmented part="tabs">` in its own shadow root, and the min-height
-     patch below is the only thing that stops a segmented pill collapsing to
-     its line box. Measured before this walk: the standalone control patched,
-     `.segment` min-height 40px, track 56 -- and the identical control inside
-     jelly-tabs unpatched, min-height `auto`, pill 36, track 44.
+     `<jelly-segmented part="tabs">` in its own shadow root, so the segmented
+     patch reached the standalone control and never the nested one. Measured at
+     the time: standalone patched, `.segment` min-height 40px, track 56 -- the
+     identical control inside jelly-tabs unpatched, min-height `auto`, pill 36,
+     track 44.
+
+     THAT PATCH IS GONE NOW, with the forced height it existed to serve, so the
+     walk no longer has a case that fails without it. It stays regardless: the
+     next component Jelly builds inside another hits the same wall, and the cost
+     is a handful of querySelectorAll calls at startup.
 
      The walk is breadth-first over open shadow roots, and it is bounded by the
      component tree rather than by a depth limit: only elements are visited,
