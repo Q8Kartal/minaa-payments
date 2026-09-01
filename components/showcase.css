@@ -1207,12 +1207,51 @@ svg[data-sq-fill] {
    padding plus two lines of copy, which is what the longest panel here runs to.
 
    No width: jelly-tabs is display:block and takes the stage. */
+/* A TAB BAR WITHOUT ITS PANEL IS HALF THE COMPONENT. The floor is sized to the
+   bar plus a panel card, so switching tabs does not make the stage jump. */
 .tabs-stage {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: calc(var(--space-800) + var(--space-200) + var(--space-600));
+  gap: var(--space-300);                                       /* 24 */
+  min-height: calc(var(--space-1000) * 2 + var(--space-400));   /* 160 + 32 */
   padding-block: var(--space-400);                             /* 32 */
+}
+
+/* The panel's content, as a surface rather than loose text.
+
+   PAINTED, NOT CLIPPED, like every other Minaa surface: the fill lives on
+   [data-sq-fill] and this element keeps a plain unclipped box, so there is
+   deliberately no `background` here and there must never be a `border`.
+
+   Capped at --radius-24 through --m-squircle-radius rather than inheriting
+   --m-surface-corner: this is a card inside a demo panel, the same role as a
+   resizable pane, and 64 on a box this short rounds it into a lozenge.
+
+   No trap applies here, checked rather than assumed: jelly-tabs sets no
+   overflow anywhere in its shadow, so the panel is not a scroll container, and
+   its bounce-in is a WAAPI transform -- which moves getBoundingClientRect but
+   NOT clientWidth/clientHeight, and the applier measures the latter, so no
+   mid-flight box can be baked into the path. */
+.tab-card {
+  position: relative;
+  padding: var(--space-300);                                   /* 24 */
+  --m-squircle-radius: var(--radius-24);
+  --m-squircle-fill: var(--m-page);
+  border-radius: var(--radius-24);       /* pre-paint fallback only */
+}
+.tab-card-title {
+  margin: 0 0 var(--space-100) 0;                              /* 8 */
+  font-family: var(--font-bold);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg-lh);
+  color: var(--m-ink);
+}
+.tab-card-body {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm-lh);
+  color: var(--m-ink);
 }
 
 /* One stage for all six overlays. Every specimen here is a TRIGGER -- the thing

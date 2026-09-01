@@ -2058,7 +2058,7 @@
      card is already a different colour from the page it sits on. */
   function wireSquircleCards() {
     if (typeof minaaSquirclePath !== 'function') return;
-    const cards = document.querySelectorAll('.demo, .preview, .otp-stage, .rz-pane');
+    const cards = document.querySelectorAll('.demo, .preview, .otp-stage, .rz-pane, .tab-card');
     if (!cards.length) return;
 
     const SVGNS = 'http://www.w3.org/2000/svg';
