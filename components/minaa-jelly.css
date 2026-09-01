@@ -739,6 +739,18 @@ jelly-icon-button {
      --m-on-accent rather than the prose ink. */
   --jelly-label:                 var(--m-on-accent);
 
+  /* THE HOST WAS 9px TALLER THAN THE BUTTON INSIDE IT. Jelly's inner <button>
+     is inline-flex, the host is block, so the host built a LINE BOX around it
+     and carried the font's descender space underneath: measured 40 wide by 49
+     tall around a 40x40 button sitting flush at the top.
+
+     Nothing looked stretched, because the canvas is absolutely positioned and
+     paints the membrane centred on the HOST -- so the squircle sat 4.5px below
+     the glyph, which reads as an icon riding high rather than as a box with a
+     gap under it. line-height: 0 removes the line box; there is no text in an
+     icon button for it to affect. */
+  line-height: 0;
+
   /* NO SIZING. Jelly's own ramp stands -- 40 / 48 / 56 box, 18 / 20 / 23 icon,
      13 / 16 / 18 corner. Two of the three pins that used to sit here were
      Jelly's medium values written out again (48 and 20), so they changed
@@ -753,7 +765,6 @@ jelly-icon-button {
      for a squircle here, so the corner comes from Jelly and the CURVE comes
      from us -- see minaaSkeletonSquircle(), which now carries this tag. */
   --jelly-icon-button-font-size: var(--text-lg);
-  line-height:        var(--text-lg-lh);
 }
 
 /* The checkbox box is NOT the accent in light mode — it is Primary 300 with a
@@ -2559,10 +2570,20 @@ jelly-tooltip {
   --jelly-tooltip-color:          var(--m-overlay-ink);
   --jelly-tooltip-radius:         var(--radius-8);    /* pre-paint fallback */
   --m-squircle-radius:            var(--m-surface-corner);
-  --jelly-tooltip-padding-block:  var(--space-075);
-  --jelly-tooltip-padding-inline: var(--space-150);
-  --jelly-tooltip-font-size:      var(--text-sm);
-  line-height:        var(--text-sm-lh);
+
+  /* NO SIZING. Jelly's ramp stands -- font 11.5 / 12.5 / 14, padding-block
+     6 / 7 / 9, padding-inline 9 / 11 / 13, max-width 200 / 240 / 280.
+
+     Three of those four used to be pinned here to --text-sm, --space-075 and
+     --space-150, which flattened small and large into medium and left the size
+     row moving nothing a reader could see: measured across all three, font
+     14px, padding 6 and 12, radius 8, identical, with only max-width stepping
+     -- and max-width cannot show on a label short enough not to wrap.
+
+     That flattening is also what the old note in entry 21 mistook for the
+     component: it concluded there was no size worth a row, having measured our
+     own override. The radius pin above is NOT part of this -- the tooltip is
+     squircled, so that value is only what paints before the path is drawn. */
 }
 
 /* ── the tooltip's own icon button ──────────────────────────────────────
