@@ -1219,9 +1219,15 @@ jelly-icon-button .mi {
    [data-sq-fill] and this element keeps a plain unclipped box, so there is
    deliberately no `background` here and there must never be a `border`.
 
-   Capped at --radius-24 through --m-squircle-radius rather than inheriting
-   --m-surface-corner: this is a card inside a demo panel, the same role as a
-   resizable pane, and 64 on a box this short rounds it into a lozenge.
+   THE CAP IS --m-surface-corner, the family corner every Minaa surface answers
+   to, and it is a CAP rather than a pin: the generator draws
+   min(cap, width / 2, height / 2), so on this 341 x 96 card the height wins and
+   the corner comes out 48, not 64.
+
+   It sat at --radius-24 until Ahmad asked for more, on the reasoning that 64
+   would round a short box into a lozenge. That reasoning was about a PIN, and
+   as a cap it cannot do that -- this card only reaches 64 once it is 128 tall,
+   and until then geometry decides. jelly-card was corrected the same way.
 
    No trap applies here, checked rather than assumed: jelly-tabs sets no
    overflow anywhere in its shadow, so the panel is not a scroll container, and
@@ -1241,7 +1247,7 @@ jelly-icon-button .mi {
   inline-size: fit-content;
   max-inline-size: min(100%, calc(var(--control-96) * 4));     /* 384 */
   padding: var(--space-250);                                   /* 20 */
-  --m-squircle-radius: var(--radius-24);
+  --m-squircle-radius: var(--m-surface-corner);
 
   /* THE PANEL CARD IS A BRAND SURFACE IN LIGHT, and prose ink on a page surface
      in dark. Ahmad asked for the light pair specifically: Neutral 100 becomes
