@@ -1068,7 +1068,10 @@ svg[data-sq-fill] {
 
 /* One chip, centred. A chip is inline-flex and carries its own width from its
    label, so the stage sets none -- and no height either, because the chip's own
-   size ramp (32 / 40 / 48) is the thing the size row is there to show.
+   size ramp (32 / 40 / 48) is what the size row is there to show.
+
+   The gap and the wrap stay even at one child: they cost nothing here and the
+   stage is the obvious place a second chip gets pasted.
 
    The floor is the largest chip plus its padding, so switching sizes moves the
    chip without moving the card. */
@@ -1076,6 +1079,8 @@ svg[data-sq-fill] {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-100);                                        /* 8 */
   min-height: calc(var(--control-48) + var(--space-400) * 2);
   padding-block: var(--space-400);
 }

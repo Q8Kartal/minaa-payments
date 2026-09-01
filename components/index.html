@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260905f"></script>
+<script src="../gate.js?v=20260905k"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260905f"></script>
+<script type="module" src="vendor/jelly.js?v=20260905k"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260905f">
-<link rel="stylesheet" href="showcase.css?v=20260905f">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260905k">
+<link rel="stylesheet" href="showcase.css?v=20260905k">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -1612,8 +1612,7 @@ drawer.open = true;   // side = start | end | bottom</template>
     <p class="entry-num">Content &middot; 30</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radiogroup"/></svg> &lt;jelly-chip&gt;</h2>
     <p class="entry-note">A small jelly capsule: a static label, a toggleable
-       filter, or a removable tag. Six tones, named for the colour they paint,
-       and the fill crossfades rather than snapping.</p>
+       filter, or a removable tag. Six tones, named for the colour they paint.</p>
 
     <!-- THE MARK IS BORROWED, AND IT IS A WEAKER BORROW THAN ENTRY 29's.
          Micons has no chip glyph, and this is interface/category, already
@@ -1638,6 +1637,26 @@ drawer.open = true;   // side = start | end | bottom</template>
          purpose -- six different resting fills would read as six components
          rather than one with six tones. Set `selected` to false and the tone
          row goes visually quiet; that is the design, not a dead row.
+
+         ONE CHIP, AND IT READS AS A LABEL. "Climate controlled" is a kind of
+         warehouse -- a property of the thing, sitting next to it, not a
+         control and not a status. That is the plainest of the three roles and
+         the right default for a specimen.
+
+         It reached here the long way. It was a single capsule reading
+         "Monthly" for three builds, which is a payment period and the same
+         content the tabs and segmented entries already use -- so the picture
+         said nothing about what a CHIP is for. Told that, I swung to a
+         three-chip filter row, which was the opposite mistake: a set
+         demonstrates one role loudly and buries the other two. The component
+         is a capsule. One is the specimen; the rows show what it can become.
+
+         `selected` WITHOUT `selectable` IS THE LABEL STATE, and it is worth
+         knowing. The tone paints --jelly-on, which is the selected fill, so a
+         chip that is never going to be clicked still needs `selected` to carry
+         its colour. Drop it and the label falls back to the quiet rest
+         surface, which is correct for an unselected FILTER and wrong for a
+         label. Both are in the rows.
 
          THE TONES ARE NAMED FOR THEIR COLOUR, NOT FOR A MEANING. mgreen,
          myellow and morange -- Minaa green, yellow and orange. They paint
@@ -1690,8 +1709,8 @@ drawer.open = true;   // side = start | end | bottom</template>
       <div class="ctl">
         <span class="ctl-name">selectable</span>
         <div class="pillset" id="cp-selectable" role="group" aria-label="Selectable">
-          <jelly-button class="pill" data-value="false" aria-pressed="false">false</jelly-button>
-          <jelly-button class="pill" data-value="true" aria-pressed="true">true</jelly-button>
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
         </div>
       </div>
       <div class="ctl">
@@ -1727,9 +1746,9 @@ drawer.open = true;   // side = start | end | bottom</template>
     </div>
     <div class="demo" data-demo>
       <div class="chip-stage" data-controls>
-        <jelly-chip id="cp-demo" tone="primary" selectable selected>Monthly</jelly-chip>
+        <jelly-chip id="cp-demo" selected>Climate controlled</jelly-chip>
       </div>
-      <template data-snippet-text>&lt;jelly-chip tone="primary" selectable selected&gt;Monthly&lt;/jelly-chip&gt;</template>
+      <template data-snippet-text>&lt;jelly-chip selected&gt;Climate controlled&lt;/jelly-chip&gt;</template>
     </div>
   </section>
   <section class="entry" id="c-31">
@@ -2339,8 +2358,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260905f"></script>
-<script src="minaa-jelly.js?v=20260905f"></script>
-<script src="showcase.js?v=20260905f" defer></script>
+<script src="micons.js?v=20260905k"></script>
+<script src="minaa-jelly.js?v=20260905k"></script>
+<script src="showcase.js?v=20260905k" defer></script>
 </body>
 </html>

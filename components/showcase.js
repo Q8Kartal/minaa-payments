@@ -1341,7 +1341,790 @@
       ['selectable','removable','selected','disabled'].forEach((k) => {
         if (el.hasAttribute(k)) a.push(k);
       });
-      box.textContent = '<jelly-chip' + (a.length ? ' ' + a.join(' ') : '') + '>Monthly</jelly-chip>';
+      box.textContent = '<jelly-chip' + (a.length ? ' ' + a.join(' ') : '') + '>'
+        + el.textContent.trim() + '</jelly-chip>';
+    }
+
+    function pills(root, onPick) {
+      root.addEventListener('click', (e) => {
+        const b = e.target.closest('.pill');
+        if (!b) return;
+        root.querySelectorAll('.pill').forEach(
+          (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+        onPick(b.dataset.value);
+        snippet();
+      });
+    }
+    /* .value, the PROPERTY, the same call entry 08 makes for the radio:
+       jelly-select owns the trigger label and the panel's selected row, and
+       setting the attribute behind its back leaves those two disagreeing. */
+    pills(value, (v) => { el.value = v; });
+    pills(size, (v) => el.setAttribute('size', v));
+    /* toggleAttribute, never el.disabled -- assigning the property on a web
+       component that does not define it silently no-ops. */
+    pills(dis, (v) => el.toggleAttribute('disabled', v === 'true'));
+    /* ADDING AN OPTION. Three currencies were only ever an example, and a fixed
+       set of three documented a ceiling the component does not have -- so the
+       reader can type their own and watch the panel grow.
+
+       jelly-select builds its rows from the slotted jelly-option elements, so
+       appending one is the entire operation; a matching pill goes into the
+       value row, and the pill handler above is delegated, so the new one is
+       live without being wired individually. */
+    function addOption(raw) {
+      const v = String(raw == null ? '' : raw).trim();
+      if (!v) return false;
+      /* A duplicate value would give the select two rows it cannot tell apart,
+         and picking either would light both pills. */
+      if (options().some((o) => o[0] === v)) return false;
+      const opt = document.createElement('jelly-option');
+      opt.setAttribute('value', v);
+      opt.textContent = v;
+      el.appendChild(opt);
+      const pill = document.createElement('jelly-button');
+      pill.className = 'pill';
+      pill.dataset.value = v;
+      pill.setAttribute('aria-pressed', 'false');
+      pill.textContent = v;
+      value.appendChild(pill);
+      snippet();
+      return true;
+    }
+    /* Enter, on the host: jelly-input's keydown crosses the shadow boundary
+       composed, so there is no need to reach inside for the real input. */
+    add.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (addOption(add.value)) add.value = '';
+    });
+
+    snippet();
+  }
+
+  /* SLIDER, RANGE AND TEXTAREA share one shape: a pill row per attribute, one
+     specimen, and a snippet rebuilt from the element after every change.
+
+     None of the three gets a control for its own VALUE. On a slider and a
+     range the specimen is already the value control -- drag a knob, or focus
+     and use the arrows -- and on a textarea a one-line input would be the
+     wrong shape for a multi-line field. In all three the snippet listens to
+     the component's own `input` event instead, so the code follows the
+     specimen however the value got there. */
+
+  /* One pill row, delegated. Shared by the three wirings below rather than
+     written out three times. */
+  function pillRow(root, onPick, after) {
+    root.addEventListener('click', (e) => {
+      const b = e.target.closest('.pill');
+      if (!b) return;
+      root.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === b.dataset.value)));
+      onPick(b.dataset.value);
+      /* Optional, and it matters: this runs INSIDE the click handler, so a
+         missing `after` threw a TypeError that aborted the rest of the
+         handler. The visible symptom was a row that moved the component but
+         left the snippet stale -- which reads as a snippet bug, not a wiring
+         one. Caught on the chip, whose selected row passed two arguments. */
+      if (after) after();
+    });
+  }
+
+  function wireSliderDemo() {
+    const el = document.getElementById('sld-demo');
+    const step = document.getElementById('sld-step');
+    const size = document.getElementById('sld-size');
+    const dis = document.getElementById('sld-disabled');
+    if (!el || !step || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-13 .code code');
+      if (!box) return;
+      const a = [];
+      /* el.value, not the attribute: jelly-slider does not reflect a dragged
+         value back to the attribute, so reading getAttribute would print the
+         number the element was born with. The same trap the select had. */
+      a.push('value="' + el.value + '"');
+      const st = el.getAttribute('step');
+      if (st && st !== '1') a.push('step="' + st + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-slider ' + a.join(' ') + '></jelly-slider>';
+    }
+
+    pillRow(step, (v) => el.setAttribute('step', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    el.addEventListener('input', snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireRangeDemo() {
+    const el = document.getElementById('rng-demo');
+    const step = document.getElementById('rng-step');
+    const size = document.getElementById('rng-size');
+    const dis = document.getElementById('rng-disabled');
+    if (!el || !step || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-10 .code code');
+      if (!box) return;
+      /* THERE IS NO .low OR .high. jelly-range exposes ONE accessor, `value`,
+         and it returns the pair as a comma string -- "150,750" -- so reading
+         el.low printed undefined into the snippet. Checked against the
+         prototype's own accessors rather than guessed a second time.
+
+         The attributes are the fallback, not the source: like the slider, a
+         dragged knob does not write back to them. */
+      const pair = String(el.value == null ? '' : el.value).split(',');
+      const low = (pair[0] || el.getAttribute('low') || '').trim();
+      const high = (pair[1] || el.getAttribute('high') || '').trim();
+      /* min and max are always printed: they are the scale the interval is
+         measured on, and low/high mean nothing without them. */
+      const a = ['min="' + (el.getAttribute('min') || '0') + '"',
+                 'max="' + (el.getAttribute('max') || '100') + '"',
+                 'low="' + low + '"',
+                 'high="' + high + '"'];
+      const st = el.getAttribute('step');
+      if (st && st !== '1') a.push('step="' + st + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-range ' + a.join(' ') + '></jelly-range>';
+    }
+
+    pillRow(step, (v) => el.setAttribute('step', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    el.addEventListener('input', snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireTextareaDemo() {
+    const el = document.getElementById('ta-demo');
+    const ph = document.getElementById('ta-placeholder');
+    const rows = document.getElementById('ta-rows');
+    const size = document.getElementById('ta-size');
+    const dis = document.getElementById('ta-disabled');
+    const ro = document.getElementById('ta-readonly');
+    if (!el || !ph || !rows || !size || !dis || !ro || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-15 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.getAttribute('placeholder')) a.push('placeholder="' + el.getAttribute('placeholder') + '"');
+      /* rows 2 is Jelly's own default -- measured: an element with no rows
+         attribute reports rows 2 on its inner textarea -- so printing it would
+         document an attribute that changes nothing. */
+      const rw = el.getAttribute('rows');
+      if (rw && rw !== '2') a.push('rows="' + rw + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.value) a.push('value="' + el.value + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      if (el.hasAttribute('readonly')) a.push('readonly');
+      box.textContent = '<jelly-textarea' + (a.length ? ' ' + a.join(' ') : '') + '></jelly-textarea>';
+    }
+
+    const applyPh = () => {
+      const v = ph.value == null ? '' : String(ph.value);
+      if (v) el.setAttribute('placeholder', v); else el.removeAttribute('placeholder');
+      snippet();
+    };
+    ph.addEventListener('input', applyPh);
+    ph.addEventListener('change', applyPh);
+
+    pillRow(rows, (v) => el.setAttribute('rows', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    pillRow(ro, (v) => el.toggleAttribute('readonly', v === 'true'), snippet);
+    el.addEventListener('input', snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireCheckboxDemo() {
+    const el = document.getElementById('cb-demo');
+    const chk = document.getElementById('cb-checked');
+    const ind = document.getElementById('cb-indeterminate');
+    const size = document.getElementById('cb-size');
+    const dis = document.getElementById('cb-disabled');
+    if (!el || !chk || !ind || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-04 .code code');
+      if (!box) return;
+      const a = [];
+      /* Read the ELEMENT, not the pills. A click on the specimen clears
+         indeterminate and sets checked -- native behaviour, measured here too
+         -- so a snippet built from what was last clicked in the controls would
+         print a state the box no longer has. */
+      if (el.checked) a.push('checked');
+      if (el.indeterminate) a.push('indeterminate');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-checkbox' + (a.length ? ' ' + a.join(' ') : '')
+        + '>Subscribe to updates</jelly-checkbox>';
+    }
+
+    /* Push the element's real state back into both rows. The case that needs
+       it is a click on the specimen: that clears indeterminate, and without
+       this the indeterminate=true pill would stay lit for a state the box has
+       already dropped -- the controls lying about the thing they drive.
+
+       Setting the two through the properties does NOT drop either; a box holds
+       both at once, as a native input does. Verified both ways round. */
+    function sync() {
+      const set = (root, on) => root.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'true') === on)));
+      set(chk, !!el.checked);
+      set(ind, !!el.indeterminate);
+      snippet();
+    }
+
+    pillRow(chk, (v) => { el.checked = v === 'true'; }, sync);
+    pillRow(ind, (v) => { el.indeterminate = v === 'true'; }, sync);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* toggleAttribute, not the property: jelly-checkbox defines accessors for
+       checked, indeterminate and value -- and not for disabled. */
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    /* Clicking the specimen is a real way to change it, so the rows follow. */
+    el.addEventListener('change', sync);
+
+    sync();
+  }
+
+  function wireLabelDemo() {
+    const el = document.getElementById('lb-demo');
+    const req = document.getElementById('lb-required');
+    const size = document.getElementById('lb-size');
+    if (!el || !req || !size || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-06 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.hasAttribute('required')) a.push('required');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-label' + (a.length ? ' ' + a.join(' ') : '')
+        + '>Email address</jelly-label>';
+    }
+
+    /* toggleAttribute, not a property: jelly-label observes for, required and
+       size, and defines an accessor for none of them. */
+    pillRow(req, (v) => el.toggleAttribute('required', v === 'true'), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
+  function wireSwitchDemo() {
+    const el = document.getElementById('sw-demo');
+    const chk = document.getElementById('sw-checked');
+    const size = document.getElementById('sw-size');
+    const dis = document.getElementById('sw-disabled');
+    if (!el || !chk || !size || !dis || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-14 .code code');
+      if (!box) return;
+      const a = [];
+      /* el.checked, not the attribute: dragging the thumb does not write one,
+         so the snippet would print the state it loaded with. */
+      if (el.checked) a.push('checked');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-switch' + (a.length ? ' ' + a.join(' ') : '')
+        + '>Notifications</jelly-switch>';
+    }
+
+    /* The specimen is workable by hand -- click, drag, or space -- so the
+       checked row is pushed back from the element rather than assumed from
+       whichever pill was last pressed. */
+    function sync() {
+      chk.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'true') === !!el.checked)));
+      snippet();
+    }
+
+    pillRow(chk, (v) => { el.checked = v === 'true'; }, sync);
+    /* SIZE NEEDS A RE-CONNECT, and this is the component, not the page.
+       jelly-switch observes `size` and updates its own sizeKey, but it reads
+       the track geometry once and does not rebuild it: measured, the attribute
+       and sizeKey both went small / large / medium while trackSize stayed
+       48x24 throughout. Elements built with a size before being connected are
+       correct -- 40x20 / 48x24 / 64x32 -- so the geometry is settled on
+       connect and never revisited.
+
+       Re-appending the SAME node runs disconnected then connected again, and
+       the track is rebuilt. It stays the same element, so every listener above
+       survives, and `checked` survives with it -- both verified rather than
+       assumed. Without this the row would move a number nobody can see, which
+       is the one thing a control row must never do. */
+    pillRow(size, (v) => {
+      el.setAttribute('size', v);
+      if (el.parentElement) el.parentElement.appendChild(el);
+    }, snippet);
+    /* toggleAttribute: jelly-switch defines accessors for checked and value,
+       and not for disabled. */
+    pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    el.addEventListener('change', sync);
+
+    sync();
+  }
+
+  function wireRadioGroupDemo() {
+    const el = document.getElementById('rg-demo');
+    const lbl = document.getElementById('rg-label');
+    const dir = document.getElementById('rg-direction');
+    const size = document.getElementById('rg-size');
+    if (!el || !lbl || !dir || !size || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-09 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.getAttribute('label')) a.push('label="' + el.getAttribute('label') + '"');
+      /* horizontal is the component's default -- measured, a group with no
+         direction lays out the same as one set to horizontal -- so only the
+         other value is worth printing. */
+      const d = el.getAttribute('direction');
+      if (d && d !== 'horizontal') a.push('direction="' + d + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      /* Built from the radios that are actually slotted, so the snippet cannot
+         drift from the specimen. */
+      const lines = ['<jelly-radio-group' + (a.length ? ' ' + a.join(' ') : '') + '>'];
+      el.querySelectorAll('jelly-radio').forEach((r) => {
+        const at = ['name="type"', 'value="' + r.getAttribute('value') + '"'];
+        if (r.checked) at.push('checked');
+        lines.push('  <jelly-radio ' + at.join(' ') + '>' + r.textContent.trim() + '</jelly-radio>');
+      });
+      lines.push('</jelly-radio-group>');
+      box.textContent = lines.join('\n');
+    }
+
+    const applyLabel = () => {
+      const v = lbl.value == null ? '' : String(lbl.value);
+      if (v) el.setAttribute('label', v); else el.removeAttribute('label');
+      snippet();
+    };
+    lbl.addEventListener('input', applyLabel);
+    lbl.addEventListener('change', applyLabel);
+
+    pillRow(dir, (v) => el.setAttribute('direction', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* Picking a radio changes which one carries `checked`, and the snippet
+       prints that, so it has to follow the group rather than only the pills. */
+    el.addEventListener('change', snippet);
+
+    snippet();
+  }
+
+  /* Entry 29. The bar is a jelly-segmented inside jelly-tabs' shadow root, so
+     everything the segmented wiring knows applies -- but nothing here reaches
+     into that shadow: `value` and `size` are host attributes and the component
+     forwards them down itself. */
+  /* Entry 30. Seven rows, the most of any entry, because jelly-chip has the
+     widest attribute surface in the library. */
+  /* Entries 31 and 32. */
+  /* Entries 33 to 38. */
+
+  /* Entries 39 to 41 -- the three child elements. Each one renders nothing of
+     its own, so every specimen here is the PARENT and the rows drive one child
+     inside it. */
+
+  function wireOptionDemo() {
+    const el = document.getElementById('op-demo');
+    const sel = document.getElementById('op-select');
+    const selected = document.getElementById('op-selected');
+    const disabled = document.getElementById('op-disabled');
+    const field = document.getElementById('op-value');
+    if (!el || !sel || !selected || !disabled || !field || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-39 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.hasAttribute('value')) a.push('value="' + el.getAttribute('value') + '"');
+      if (el.hasAttribute('selected')) a.push('selected');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-option' + (a.length ? ' ' + a.join(' ') : '') + '>'
+        + el.textContent.trim() + '</jelly-option>';
+    };
+    /* Selecting through the trigger moves it too, so the row is pushed back
+       from the select rather than assumed. */
+    const sync = () => {
+      selected.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed',
+          String((p.dataset.value === 'true') === el.hasAttribute('selected'))));
+      snippet();
+    };
+    pillRow(selected, (v) => el.toggleAttribute('selected', v === 'true'), sync);
+    pillRow(disabled, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    /* An empty field REMOVES the attribute, which is the interesting state:
+       the option then submits its own text instead. */
+    const apply = () => {
+      const v = field.value == null ? '' : String(field.value).trim();
+      if (v) el.setAttribute('value', v); else el.removeAttribute('value');
+      snippet();
+    };
+    field.addEventListener('input', apply);
+    field.addEventListener('change', apply);
+    sel.addEventListener('change', sync);
+    sync();
+  }
+
+  function wireSegmentDemo() {
+    const el = document.getElementById('sm-demo');
+    const parent = document.getElementById('sm-parent');
+    const disabled = document.getElementById('sm-disabled');
+    if (!el || !parent || !disabled || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-40 .code code');
+      if (!box) return;
+      const a = ['value="' + (el.getAttribute('value') || '') + '"'];
+      if (el.hasAttribute('selected')) a.push('selected');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-segment ' + a.join(' ') + '>'
+        + el.textContent.trim() + '</jelly-segment>';
+    };
+    pillRow(disabled, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    /* Clicking a pill in the track moves the selection, which changes whether
+       this segment is the selected one -- so the snippet is re-read from the
+       element rather than tracked. */
+    parent.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireTabPanelDemo() {
+    const field = document.getElementById('tp-label');
+    const active = document.getElementById('tp-active');
+    const first = document.getElementById('tp-demo');
+    if (!first || !field || !active || first.dataset.wiredCtl) return;
+    first.dataset.wiredCtl = '1';
+
+    /* EVERY LOOKUP IS BY ID, NEVER A CACHED NODE. The rebuild below replaces
+       the jelly-tabs element, so any reference captured in this closure is
+       detached the moment it runs once -- and the SECOND label edit then fails
+       against a node with no parent. That is not hypothetical: it shipped for
+       one build and the bar stopped updating after the first change. */
+    const tabsNow = () => document.getElementById('tp-tabs');
+    const panelNow = () => document.getElementById('tp-demo');
+
+    const snippet = () => {
+      const box = document.querySelector('#c-41 .code code');
+      const el = panelNow(), tabs = tabsNow();
+      if (!box || !el || !tabs) return;
+      box.textContent = '<jelly-tab-panel value="' + (el.getAttribute('value') || '')
+        + '" label="' + (el.getAttribute('label') || '') + '"'
+        + (tabs.value === el.getAttribute('value') ? ' active' : '') + '>\n'
+        + '  150.000 KWD monthly, due on the 1st.\n'
+        + '</jelly-tab-panel>';
+    };
+
+    /* THE REBUILD, AND WHY IT IS HERE. jelly-tabs reads its panels once, in
+       connectedCallback, and never looks again -- its `built` flag lives on the
+       element -- so a label changed afterwards never reaches the bar. A fresh
+       node is what is needed, not a re-insert of the same one. The same trick
+       entry 14 needs for the switch, for the same reason: state settled at
+       connect. Watching the bar rebuild IS the documentation. */
+    const rebuild = () => {
+      const tabs = tabsNow();
+      if (!tabs || !tabs.parentNode) return;
+      const open = tabs.value;
+      const fresh = tabs.cloneNode(true);
+      /* Carry the open panel across, so editing a label does not also throw
+         the reader back to the first tab. */
+      fresh.querySelectorAll('jelly-tab-panel').forEach((p) => {
+        p.toggleAttribute('active', p.getAttribute('value') === open);
+      });
+      tabs.parentNode.replaceChild(fresh, tabs);
+      fresh.addEventListener('change', snippet);
+    };
+
+    const apply = () => {
+      const v = field.value == null ? '' : String(field.value).trim();
+      const el = panelNow();
+      if (!el) return;
+      if (v) el.setAttribute('label', v); else el.removeAttribute('label');
+      rebuild();
+      snippet();
+    };
+    field.addEventListener('input', apply);
+    field.addEventListener('change', apply);
+    pillRow(active, (v) => { const t = tabsNow(); if (t) t.value = v; }, snippet);
+    tabsNow().addEventListener('change', snippet);
+
+    snippet();
+  }
+
+  function wireCardDemo() {
+    const el = document.getElementById('cd-demo');
+    const squish = document.getElementById('cd-squish');
+    const size = document.getElementById('cd-size');
+    if (!el || !squish || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-33 .code code');
+      if (!box) return;
+      const a = [];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('squish')) a.push('squish');
+      box.textContent = '<jelly-card' + (a.length ? ' ' + a.join(' ') : '') + '>\n'
+        + '  <b>Bay 4</b>\n'
+        + '  Climate controlled \u00b7 12 m\u00b2 \u00b7 150.000 KWD monthly.\n'
+        + '</jelly-card>';
+    };
+    pillRow(squish, (v) => el.toggleAttribute('squish', v === 'true'), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
+  function wireDividerDemo() {
+    const el = document.getElementById('dv-demo');
+    const dir = document.getElementById('dv-direction');
+    const size = document.getElementById('dv-size');
+    const field = document.getElementById('dv-content');
+    if (!el || !dir || !size || !field || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-34 .code code');
+      if (!box) return;
+      const a = [];
+      const d = el.getAttribute('direction');
+      if (d && d !== 'horizontal') a.push('direction="' + d + '"');
+      const c = el.getAttribute('content');
+      if (c) a.push('content="' + c + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-divider' + (a.length ? ' ' + a.join(' ') : '')
+        + '></jelly-divider>';
+    };
+    /* horizontal is the default, so it is the absence of the attribute. */
+    pillRow(dir, (v) => {
+      if (v === 'vertical') el.setAttribute('direction', 'vertical');
+      else el.removeAttribute('direction');
+    }, snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* `content` is an attribute, not a slot, so an empty field means remove it
+       rather than set it to an empty string -- Jelly draws the gap either way,
+       but the snippet should not print content="". */
+    const apply = () => {
+      const v = field.value == null ? '' : String(field.value).trim();
+      if (v) el.setAttribute('content', v); else el.removeAttribute('content');
+      snippet();
+    };
+    field.addEventListener('input', apply);
+    field.addEventListener('change', apply);
+    snippet();
+  }
+
+  function wireResizableDemo() {
+    const el = document.getElementById('rz-demo');
+    const dir = document.getElementById('rz-direction');
+    if (!el || !dir || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-35 .code code');
+      if (!box) return;
+      box.textContent = '<jelly-resizable direction="'
+        + (el.getAttribute('direction') || 'horizontal') + '">\n'
+        + '  <div>Bays</div>\n'
+        + '  <div>Payments</div>\n'
+        + '</jelly-resizable>';
+    };
+    pillRow(dir, (v) => el.setAttribute('direction', v), snippet);
+    snippet();
+  }
+
+  function wirePaginationDemo() {
+    const el = document.getElementById('pg-demo');
+    const total = document.getElementById('pg-total');
+    const size = document.getElementById('pg-size');
+    if (!el || !total || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-36 .code code');
+      if (!box) return;
+      const a = ['total="' + (el.getAttribute('total') || '1') + '"',
+                 'page="' + (el.page || 1) + '"'];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-pagination ' + a.join(' ') + '></jelly-pagination>';
+    };
+    /* Clicking a number moves the page, so the snippet is re-read on `change`
+       rather than tracked from the rows. Lowering `total` below the current
+       page also moves it, which is the other reason not to assume. */
+    pillRow(total, (v) => el.setAttribute('total', v), snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    el.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireBreadcrumbsDemo() {
+    const el = document.getElementById('bc-demo');
+    const size = document.getElementById('bc-size');
+    if (!el || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-37 .code code');
+      if (!box) return;
+      const sz = el.getAttribute('size');
+      const lines = ['<jelly-breadcrumbs' + (sz && sz !== 'medium' ? ' size="' + sz + '"' : '') + '>'];
+      /* Printed from the light dom, so the last crumb shows as the span it is
+         -- that distinction is the component's whole convention. */
+      [...el.children].forEach((c) => {
+        lines.push(c.tagName === 'A'
+          ? '  <a href="' + (c.getAttribute('href') || '#') + '">' + c.textContent.trim() + '</a>'
+          : '  <span>' + c.textContent.trim() + '</span>');
+      });
+      lines.push('</jelly-breadcrumbs>');
+      box.textContent = lines.join('\n');
+    };
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
+  function wireKbdDemo() {
+    const el = document.getElementById('kb-demo');
+    const key = document.getElementById('kb-key');
+    const size = document.getElementById('kb-size');
+    if (!el || !key || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const CAP = { Escape: 'Esc', Enter: 'Enter', '/': '/' };
+    const snippet = () => {
+      const box = document.querySelector('#c-38 .code code');
+      if (!box) return;
+      const a = ['key="' + (el.getAttribute('key') || '') + '"'];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      box.textContent = '<jelly-kbd ' + a.join(' ') + '>' + el.textContent.trim() + '</jelly-kbd>';
+    };
+    /* The cap text follows the key, because a cap reading "Esc" bound to Enter
+       would be a lie about what the component does. */
+    pillRow(key, (v) => { el.setAttribute('key', v); el.textContent = CAP[v] || v; }, snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    snippet();
+  }
+
+  function wireCollapsibleDemo() {
+    const el = document.getElementById('col-demo');
+    const open = document.getElementById('col-open');
+    const size = document.getElementById('col-size');
+    if (!el || !open || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-31 .code code');
+      if (!box) return;
+      const a = ['label="Payment details"'];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.open) a.push('open');
+      box.textContent = '<jelly-collapsible ' + a.join(' ') + '>\n'
+        + '  Bay 4 · 150.000 KWD monthly, due on the 1st.\n'
+        + '</jelly-collapsible>';
+    }
+
+    /* The header is clickable, so the row is pushed back from the component's
+       own `toggle` event rather than assumed from the last pill. */
+    function sync() {
+      open.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'true') === el.open)));
+      snippet();
+    }
+
+    /* The PROPERTY, not the attribute: the setter animates the panel height.
+       Setting the attribute by hand skips the animation and the panel jumps. */
+    pillRow(open, (v) => { el.open = (v === 'true'); }, sync);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    el.addEventListener('toggle', sync);
+
+    sync();
+  }
+
+  function wireAccordionDemo() {
+    const el = document.getElementById('acc-demo');
+    const single = document.getElementById('acc-single');
+    const size = document.getElementById('acc-size');
+    if (!el || !single || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-32 .code code');
+      if (!box) return;
+      const a = [];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('single')) a.push('single');
+      const lines = ['<jelly-accordion' + (a.length ? ' ' + a.join(' ') : '') + '>'];
+      el.querySelectorAll('jelly-collapsible').forEach((c) => {
+        lines.push('  <jelly-collapsible label="' + (c.getAttribute('label') || '') + '"'
+          + (c.open ? ' open' : '') + '>...</jelly-collapsible>');
+      });
+      lines.push('</jelly-accordion>');
+      box.textContent = lines.join('\n');
+    }
+
+    pillRow(single, (v) => el.toggleAttribute('single', v === 'true'), snippet);
+    /* size forwards to the children, so one row moves all three items. */
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* `toggle` bubbles from the collapsibles, and with `single` set the
+       accordion closes the others in response -- so the snippet has to be
+       re-read from the items rather than tracked. */
+    el.addEventListener('toggle', () => setTimeout(snippet, 0));
+
+    snippet();
+  }
+
+  function wireChipDemo() {
+    const el = document.getElementById('cp-demo');
+    const rows = ['tone','selected','selectable','removable','shape','size','disabled']
+      .reduce((a, k) => (a[k] = document.getElementById('cp-' + k), a), {});
+    if (!el || Object.values(rows).some((r) => !r) || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-30 .code code');
+      if (!box) return;
+      const a = [];
+      const tone = el.getAttribute('tone');
+      if (tone && tone !== 'primary') a.push('tone="' + tone + '"');
+      const shape = el.getAttribute('shape');
+      if (shape) a.push('shape="' + shape + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      /* Bare attributes last, in the order Jelly reads them. */
+      ['selectable','removable','selected','disabled'].forEach((k) => {
+        if (el.hasAttribute(k)) a.push(k);
+      });
+      /* The whole set, so the snippet shows the role and not just the one
+         element the rows happen to drive. The first line is live; the other
+         two are the siblings as authored. */
+      const lines = ['<jelly-chip' + (a.length ? ' ' + a.join(' ') : '') + '>'
+        + el.textContent.trim() + '</jelly-chip>'];
+      el.parentElement.querySelectorAll('jelly-chip').forEach((c) => {
+        if (c === el) return;
+        lines.push('<jelly-chip tone="' + c.getAttribute('tone') + '" selectable'
+          + (c.hasAttribute('selected') ? ' selected' : '') + '>'
+          + c.textContent.trim() + '</jelly-chip>');
+      });
+      box.textContent = lines.join('\n');
     }
 
     /* The chip toggles ITSELF when selectable -- clicking it fires `change` --
