@@ -1553,22 +1553,50 @@
   function wireTooltipDemo() {
     const el = document.getElementById('tip-demo');
     const field = document.getElementById('tip-text');
-    if (!el || !field || el.dataset.wiredCtl) return;
+    const place = document.getElementById('tip-placement');
+    const size = document.getElementById('tip-size');
+    if (!el || !field || !place || !size || el.dataset.wiredCtl) return;
     el.dataset.wiredCtl = '1';
+
     const snippet = () => {
       const box = document.querySelector('#c-21 .code code');
       if (!box) return;
-      box.textContent = '<jelly-tooltip text="' + (el.getAttribute('text') || '') + '">\n'
-        + '  <jelly-button>150.000 KWD</jelly-button>\n'
+      const a = ['text="' + (el.getAttribute('text') || '') + '"'];
+      /* top is the default -- show() falls back to it when the attribute is
+         absent -- so printing it would document a no-op. */
+      const p = el.getAttribute('placement');
+      if (p && p !== 'top') a.push('placement="' + p + '"');
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      const lbl = el.querySelector('jelly-icon-button').getAttribute('label');
+      box.textContent = '<jelly-tooltip ' + a.join(' ') + '>\n'
+        + '  <jelly-icon-button label="' + lbl + '">\n'
+        + '    <svg class="mi"><use href="#mi-ropeknot"/></svg>\n'
+        + '  </jelly-icon-button>\n'
         + '</jelly-tooltip>';
     };
+
+    /* The text names the control, so the button's accessible label follows it.
+       Leaving them to drift would put one name in the bubble and another in the
+       accessibility tree for the same button. */
     const apply = () => {
       const v = field.value == null ? '' : String(field.value);
       if (v) el.setAttribute('text', v); else el.removeAttribute('text');
+      const btn = el.querySelector('jelly-icon-button');
+      if (btn) btn.setAttribute('label', v || 'Copy payment link');
       snippet();
     };
     field.addEventListener('input', apply);
     field.addEventListener('change', apply);
+
+    /* top is the absence of the attribute, the same shape the divider and the
+       resizable use for their defaults. */
+    pillRow(place, (v) => {
+      if (v === 'top') el.removeAttribute('placement');
+      else el.setAttribute('placement', v);
+    }, snippet);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+
     snippet();
   }
 

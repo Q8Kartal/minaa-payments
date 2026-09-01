@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260907f"></script>
+<script src="../gate.js?v=20260907g"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260907f"></script>
+<script type="module" src="vendor/jelly.js?v=20260907g"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260907f">
-<link rel="stylesheet" href="showcase.css?v=20260907f">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260907g">
+<link rel="stylesheet" href="showcase.css?v=20260907g">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -1209,23 +1209,70 @@ drawer.open = true;   // side = start | end | bottom</template>
          alone it paints a near-black chip, which is a colour this system does
          not have.
 
-         `text` IS THE ROW because it is the only attribute that moves anything
-         here -- see the popover's note for why `size` is not offered. -->
+         THE TRIGGER IS AN ICON BUTTON, and that is the case a tooltip exists
+         for: a control with no visible label. A text button already says what
+         it is, so a tooltip on one is a footnote; on an icon it is the name.
+         The glyph is brand/rope-knot from the Micons library (Figma 224:277) --
+         the reference reaches for a chain link here, and a rope knot is what
+         this brand ties things together with.
+
+         `placement` IS READ, NOT OBSERVED. observedAttributes is text and size
+         only; show() and reposition() both read placement fresh off the
+         attribute, so a change takes effect the NEXT time the bubble appears
+         rather than moving one that is already open. The row still belongs
+         here -- you hover after choosing -- but that is why it does not animate
+         across like the popover's does.
+
+         `size` HAS A ROW NOW. The note here used to send the reader to the
+         popover for why there was none, and that reasoning measured our own
+         override rather than the component. The bridge pins three of Jelly's
+         four stepped tooltip tokens:
+
+           font-size       11.5 / 12.5 / 14   -> --text-sm, flat
+           padding-block    6 / 7 / 9         -> --space-075, flat
+           padding-inline   9 / 11 / 13       -> --space-150, flat
+           max-width      200 / 240 / 280     -> untouched, still steps
+
+         so the only thing size can still move is how early the text wraps.
+         Flagged, not unbound: the radius pin beside them is NOT part of that --
+         the tooltip is squircled, and --jelly-tooltip-radius is only the
+         pre-paint fallback. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">text</span>
-        <jelly-input id="tip-text" size="small" value="Converted at today&rsquo;s rate" label="Tooltip text"></jelly-input>
+        <jelly-input id="tip-text" size="small" value="Copy payment link" label="Tooltip text"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">placement</span>
+        <div class="pillset" id="tip-placement" role="group" aria-label="Placement">
+          <jelly-button class="pill" data-value="top" aria-pressed="true">top</jelly-button>
+          <jelly-button class="pill" data-value="bottom" aria-pressed="false">bottom</jelly-button>
+          <jelly-button class="pill" data-value="start" aria-pressed="false">start</jelly-button>
+          <jelly-button class="pill" data-value="end" aria-pressed="false">end</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="tip-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
       </div>
     </div>
     </div>
     <div class="demo" data-demo>
       <div class="overlay-stage" data-controls>
-        <jelly-tooltip id="tip-demo" text="Converted at today&rsquo;s rate">
-          <jelly-button>150.000 KWD</jelly-button>
+        <jelly-tooltip id="tip-demo" text="Copy payment link">
+          <jelly-icon-button label="Copy payment link">
+            <svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-ropeknot"/></svg>
+          </jelly-icon-button>
         </jelly-tooltip>
       </div>
-      <template data-snippet-text>&lt;jelly-tooltip text="Converted at today&amp;rsquo;s rate"&gt;
-  &lt;jelly-button&gt;150.000 KWD&lt;/jelly-button&gt;
+      <template data-snippet-text>&lt;jelly-tooltip text="Copy payment link"&gt;
+  &lt;jelly-icon-button label="Copy payment link"&gt;
+    &lt;svg class="mi"&gt;&lt;use href="#mi-ropeknot"/&gt;&lt;/svg&gt;
+  &lt;/jelly-icon-button&gt;
 &lt;/jelly-tooltip&gt;</template>
     </div>
   </section>
@@ -2303,8 +2350,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260907f"></script>
-<script src="minaa-jelly.js?v=20260907f"></script>
-<script src="showcase.js?v=20260907f" defer></script>
+<script src="micons.js?v=20260907g"></script>
+<script src="minaa-jelly.js?v=20260907g"></script>
+<script src="showcase.js?v=20260907g" defer></script>
 </body>
 </html>
