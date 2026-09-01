@@ -75,6 +75,9 @@
   --primary-950: #00264B;   /* Primary 950  — dark-mode card */
   --secondary:   #E8411D;   /* Secondary 600 — Minaã Red */
   --secondary-300: #FCBBAD;  /* Secondary 300 - the light disabled surface */
+  --secondary-400: #FA937D;  /* Secondary 400 - read off Colors/Secondary/400 in
+                                Figma, not interpolated. Ahmad picked it for the
+                                dark pagination; it had no token here before. */
   --cream-50:    #FDF9F0;   /* Neutral 50   — light-mode card */
   --cream:       #FBF0DC;   /* Neutral 100  — Minaã Cream */
   --cream-200:   #F7E0B6;   /* Neutral 200  */
@@ -173,6 +176,8 @@ jelly-theme {
   --m-progress-track: var(--primary-300);   /* Primary 300 */
   --m-on-accent:   var(--cream);        /* Neutral 100 — text and marks on accent */
   --m-track-off:   var(--primary-300);  /* Primary 300 */
+  --m-page-btn:        var(--m-field);    /* Primary 300 */
+  --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
   --m-check-box:   var(--primary-300);  /* Primary 300 */
   --m-check-mark:  var(--secondary);    /* Secondary 600 */
@@ -287,6 +292,8 @@ jelly-theme {
     --m-progress-track: var(--primary);   /* Primary 700 - a lift off the 950 card */
     --m-on-accent:   var(--cream);
     --m-track-off:   var(--cream);
+    --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
+    --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
     --m-check-box:   var(--secondary);
     --m-check-mark:  var(--cream);
@@ -350,6 +357,8 @@ jelly-theme[mode="dark"] {
   --m-progress-track: var(--primary);   /* Primary 700 - a lift off the 950 card */
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--cream);
+  --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
+  --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
   --m-check-box:   var(--secondary);
   --m-check-mark:  var(--cream);
@@ -405,6 +414,8 @@ jelly-theme[mode="light"] {
   --m-progress-track: var(--primary-300);   /* Primary 300 */
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--primary-300);
+  --m-page-btn:        var(--m-field);    /* Primary 300 */
+  --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
   --m-check-box:   var(--primary-300);
   --m-check-mark:  var(--secondary);
@@ -2111,7 +2122,33 @@ jelly-divider[size="large"], jelly-divider[size="lg"] {
    scoped here. Worth a look across the whole set, but that is a bridge-wide
    change and not one to make inside a component block. */
 jelly-pagination {
-  --jelly-color-background-neutral: var(--m-field);
+  /* THE TWO DISC COLOURS COME FROM FIGMA, node 315:25 on the Components page.
+     Ahmad set them there and they are read back, not chosen here:
+
+       inactive  Secondary 400  #FA937D   (bound to Colors/Secondary/400)
+       active    Secondary 600  #E8411D
+
+     Dark only. Light keeps Primary 300 under Primary 700, which he did not
+     change, so both live in --m-page-btn / --m-page-btn-active and step by
+     mode like every other pair in this file.
+
+     THE INK IS THE OPEN QUESTION, AND IT IS FLAGGED RATHER THAN DECIDED.
+     Cream on Secondary 400 measures 1.95. That is better than the 1.00 this
+     replaced -- the digits are no longer the same colour as the disc -- but it
+     is still low, and the inactive and active discs only separate from each
+     other by 1.83. Ahmad left the ink Cream in the Figma frame, so Cream is
+     what ships. If it wants changing, Primary 950 is the strong option at 6.91
+     and is already the card colour behind the row; Primary 900 gives 4.56.
+
+     --jelly-color-background-accent IS THE ONE THAT PAINTS THE ACTIVE DISC.
+     Setting --jelly-accent alone moved the token and changed nothing: measured
+     accent #E8411D on the button while its --jelly-fill still resolved to
+     #0062AD. Jelly builds the current page from the background-accent colour
+     and keeps --jelly-accent for the focus ring, so both are set here and both
+     mean the same thing for this component. */
+  --jelly-color-background-neutral: var(--m-page-btn);
+  --jelly-color-background-accent:  var(--m-page-btn-active);
+  --jelly-accent:                   var(--m-page-btn-active);
   --jelly-pagination-button:      var(--control-40);
   --jelly-pagination-button-pad:  var(--space-150);  /* 12 */
   --jelly-pagination-gap:         var(--space-100);  /*  8 */
