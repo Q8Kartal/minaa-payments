@@ -2087,7 +2087,31 @@ jelly-divider[size="large"], jelly-divider[size="lg"] {
      gap                5 /  7 /  9          6 /  8 / 12
      gap padding        1 /  2 /  3          0 /  2 /  4
      font              12.5 / 14 / 15.5     12 / 14 / 16 */
+/* THE NEUTRAL PAIR COLLIDES IN DARK, AND IT MADE THE PAGE NUMBERS INVISIBLE.
+   Jelly builds each page button with
+
+     --jelly-fill:  var(--jelly-color-background-neutral)
+     --jelly-label: var(--jelly-color-foreground-on-neutral)
+
+   and this bridge maps the first to --m-track-off and the second to --m-ink.
+   In dark BOTH are Neutral 100. Measured on the canvas: fill #FBF0DC, ink
+   #FBF0DC, contrast 1.00 -- not faint, identical. Every number and both arrows
+   were blank cream discs; only the active page, which takes the accent, could
+   be read at all.
+
+   Fixed by pointing the neutral background at --m-field for this component, the
+   way jelly-select already scopes the same token. That is the surface the
+   inputs use, so the pages now read as quiet fields: Primary 300 under Primary
+   700 ink in light (3.85), Primary 900 under Cream in dark (8.90).
+
+   NOT FIXED AT THE ROOT, deliberately. --m-track-off being Cream in dark is
+   correct for the sliders, the switch and the segmented track, which have no
+   label on them; the contradiction only bites where something neutral has to
+   carry TEXT. Two components do -- this and jelly-kbd below -- and both are
+   scoped here. Worth a look across the whole set, but that is a bridge-wide
+   change and not one to make inside a component block. */
 jelly-pagination {
+  --jelly-color-background-neutral: var(--m-field);
   --jelly-pagination-button:      var(--control-40);
   --jelly-pagination-button-pad:  var(--space-150);  /* 12 */
   --jelly-pagination-gap:         var(--space-100);  /*  8 */
@@ -2147,6 +2171,10 @@ jelly-breadcrumbs[size="large"], jelly-breadcrumbs[size="lg"] {
    The cap's own padding-inline is 8 and its min-width 16; both are already
    steps, so the shadow root is left alone. */
 jelly-kbd {
+  /* Same collision as the pagination above, and the same fix: jelly-kbd builds
+     its cap from the neutral fill and the on-neutral foreground, so in dark it
+     was Cream on Cream at contrast 1.00 -- a keycap with no key on it. */
+  --jelly-color-background-neutral: var(--m-field);
   height:      var(--space-400);    /* 32 */
   font-size:   var(--text-sm);      /* 14 */
   line-height: var(--text-sm-lh);
