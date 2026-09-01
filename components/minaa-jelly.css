@@ -177,6 +177,8 @@ jelly-theme {
   --m-on-accent:   var(--cream);        /* Neutral 100 — text and marks on accent */
   --m-track-off:   var(--primary-300);  /* Primary 300 */
   --m-page-btn:        var(--m-field);    /* Primary 300 */
+  --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
+  --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
   --m-check-box:   var(--primary-300);  /* Primary 300 */
@@ -293,6 +295,8 @@ jelly-theme {
     --m-on-accent:   var(--cream);
     --m-track-off:   var(--cream);
     --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
+    --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
+    --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
     --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
     --m-check-box:   var(--secondary);
@@ -358,6 +362,8 @@ jelly-theme[mode="dark"] {
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--cream);
   --m-page-btn:        var(--secondary-400);  /* Secondary 400 */
+  --m-disclosure-surface: var(--secondary);    /* Secondary 600 */
+  --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
   --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
   --m-check-box:   var(--secondary);
@@ -415,6 +421,8 @@ jelly-theme[mode="light"] {
   --m-on-accent:   var(--cream);
   --m-track-off:   var(--primary-300);
   --m-page-btn:        var(--m-field);    /* Primary 300 */
+  --m-disclosure-surface: var(--primary-300);  /* Primary 300 */
+  --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
   --m-check-box:   var(--primary-300);
@@ -2016,6 +2024,34 @@ jelly-collapsible[size="small"], jelly-collapsible[size="sm"] {
   --jelly-collapsible-chevron:        var(--control-icon-16);
 }
 
+/* THE HEADER SURFACE, which Jelly does not give it. `.head` is
+   `background: transparent` with a 7%-accent tint on hover and nothing at
+   rest, so a collapsible was a line of text with a chevron -- and in light the
+   text came out Secondary 600, because --jelly-color-foreground-default maps
+   to --m-value. Ahmad asked for a real surface: Primary 300 in light,
+   Secondary 600 in dark.
+
+   ::part(header) reaches it -- Jelly does put a part on that button -- so this
+   is a page rule and not an injection. The hover has to be restated because an
+   outer ::part rule outranks the shadow's own `.head:hover`, which would
+   otherwise be dead; it is now a 12% shift toward the ink rather than a tint
+   of the accent, so it moves against whichever surface the mode supplies.
+
+   Contrast is the pair already used across the library: Primary 700 on Primary
+   300 is 3.85 in light, Cream on Secondary 600 is 3.57 in dark.
+
+   The ACCORDION gets this for free. Its items are light-dom jelly-collapsible
+   children, so this selector reaches them -- the same reason it needed no
+   sizing rules of its own. */
+jelly-collapsible::part(header) {
+  background: var(--m-disclosure-surface);
+  color:      var(--m-disclosure-ink);
+}
+
+jelly-collapsible::part(header):hover {
+  background: color-mix(in srgb, var(--m-disclosure-ink) 12%, var(--m-disclosure-surface));
+}
+
 jelly-collapsible[size="large"], jelly-collapsible[size="lg"] {
   --jelly-collapsible-padding-block:  var(--space-200);   /* 16 */
   --jelly-collapsible-padding-inline: var(--space-250);   /* 20 */
@@ -2025,13 +2061,24 @@ jelly-collapsible[size="large"], jelly-collapsible[size="lg"] {
   --jelly-collapsible-chevron:        var(--control-icon-24);
 }
 
-/* The radius does NOT step with the size. Jelly moves it 10 / 12 / 14, and the
-   same reasoning as the square chip applies: a corner treatment is not a
-   dimension, and there is no reason for it to grow with the padding. One bound
-   value across all three. */
-jelly-collapsible[size="small"], jelly-collapsible[size="sm"],
-jelly-collapsible[size="large"], jelly-collapsible[size="lg"] {
-  --jelly-collapsible-radius: var(--radius-16);
+/* THE RADIUS DOES STEP HERE, AND THE EARLIER CALL NOT TO WAS WRONG. One bound
+   value read fine at medium and large and turned the small header into a pill:
+   against the header heights the single 16 gave
+
+     small   16 / 34 = 0.47
+     medium  16 / 45 = 0.36
+     large   16 / 56 = 0.29
+
+   -- half its own height at small, which is a different shape, not a smaller
+   one. Reported from the page, then measured. "A corner treatment is not a
+   dimension" holds for a chip, whose small and large differ by 16px; it does
+   not hold across a 22px spread.
+
+   Small drops to 8 (0.24) and the three read as one family. Medium and large
+   share 16 because the next step up is 24, and 24/56 = 0.43 would make large
+   the roundest of the three. */
+jelly-collapsible[size="small"], jelly-collapsible[size="sm"] {
+  --jelly-collapsible-radius: var(--radius-8);
 }
 
 /* ── Card ──────────────────────────────────────────────────────────────────
