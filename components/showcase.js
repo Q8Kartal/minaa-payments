@@ -1268,7 +1268,7 @@
          see the entry; one shipped and every header read "Details". */
       box.textContent = '<jelly-collapsible' + (a.length ? ' ' + a.join(' ') : '') + '>\n'
         + '  <span slot="header">Payment details</span>\n'
-        + '  Bay 4 · 150.000 KWD monthly, due on the 1st.\n'
+        + '  Bay 4 · monthly.\n'
         + '</jelly-collapsible>';
     }
 

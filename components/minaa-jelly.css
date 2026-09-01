@@ -2017,18 +2017,7 @@ jelly-chip[tone="neutral"] {
    --m-value, so it came out Secondary 600. It is Primary 700 below. The panel
    BODY still reads --m-value and is still Secondary 600 -- that token feeds
    more than this component and belongs to the colour pass. */
-/* ── The disclosure headers ────────────────────────────────────────────────
-   BOTH THE STANDALONE AND THE ACCORDION'S ITEMS. This was scoped to
-   `jelly-accordion jelly-collapsible` for one build, deliberately, while the
-   treatment was being judged on the accordion alone. Approved there, so it
-   applies to the component itself now -- and one unscoped rule covers both,
-   because an accordion's items ARE jelly-collapsible elements.
-
-   ::part(header) crosses into the shadow root; for the accordion's items that
-   works for the extra reason that they are light-dom children and reachable
-   from the page at all. Same property that let the accordion skip every sizing
-   rule.
-
+/* ── jelly-collapsible ─────────────────────────────────────────────────────
    THE SURFACE IS A STATE, NOT A SKIN, which is how Jelly built it:
 
      .head          background: transparent            <- nothing at rest
@@ -2037,18 +2026,25 @@ jelly-chip[tone="neutral"] {
 
    [open] never touches the background upstream, so the faint card on an opened
    item is the HOVER tint with a cursor over it. The open surface below is
-   therefore an addition, and a deliberate one: in a stack the open item has to
-   stay marked after the pointer leaves.
-
-   Three steps, per Ahmad:
+   therefore an addition, and a deliberate one: an opened section has to stay
+   marked after the pointer leaves.
 
      rest    transparent
      hover   the surface at 65%
      open    the surface at 100%
 
-   Light Primary 300, dark Secondary 600, ink Primary 700 and Cream. At full
-   opacity the open row measures 3.85 in light and 3.57 in dark -- the same two
-   pairs the rest of the library already uses. */
+   Light Primary 300, dark Secondary 600, ink Primary 700 and Cream. Open
+   measures 3.85 in light and 3.57 in dark.
+
+   The ink also settles a bug: Jelly draws that text from
+   --jelly-color-foreground-default, which this bridge maps to --m-value, so in
+   light it came out Secondary 600. The panel BODY still reads that token and
+   is still Secondary 600 -- it feeds more than this component and belongs to
+   the colour pass.
+
+   NO DIMENSION IS TOUCHED HERE OR BELOW. Padding, gap, type, chevron and
+   radius are Jelly's, verified against its own :host rules at all three
+   sizes. */
 jelly-collapsible::part(header) {
   background: transparent;
   color:      var(--m-disclosure-ink);
@@ -2059,6 +2055,37 @@ jelly-collapsible::part(header):hover {
 }
 
 jelly-collapsible[open]::part(header) {
+  background: var(--m-disclosure-surface);
+}
+
+
+/* ── jelly-accordion ───────────────────────────────────────────────────────
+   ITS OWN BLOCK, DELIBERATELY, AND THE REPETITION IS THE POINT. An accordion's
+   items ARE jelly-collapsible elements, so the rules above would already reach
+   them and this block changes nothing today -- it exists so the two can be
+   tuned apart without one edit silently moving the other. Ahmad asked for them
+   separate; a shared rule is how a change to a stack quietly becomes a change
+   to every standalone disclosure on the page.
+
+   The descendant selector is also what makes it reachable at all: the items
+   are light-dom children of the accordion, unlike jelly-tabs, which builds its
+   segmented INSIDE its shadow root. ::part then crosses into each item.
+
+   Being more specific than the block above, this wins wherever both apply --
+   which is exactly what makes it the place to change accordion behaviour.
+
+   Same three steps and the same palette for now. If they diverge, they
+   diverge here. */
+jelly-accordion jelly-collapsible::part(header) {
+  background: transparent;
+  color:      var(--m-disclosure-ink);
+}
+
+jelly-accordion jelly-collapsible::part(header):hover {
+  background: color-mix(in srgb, var(--m-disclosure-surface) 65%, transparent);
+}
+
+jelly-accordion jelly-collapsible[open]::part(header) {
   background: var(--m-disclosure-surface);
 }
 
