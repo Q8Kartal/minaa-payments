@@ -129,6 +129,7 @@
      with. 32 is --space-400, and it is also what Ahmad's own Squircle Icon set
      steps to after 24. */
   --control-icon-32: 32px;
+  --control-icon-40: 40px;
   --control-stroke: 1.5px;
   /* A SURFACE's edge, not a control's. --control-stroke is the hairline on an
      input, a select and an OTP digit, and at that weight it merges into a
@@ -2648,21 +2649,26 @@ jelly-tooltip {
    <svg class="mi"> painting with currentColor: --jelly-label drives Jelly's
    canvas, currentColor drives our slotted mark.
 
-   THE GLYPH IS 32, one step up his own set from the 24 he drew, not the
-   full-bleed ratio the squircle version used. 24 was the top of --control-icon-*
-   and there was no next step, so the ramp gains one: 32, which is --space-400
-   and the next variant in his set, rather than the 28 that continuing the
-   ramp's own +4 rhythm would have given -- 28 is on no Minaa scale.
+   THE GLYPH IS 40, the top of Ahmad's own Squircle Icon set. --control-icon-*
+   stopped at 24 and has been extended twice to reach it, 32 then 40, both of
+   them steps the system already had elsewhere: --space-400 and --space-500, and
+   the two variants his set steps to after 24. The one number NOT taken was 28,
+   which is what continuing the ramp's own +4 rhythm would have given and which
+   appears on no Minaa scale.
 
-   The button stays at Jelly's 40. With no fill the box only decides where you
-   can click, so it is a hit target rather than a frame, and 40 around a 32
-   mark still leaves 4px of slack on each side. */
+   THE BUTTON HAD TO GROW WITH IT. At 40 the mark exactly fills a 40 box, so the
+   hit area would have been the ink and nothing else -- no slack to aim at, and
+   a press landing on the very edge of the glyph. Dropping the size attribute
+   takes it to Jelly's own default of 48 and restores 4px each side. The
+   attribute is ABSENT rather than set to medium, because medium IS 48: writing
+   it would document a value that changes nothing, the same call the divider,
+   the resizable and the tooltip's own placement row already make. */
 jelly-tooltip > jelly-icon-button:not([slot]) {
   --jelly-fill:  transparent;
   --jelly-label: var(--m-tooltip-icon-mark);
   color:         var(--m-tooltip-icon-mark);
 }
 jelly-tooltip > jelly-icon-button:not([slot]) .mi {
-  width:  var(--control-icon-32);
-  height: var(--control-icon-32);
+  width:  var(--control-icon-40);
+  height: var(--control-icon-40);
 }
