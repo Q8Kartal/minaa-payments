@@ -994,6 +994,24 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* The tab bar plus one panel. NO FIXED HEIGHT, and that is the point: the
+   panels hold different amounts of copy, so pinning a height would either clip
+   the longest or leave the shortest floating. A floor keeps the card from
+   jumping as the reader switches tabs, and the panel grows past it when it
+   needs to.
+
+   The floor is the tallest bar (64 at large) plus the panel's own 16 top
+   padding plus two lines of copy, which is what the longest panel here runs to.
+
+   No width: jelly-tabs is display:block and takes the stage. */
+.tabs-stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-200) + var(--space-600));
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* One stage for all six overlays. Every specimen here is a TRIGGER -- the thing
    being documented only exists once opened -- so they are all the same shape and
    want the same floor. No width: a jelly-button carries its own.

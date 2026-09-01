@@ -639,7 +639,12 @@ jelly-tooltip {
    children would set a weight their own stylesheet never asked for. */
 jelly-alert, jelly-badge, jelly-button, jelly-checkbox, jelly-chip,
 jelly-input, jelly-kbd, jelly-radio, jelly-segmented, jelly-select,
-jelly-switch, jelly-textarea {
+jelly-switch, jelly-textarea,
+/* The tab bar, for the same reason as the sizing rules: a segmented inside a
+   shadow root, invisible to the element selectors above. jelly-tabs itself
+   stays in the Regular list -- only the BAR is Medium; the panel copy is body
+   text and must not be. */
+jelly-tabs::part(tabs) {
   font-family: var(--font-medium);
 }
 
@@ -1049,7 +1054,27 @@ jelly-slider[size="large"], jelly-slider[size="lg"] {
 /* Segmented is the one component whose two modes swap which colour carries
    selection: a Secondary 600 pill on a Primary 300 track in light, a Primary
    700 pill on a Secondary 600 track in dark. */
-jelly-segmented {
+/* ::part(tabs) IS HERE BECAUSE A TAB BAR IS A SEGMENTED, AND PAGE CSS CANNOT
+   REACH IT. jelly-tabs builds `<jelly-segmented part="tabs">` inside its own
+   shadow root, so every rule in this block -- written as an element selector --
+   missed it, and the bar fell back to stock Jelly. Measured against the
+   standalone control:
+
+     family          Idris Medium      vs  Idris ExtraBold
+     font-size       16 (--text-md)    vs  14.5
+     padding-inline  16 (--space-200)  vs  18
+     gap             4  (--space-050)  vs  7
+     track height    56                vs  44
+
+   18, 7 and 14.5 are not steps on our scale, so this was a live violation
+   rather than a preference. The part joins the SAME rules instead of getting
+   its own block, so the tab bar cannot drift from the control it is built
+   from: one set of numbers, both read it.
+
+   The panels are deliberately NOT covered. They are light-dom content and
+   inherit Regular from the host, which is right for body copy. */
+jelly-segmented,
+jelly-tabs::part(tabs) {
   /* 56, to sit level with the 56px fields beside it. Jelly's own size scale
      is 36 / 44 / 52 — measured by cycling the attribute — so the height the
      specification asks for is not reachable through `size`, and there is no
@@ -1088,7 +1113,8 @@ jelly-segmented {
    minaa-jelly.js now reads off --m-seg-pill-h. Without that the pill would sit
    at 40 inside a 64 track. min-width holds at 80 for medium and large: the
    spacing scale ends there, and it is a minimum rather than a size. */
-jelly-segmented[size="small"], jelly-segmented[size="sm"] {
+jelly-segmented[size="small"], jelly-segmented[size="sm"],
+jelly-tabs[size="small"]::part(tabs), jelly-tabs[size="sm"]::part(tabs) {
   height: var(--control-48);
   --m-seg-pill-h:                   var(--space-400);
   --jelly-segmented-padding:        var(--space-075);
@@ -1099,7 +1125,8 @@ jelly-segmented[size="small"], jelly-segmented[size="sm"] {
   --jelly-segmented-min-width:      var(--space-800);
 }
 
-jelly-segmented[size="medium"], jelly-segmented[size="md"] {
+jelly-segmented[size="medium"], jelly-segmented[size="md"],
+jelly-tabs[size="medium"]::part(tabs), jelly-tabs[size="md"]::part(tabs) {
   height: var(--control-56);
   --m-seg-pill-h:                   var(--space-500);
   --jelly-segmented-padding:        var(--space-100);
@@ -1110,7 +1137,8 @@ jelly-segmented[size="medium"], jelly-segmented[size="md"] {
   --jelly-segmented-min-width:      var(--space-1000);
 }
 
-jelly-segmented[size="large"], jelly-segmented[size="lg"] {
+jelly-segmented[size="large"], jelly-segmented[size="lg"],
+jelly-tabs[size="large"]::part(tabs), jelly-tabs[size="lg"]::part(tabs) {
   height: var(--control-64);
   --m-seg-pill-h:                   var(--space-600);
   /* 8, NOT 12, AND THE ARITHMETIC IS THE REASON. A segmented control is a pill

@@ -336,7 +336,25 @@
   function patch(el) {
     const tag = el.tagName.toLowerCase();
     const css = PATCHES[tag];
-    if (!css || !el.shadowRoot || el.__minaaPatched) return;
+    if (!css || el.__minaaPatched) return;
+
+    /* NO SHADOW ROOT YET IS A WAIT, NOT A MISS. querySelectorAll matches on tag
+       name, so an element that has not upgraded is still found here -- and the
+       old guard returned on it and never came back, because nothing re-ran the
+       walk for that instance.
+
+       That is not hypothetical: a jelly-segmented written into another
+       component's shadow root upgrades after its host connects, so the tab bar
+       was found, skipped, and left unpatched every time. Retry on frames, and
+       give up after a second so a genuinely closed or inert element cannot
+       hold a callback open forever. */
+    if (!el.shadowRoot) {
+      const tries = (el.__minaaWait || 0) + 1;
+      if (tries > 60 || !window.requestAnimationFrame) return;
+      el.__minaaWait = tries;
+      requestAnimationFrame(() => patch(el));
+      return;
+    }
 
     const sheet = sheetFor(tag);
     if (sheet && 'adoptedStyleSheets' in el.shadowRoot) {
@@ -351,9 +369,40 @@
     el.__minaaPatched = true;
   }
 
+  /* SHADOW ROOTS TOO, AND NOT AS A REFINEMENT -- document.querySelectorAll
+     does not pierce them, so a component that Jelly builds INSIDE another
+     component was never patched at all.
+
+     jelly-tabs is the case that exposed it: its tab bar is a
+     `<jelly-segmented part="tabs">` in its own shadow root, and the min-height
+     patch below is the only thing that stops a segmented pill collapsing to
+     its line box. Measured before this walk: the standalone control patched,
+     `.segment` min-height 40px, track 56 -- and the identical control inside
+     jelly-tabs unpatched, min-height `auto`, pill 36, track 44.
+
+     The walk is breadth-first over open shadow roots, and it is bounded by the
+     component tree rather than by a depth limit: only elements are visited,
+     each root once. Closed roots are invisible to script and are skipped by
+     definition.
+
+     A MutationObserver on documentElement cannot cover this either -- nodes
+     added inside a shadow root do not surface to it -- which is why patchAll
+     re-walks rather than relying on the observer alone. */
+  function deepAll(tag, root, out) {
+    /* matches() so a root that IS the target counts -- deepAll is called with
+       an inserted element as the root, not only with the document. */
+    if (root.matches && root.matches(tag)) out.push(root);
+    root.querySelectorAll(tag).forEach((el) => out.push(el));
+    if (root.shadowRoot) deepAll(tag, root.shadowRoot, out);
+    root.querySelectorAll('*').forEach((el) => {
+      if (el.shadowRoot) deepAll(tag, el.shadowRoot, out);
+    });
+    return out;
+  }
+
   function patchAll() {
     Object.keys(PATCHES).forEach((tag) => {
-      document.querySelectorAll(tag).forEach(patch);
+      deepAll(tag, document, []).forEach(patch);
     });
   }
 
@@ -375,14 +424,27 @@
           const tag = node.tagName.toLowerCase();
           if (PATCHES[tag]) patch(node);
           if (node.querySelectorAll) {
-            Object.keys(PATCHES).forEach((t) => node.querySelectorAll(t).forEach(patch));
+            /* deepAll, not querySelectorAll: an element inserted here may build
+               its own shadow root on connect, and a patchable component can be
+               inside it. The light-dom-only version silently skipped the tab
+               bar for exactly this reason. */
+            Object.keys(PATCHES).forEach((t) => deepAll(t, node, []).forEach(patch));
           }
+          /* And once more after the frame, because the node's shadow root may
+             not exist yet at the moment the record is delivered. */
+          if (window.requestAnimationFrame) requestAnimationFrame(patchAll);
         }
       }
     }).observe(document.documentElement, { childList: true, subtree: true });
   }
 
   patchAll();
+
+  /* One more pass after the frame. A host creates its shadow root during its
+     own connectedCallback, so on the first pass a jelly-tabs may exist while
+     the segmented inside it does not yet -- the deep walk would find nothing
+     to patch and never be asked again. */
+  if (window.requestAnimationFrame) requestAnimationFrame(patchAll);
   /* Upgrade can land a frame or two after whenDefined resolves for elements
      already in the document. */
   setTimeout(patchAll, 300);

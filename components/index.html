@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260904m"></script>
+<script src="../gate.js?v=20260904q"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260904m"></script>
+<script type="module" src="vendor/jelly.js?v=20260904q"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260904m">
-<link rel="stylesheet" href="showcase.css?v=20260904m">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260904q">
+<link rel="stylesheet" href="showcase.css?v=20260904q">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -548,9 +548,24 @@
     <p class="entry-num">Forms &middot; 11</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-segmented&gt;</h2>
     <p class="entry-note">A capsule track of mutually exclusive options with a pill that slides, leans
-       and stretches between segments.</p>
+       and stretches between segments. It reports a value and nothing else &mdash;
+       for the version that also owns the content it switches, see entry 29.</p>
 
-    <!-- `roles` IS THE ROW THAT CHANGES NOTHING YOU CAN SEE, and it is here
+    <!-- THE DEMO HERE IS A FIELD; ENTRY 29's IS A SET OF PANELS. They were
+         nearly identical at first -- both picking Monthly / Quarterly / One-time
+         -- and Ahmad asked what the difference between the two components even
+         was, which is the correct question to ask of two pages that show the
+         same picture. The bar genuinely IS the same component: jelly-tabs builds
+         a jelly-segmented in its shadow root. So the specimens have to carry the
+         difference, because the controls cannot:
+
+           here      a period, chosen. Nothing below it moves.
+           entry 29  Details / Schedule / History, and the content swaps.
+
+         Pick segmented when the value configures something ELSEWHERE, and tabs
+         when it swaps sibling regions in place.
+
+         `roles` IS THE ROW THAT CHANGES NOTHING YOU CAN SEE, and it is here
          anyway. radiogroup and tablist draw identically; what moves is the
          announced role, so the difference is real to a screen reader and
          invisible to everyone else. It is kept because the choice is a
@@ -1503,6 +1518,95 @@ drawer.open = true;   // side = start | end | bottom</template>
       <template data-snippet-text>&lt;jelly-spinner label="Loading rates"&gt;&lt;/jelly-spinner&gt;</template>
     </div>
   </section>
+  <section class="entry" id="c-29">
+    <div class="entry-text">
+    <p class="entry-num">Navigation &middot; 29</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-tabs&gt;</h2>
+    <p class="entry-note">Swaps between regions of content. The bar is a
+       <code>jelly-segmented</code> &mdash; entry 11 &mdash; and the panels are
+       what tabs adds to it.</p>
+
+    <!-- THE MARK IS SEGMENTED'S, ON PURPOSE. jelly-tabs has no glyph of its own
+         in Micons, and rather than settle for something unrelated it borrows
+         the one component it is literally built from. That is a different case
+         from the drawer wearing the menu's hamburger, which was an accident
+         between unrelated things; here the shared mark states a true
+         relationship. It still wants its own eventually.
+
+         A TAB BAR IS A SEGMENTED IN A SHADOW ROOT, AND THAT BROKE THE BRIDGE.
+         jelly-tabs builds `<jelly-segmented part="tabs">` inside its own shadow
+         root, where page CSS written as an element selector cannot reach, so
+         the bar rendered as stock Jelly while the identical control four
+         entries up rendered as Minaa. Measured, bar vs standalone:
+
+           family          Idris ExtraBold   vs  Idris Medium
+           font-size       14.5              vs  16   (--text-md)
+           padding-inline  18                vs  16   (--space-200)
+           gap             7                 vs  4    (--space-050)
+           track height    44                vs  56
+           pill height     36                vs  40
+
+         18, 7 and 14.5 are not steps on our scale, so this was a live spacing
+         violation sitting in the library, not a matter of taste. Two fixes, both
+         outside this file: ::part(tabs) joins the existing segmented rules in
+         minaa-jelly.css, and the shadow patcher in minaa-jelly.js now walks
+         shadow roots -- document.querySelectorAll does not pierce them, so the
+         pill min-height had never been applied to a nested control at all. The
+         bar now measures identically to the standalone at all three sizes.
+
+         THE PANELS ARE BUILT ONCE, AT CONNECT. jelly-tabs reads its
+         jelly-tab-panel children in connectedCallback and never looks again, so
+         a panel added later gets no tab. Nothing here does that, but it is why
+         no row offers to add one -- the same class of trap as jelly-switch
+         settling its geometry on connect.
+
+         `value` goes through the PROPERTY and is re-read on `change`, because
+         clicking a tab is the obvious way to move it. A panel's value is its
+         `value` attribute, falling back to its index; its tab label is `label`,
+         falling back to the panel's own text. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">value</span>
+        <div class="pillset" id="tb-value" role="group" aria-label="Value">
+          <jelly-button class="pill" data-value="details" aria-pressed="true">details</jelly-button>
+          <jelly-button class="pill" data-value="schedule" aria-pressed="false">schedule</jelly-button>
+          <jelly-button class="pill" data-value="history" aria-pressed="false">history</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="tb-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="tabs-stage" data-controls>
+        <jelly-tabs id="tb-demo" size="medium">
+          <jelly-tab-panel value="details" label="Details" active>
+            Bay 4 &middot; climate controlled &middot; 12 m&sup2;.<br>
+            Leased to Al-Kharafi Trading since March.
+          </jelly-tab-panel>
+          <jelly-tab-panel value="schedule" label="Schedule">
+            150.000 KWD monthly, due on the 1st.<br>
+            Next charge 1 October.
+          </jelly-tab-panel>
+          <jelly-tab-panel value="history" label="History">
+            Nine payments, none late.<br>
+            Last receipt INV-260801-004.
+          </jelly-tab-panel>
+        </jelly-tabs>
+      </div>
+      <template data-snippet-text>&lt;jelly-tabs&gt;
+  &lt;jelly-tab-panel value="details" label="Details" active&gt;...&lt;/jelly-tab-panel&gt;
+  &lt;jelly-tab-panel value="schedule" label="Schedule"&gt;...&lt;/jelly-tab-panel&gt;
+  &lt;jelly-tab-panel value="history" label="History"&gt;...&lt;/jelly-tab-panel&gt;
+&lt;/jelly-tabs&gt;</template>
+    </div>
+  </section>
 
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
@@ -1525,8 +1629,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260904m"></script>
-<script src="minaa-jelly.js?v=20260904m"></script>
-<script src="showcase.js?v=20260904m" defer></script>
+<script src="micons.js?v=20260904q"></script>
+<script src="minaa-jelly.js?v=20260904q"></script>
+<script src="showcase.js?v=20260904q" defer></script>
 </body>
 </html>

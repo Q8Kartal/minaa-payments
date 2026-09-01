@@ -956,6 +956,54 @@
     snippet();
   }
 
+  /* Entry 29. The bar is a jelly-segmented inside jelly-tabs' shadow root, so
+     everything the segmented wiring knows applies -- but nothing here reaches
+     into that shadow: `value` and `size` are host attributes and the component
+     forwards them down itself. */
+  function wireTabsDemo() {
+    const el = document.getElementById('tb-demo');
+    const val = document.getElementById('tb-value');
+    const size = document.getElementById('tb-size');
+    if (!el || !val || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-29 .code code');
+      if (!box) return;
+      const sz = el.getAttribute('size');
+      const attrs = (sz && sz !== 'medium') ? ' size="' + sz + '"' : '';
+      const lines = ['<jelly-tabs' + attrs + '>'];
+      /* `active` is printed on the panel the component currently reports, not
+         the one that carried it in the markup -- switching tabs moves it. */
+      el.querySelectorAll('jelly-tab-panel').forEach((p, i) => {
+        const v = p.getAttribute('value') || String(i);
+        lines.push('  <jelly-tab-panel value="' + v + '" label="'
+          + (p.getAttribute('label') || '') + '"'
+          + (v === el.value ? ' active' : '') + '>...</jelly-tab-panel>');
+      });
+      lines.push('</jelly-tabs>');
+      box.textContent = lines.join('\n');
+    }
+
+    /* Clicking a tab moves the selection, so the value row is pushed back from
+       the element instead of trusting the last pill pressed. */
+    function sync() {
+      val.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === el.value)));
+      snippet();
+    }
+
+    /* The PROPERTY, not the attribute: the setter moves the inner segmented and
+       runs the panel swap. Setting the attribute alone routes through
+       syncValue(), which is a no-op when the host attribute already matches the
+       current panel -- true after any click, so the row would go dead. */
+    pillRow(val, (v) => { el.value = v; }, sync);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    el.addEventListener('change', sync);
+
+    sync();
+  }
+
   function wireSegmentedDemo() {
     const el = document.getElementById('sg-demo');
     const val = document.getElementById('sg-value');
@@ -1691,7 +1739,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {
