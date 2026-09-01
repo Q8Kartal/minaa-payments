@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260906w"></script>
+<script src="../gate.js?v=20260906x"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260906w"></script>
+<script type="module" src="vendor/jelly.js?v=20260906x"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260906w">
-<link rel="stylesheet" href="showcase.css?v=20260906w">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260906x">
+<link rel="stylesheet" href="showcase.css?v=20260906x">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -578,7 +578,41 @@
          effect live on this component, so no re-connect trick is needed.
 
          `value` goes through the PROPERTY and is re-read on `change`, because
-         clicking a segment is the obvious way to move it. -->
+         clicking a segment is the obvious way to move it.
+
+         AUDITED AGAINST THE SOURCE, and two things were missing from this page.
+
+         `label` IS THE FIFTH OBSERVED ATTRIBUTE -- the full list is value,
+         disabled, size, roles, label -- and it had no row here even though the
+         specimen was already carrying label="Period". syncLabel() puts it on
+         the .wrap as `aria-label`, so it names the group for a screen reader
+         and draws nothing, exactly like `roles`. Same argument, same decision:
+         a row.
+
+         ONE OPTION CAN BE TAKEN OUT WITHOUT DISABLING THE TRACK. sync() reads
+         each child's `disabled` and writes it onto that shadow button alone.
+         This used to live in its own entry for &lt;jelly-segment&gt;, which is
+         not a component the library publishes -- it is a display:none child
+         with no appearance -- so the behaviour belongs here, on the control
+         that honours it. Measured, and the two states are nothing alike:
+
+           one option out   that segment 0.45 and dead, the others live,
+                            host opacity 1, clicks on the rest still land
+           disabled         all three 0.45, host opacity 0.55,
+                            pointer-events none on the whole host
+
+         TWO MORE THINGS THE SOURCE HAS that no row can show, recorded so they
+         are not mistaken for gaps:
+
+         It is FORM-ASSOCIATED. `static formAssociated = true`, and syncValue()
+         pushes the active segment through `internals.setFormValue()`, so the
+         control submits with a form like a native input rather than needing a
+         hidden field.
+
+         `change` FIRES ONLY ON A USER SELECTION. select() takes a second
+         argument and emits nothing unless it is set, so setting `.value` from
+         script moves the pill silently. That is why the value row above calls
+         sync() itself instead of waiting for the event. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">value</span>
@@ -593,6 +627,18 @@
         <div class="pillset" id="sg-roles" role="group" aria-label="Roles">
           <jelly-button class="pill" data-value="radiogroup" aria-pressed="true">radiogroup</jelly-button>
           <jelly-button class="pill" data-value="tablist" aria-pressed="false">tablist</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">label</span>
+        <jelly-input id="sg-label" size="small" label="Group label"
+                     placeholder="Names the group"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">one option out</span>
+        <div class="pillset" id="sg-optdis" role="group" aria-label="Disable one option">
+          <jelly-button class="pill" data-value="none" aria-pressed="true">none</jelly-button>
+          <jelly-button class="pill" data-value="quarterly" aria-pressed="false">quarterly</jelly-button>
         </div>
       </div>
       <div class="ctl">
@@ -2265,68 +2311,6 @@ drawer.open = true;   // side = start | end | bottom</template>
       <template data-snippet-text>&lt;jelly-option value="USD"&gt;US Dollar&lt;/jelly-option&gt;</template>
     </div>
   </section>
-  <section class="entry" id="c-40">
-    <div class="entry-text">
-    <p class="entry-num">Forms &middot; 40</p>
-    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-segment&gt;</h2>
-    <p class="entry-note">One option of a segmented control, and of a tab bar,
-       which is the same thing.</p>
-
-    <!-- THE SAME SHAPE AS THE OPTION ABOVE: display:none on itself, and every
-         change calls sync() on the nearest jelly-segmented. It carries no
-         appearance of its own at all; what you see is the pill the parent
-         paints.
-
-         IT IS ALSO WHAT A TAB IS MADE OF. jelly-tabs builds one jelly-segment
-         per panel inside its shadow root -- see entry 29 -- so this element is
-         reached far more often than it is written. That is also why its own
-         styling lives on jelly-segmented in the bridge and not here.
-
-         `disabled` ON A SEGMENT IS NOT `disabled` ON THE CONTROL. This one
-         takes a single option out while the rest stay live; entry 11's row
-         disables the whole track. Both are in the library and they are easy to
-         confuse.
-
-         THERE IS NO `selected` ROW, AND THAT IS A FINDING, NOT AN OMISSION.
-         `selected` on a segment is a CONNECT-TIME SEED. jelly-segmented picks
-         its index like this:
-
-           value attribute matches a segment   ->  use it
-           otherwise                           ->  first segment with `selected`
-
-         and the control reflects a `value` attribute onto itself as soon as it
-         syncs. From that moment the first branch always wins and no `selected`
-         a page sets afterwards is ever read. Measured: with `selected` moved
-         so that ONLY the second segment carried it, the control stayed on the
-         first. A row for it would move an attribute and change nothing.
-
-         THE OPTION ABOVE IS DIFFERENT, and the difference is one line:
-         jelly-select never reflects a value attribute. So its children stay
-         authoritative and entry 39's `selected` row works live -- verified,
-         it moves the select to EUR, to USD, and back to KWD when cleared. Two
-         elements with the same three attributes and the same shape, and only
-         one of them can be driven after connect. -->
-    <div class="controls controls--stacked" data-controls>
-      <div class="ctl">
-        <span class="ctl-name">disabled</span>
-        <div class="pillset" id="sm-disabled" role="group" aria-label="Disabled">
-          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
-          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div class="demo" data-demo>
-      <div class="segmented-stage" data-controls>
-        <jelly-segmented id="sm-parent" label="Period">
-          <jelly-segment value="monthly" selected>Monthly</jelly-segment>
-          <jelly-segment id="sm-demo" value="quarterly">Quarterly</jelly-segment>
-          <jelly-segment value="onetime">One-time</jelly-segment>
-        </jelly-segmented>
-      </div>
-      <template data-snippet-text>&lt;jelly-segment value="quarterly"&gt;Quarterly&lt;/jelly-segment&gt;</template>
-    </div>
-  </section>
 <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
        through a token bridge. The library is vendored here rather than loaded from its own origin, and
@@ -2348,8 +2332,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260906w"></script>
-<script src="minaa-jelly.js?v=20260906w"></script>
-<script src="showcase.js?v=20260906w" defer></script>
+<script src="micons.js?v=20260906x"></script>
+<script src="minaa-jelly.js?v=20260906x"></script>
+<script src="showcase.js?v=20260906x" defer></script>
 </body>
 </html>

@@ -1015,29 +1015,6 @@
     sync();
   }
 
-  function wireSegmentDemo() {
-    const el = document.getElementById('sm-demo');
-    const parent = document.getElementById('sm-parent');
-    const disabled = document.getElementById('sm-disabled');
-    if (!el || !parent || !disabled || el.dataset.wiredCtl) return;
-    el.dataset.wiredCtl = '1';
-    const snippet = () => {
-      const box = document.querySelector('#c-40 .code code');
-      if (!box) return;
-      const a = ['value="' + (el.getAttribute('value') || '') + '"'];
-      if (el.hasAttribute('selected')) a.push('selected');
-      if (el.hasAttribute('disabled')) a.push('disabled');
-      box.textContent = '<jelly-segment ' + a.join(' ') + '>'
-        + el.textContent.trim() + '</jelly-segment>';
-    };
-    pillRow(disabled, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
-    /* Clicking a pill in the track moves the selection, which changes whether
-       this segment is the selected one -- so the snippet is re-read from the
-       element rather than tracked. */
-    parent.addEventListener('change', snippet);
-    snippet();
-  }
-
   function wireCardDemo() {
     const el = document.getElementById('cd-demo');
     const squish = document.getElementById('cd-squish');
@@ -1379,7 +1356,10 @@
     const roles = document.getElementById('sg-roles');
     const size = document.getElementById('sg-size');
     const dis = document.getElementById('sg-disabled');
-    if (!el || !val || !roles || !size || !dis || el.dataset.wired) return;
+    const lbl = document.getElementById('sg-label');
+    const optdis = document.getElementById('sg-optdis');
+    if (!el || !val || !roles || !size || !dis || !lbl || !optdis
+        || el.dataset.wired) return;
     el.dataset.wired = '1';
 
     function snippet() {
@@ -1400,6 +1380,7 @@
       el.querySelectorAll('jelly-segment').forEach((sg) => {
         const v = sg.getAttribute('value');
         lines.push('  <jelly-segment value="' + v + '"' + (v === el.value ? ' selected' : '')
+          + (sg.hasAttribute('disabled') ? ' disabled' : '')
           + '>' + sg.textContent.trim() + '</jelly-segment>');
       });
       lines.push('</jelly-segmented>');
@@ -1420,8 +1401,32 @@
     /* toggleAttribute: jelly-segmented defines accessors for value, isTablist
        and stateAttribute -- not for disabled. */
     pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+
+    /* `label` names the GROUP, not a segment -- syncLabel() copies it onto the
+       .wrap as aria-label. Nothing about the control changes shape, which is
+       the same reason `roles` earns a row. Empty removes the attribute rather
+       than setting an empty string, so the snippet never prints label="". */
+    const applyLabel = () => {
+      const v = lbl.value == null ? '' : String(lbl.value).trim();
+      if (v) el.setAttribute('label', v); else el.removeAttribute('label');
+      snippet();
+    };
+    lbl.addEventListener('input', applyLabel);
+    lbl.addEventListener('change', applyLabel);
+
+    /* One option out. The attribute goes on the CHILD; jelly-segment observes
+       it and calls sync() on this control, which rewrites that one shadow
+       button as disabled. Nothing is set on the host, so the track stays live
+       -- which is the whole distinction from the row above. */
+    pillRow(optdis, (v) => {
+      el.querySelectorAll('jelly-segment').forEach((sg) => {
+        sg.toggleAttribute('disabled', sg.getAttribute('value') === v);
+      });
+    }, snippet);
+
     el.addEventListener('change', sync);
 
+    lbl.value = el.getAttribute('label') || '';
     sync();
   }
 
@@ -2119,7 +2124,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireOptionDemo(); wireSegmentDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireOptionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {
