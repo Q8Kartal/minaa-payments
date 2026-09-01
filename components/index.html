@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260904u"></script>
+<script src="../gate.js?v=20260904v"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260904u"></script>
+<script type="module" src="vendor/jelly.js?v=20260904v"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260904u">
-<link rel="stylesheet" href="showcase.css?v=20260904u">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260904v">
+<link rel="stylesheet" href="showcase.css?v=20260904v">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -1720,6 +1720,117 @@ drawer.open = true;   // side = start | end | bottom</template>
       <template data-snippet-text>&lt;jelly-chip tone="primary" selectable selected&gt;Monthly&lt;/jelly-chip&gt;</template>
     </div>
   </section>
+  <section class="entry" id="c-31">
+    <div class="entry-text">
+    <p class="entry-num">Disclosure &middot; 31</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-select"/></svg> &lt;jelly-collapsible&gt;</h2>
+    <p class="entry-note">A header that opens a panel beneath it. The label is a
+       slot, so it can hold more than text.</p>
+
+    <!-- `open` GOES THROUGH THE PROPERTY. The component exposes an `open`
+         accessor and a toggle() method, and it animates the panel height on
+         the way; setting the attribute by hand skips that and the panel jumps.
+
+         It emits `toggle` on the host, which is what the accordion above it
+         listens to -- see entry 32. The row is pushed back from that event
+         rather than assumed, because the header is clickable and the reader
+         will use it.
+
+         Every measurement is bound. Jelly ships 10/13/16 padding-block,
+         12/14/18 inline, 8/10/12 gap and 13.5/15/16.5 header type across the
+         three sizes, and not one of those is a step on either scale. All of it
+         is named as a token, so it binds from the host with no injection --
+         unlike the toast, which had to have a rule pushed into its shadow.
+
+         The mark is select's, another settle: Micons has no disclosure glyph
+         and a chevron opening a panel is the nearest thing already drawn.
+         Icons are parked; this is the third borrow to revisit. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">open</span>
+        <div class="pillset" id="col-open" role="group" aria-label="Open">
+          <jelly-button class="pill" data-value="false" aria-pressed="false">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="true">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="col-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="collapsible-stage" data-controls>
+        <jelly-collapsible id="col-demo" label="Payment details" open>
+          Bay 4 &middot; 150.000 KWD monthly, due on the 1st.
+        </jelly-collapsible>
+      </div>
+      <template data-snippet-text>&lt;jelly-collapsible label="Payment details" open&gt;
+  Bay 4 &middot; 150.000 KWD monthly, due on the 1st.
+&lt;/jelly-collapsible&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-32">
+    <div class="entry-text">
+    <p class="entry-num">Disclosure &middot; 32</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radiogroup"/></svg> &lt;jelly-accordion&gt;</h2>
+    <p class="entry-note">A stack of collapsibles. With <code>single</code>, opening
+       one closes the rest.</p>
+
+    <!-- IT NEEDS NO STYLING OF ITS OWN, and that is the interesting part. Its
+         shadow root is a bare <slot>, so its jelly-collapsible children stay in
+         the LIGHT dom and entry 31's rules reach them normally.
+
+         jelly-tabs looked like the same shape and was not: it BUILDS a
+         jelly-segmented inside its shadow root, where page CSS cannot see it,
+         and that took ::part() plus a shadow-walking patcher to fix. The
+         difference is where the child lives, not how the parent reads. Worth
+         checking rather than assuming, in both directions.
+
+         `single` IS ENFORCED ON THE EVENT, NOT ON THE ATTRIBUTE. The accordion
+         listens for `toggle` and closes its siblings when one opens; setting
+         `single` on an accordion that already has two open panels closes the
+         extras immediately. Both behaviours are in the row.
+
+         `size` FORWARDS TO THE CHILDREN, so the row moves all three items at
+         once and the collapsibles have no size of their own here. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">single</span>
+        <div class="pillset" id="acc-single" role="group" aria-label="Single">
+          <jelly-button class="pill" data-value="false" aria-pressed="false">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="true">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="acc-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="small" aria-pressed="false">small</jelly-button>
+          <jelly-button class="pill" data-value="medium" aria-pressed="true">medium</jelly-button>
+          <jelly-button class="pill" data-value="large" aria-pressed="false">large</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="accordion-stage" data-controls>
+        <jelly-accordion id="acc-demo" single>
+          <jelly-collapsible label="Details" open>Bay 4 &middot; climate controlled &middot; 12 m&sup2;.</jelly-collapsible>
+          <jelly-collapsible label="Schedule">150.000 KWD monthly, due on the 1st.</jelly-collapsible>
+          <jelly-collapsible label="History">Nine payments, none late.</jelly-collapsible>
+        </jelly-accordion>
+      </div>
+      <template data-snippet-text>&lt;jelly-accordion single&gt;
+  &lt;jelly-collapsible label="Details" open&gt;...&lt;/jelly-collapsible&gt;
+  &lt;jelly-collapsible label="Schedule"&gt;...&lt;/jelly-collapsible&gt;
+  &lt;jelly-collapsible label="History"&gt;...&lt;/jelly-collapsible&gt;
+&lt;/jelly-accordion&gt;</template>
+    </div>
+  </section>
 
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
@@ -1742,8 +1853,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260904u"></script>
-<script src="minaa-jelly.js?v=20260904u"></script>
-<script src="showcase.js?v=20260904u" defer></script>
+<script src="micons.js?v=20260904v"></script>
+<script src="minaa-jelly.js?v=20260904v"></script>
+<script src="showcase.js?v=20260904v" defer></script>
 </body>
 </html>

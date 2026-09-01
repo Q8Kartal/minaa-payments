@@ -994,6 +994,26 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* Disclosure. Both of these CHANGE HEIGHT as they open, which is the whole
+   point of them, so neither stage pins one -- a fixed height would either clip
+   the open panel or leave a hole under the closed one.
+
+   A floor instead, sized to the closed state, so the card does not collapse
+   when everything is shut. The accordion floors at three closed headers. */
+.collapsible-stage,
+.accordion-stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: var(--space-400);                       /* 32 */
+}
+.collapsible-stage { min-height: calc(var(--space-800) + var(--space-400) * 2); }
+.accordion-stage   { min-height: calc(var(--space-1000) * 2 + var(--space-400)); }
+
+/* jelly-collapsible and jelly-accordion are display:block and take the stage
+   width. Inside the accordion the items stack with a gap of their own. */
+.accordion-stage jelly-accordion { display: flex; flex-direction: column; gap: var(--space-100); }
+
 /* One chip, centred. A chip is inline-flex and carries its own width from its
    label, so the stage sets none -- and no height either, because the chip's own
    size ramp (32 / 40 / 48) is the thing the size row is there to show.

@@ -1966,6 +1966,63 @@ jelly-chip[tone="neutral"] {
   --jelly-label-on: var(--primary);       /* Primary 700 -- see above */
 }
 
+/* ── Collapsible, and the accordion that holds them ────────────────────────
+   Every measurement Jelly ships here is named, so all of it binds from the
+   host and the shadow root is left alone. Not one of the stock values is a
+   step on either scale:
+
+                       Jelly (sm/md/lg)        bound
+     padding-block     10 / 13 / 16            8 / 12 / 16
+     padding-inline    12 / 14 / 18            12 / 16 / 20
+     gap                8 / 10 / 12            6 / 8 / 12
+     header font       13.5 / 15 / 16.5        14 / 16 / 18
+     body font         13 / 14.5 / 15.5        12 / 14 / 16
+     chevron           14 / 16 / 18            16 / 20 / 24
+
+   THE ACCORDION NEEDS NOTHING OF ITS OWN, and that is worth stating because
+   the tabs bar needed everything. jelly-accordion's shadow root is a bare
+   <slot>, so its jelly-collapsible children stay in the LIGHT dom where these
+   element selectors reach them normally. jelly-tabs builds its segmented
+   INSIDE its shadow root, which is why that one needed ::part(). The
+   difference is where the child lives, not how the parent is written -- check
+   before assuming a wrapper repeats the problem. */
+jelly-collapsible {
+  --jelly-collapsible-padding-block:  var(--space-150);   /* 12 */
+  --jelly-collapsible-padding-inline: var(--space-200);   /* 16 */
+  --jelly-collapsible-gap:            var(--space-100);   /*  8 */
+  --jelly-collapsible-header-font:    var(--text-md);     /* 16 */
+  --jelly-collapsible-body-font:      var(--text-sm);     /* 14 */
+  --jelly-collapsible-chevron:        var(--control-icon-20);
+  --jelly-collapsible-radius:         var(--radius-16);
+}
+
+jelly-collapsible[size="small"], jelly-collapsible[size="sm"] {
+  --jelly-collapsible-padding-block:  var(--space-100);   /*  8 */
+  --jelly-collapsible-padding-inline: var(--space-150);   /* 12 */
+  --jelly-collapsible-gap:            var(--space-075);   /*  6 */
+  --jelly-collapsible-header-font:    var(--text-sm);     /* 14 */
+  --jelly-collapsible-body-font:      var(--text-xs);     /* 12 */
+  --jelly-collapsible-chevron:        var(--control-icon-16);
+}
+
+jelly-collapsible[size="large"], jelly-collapsible[size="lg"] {
+  --jelly-collapsible-padding-block:  var(--space-200);   /* 16 */
+  --jelly-collapsible-padding-inline: var(--space-250);   /* 20 */
+  --jelly-collapsible-gap:            var(--space-150);   /* 12 */
+  --jelly-collapsible-header-font:    var(--text-lg);     /* 18 */
+  --jelly-collapsible-body-font:      var(--text-md);     /* 16 */
+  --jelly-collapsible-chevron:        var(--control-icon-24);
+}
+
+/* The radius does NOT step with the size. Jelly moves it 10 / 12 / 14, and the
+   same reasoning as the square chip applies: a corner treatment is not a
+   dimension, and there is no reason for it to grow with the padding. One bound
+   value across all three. */
+jelly-collapsible[size="small"], jelly-collapsible[size="sm"],
+jelly-collapsible[size="large"], jelly-collapsible[size="lg"] {
+  --jelly-collapsible-radius: var(--radius-16);
+}
+
 /* Every measurement Jelly ships for the alert, and only three land on the
    scale. Unlike the toast, the alert NAMES all of them, so they bind from the
    host and its shadow root is left alone -- no injected rule, no breach.

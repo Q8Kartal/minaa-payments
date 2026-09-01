@@ -967,6 +967,77 @@
      forwards them down itself. */
   /* Entry 30. Seven rows, the most of any entry, because jelly-chip has the
      widest attribute surface in the library. */
+  /* Entries 31 and 32. */
+  function wireCollapsibleDemo() {
+    const el = document.getElementById('col-demo');
+    const open = document.getElementById('col-open');
+    const size = document.getElementById('col-size');
+    if (!el || !open || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-31 .code code');
+      if (!box) return;
+      const a = ['label="Payment details"'];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.open) a.push('open');
+      box.textContent = '<jelly-collapsible ' + a.join(' ') + '>\n'
+        + '  Bay 4 · 150.000 KWD monthly, due on the 1st.\n'
+        + '</jelly-collapsible>';
+    }
+
+    /* The header is clickable, so the row is pushed back from the component's
+       own `toggle` event rather than assumed from the last pill. */
+    function sync() {
+      open.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'true') === el.open)));
+      snippet();
+    }
+
+    /* The PROPERTY, not the attribute: the setter animates the panel height.
+       Setting the attribute by hand skips the animation and the panel jumps. */
+    pillRow(open, (v) => { el.open = (v === 'true'); }, sync);
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    el.addEventListener('toggle', sync);
+
+    sync();
+  }
+
+  function wireAccordionDemo() {
+    const el = document.getElementById('acc-demo');
+    const single = document.getElementById('acc-single');
+    const size = document.getElementById('acc-size');
+    if (!el || !single || !size || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-32 .code code');
+      if (!box) return;
+      const a = [];
+      const sz = el.getAttribute('size');
+      if (sz && sz !== 'medium') a.push('size="' + sz + '"');
+      if (el.hasAttribute('single')) a.push('single');
+      const lines = ['<jelly-accordion' + (a.length ? ' ' + a.join(' ') : '') + '>'];
+      el.querySelectorAll('jelly-collapsible').forEach((c) => {
+        lines.push('  <jelly-collapsible label="' + (c.getAttribute('label') || '') + '"'
+          + (c.open ? ' open' : '') + '>...</jelly-collapsible>');
+      });
+      lines.push('</jelly-accordion>');
+      box.textContent = lines.join('\n');
+    }
+
+    pillRow(single, (v) => el.toggleAttribute('single', v === 'true'), snippet);
+    /* size forwards to the children, so one row moves all three items. */
+    pillRow(size, (v) => el.setAttribute('size', v), snippet);
+    /* `toggle` bubbles from the collapsibles, and with `single` set the
+       accordion closes the others in response -- so the snippet has to be
+       re-read from the items rather than tracked. */
+    el.addEventListener('toggle', () => setTimeout(snippet, 0));
+
+    snippet();
+  }
+
   function wireChipDemo() {
     const el = document.getElementById('cp-demo');
     const rows = ['tone','selected','selectable','removable','shape','size','disabled']
@@ -1804,7 +1875,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {
