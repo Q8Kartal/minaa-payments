@@ -2062,6 +2062,184 @@
 
      So nothing had to be rebuilt. Setting dir is the lever both halves were
      already waiting for. */
+  /* ARABIC FOR THE SPECIMENS, ENGLISH FOR THE PAGE. Flipping direction shows
+     the layout mirrored; it does not show what the components will actually
+     hold, which is Arabic. So RTL swaps the specimen strings too.
+
+     WHERE THE APP ALREADY SAYS IT, THE APP'S WORDING IS USED VERBATIM rather
+     than translated afresh -- نوع الدفعة, العملة, دينار كويتي, شهري,
+     اشتراك / 3 أشهر, مرة واحدة, البريد الإلكتروني, أسعار الصرف, تعديل,
+     جارٍ التحميل. minaa-payments.html is the product's own voice and there is
+     no reason for the library to invent a second one. The rest are new, and
+     they are the ones worth a designer's eye.
+
+     Numbers stay Western and money becomes د.ك, which is what the app does:
+     "150.000 د.ك", not Arabic-Indic digits.
+
+     The swap runs over the DEMO and over the CODE BLOCK. The snippets are
+     rebuilt from the DOM by each entry's controller, so leaving them alone
+     would have shown Arabic in the specimen and English in the markup beside
+     it -- the one place a reader looks to copy what they just saw. */
+  const AR = {
+    "Theme mode": "وضع السمة",
+    "mode": "الوضع",
+    "accent": "اللون المميز",
+    "auto": "تلقائي",
+    "light": "فاتح",
+    "dark": "داكن",
+    "Accent": "اللون المميز",
+    "Theme": "السمة",
+    "Workspace controls": "عناصر التحكم",
+    "Preview the scoped theme": "معاينة السمة",
+    "Capacity": "السعة",
+    "Utilisation": "الاستخدام",
+    "Sync": "مزامنة",
+    "Notifications": "الإشعارات",
+    "Subscribe to updates": "الاشتراك في التحديثات",
+    "Warehouse name": "اسم المخزن",
+    "Your name": "اسمك",
+    "Email address": "البريد الإلكتروني",
+    "One-time code": "رمز التحقق",
+    "Payment type": "نوع الدفعة",
+    "Monthly": "شهري",
+    "Quarterly": "اشتراك / 3 أشهر",
+    "One-time": "مرة واحدة",
+    "Recurring monthly": "شهري متكرر",
+    "Every three months": "كل ثلاثة أشهر",
+    "One-time payment": "دفعة واحدة",
+    "Rent": "الإيجار",
+    "Period": "الفترة",
+    "Occupancy": "الإشغال",
+    "Currency": "العملة",
+    "Choose a currency": "اختر العملة",
+    "Kuwaiti Dinar": "دينار كويتي",
+    "US Dollar": "دولار أمريكي",
+    "Euro": "يورو",
+    "Note": "ملاحظة",
+    "Anything the team should know": "أي شيء يجب أن يعرفه الفريق",
+    "Show a toast": "إظهار تنبيه",
+    "Delete payment": "حذف الدفعة",
+    "Delete this payment?": "حذف هذه الدفعة؟",
+    "Keep it": "الاحتفاظ بها",
+    "Open the drawer": "فتح اللوحة",
+    "Payment details": "تفاصيل الدفعة",
+    "Rate detail": "تفاصيل السعر",
+    "Exchange rate": "أسعار الصرف",
+    "Copy payment link": "نسخ رابط الدفعة",
+    "Payment actions": "إجراءات الدفعة",
+    "Edit": "تعديل",
+    "Duplicate": "تكرار",
+    "Export as JSON": "تصدير JSON",
+    "Budget used": "الميزانية المستخدمة",
+    "Loading": "جارٍ التحميل",
+    "Loading rates": "جاري تحميل أسعار الصرف",
+    "Details": "التفاصيل",
+    "Schedule": "الجدول",
+    "History": "السجل",
+    "Climate controlled": "مكيّف",
+    "Bay 4": "الوحدة 4",
+    "Bays": "الوحدات",
+    "Payments": "الدفعات",
+    "Invoices": "الفواتير",
+    "Warehouse": "المخزن",
+    "Bay 4 · 150.000 KWD. This cannot be undone.": "الوحدة 4 · 150.000 د.ك. لا يمكن التراجع عن هذا.",
+    "Bay 4 · 150.000 KWD · monthly.": "الوحدة 4 · 150.000 د.ك · شهري.",
+    "Bay 4 · monthly.": "الوحدة 4 · شهري.",
+    "1 USD = 0.3065 KWD": "1 دولار = 0.3065 د.ك",
+    "Fixed fallback. Live rates come from open.er-api.com.": "سعر ثابت احتياطي. الأسعار المباشرة من open.er-api.com.",
+    "Rates last refreshed 4 minutes ago.": "آخر تحديث للأسعار قبل 4 دقائق.",
+    "Bay 4 · climate controlled · 12 m², leased to Al-Kharafi Trading since March.": "الوحدة 4 · مكيّف · 12 م²، مؤجّرة لشركة الخرافي التجارية منذ مارس.",
+    "Bay 4 · climate controlled · 12 m².": "الوحدة 4 · مكيّف · 12 م².",
+    "150.000 KWD monthly, due on the 1st. Next charge 1 October.": "150.000 د.ك شهرياً، تستحق في الأول. الدفعة القادمة 1 أكتوبر.",
+    "150.000 KWD monthly, due on the 1st.": "150.000 د.ك شهرياً، تستحق في الأول.",
+    "Nine payments, none late. Last receipt INV-260801-004.": "تسع دفعات، لا تأخير. آخر إيصال INV-260801-004.",
+    "Nine payments, none late.": "تسع دفعات، لا تأخير.",
+    "Climate controlled · 12 m² · 150.000 KWD monthly.": "مكيّف · 12 م² · 150.000 د.ك شهرياً."
+  };
+  const AR_ATTRS = ['label', 'text', 'placeholder', 'aria-label'];
+  /* Longest first: substring replacement inside code blocks depends on it. */
+  const AR_KEYS = Object.keys(AR).sort((a, b) => b.length - a.length);
+
+  /* Originals are kept on the node, not recomputed from a reverse lookup: two
+     English strings can share an Arabic translation, so reversing the map
+     would not round-trip. */
+  /* jelly-tabs BUILDS ITS BAR ONCE, at connect, from its panels' `label`
+     attributes -- documented in entry 29, and the reason its own deleted entry
+     had needed a rebuild to change a label. Swapping the attribute therefore
+     translated the PANEL and left the tab above it reading English. A fresh
+     node is the only thing that re-reads, so the element is cloned and
+     replaced, carrying the open panel across so the reader is not thrown back
+     to the first tab.
+
+     Every other component here re-reads on its own: jelly-segmented syncs from
+     attributeChangedCallback, jelly-select through a MutationObserver,
+     jelly-menu on each open, and a radio group's legend is an observed
+     attribute. Tabs is the single exception. */
+  function rebuildTabs() {
+    document.querySelectorAll('jelly-tabs').forEach((tabs) => {
+      if (!tabs.parentNode) return;
+      const open = tabs.value;
+      const fresh = tabs.cloneNode(true);
+      fresh.querySelectorAll('jelly-tab-panel').forEach((p) => {
+        p.toggleAttribute('active', p.getAttribute('value') === open);
+      });
+      tabs.parentNode.replaceChild(fresh, tabs);
+    });
+  }
+
+  function swapDirectionText(toArabic) {
+    const scopes = [...document.querySelectorAll('.demo, .code code')];
+    scopes.forEach((scope) => {
+      const walk = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+      let n;
+      const nodes = [];
+      while ((n = walk.nextNode())) nodes.push(n);
+      nodes.forEach((node) => {
+        if (node.parentElement && node.parentElement.closest('template')) return;
+        if (toArabic) {
+          const raw = node.textContent;
+          const key = raw.trim();
+          if (AR[key]) {
+            if (node.__en == null) node.__en = raw;
+            node.textContent = raw.replace(key, AR[key]);
+            return;
+          }
+          /* A CODE BLOCK IS ONE TEXT NODE holding the whole snippet, so a
+             whole-node match never fires on it and the markup stayed English
+             beside an Arabic specimen. Those get substring replacement instead,
+             LONGEST KEY FIRST -- otherwise "One-time" eats the start of
+             "One-time payment" and leaves " payment" behind. */
+          if (!node.parentElement || !node.parentElement.closest('.code')) return;
+          let next = raw;
+          AR_KEYS.forEach((k) => { if (next.indexOf(k) >= 0) next = next.split(k).join(AR[k]); });
+          if (next === raw) return;
+          if (node.__en == null) node.__en = raw;
+          node.textContent = next;
+        } else if (node.__en != null) {
+          node.textContent = node.__en;
+          node.__en = null;
+        }
+      });
+      scope.querySelectorAll('*').forEach((el) => {
+        if (el.closest('template')) return;
+        AR_ATTRS.forEach((a) => {
+          const cur = el.getAttribute(a);
+          if (toArabic) {
+            if (cur == null || !AR[cur.trim()]) return;
+            if (el.dataset['en' + a.replace('-', '')] == null) {
+              el.dataset['en' + a.replace('-', '')] = cur;
+            }
+            el.setAttribute(a, AR[cur.trim()]);
+          } else {
+            const saved = el.dataset['en' + a.replace('-', '')];
+            if (saved != null) { el.setAttribute(a, saved); delete el.dataset['en' + a.replace('-', '')]; }
+          }
+        });
+      });
+    });
+    rebuildTabs();
+  }
+
   function wireDirection() {
     const el = document.querySelector('.masthead-direction');
     if (!el || el.dataset.wired) return;
@@ -2074,6 +2252,7 @@
          a hardcoded LTR. A fact that a control can falsify has to follow it. */
       const fact = document.querySelector('[data-direction-fact]');
       if (fact) fact.textContent = dir.toUpperCase();
+      swapDirectionText(dir === 'rtl');
     };
 
     el.addEventListener('change', () => apply(el.value));
