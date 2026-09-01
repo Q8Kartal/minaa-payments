@@ -1026,16 +1026,25 @@ svg[data-sq-fill] {
    surface, it will be full width in use" -- is about the PRODUCT; this is a
    specimen, and its job is to show what the attribute does. */
 
+/* THE DIVIDER STANDS ALONE. It had two sibling labels here, "Monthly" and
+   "One-time", so it could sit between something -- an invention, and one that
+   broke the component: in a row, a vertical divider is squeezed to whatever
+   the siblings leave it and the label rotates with it. The reference shows the
+   rule spanning the card on its own, which is also what the component is: it
+   is `flex: 1 1 100%`, so given a container it fills it.
+
+   Vertical is the one thing the parent must supply. A hairline cannot invent a
+   length, and the component's own `align-self: center` stops it stretching, so
+   the stage overrides that for the vertical case only. Height from the parent
+   is the divider's contract, not a workaround. */
 .divider-stage {
   display: flex;
   align-items: center;
-  gap: var(--space-200);
+  justify-content: center;
   min-height: calc(var(--space-800) + var(--space-400) * 2);
   padding-block: var(--space-400);
 }
-.divider-side { color: var(--m-ink); font-size: var(--text-md); white-space: nowrap; }
-/* Vertical needs a run of height to draw down; horizontal takes the free width. */
-.divider-stage jelly-divider[direction="vertical"] { block-size: var(--space-800); }
+.divider-stage jelly-divider[direction="vertical"] { align-self: stretch; }
 
 .resizable-stage {
   display: flex;

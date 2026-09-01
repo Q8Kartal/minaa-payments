@@ -1946,33 +1946,15 @@ jelly-chip {
   --jelly-label-on: var(--m-on-accent);   /* Neutral 100 */
 
   /* Jelly ships 36 / 30 / 42 at 14 / 12.5 / 15.5, and not one of those is a
-     step on either scale. Bound to the control ramp a size below the fields,
-     so a chip reads as smaller than the input beside it. */
-  height:                var(--control-40);
-  --jelly-chip-font-size: var(--text-md);
-  font-size:             var(--text-md);
-  line-height:           var(--text-md-lh);
-  --jelly-chip-radius:   var(--radius-full);
-}
+     step on either scale -- and it is Jelly's, not ours.
 
-jelly-chip[size="small"], jelly-chip[size="sm"] {
-  height:                var(--control-32);
-  --jelly-chip-font-size: var(--text-sm);
-  font-size:             var(--text-sm);
-  line-height:           var(--text-sm-lh);
+     The height was pushed to 32/40/48 and the type to --text-sm/md/lg, and the
+     square radius to a single 8 against Jelly's 11/9/13. All removed: this is
+     the fourth component where rebinding a component's own ramp onto the
+     spacing scale was the wrong instinct. Note the height and font-size were
+     DIRECT properties, so an audit that only compares --jelly-* tokens reports
+     this component clean while it is not. */
 }
-
-jelly-chip[size="large"], jelly-chip[size="lg"] {
-  height:                var(--control-48);
-  --jelly-chip-font-size: var(--text-lg);
-  font-size:             var(--text-lg);
-  line-height:           var(--text-lg-lh);
-}
-
-/* Jelly draws the square chip at 11 / 9 / 13. One bound value across all three
-   sizes instead: the radius is a corner treatment, not a dimension, and it has
-   no reason to step with the height. */
-jelly-chip[shape="square"] { --jelly-chip-radius: var(--radius-8); }
 
 /* The tones. Only --jelly-on moves -- the rest fill is the same quiet surface
    for every chip, so an unselected row reads as one set rather than six. */
@@ -2105,166 +2087,59 @@ jelly-accordion jelly-collapsible[open]::part(header) {
    not eyeballed. */
 
 
-/* ── Divider ───────────────────────────────────────────────────────────────
-   The rule colour already arrives from the broad token block above as
-   --jelly-divider: var(--m-stroke). Only the label type and its gap are left,
-   and neither was on the scale: 11 / 12 / 13.5 and 10 / 14 / 18. */
-jelly-divider {
-  --jelly-divider-font-size: var(--text-sm);   /* 14 */
-  --jelly-divider-gap:       var(--space-200); /* 16 */
-}
+/* ── jelly-divider ─────────────────────────────────────────────────────────
+   NOTHING IS REBOUND. Jelly's own 11/12/13.5 label type and 10/14/18 gap
+   stand, the third component in a row where a rebinding to the spacing scale
+   was the wrong instinct: match the API.
 
-jelly-divider[size="small"], jelly-divider[size="sm"] {
-  --jelly-divider-font-size: var(--text-xs);   /* 12 */
-  --jelly-divider-gap:       var(--space-150); /* 12 */
-}
+   The rule COLOUR does come from here, and only because it already did --
+   --jelly-divider resolves to var(--m-stroke) in the broad token block above,
+   which is Secondary 600. Worth a look in the colour pass: a hairline
+   separator carrying the brand red is loud next to the reference, where the
+   rule is a quiet neutral. Flagged, not changed. */
 
-jelly-divider[size="large"], jelly-divider[size="lg"] {
-  --jelly-divider-font-size: var(--text-md);   /* 16 */
-  --jelly-divider-gap:       var(--space-250); /* 20 */
-}
+/* ── jelly-pagination ──────────────────────────────────────────────────────
+   NO SCALE IS REBOUND. Jelly's own stands: button 34/40/48, button padding
+   8/10/12, gap 5/7/9, gap padding 1/2/3, font 12.5/14/15.5. All five had been
+   bound to our spacing and control ramps, which put ten deviations into a
+   component whose numbers are its proportions -- the same call as the
+   collapsible and the card.
 
-
-/* ── Pagination ────────────────────────────────────────────────────────────
-   The button is a real control and lands on the control ramp; everything else
-   is spacing and type.
-
-                       Jelly (sm/md/lg)     bound
-     button            34 / 40 / 48         32 / 40 / 48
-     button padding     8 / 10 / 12          8 / 12 / 16
-     gap                5 /  7 /  9          6 /  8 / 12
-     gap padding        1 /  2 /  3          0 /  2 /  4
-     font              12.5 / 14 / 15.5     12 / 14 / 16 */
-/* THE NEUTRAL PAIR COLLIDES IN DARK, AND IT MADE THE PAGE NUMBERS INVISIBLE.
-   Jelly builds each page button with
-
-     --jelly-fill:  var(--jelly-color-background-neutral)
-     --jelly-label: var(--jelly-color-foreground-on-neutral)
-
-   and this bridge maps the first to --m-track-off and the second to --m-ink.
-   In dark BOTH are Neutral 100. Measured on the canvas: fill #FBF0DC, ink
-   #FBF0DC, contrast 1.00 -- not faint, identical. Every number and both arrows
-   were blank cream discs; only the active page, which takes the accent, could
-   be read at all.
-
-   Fixed by pointing the neutral background at --m-field for this component, the
-   way jelly-select already scopes the same token. That is the surface the
-   inputs use, so the pages now read as quiet fields: Primary 300 under Primary
-   700 ink in light (3.85), Primary 900 under Cream in dark (8.90).
-
-   NOT FIXED AT THE ROOT, deliberately. --m-track-off being Cream in dark is
-   correct for the sliders, the switch and the segmented track, which have no
-   label on them; the contradiction only bites where something neutral has to
-   carry TEXT. Two components do -- this and jelly-kbd below -- and both are
-   scoped here. Worth a look across the whole set, but that is a bridge-wide
-   change and not one to make inside a component block. */
+   The colours below are NOT a scale and stay. Jelly builds each page button
+   from --jelly-color-background-neutral over --jelly-color-foreground-on-
+   neutral, and this bridge maps BOTH to Neutral 100 in dark: measured 1.00,
+   the page numbers were invisible. Scoped here the way jelly-select already
+   scopes that token, with the two disc colours Ahmad set in Figma. */
 jelly-pagination {
-  /* THE TWO DISC COLOURS COME FROM FIGMA, node 315:25 on the Components page.
-     Ahmad set them there and they are read back, not chosen here:
-
-       inactive  Secondary 400  #FA937D   (bound to Colors/Secondary/400)
-       active    Secondary 600  #E8411D
-
-     Dark only. Light keeps Primary 300 under Primary 700, which he did not
-     change, so both live in --m-page-btn / --m-page-btn-active and step by
-     mode like every other pair in this file.
-
-     THE INK IS THE OPEN QUESTION, AND IT IS FLAGGED RATHER THAN DECIDED.
-     Cream on Secondary 400 measures 1.95. That is better than the 1.00 this
-     replaced -- the digits are no longer the same colour as the disc -- but it
-     is still low, and the inactive and active discs only separate from each
-     other by 1.83. Ahmad left the ink Cream in the Figma frame, so Cream is
-     what ships. If it wants changing, Primary 950 is the strong option at 6.91
-     and is already the card colour behind the row; Primary 900 gives 4.56.
-
-     --jelly-color-background-accent IS THE ONE THAT PAINTS THE ACTIVE DISC.
-     Setting --jelly-accent alone moved the token and changed nothing: measured
-     accent #E8411D on the button while its --jelly-fill still resolved to
-     #0062AD. Jelly builds the current page from the background-accent colour
-     and keeps --jelly-accent for the focus ring, so both are set here and both
-     mean the same thing for this component. */
   --jelly-color-background-neutral: var(--m-page-btn);
   --jelly-color-background-accent:  var(--m-page-btn-active);
   --jelly-accent:                   var(--m-page-btn-active);
-  --jelly-pagination-button:      var(--control-40);
-  --jelly-pagination-button-pad:  var(--space-150);  /* 12 */
-  --jelly-pagination-gap:         var(--space-100);  /*  8 */
-  --jelly-pagination-gap-padding: var(--space-025);  /*  2 */
-  --jelly-pagination-font-size:   var(--text-sm);    /* 14 */
-}
-
-jelly-pagination[size="small"], jelly-pagination[size="sm"] {
-  --jelly-pagination-button:      var(--control-32);
-  --jelly-pagination-button-pad:  var(--space-100);  /*  8 */
-  --jelly-pagination-gap:         var(--space-075);  /*  6 */
-  --jelly-pagination-gap-padding: var(--space-0);    /*  0 */
-  --jelly-pagination-font-size:   var(--text-xs);    /* 12 */
-}
-
-jelly-pagination[size="large"], jelly-pagination[size="lg"] {
-  --jelly-pagination-button:      var(--control-48);
-  --jelly-pagination-button-pad:  var(--space-200);  /* 16 */
-  --jelly-pagination-gap:         var(--space-150);  /* 12 */
-  --jelly-pagination-gap-padding: var(--space-050);  /*  4 */
-  --jelly-pagination-font-size:   var(--text-md);    /* 16 */
 }
 
 
-/* ── Breadcrumbs ───────────────────────────────────────────────────────────
-   Jelly's padding steps in ones -- 3/4/5 block, 6/8/10 inline, 3/4/5 gap --
-   which no scale can follow, so these round to the nearest steps and the ramp
-   stays legible: 2/4/6, 6/8/12, 2/4/6. The radius is one value again. */
-jelly-breadcrumbs {
-  --jelly-breadcrumbs-font-size:      var(--text-sm);    /* 14 */
-  --jelly-breadcrumbs-padding-block:  var(--space-050);  /*  4 */
-  --jelly-breadcrumbs-padding-inline: var(--space-100);  /*  8 */
-  --jelly-breadcrumbs-gap:            var(--space-050);  /*  4 */
-  --jelly-breadcrumbs-radius:         var(--radius-8);
-}
-
-jelly-breadcrumbs[size="small"], jelly-breadcrumbs[size="sm"] {
-  --jelly-breadcrumbs-font-size:      var(--text-xs);    /* 12 */
-  --jelly-breadcrumbs-padding-block:  var(--space-025);  /*  2 */
-  --jelly-breadcrumbs-padding-inline: var(--space-075);  /*  6 */
-  --jelly-breadcrumbs-gap:            var(--space-025);  /*  2 */
-}
-
-jelly-breadcrumbs[size="large"], jelly-breadcrumbs[size="lg"] {
-  --jelly-breadcrumbs-font-size:      var(--text-md);    /* 16 */
-  --jelly-breadcrumbs-padding-block:  var(--space-075);  /*  6 */
-  --jelly-breadcrumbs-padding-inline: var(--space-150);  /* 12 */
-  --jelly-breadcrumbs-gap:            var(--space-075);  /*  6 */
-}
+/* ── jelly-breadcrumbs ─────────────────────────────────────────────────────
+   NOTHING IS REBOUND, and this is the clearest case of the lot. Jelly's
+   padding steps in ONES -- 3/4/5 block, 6/8/10 inline, 3/4/5 gap -- and the
+   rebinding rounded each to the nearest step on our scale. That reasoning was
+   backwards: a one-pixel ramp IS the component's proportion, and rounding it
+   produced nine deviations and a ramp that no longer stepped evenly. */
 
 
-/* ── Kbd ───────────────────────────────────────────────────────────────────
-   The only one here with NO dimension token at all: Jelly writes height into
-   its :host rule as 24 / 28 / 34, so the height goes on the host the way the
-   segmented's does. Font follows at 11 / 12 / 13 -> 12 / 14 / 16.
+/* ── jelly-kbd ─────────────────────────────────────────────────────────────
+   NO SIZING. Jelly writes the cap height into its own :host rule -- 24/28/34
+   at 11/12/13 type -- and it stays there. It had been pushed onto the spacing
+   scale at 24/32/40 and --text-xs/sm/md, which a token audit cannot even see,
+   because those are direct properties rather than custom properties. Worth
+   remembering: "no --jelly-* overrides" is not the same as "untouched".
 
-   The cap's own padding-inline is 8 and its min-width 16; both are already
-   steps, so the shadow root is left alone. */
+   The neutral scoping below is a contrast fix, not a scale, and stays: the cap
+   is built from the neutral fill over the on-neutral foreground, both of which
+   this bridge maps to Neutral 100 in dark -- measured 1.00, a keycap with no
+   key on it. */
 jelly-kbd {
-  /* Same collision as the pagination above, and the same fix: jelly-kbd builds
-     its cap from the neutral fill and the on-neutral foreground, so in dark it
-     was Cream on Cream at contrast 1.00 -- a keycap with no key on it. */
   --jelly-color-background-neutral: var(--m-field);
-  height:      var(--space-400);    /* 32 */
-  font-size:   var(--text-sm);      /* 14 */
-  line-height: var(--text-sm-lh);
 }
 
-jelly-kbd[size="small"], jelly-kbd[size="sm"] {
-  height:      var(--space-300);    /* 24 */
-  font-size:   var(--text-xs);      /* 12 */
-  line-height: var(--text-xs-lh);
-}
-
-jelly-kbd[size="large"], jelly-kbd[size="lg"] {
-  height:      var(--space-500);    /* 40 */
-  font-size:   var(--text-md);      /* 16 */
-  line-height: var(--text-md-lh);
-}
 
 /* Every measurement Jelly ships for the alert, and only three land on the
    scale. Unlike the toast, the alert NAMES all of them, so they bind from the
