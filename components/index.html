@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260907v"></script>
+<script src="../gate.js?v=20260907x"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260907v"></script>
+<script type="module" src="vendor/jelly.js?v=20260907x"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260907v">
-<link rel="stylesheet" href="showcase.css?v=20260907v">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260907x">
+<link rel="stylesheet" href="showcase.css?v=20260907x">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -54,6 +54,20 @@
       <svg class="mi mi-sun"  aria-hidden="true" focusable="false"><use href="#mi-sun"/></svg>
     </span>
 
+    <!-- DIRECTION IS A PAGE CONTROL, NOT A COMPONENT ONE. It sets `dir` on the
+         document, which is the only lever any of this needs: our stylesheets
+         carry no physical properties at all, and Jelly resolves direction at
+         RUNTIME through getComputedStyle(el).direction -- 27 call sites, from
+         the start/end placement resolver to the switch thumb and the OTP caret.
+
+         It sits below the theme switch and shares its inset, because that 48 is
+         the canvas bleed a soft-body control needs against the masthead's
+         overflow clip. A segmented has the same bleed, so it gets the same
+         clearance rather than a new number. -->
+    <jelly-segmented class="masthead-direction" size="small" label="Direction" value="ltr">
+      <jelly-segment value="ltr" selected>LTR</jelly-segment>
+      <jelly-segment value="rtl">RTL</jelly-segment>
+    </jelly-segmented>
     <p class="eyebrow">Components</p>
     <h1>Component library</h1>
     <p>Jelly UI wearing Minaã. Every control below is the real Jelly component,
@@ -68,7 +82,7 @@
       <li>1 token bridge</li>
       <li>3 forked tokens</li>
       <li>Minaã Blue throughout</li>
-      <li>LTR</li>
+      <li data-direction-fact>LTR</li>
     </ul>
   </header>
 
@@ -2350,8 +2364,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260907v"></script>
-<script src="minaa-jelly.js?v=20260907v"></script>
-<script src="showcase.js?v=20260907v" defer></script>
+<script src="micons.js?v=20260907x"></script>
+<script src="minaa-jelly.js?v=20260907x"></script>
+<script src="showcase.js?v=20260907x" defer></script>
 </body>
 </html>

@@ -2044,6 +2044,42 @@
      clipped element cannot shadow itself, and lifting it would mean wrapping
      every card on the page. At rgba(22,22,22,.05) it was a whisper, and the
      card is already a different colour from the page it sits on. */
+  /* ── Page direction ─────────────────────────────────────────────────────
+     One attribute on <html> drives the whole page, and that is the entire
+     retrofit. It works because of two things that were already true rather
+     than anything added here:
+
+       our css   carries NO physical properties -- audited, zero occurrences of
+                 padding/margin/border-left|right, left:/right:, text-align
+                 left|right or float across both stylesheets. Everything was
+                 already written padding-inline, inset-inline-end, start/end.
+
+       Jelly     resolves direction at RUNTIME, not at build time. Its helper is
+                 getComputedStyle(node).direction === "rtl", called from 27
+                 places -- the start/end placement resolver every overlay uses,
+                 the drawer's slide origin, the OTP caret measurement, radio
+                 keyboard nav, and the switch thumb's target and drag sign.
+
+     So nothing had to be rebuilt. Setting dir is the lever both halves were
+     already waiting for. */
+  function wireDirection() {
+    const el = document.querySelector('.masthead-direction');
+    if (!el || el.dataset.wired) return;
+    el.dataset.wired = '1';
+
+    const apply = (v) => {
+      const dir = v === 'rtl' ? 'rtl' : 'ltr';
+      document.documentElement.setAttribute('dir', dir);
+      /* The masthead lists the page's facts, and direction was one of them as
+         a hardcoded LTR. A fact that a control can falsify has to follow it. */
+      const fact = document.querySelector('[data-direction-fact]');
+      if (fact) fact.textContent = dir.toUpperCase();
+    };
+
+    el.addEventListener('change', () => apply(el.value));
+    apply(el.value || 'ltr');
+  }
+
   function wireSquircleCards() {
     if (typeof minaaSquirclePath !== 'function') return;
     const cards = document.querySelectorAll('.demo, .preview, .otp-stage, .rz-pane, .tab-card');
@@ -2169,7 +2205,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireDirection(); wireSquircleCards();
   }
 
   if (window.customElements) {

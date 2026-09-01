@@ -96,6 +96,45 @@ body {
   inset-inline-end: var(--space-600);   /* 48 -- the canvas bleed */
 }
 
+/* Below the theme switch, on the same inset for the same reason -- that 48 is
+   the bleed a canvas-backed control needs before the masthead's overflow-x clip
+   reaches it. Sharing the number rather than inventing a second one. */
+.masthead-direction {
+  position: absolute;
+  top: var(--space-800);                /* 64 -- clear of the switch above */
+  inset-inline-end: var(--space-600);
+}
+
+/* ── What flips, and what does not ─────────────────────────────────────────
+   `dir` goes on <html> rather than on the demo panels, and it has to: the
+   dialog, the drawer and every menu panel PORTAL THEMSELVES TO document.body,
+   so a direction set further down the tree never reaches them. Putting it at
+   the root is the only place all six overlays can see it.
+
+   That mirrors the page as well as the specimens, which is right for the
+   layout -- the text column moves to the right, the controls follow -- but
+   wrong for the WORDS. This library's prose is English. Bidi resolves a
+   trailing full stop against the paragraph's own direction, so an English
+   sentence in an RTL paragraph puts its period at the START of the line. It
+   reads as a rendering bug and it is not one; it is the algorithm doing its
+   job on content that is not Arabic.
+
+   So the chrome states its own direction and the SPECIMEN inherits the page's.
+   .entry-text carries the prose, the controls and the code block; .demo carries
+   nothing but the component. The split falls exactly on that line.
+
+   THIS IS NOT THE RULE THE APP FOLLOWS, deliberately. minaa-payments.html is
+   Arabic at all times and has zero elements computing direction: ltr, because
+   islands there would be content-based direction detection -- the thing that
+   file forbids. Here the content really is English and the page direction is a
+   preview control, so naming it is honest rather than adaptive. */
+html[dir="rtl"] .entry-text,
+html[dir="rtl"] .masthead,
+html[dir="rtl"] .toc,
+html[dir="rtl"] .foot {
+  direction: ltr;
+}
+
 .eyebrow {
   margin: 0 0 var(--space-100);
   font-family: var(--font-bold);
