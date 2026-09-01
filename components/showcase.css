@@ -1048,38 +1048,52 @@ svg[data-sq-fill] {
 
 /* Disclosure. Both of these CHANGE HEIGHT as they open, which is the whole
    point of them, so neither stage pins one -- a fixed height would either clip
-   the open panel or leave a hole under the closed one.
+   the open panel or leave a hole under the closed one. A floor instead, sized
+   to the closed state, so the card does not collapse when everything is shut.
 
-   A floor instead, sized to the closed state, so the card does not collapse
-   when everything is shut. The accordion floors at three closed headers. */
-/* align-items DIFFERS BETWEEN THESE TWO, AND IT IS THE WHOLE POINT.
+   BOTH CENTRE, AND NEITHER STRETCHES. jelly-collapsible is display:block, so a
+   stretch container takes it to the full card at every size -- 539px here --
+   which leaves the size row able to move the height and nothing else. That is
+   the failure already removed from the field, the progress bar and the
+   skeleton: a page width overriding a dimension the component's own size scale
+   exists to demonstrate. Centring makes the flex item size to its content.
 
-   jelly-collapsible is display:block, so in a stretch container it takes the
-   full card -- 539px here regardless of `size`, which leaves the size row able
-   to change the height and nothing else. That is the failure already removed
-   from the field, the progress bar and the skeleton: a page width overriding a
-   dimension the component's own size scale exists to demonstrate. Centring it
-   makes the flex item size to its content, so small / medium / large move the
-   width AND the height, which is what the reader came to see.
+   The accordion centres for the same reason and loses nothing by it: it hugs
+   the widest label as a unit, and its block children all fill that one width,
+   so the stack still shares an edge. An earlier note here argued it had to
+   stretch to avoid a ragged edge -- that was wrong, because the children fill
+   the parent rather than sizing themselves.
 
-   The ACCORDION stays stretched, deliberately. Its children are a stack, and a
-   stack whose rows each hug their own label is a ragged edge -- they share a
-   width because they are one control, not three. */
+   NO LAYOUT RULE FOR jelly-accordion, and deleting the one that was here is
+   the fix Ahmad asked for. It had `display: flex` with an 8px gap, which tore
+   Jelly's design apart. The accordion is a JOINED STACK:
+
+     ::slotted(jelly-collapsible)                     { border-radius: 12px }
+     ::slotted(jelly-collapsible + jelly-collapsible) { border-top: 1px solid;
+                                                        border-radius: 0 }
+
+   The items are meant to butt together into one panel, only the first keeping
+   a radius. Flexing them apart made three floating pills. Jelly's own layout
+   runs now.
+
+   WORTH KNOWING: THAT SECOND RULE NEVER APPLIES, AND IT IS JELLY'S BUG, NOT
+   OURS. ::slotted() takes a COMPOUND selector; `A + B` is a complex one, so
+   the whole rule is dropped at parse time. Verified by re-parsing the shadow
+   stylesheet: only :host and ::slotted(jelly-collapsible) survive. So every
+   item keeps the 12px radius and no separator is drawn. Left alone -- the fix
+   belongs upstream, and forcing it from here would mean styling the items
+   directly, which is exactly the inventing this pass removed. */
 .collapsible-stage,
 .accordion-stage {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   padding-block: var(--space-400);                       /* 32 */
 }
-.collapsible-stage { align-items: center; }
-.accordion-stage   { align-items: stretch; }
 .collapsible-stage { min-height: calc(var(--space-800) + var(--space-400) * 2); }
 .accordion-stage   { min-height: calc(var(--space-1000) * 2 + var(--space-400)); }
 
-/* jelly-collapsible and jelly-accordion are display:block and take the stage
-   width. Inside the accordion the items stack with a gap of their own. */
-.accordion-stage jelly-accordion { display: flex; flex-direction: column; gap: var(--space-100); }
 
 /* One chip, centred. A chip is inline-flex and carries its own width from its
    label, so the stage sets none -- and no height either, because the chip's own
