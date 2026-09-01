@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260906q"></script>
+<script src="../gate.js?v=20260906s"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260906q"></script>
+<script type="module" src="vendor/jelly.js?v=20260906s"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260906q">
-<link rel="stylesheet" href="showcase.css?v=20260906q">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260906s">
+<link rel="stylesheet" href="showcase.css?v=20260906s">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -2024,7 +2024,20 @@ drawer.open = true;   // side = start | end | bottom</template>
 
          IT NEEDS A HEIGHT FROM ITS PARENT. A resizable with no height renders
          as a 600x0 strip -- measured, and the reason the first probe of this
-         component looked like it was broken. -->
+         component looked like it was broken.
+
+         THE INNER .rz-body IS NOT DECORATION. render() sets `overflow: auto` on
+         every pane, so each pane is a scroll container -- and our squircle is a
+         PAINTED layer at `position: absolute; inset: 0`, which scrolls away with
+         the content. Measured: force a pane to overflow, scroll it 300, and the
+         layer leaves its own box by 180px.
+
+         So the scroll goes on the inner element and the shape stays on the
+         outer, which is the standing rule for a squircled scroller. The pane
+         keeps the `overflow: auto` the component gives it and simply never has
+         anything to scroll, because .rz-body is exactly its height. The snippet
+         still prints a bare child, because a pane IS just a child -- the wrapper
+         is ours, not the component's. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">direction</span>
@@ -2039,9 +2052,9 @@ drawer.open = true;   // side = start | end | bottom</template>
     <div class="demo" data-demo>
       <div class="resizable-stage" data-controls>
         <jelly-resizable id="rz-demo">
-          <div class="rz-pane">Bays</div>
-          <div class="rz-pane">Payments</div>
-          <div class="rz-pane">Invoices</div>
+          <div class="rz-pane"><div class="rz-body">Bays</div></div>
+          <div class="rz-pane"><div class="rz-body">Payments</div></div>
+          <div class="rz-pane"><div class="rz-body">Invoices</div></div>
         </jelly-resizable>
       </div>
       <template data-snippet-text>&lt;jelly-resizable&gt;
@@ -2388,8 +2401,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260906q"></script>
-<script src="minaa-jelly.js?v=20260906q"></script>
-<script src="showcase.js?v=20260906q" defer></script>
+<script src="micons.js?v=20260906s"></script>
+<script src="minaa-jelly.js?v=20260906s"></script>
+<script src="showcase.js?v=20260906s" defer></script>
 </body>
 </html>

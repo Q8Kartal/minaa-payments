@@ -1085,16 +1085,48 @@ svg[data-sq-fill] {
 /* The panes are the author's -- render() sets only slot, flex and overflow on
    each child, and paints nothing. Unpainted, the demo was labels either side of
    a line with no visible thing to drag. --m-page on --m-card is the pairing
-   already used for a surface sitting on the demo panel. */
+   already used for a surface sitting on the demo panel.
+
+   THE SHAPE IS PAINTED, NOT CLIPPED, like every other Minaa surface: the fill
+   moves onto [data-sq-fill] and this element keeps a plain unclipped box, so
+   `position: relative` is what that layer is positioned against and there is
+   deliberately no `background` here.
+
+   NO BORDER, EVER, on a squircled surface -- a border is painted on the
+   rectangle and would leave four hairlines around a shape they no longer trace.
+
+   The cap is --radius-24 rather than the --m-surface-corner these panes would
+   otherwise inherit. A pane is a small surface inside a panel, not a panel: at
+   263x113 the 64 cap resolves to min(64, 56.5) = 56.5 and rounds the thing into
+   a lozenge. 24 is the top of the radius scale, which is where a card-sized
+   surface belongs.
+
+   These panes RESIZE, which is the entire component -- the applier's
+   ResizeObserver regenerates the path on every drag, and shape() keys on
+   clientWidth/clientHeight so it only redraws when the size really moved.
+
+   THE SCROLL IS ON .rz-body, THE SHAPE ON .rz-pane, and that split is load
+   bearing. render() sets `overflow: auto` on every pane, which makes each pane
+   a scroll container; a painted layer at `inset: 0` inside a scroller scrolls
+   away with the content -- measured at 180px of drift once a pane overflows.
+   Giving the inner element the scroll leaves the pane with nothing to scroll,
+   so the layer cannot move, and the pane keeps the overflow the component set
+   on it rather than us fighting an inline style. */
 .rz-pane {
+  position: relative;
+  block-size: 100%;
+  --m-squircle-radius: var(--radius-24);
+  --m-squircle-fill: var(--m-page);
+  border-radius: var(--radius-24);       /* pre-paint fallback only */
+  color: var(--m-ink);
+  font-size: var(--text-md);
+}
+.rz-body {
   display: flex;
   align-items: center;
   justify-content: center;
   block-size: 100%;
-  border-radius: var(--radius-16);
-  background: var(--m-page);
-  color: var(--m-ink);
-  font-size: var(--text-md);
+  overflow: auto;
 }
 
 /* Disclosure. Both of these CHANGE HEIGHT as they open, which is the whole

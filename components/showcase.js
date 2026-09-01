@@ -2058,13 +2058,24 @@
      card is already a different colour from the page it sits on. */
   function wireSquircleCards() {
     if (typeof minaaSquirclePath !== 'function') return;
-    const cards = document.querySelectorAll('.demo, .preview, .otp-stage');
+    const cards = document.querySelectorAll('.demo, .preview, .otp-stage, .rz-pane');
     if (!cards.length) return;
 
     const SVGNS = 'http://www.w3.org/2000/svg';
 
-    const radius = () => {
-      const raw = getComputedStyle(document.documentElement)
+    /* THE CAP IS A ROLE, NOT A SIZE, so a surface that plays a smaller role than
+       a page panel has to be able to say so. --m-squircle-radius is the hook the
+       shadow-DOM generator already reads for exactly this -- the drawer caps
+       itself through it -- and this side simply did not read it, so every page
+       surface was pinned to the one --m-surface-corner.
+
+       Nothing declares it on :root (only jelly-dialog, jelly-drawer,
+       jelly-popover and jelly-tooltip, none of which contain a page surface),
+       so .demo, .preview and .otp-stage still resolve to --m-surface-corner and
+       are untouched by this. */
+    const radius = (el) => {
+      const own = el && getComputedStyle(el).getPropertyValue('--m-squircle-radius');
+      const raw = (own && own.trim()) || getComputedStyle(document.documentElement)
         .getPropertyValue('--m-surface-corner');
       const n = parseFloat(raw);
       return isNaN(n) ? Infinity : n;
@@ -2145,7 +2156,7 @@
       const w = el.clientWidth, h = el.clientHeight;
       if (!w || !h) return;
       if (el.__sqW === w && el.__sqH === h) return;
-      const r = radius();
+      const r = radius(el);
       const d = minaaSquirclePath(w, h, r);
       if (!d) return;
       el.__sqW = w; el.__sqH = h;
