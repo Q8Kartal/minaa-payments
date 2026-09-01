@@ -541,7 +541,10 @@
     const size = document.getElementById('sel-size');
     const dis = document.getElementById('sel-disabled');
     const add = document.getElementById('sel-add');
-    if (!el || !value || !size || !dis || !add || el.dataset.wired) return;
+    const lbl = document.getElementById('sel-label');
+    const ph = document.getElementById('sel-placeholder');
+    if (!el || !value || !size || !dis || !add || !lbl || !ph
+        || el.dataset.wired) return;
     el.dataset.wired = '1';
 
     /* Read the options out of the DOM every time rather than holding a list
@@ -554,11 +557,18 @@
       const box = document.querySelector('#c-12 .code code');
       if (!box) return;
       const a = [];
-      /* el.value, NOT the attribute. jelly-select does not reflect value back
-         to the attribute, so reading getAttribute here printed the value the
-         element was born with and the snippet lagged the control by one pick
-         -- measured, not assumed. */
+      /* el.value, the PROPERTY. The reason written here before was wrong: it
+         said jelly-select does not reflect `value` to the attribute. It does --
+         reflectValue() writes it on every commit. The property is still what to
+         read, because it is derived from the selected option rather than from
+         whatever the attribute last held, so it cannot disagree with the row
+         the panel has highlighted. */
       if (el.value) a.push('value="' + el.value + '"');
+      /* Both are on the specimen, so both belong in a snippet a reader copies. */
+      const lb = el.getAttribute('label');
+      if (lb) a.push('label="' + lb + '"');
+      const phv = el.getAttribute('placeholder');
+      if (phv) a.push('placeholder="' + phv + '"');
       /* medium is printed only when it is not the default. Jelly's base :host
          already carries 240x54, so `size="medium"` would document an attribute
          that changes nothing -- the opposite of jelly-input, whose base :host
@@ -625,6 +635,23 @@
       e.preventDefault();
       if (addOption(add.value)) add.value = '';
     });
+
+    /* Two observed attributes that draw nothing by themselves. Empty removes
+       rather than setting an empty string, so the snippet never prints
+       label="" -- and an empty placeholder is how you see the component's own
+       fallback rather than ours. */
+    const attrField = (field, name) => {
+      const apply = () => {
+        const v = field.value == null ? '' : String(field.value).trim();
+        if (v) el.setAttribute(name, v); else el.removeAttribute(name);
+        snippet();
+      };
+      field.addEventListener('input', apply);
+      field.addEventListener('change', apply);
+      field.value = el.getAttribute(name) || '';
+    };
+    attrField(lbl, 'label');
+    attrField(ph, 'placeholder');
 
     snippet();
   }
@@ -973,47 +1000,6 @@
   /* Entries 39 to 41 -- the three child elements. Each one renders nothing of
      its own, so every specimen here is the PARENT and the rows drive one child
      inside it. */
-
-  function wireOptionDemo() {
-    const el = document.getElementById('op-demo');
-    const sel = document.getElementById('op-select');
-    const selected = document.getElementById('op-selected');
-    const disabled = document.getElementById('op-disabled');
-    const field = document.getElementById('op-value');
-    if (!el || !sel || !selected || !disabled || !field || el.dataset.wiredCtl) return;
-    el.dataset.wiredCtl = '1';
-    const snippet = () => {
-      const box = document.querySelector('#c-39 .code code');
-      if (!box) return;
-      const a = [];
-      if (el.hasAttribute('value')) a.push('value="' + el.getAttribute('value') + '"');
-      if (el.hasAttribute('selected')) a.push('selected');
-      if (el.hasAttribute('disabled')) a.push('disabled');
-      box.textContent = '<jelly-option' + (a.length ? ' ' + a.join(' ') : '') + '>'
-        + el.textContent.trim() + '</jelly-option>';
-    };
-    /* Selecting through the trigger moves it too, so the row is pushed back
-       from the select rather than assumed. */
-    const sync = () => {
-      selected.querySelectorAll('.pill').forEach(
-        (p) => p.setAttribute('aria-pressed',
-          String((p.dataset.value === 'true') === el.hasAttribute('selected'))));
-      snippet();
-    };
-    pillRow(selected, (v) => el.toggleAttribute('selected', v === 'true'), sync);
-    pillRow(disabled, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
-    /* An empty field REMOVES the attribute, which is the interesting state:
-       the option then submits its own text instead. */
-    const apply = () => {
-      const v = field.value == null ? '' : String(field.value).trim();
-      if (v) el.setAttribute('value', v); else el.removeAttribute('value');
-      snippet();
-    };
-    field.addEventListener('input', apply);
-    field.addEventListener('change', apply);
-    sel.addEventListener('change', sync);
-    sync();
-  }
 
   function wireCardDemo() {
     const el = document.getElementById('cd-demo');
@@ -2098,7 +2084,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireOptionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {

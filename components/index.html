@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260907c"></script>
+<script src="../gate.js?v=20260907d"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260907c"></script>
+<script type="module" src="vendor/jelly.js?v=20260907d"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260907c">
-<link rel="stylesheet" href="showcase.css?v=20260907c">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260907d">
+<link rel="stylesheet" href="showcase.css?v=20260907d">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -649,7 +649,46 @@
 
          No `variant` row. That is Jelly's own palette -- azure, rose, amber,
          mint, graphite, platinum, white -- and none of it is ours, the same
-         reason 07, 08, 25, 26 and 28 leave it out. -->
+         reason 07, 08, 25, 26 and 28 leave it out. It is not on this class at
+         all: observedAttributes here is disabled, label, placeholder, size,
+         value, so `variant` comes from the shared base.
+
+         HOW `value` ACTUALLY WORKS, because this file said the opposite twice
+         and both statements have now been corrected. The claim was that
+         jelly-select never reflects `value`, and therefore that a child's
+         `selected` stays authoritative. IT REFLECTS. Every commit runs
+
+           reflectValue(v) { this.reflectingValue = true;
+                             v ? this.setAttribute("value", v)
+                               : this.removeAttribute("value");
+                             this.reflectingValue = false; }
+
+         guarded exactly like jelly-segmented's, and syncOptions() then picks
+         the selection with the SAME precedence as jelly-segmented:
+
+           host has a non-empty value  ->  match the option whose value equals
+                                           it; `selected` is ignored
+           otherwise                   ->  the LAST child carrying `selected`
+
+         So `selected` on an option is a connect-time seed and nothing more:
+         once anything has been picked, the reflected attribute exists and the
+         `selected` branch can never win again. The old entry for
+         &lt;jelly-option&gt; appeared to disprove this only because its own
+         specimen carried no `value` to begin with. Measured on THIS specimen,
+         which does carry value="KWD": moving `selected` to USD changed nothing,
+         committing EUR reflected value="EUR", and moving `selected` to KWD
+         after that changed nothing again.
+
+         ONE COMPONENT, ONE ENTRY. &lt;jelly-option&gt; had an entry of its own
+         and it was a split of a single thing -- 1012 characters, no shadow
+         root, `this.style.display = "none"` on connect, and every change
+         calling syncOptions() on the select. It renders nothing: the rows you
+         see are &lt;li class="row"&gt; that syncOptions() writes into the
+         select's own shadow. Its surface, recorded here rather than given rows:
+
+           value      what the option reports, falling back to its text
+           selected   the connect-time seed described above
+           disabled   renders the row aria-disabled and unpickable -->
     <div class="controls controls--stacked" data-controls>
       <!-- The one control that GROWS. KWD, USD and EUR are examples, not the
            component's range, and a fixed set of three quietly documented a
@@ -668,6 +707,20 @@
           <jelly-input id="sel-add" size="small" label="Add an option"
                        placeholder="Add an option, then Enter"></jelly-input>
         </div>
+      </div>
+      <!-- Both of these are observed attributes with no row until now, and
+           both are already on the specimen. `label` names the trigger for a
+           screen reader and draws nothing; `placeholder` only shows when
+           NOTHING is selected, so clearing the value row is what reveals it. -->
+      <div class="ctl">
+        <span class="ctl-name">label</span>
+        <jelly-input id="sel-label" size="small" label="Accessible name"
+                     placeholder="Names the trigger"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">placeholder</span>
+        <jelly-input id="sel-placeholder" size="small" label="Placeholder"
+                     placeholder="Shown when nothing is picked"></jelly-input>
       </div>
       <div class="ctl">
         <span class="ctl-name">size</span>
@@ -2217,61 +2270,6 @@ drawer.open = true;   // side = start | end | bottom</template>
       <template data-snippet-text>&lt;jelly-kbd key="Escape"&gt;Esc&lt;/jelly-kbd&gt;</template>
     </div>
   </section>
-  <section class="entry" id="c-39">
-    <div class="entry-text">
-    <p class="entry-num">Forms &middot; 39</p>
-    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-select"/></svg> &lt;jelly-option&gt;</h2>
-    <p class="entry-note">One row of a select. It renders nothing itself &mdash; the
-       select draws it.</p>
-
-    <!-- IT SETS display:none ON ITSELF. jelly-option is a data carrier, not a
-         visible element: connectedCallback hides it and calls syncOptions() on
-         the nearest jelly-select, which is what actually draws the row. So the
-         specimen here is a SELECT, and the controller drives the middle option
-         inside it. The same shape as entry 23, where the specimen is a menu.
-
-         Its value is the `value` attribute, FALLING BACK TO ITS TEXT. That is
-         worth knowing: an option with no value attribute still submits, it
-         just submits its own label, so a label change silently changes the
-         value. The row shows both -- clear the value and the snippet stops
-         printing one, while the select keeps working.
-
-         Both rows take effect live. attributeChangedCallback calls the
-         parent's syncOptions() on every change, so unlike the tab panel below
-         there is no rebuild trick needed. -->
-    <div class="controls controls--stacked" data-controls>
-      <div class="ctl">
-        <span class="ctl-name">selected</span>
-        <div class="pillset" id="op-selected" role="group" aria-label="Selected">
-          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
-          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
-        </div>
-      </div>
-      <div class="ctl">
-        <span class="ctl-name">disabled</span>
-        <div class="pillset" id="op-disabled" role="group" aria-label="Disabled">
-          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
-          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
-        </div>
-      </div>
-      <div class="ctl">
-        <span class="ctl-name">value</span>
-        <jelly-input id="op-value" size="small" label="Value"
-                     placeholder="Empty falls back to the text"></jelly-input>
-      </div>
-    </div>
-    </div>
-    <div class="demo" data-demo>
-      <div class="select-stage" data-controls>
-        <jelly-select id="op-select" label="Currency">
-          <jelly-option value="KWD" selected>Kuwaiti Dinar</jelly-option>
-          <jelly-option id="op-demo" value="USD">US Dollar</jelly-option>
-          <jelly-option value="EUR">Euro</jelly-option>
-        </jelly-select>
-      </div>
-      <template data-snippet-text>&lt;jelly-option value="USD"&gt;US Dollar&lt;/jelly-option&gt;</template>
-    </div>
-  </section>
 <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
        through a token bridge. The library is vendored here rather than loaded from its own origin, and
@@ -2293,8 +2291,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260907c"></script>
-<script src="minaa-jelly.js?v=20260907c"></script>
-<script src="showcase.js?v=20260907c" defer></script>
+<script src="micons.js?v=20260907d"></script>
+<script src="minaa-jelly.js?v=20260907d"></script>
+<script src="showcase.js?v=20260907d" defer></script>
 </body>
 </html>
