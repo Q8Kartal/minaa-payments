@@ -1058,6 +1058,17 @@ svg[data-sq-fill] {
 }
 .divider-stage jelly-divider[direction="vertical"] { align-self: stretch; }
 
+/* AND THE LENGTH IS BOUNDED IN BOTH DIRECTIONS, for the same reason. The
+   vertical rule was fixed by giving the stage height; the horizontal one still
+   ran the full 539 of the card while the vertical ran 176, so the two did not
+   read as the same component -- one was a rule in a space, the other a line
+   across the box.
+
+   The container decides a divider's length, so the container is what gets
+   bounded. Not a height, not a type size, nothing of the component's own: it
+   is still `flex: 1 1 100%` and still fills what it is given. */
+.divider-stage jelly-divider { max-inline-size: min(100%, var(--control-96) * 4); }
+
 .resizable-stage {
   display: flex;
   flex-direction: column;
