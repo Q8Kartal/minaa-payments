@@ -1248,18 +1248,28 @@ jelly-textarea[size="large"], jelly-textarea[size="lg"] {
 }
 
 
-/* Overlay surfaces. Declared on the components that own a panel as well as on
-   the menu itself, because the panel a select unfolds is drawn by the select,
-   not by a jelly-menu. */
-jelly-menu,
-jelly-select {
-  --jelly-menu-radius:              var(--radius-16);
-  --jelly-menu-padding:             var(--space-100);
-  --jelly-menu-item-height:         var(--space-500);
-  --jelly-menu-item-padding-inline: var(--space-200);
-  --jelly-menu-item-radius:         var(--radius-8);
-  --jelly-menu-font-size:           var(--text-md);
-}
+/* NO --jelly-menu-* SIZING. Jelly's ramp stands, and it steps on six values:
+
+     small   radius 12, padding 5, item 34, inline 10, item-radius  8, font 13
+     medium  radius 15, padding 7, item 40, inline 12, item-radius 10, font 14.5
+     large   radius 18, padding 9, item 46, inline 14, item-radius 12, font 16
+
+   All six used to be pinned here to one value each, which flattened small and
+   large into medium and left the menu's size row moving nothing but the panel's
+   min-width -- measured across all three: item 40, font 16, padding 16, radius
+   8, identical, with only the width stepping 177 / 207 / 247.
+
+   THE RULE ALSO NAMED jelly-select, AND THAT PART WAS NEVER TRUE. The comment
+   here said the select's panel is drawn by the select rather than by a
+   jelly-menu, and therefore needed the same tokens. It does not read them: its
+   stylesheet is 4078 characters and mentions --jelly-menu-* exactly zero times,
+   drawing its panel from its own --jelly-select-row-height, -row-radius,
+   -font-size and -padding-inline instead. Only one constant in the whole
+   library mentions --jelly-menu-*, and it is the menu's own.
+
+   So this rule moved one component and misdescribed two. Removing it is
+   measurably invisible to the select, which already steps 32 / 40 / 48 on its
+   own tokens. */
 /* THE PANEL'S EDGE IS PRIMARY 700, in both modes.
 
    Jelly paints the dropdown from two colours and neither is a border token:
