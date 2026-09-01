@@ -2089,19 +2089,20 @@ jelly-accordion jelly-collapsible[open]::part(header) {
   background: var(--m-disclosure-surface);
 }
 
-jelly-card[size="small"], jelly-card[size="sm"] {
-  --jelly-card-padding-block:  var(--space-200);   /* 16 */
-  --jelly-card-padding-inline: var(--space-250);   /* 20 */
-  --jelly-card-font-size:      var(--text-sm);     /* 14 */
-  line-height:                 var(--text-sm-lh);
-}
+/* ── jelly-card ────────────────────────────────────────────────────────────
+   NOTHING IS REBOUND. The card renders its API values -- padding-block
+   16/22/28, padding-inline 18/24/30, font 13.5/15/16.5, radius 18/22/26 --
+   the same call Ahmad made for the collapsible: match the source, do not
+   invent a scale for a component whose numbers are its proportions.
 
-jelly-card[size="large"], jelly-card[size="lg"] {
-  --jelly-card-padding-block:  var(--space-300);   /* 24 */
-  --jelly-card-padding-inline: var(--space-400);   /* 32 */
-  --jelly-card-font-size:      var(--text-lg);     /* 18 */
-  line-height:                 var(--text-lg-lh);
-}
+   It had been rebound to the spacing scale, and then HALF of that was lost: a
+   region rewrite in an earlier commit cut through this block and took the base
+   `jelly-card` rule with it, leaving orphaned size="small" and size="large"
+   overrides with nothing under them. Medium therefore matched the API while
+   small and large did not -- an inconsistency no screenshot would show, found
+   only by comparing every declared token against Jelly's own :host rules. That
+   check is why this file should be audited against the source per component,
+   not eyeballed. */
 
 
 /* ── Divider ───────────────────────────────────────────────────────────────

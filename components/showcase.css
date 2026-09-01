@@ -1014,9 +1014,17 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);
 }
 
-/* The card is a surface: it should take the stage width rather than shrink to
-   its text, which is how it will be used. */
-.card-stage jelly-card { inline-size: 100%; }
+/* NO WIDTH ON THE CARD, and the rule that was here is deleted. It pinned
+   `inline-size: 100%`, which is the same mistake the collapsible had: the
+   component is display:block, so it already fills whatever it is given, and
+   forcing the stage width meant `size` could only ever move the HEIGHT. The
+   card's own scale steps padding 16/22/28 and type 13.5/15/16.5, so at a
+   pinned width two thirds of that ramp is invisible.
+
+   The stage centres, so the flex item sizes to its content and small / medium
+   / large move both dimensions. The argument for stretching -- "a card is a
+   surface, it will be full width in use" -- is about the PRODUCT; this is a
+   specimen, and its job is to show what the attribute does. */
 
 .divider-stage {
   display: flex;

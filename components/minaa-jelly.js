@@ -1017,16 +1017,29 @@
                        property the stylesheet owns, so it needs no shape()
                        wrap -- only the exponent.
 
+       jelly-card      always, and for the same reason as the alert: it is the
+                       card. Ahmad asked for it directly. Like the alert its
+                       radius already comes from a token the stylesheet owns
+                       (--jelly-radius), so it needs no shape() wrap -- only the
+                       exponent.
+
+                       THE RADIUS IS LEFT AT JELLY'S OWN 18/22/26. The skill's
+                       table gives cards the 64 family cap, and that is not
+                       applied here: the instruction on this component has been
+                       match the API and change nothing that is not asked for,
+                       twice over. The ask was the SHAPE. Capping the corner is
+                       one line if it is wanted.
+
        jelly-skeleton  ONLY shape="rect". `line` is a 7px-capped bar where a
                        superellipse and a circle differ by under 3px, and
                        `circle` must stay a circle: roundness is an affordance.
                        Its radius is hardcoded in shape(), hence the wrap. */
-  var TAGS = ['jelly-alert', 'jelly-skeleton'];
+  var TAGS = ['jelly-alert', 'jelly-card', 'jelly-skeleton'];
   var TARGETS = TAGS.join(', ');
 
   function wantsSquircle(el) {
     var tag = el.tagName.toLowerCase();
-    if (tag === 'jelly-alert') return true;
+    if (tag === 'jelly-alert' || tag === 'jelly-card') return true;
     return el.getAttribute('shape') === 'rect';
   }
 
@@ -1071,16 +1084,41 @@
 
     var want = wantsSquircle(el) ? SQUIRCLE : CIRCLE;
 
-    /* The exponent DOES persist: it lives on the body's config and gt() reads
-       it on every regeneration, so unlike the radius it survives Jelly's own
-       resizes. Only re-apply when it actually differs. */
-    if (body.config.superellipse === want) return true;
+    /* NO EARLY RETURN ON THE CONFIG VALUE, AND THAT MATTERS FOR THE CARD.
+
+       The note here used to say the exponent persists because it lives on the
+       body's config and is read on every regeneration -- true for the alert
+       and the skeleton, and false for jelly-card. The card rebuilds its
+       membrane after this pass has run, and that rebuild draws a circular
+       corner regardless of what the config holds. Sampled from the painted
+       canvas on six loads at 800ms through 7s: circle every time, with
+       superellipse 0.5 sitting in the config the whole way.
+
+       Skipping the work when the value already matched meant the ResizeObserver
+       below fired, found the config correct, and returned without redrawing --
+       so the one component that needed re-applying was the one that never got
+       it. The exponent is now written and the membrane regenerated on every
+       call. resize() takes the body's current width, height and radius, so it
+       rebuilds the same geometry and cannot loop through the observer. */
     body.config.superellipse = want;
 
-    /* applyShape() re-runs the wrapped shape() above, so this picks up both the
-       new exponent and the right radius in one pass. */
+    /* BOTH, AND resize() IS THE ONE THAT DRAWS IT. applyShape() re-runs the
+       wrapped shape() above, which is what settles the radius -- but on
+       jelly-card it does NOT rebuild the membrane, so the new exponent sat in
+       the config and never reached the canvas. Measured on the card's own
+       painted boundary, mean error against each curve:
+
+         after applyShape()   0.32 vs a circle, 5.71 vs a superellipse
+         after resize()       5.34 vs a circle, 0.28 vs a superellipse
+
+       The old code called resize() only as a fallback for elements with no
+       applyShape, so the card stored the shape and drew the old one -- a bug
+       that no screenshot would have shown, because a 22px circular corner and
+       a 22px squircle look similar until they are fitted. Calling both is
+       idempotent: resize() is handed the body's current width, height and
+       radius, so it regenerates the same geometry with the exponent applied. */
     if (el.applyShape) el.applyShape();
-    else body.resize(body.width, body.height, body.radius);
+    if (body.resize) body.resize(body.width, body.height, body.radius);
     if (el.requestFrame) el.requestFrame();
     return true;
   }
@@ -1094,6 +1132,33 @@
        re-measures on any size change and shape() hands back its own 7 again.
        Without this the corner silently reverts on a window resize. */
     if (window.ResizeObserver) new ResizeObserver(function () { apply(el); }).observe(el);
+
+    /* AND ON BECOMING VISIBLE, which is what jelly-card actually needed.
+
+       The load-time passes run before Jelly has built the card's membrane, and
+       the rebuild draws a circular corner over the top. Nothing fires
+       afterwards: the ResizeObserver's first callback lands during that same
+       early window, and the box never changes again, so the corner stayed
+       circular for the life of the page. Sampled from the painted canvas once
+       a second for sixteen seconds -- circle every time, with superellipse 0.5
+       sitting in the config throughout.
+
+       It was found by accident: appending a second card resized this one, the
+       ResizeObserver fired, apply() ran late, and BOTH cards came out
+       superellipse (0.25 and 0.28 against the curve, 5.34 against a circle).
+       So the pass was always correct and only ever mistimed.
+
+       Intersection is the honest trigger, because it is the moment Jelly
+       starts painting the thing. An entry near the bottom of a 39-entry page
+       is off-screen for the whole settle window, which is exactly why the card
+       showed the bug and the alert -- higher up -- did not. */
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].isIntersecting) apply(el);
+        }
+      }).observe(el);
+    }
   }
 
   function applyAll() {
@@ -1124,10 +1189,27 @@
   }
 
   patchShape();
-  if (!applyAll()) {
-    setTimeout(applyAll, 300);
-    setTimeout(applyAll, 1200);
-  }
+
+  /* THE FOLLOW-UP PASSES RUN UNCONDITIONALLY, and the old `if (!applyAll())`
+     was the whole reason jelly-card never took the shape.
+
+     Those retries existed for components whose body does not exist yet, so
+     they were skipped whenever the first pass reached everything. The card's
+     body DOES exist immediately -- measured, at 0ms it is already present and
+     already carrying superellipse 0.5 -- so the first pass "succeeded", no
+     retry was scheduled, and Jelly then rebuilt the membrane on its own
+     measure and drew a circular corner over the top. The config said squircle
+     and the canvas drew a circle, for the rest of the page's life.
+
+     The ResizeObserver could not save it either: it only fires when the box
+     changes, and nothing changed after that first pass.
+
+     Re-applying is idempotent -- resize() is handed the body's own current
+     width, height and radius -- so running the passes always costs a couple of
+     regenerations and removes an entire class of ordering bug. */
+  applyAll();
+  setTimeout(applyAll, 300);
+  setTimeout(applyAll, 1200);
 
   new MutationObserver(function (records) {
     for (var i = 0; i < records.length; i++) {
