@@ -985,7 +985,8 @@
    the library keeps no opinion about Minaa and one selector is the whole blast
    radius.
 
-   Only shape="rect" opts in, and that is Ahmad's call, not an inference:
+   Only the rectangular shape opts in -- under either of the two names Jelly
+   gives it, see isRect() -- and that is Ahmad's call, not an inference:
      - `line` is a thin bar whose corner is capped at 7px by Jelly's shape();
        at that size a superellipse and a circle are a couple of pixels apart.
      - `circle` must stay a circle. Roundness is an affordance, and a blanket
@@ -1026,24 +1027,38 @@
                        twice over. The ask was the SHAPE. Capping the corner is
                        one line if it is wanted.
 
-       jelly-skeleton  ONLY shape="rect". `line` is a 7px-capped bar where a
+       jelly-skeleton  ONLY the rectangular shape, under either of the two
+                       names Jelly gives it. `line` is a 7px-capped bar where a
                        superellipse and a circle differ by under 3px, and
                        `circle` must stay a circle: roundness is an affordance.
                        Its radius is hardcoded in shape(), hence the wrap. */
   var TAGS = ['jelly-alert', 'jelly-card', 'jelly-skeleton'];
   var TARGETS = TAGS.join(', ');
 
+  /* ONE TEST, TWO READERS, AND THAT IS THE WHOLE POINT OF IT BEING A FUNCTION.
+
+     Jelly names the rectangular skeleton twice in a single rule --
+     :host([shape="rect"]), :host([shape="square"]) -- and this file asked "is
+     it rect?" in two separate places: wantsSquircle() for the EXPONENT and
+     patchShape() for the RADIUS. The page's control was changed from `rect` to
+     `square`, a valid value that sizes correctly, and both tests stopped
+     matching.
+
+     Fixing only the first is what made this look fixed when it was not. The
+     exponent went to 0.5 and the radius stayed on Jelly's own min(h / 2, 7),
+     and at a 7px corner a superellipse and a circle differ by under 3px across
+     the whole block -- a measurement that moves and a picture that does not.
+     Both readers share this now, so the two halves of one shape cannot answer
+     the question differently again. */
+  function isRect(el) {
+    var shape = el.getAttribute('shape');
+    return shape === 'rect' || shape === 'square';
+  }
+
   function wantsSquircle(el) {
     var tag = el.tagName.toLowerCase();
     if (tag === 'jelly-alert' || tag === 'jelly-card') return true;
-    /* BOTH SPELLINGS. Jelly gives the rectangular skeleton two names in one
-       rule -- :host([shape="rect"]), :host([shape="square"]) -- and this test
-       knew only the first. The page's control was changed from `rect` to
-       `square` later, which is a valid value and sized correctly, so the
-       specimen looked right while quietly losing its squircle: the shape it
-       reported matched no branch here and fell through to the round corner. */
-    var shape = el.getAttribute('shape');
-    return shape === 'rect' || shape === 'square';
+    return isRect(el);
   }
 
   /* THE CORNER IS OWNED BY shape(), SO THAT IS WHERE IT IS SET.
@@ -1073,7 +1088,7 @@
     Ctor.prototype.__minaaShaped = true;
     Ctor.prototype.shape = function (w, h) {
       var out = orig.call(this, w, h);
-      if (this.getAttribute('shape') === 'rect') {
+      if (isRect(this)) {
         var c = parseFloat(getComputedStyle(this).getPropertyValue('--m-surface-corner'));
         if (isFinite(c)) out.radius = Math.min(c, w / 2, h / 2);
       }
