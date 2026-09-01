@@ -1041,7 +1041,19 @@ svg[data-sq-fill] {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(var(--space-800) + var(--space-400) * 2);
+
+  /* TALLER THAN THE OTHER STAGES, BECAUSE THIS COMPONENT'S LENGTH IS ITS
+     CONTAINER'S. A divider is `flex: 1 1 100%` lying down and `align-self:
+     stretch` standing up -- it has no length of its own in either direction,
+     so whatever box it is given IS the specimen.
+
+     At the 128 the other stages use, the vertical rule got 64px and read as a
+     stub while the horizontal one filled the box edge to edge. Both are the
+     same fault: the container, not the component. The reference sits it in a
+     large, roughly square area, so this is 240 -- the vertical rule comes out
+     around 176, which is a rule rather than a tick, and the horizontal one no
+     longer dominates its card. */
+  min-height: calc(var(--space-1000) * 3);                /* 240 */
   padding-block: var(--space-400);
 }
 .divider-stage jelly-divider[direction="vertical"] { align-self: stretch; }
