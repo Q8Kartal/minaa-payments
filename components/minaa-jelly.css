@@ -2021,13 +2021,36 @@ jelly-chip[tone="neutral"] {
    otherwise be dead; it is a 12% shift toward the ink, so it moves against
    whichever surface the mode supplies. The accordion's items pick all of this
    up for the light-dom reason above. */
+/* THE SURFACE IS A STATE, NOT A SKIN, which is how Jelly built it and what the
+   previous version of this rule got wrong. Reading the shadow stylesheet:
+
+     .head          background: transparent          <- nothing at rest
+     .head:hover    color-mix(accent 7%, transparent) <- the only surface state
+     :host([open])  rotates the chevron, expands .wrap, reveals .content
+
+   [open] never touches the background. So the faint card on an opened item is
+   the HOVER tint with a cursor over it, not an open state -- worth stating
+   because it is easy to read the other way round, and it was read the other
+   way round here.
+
+   A flat always-on surface therefore made every header a solid block and lost
+   the distinction the component is built around. Rest is transparent again.
+
+   Ahmad's colours: Primary 700 ink, and the card at Primary 300 around 60-70%.
+   65% is the middle of that. Dark keeps Secondary 600, set earlier.
+
+   [open] IS AN ADDITION, and the only thing here that Jelly does not do. It is
+   in because a stack of collapsibles wants the open one marked -- with hover
+   alone the accordion shows nothing once the pointer leaves. Say the word and
+   it comes out; the hover half is the part that matches the source. */
 jelly-collapsible::part(header) {
-  background: var(--m-disclosure-surface);
+  background: transparent;
   color:      var(--m-disclosure-ink);
 }
 
-jelly-collapsible::part(header):hover {
-  background: color-mix(in srgb, var(--m-disclosure-ink) 12%, var(--m-disclosure-surface));
+jelly-collapsible::part(header):hover,
+jelly-collapsible[open]::part(header) {
+  background: color-mix(in srgb, var(--m-disclosure-surface) 65%, transparent);
 }
 
 /* ── Card ──────────────────────────────────────────────────────────────────
