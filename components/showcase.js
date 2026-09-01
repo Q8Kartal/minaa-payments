@@ -2156,6 +2156,94 @@
     "Nine payments, none late.": "تسع دفعات، لا تأخير.",
     "Climate controlled · 12 m² · 150.000 KWD monthly.": "مكيّف · 12 م² · 150.000 د.ك شهرياً."
   };
+  /* THE CONTROLLER'S OWN WORDS, kept in a SEPARATE map and never applied to a
+     code block. These are the API: a pill reading صغير still carries
+     data-value="small", and the snippet must keep printing size="small" or it
+     stops being something a reader can copy. Running the content dictionary
+     over the controls would have rewritten the code too.
+
+     Deliberately NOT translated, because they are identifiers rather than
+     words: the currency codes KWD / USD / EUR, every numeric pill, the key
+     names Escape / Enter / "/", and the chip's tone names -- primary,
+     secondary, neutral, mgreen, myellow, morange -- which are Minaa token
+     names, not UI copy. Translating a token name would invent a second name
+     for something the system already names once. */
+  const AR_UI = {
+    "mode": "الوضع",
+    "accent": "اللون المميز",
+    "checked": "محدد",
+    "indeterminate": "غير محدد",
+    "size": "الحجم",
+    "disabled": "معطّل",
+    "placeholder": "النص البديل",
+    "value": "القيمة",
+    "type": "النوع",
+    "readonly": "للقراءة فقط",
+    "required": "مطلوب",
+    "length": "الطول",
+    "label": "التسمية",
+    "direction": "الاتجاه",
+    "step": "الخطوة",
+    "rows": "الأسطر",
+    "geometry": "الأبعاد",
+    "tone": "النبرة",
+    "open": "مفتوح",
+    "side": "الجهة",
+    "placement": "الموضع",
+    "text": "النص",
+    "dismissible": "قابل للإغلاق",
+    "shape": "الشكل",
+    "outline": "إطار خارجي",
+    "live": "مباشر",
+    "max": "الحد الأقصى",
+    "selected": "محدد",
+    "selectable": "قابل للتحديد",
+    "removable": "قابل للإزالة",
+    "single": "مفرد",
+    "squish": "الانضغاط",
+    "content": "المحتوى",
+    "total": "الإجمالي",
+    "key": "المفتاح",
+    "false": "لا",
+    "true": "نعم",
+    "small": "صغير",
+    "medium": "متوسط",
+    "large": "كبير",
+    "email": "بريد",
+    "password": "كلمة مرور",
+    "auto": "تلقائي",
+    "light": "فاتح",
+    "dark": "داكن",
+    "vertical": "عمودي",
+    "horizontal": "أفقي",
+    "monthly": "شهري",
+    "quarterly": "ربع سنوي",
+    "onetime": "مرة واحدة",
+    "android": "أندرويد",
+    "desktop": "سطح المكتب",
+    "ios": "آي أو إس",
+    "info": "معلومة",
+    "success": "نجاح",
+    "warning": "تحذير",
+    "danger": "خطر",
+    "start": "البداية",
+    "end": "النهاية",
+    "top": "أعلى",
+    "bottom": "أسفل",
+    "pill": "كبسولة",
+    "square": "مربع",
+    "line": "خط",
+    "circle": "دائرة",
+    "dots": "نقاط",
+    "blob": "كتلة",
+    "round": "دائري",
+    "row": "صف",
+    "both": "كلاهما",
+    "details": "التفاصيل",
+    "schedule": "الجدول",
+    "history": "السجل"
+  };
+
   const AR_ATTRS = ['label', 'text', 'placeholder', 'aria-label'];
   /* Longest first: substring replacement inside code blocks depends on it. */
   const AR_KEYS = Object.keys(AR).sort((a, b) => b.length - a.length);
@@ -2196,6 +2284,13 @@
       while ((n = walk.nextNode())) nodes.push(n);
       nodes.forEach((node) => {
         if (node.parentElement && node.parentElement.closest('template')) return;
+        /* .demo-note is DOCUMENTATION that happens to sit inside a demo -- the
+           caption under entries 01 and 17. It is English prose with <b>dark</b>
+           and <b>auto</b> inline, so whole-node matching translated those two
+           words and left the sentence around them in English: "with cream as
+           داكن. All three settings now paint Minaã." Prose is not specimen
+           content, so it is skipped the same way a template is. */
+        if (node.parentElement && node.parentElement.closest('.demo-note')) return;
         if (toArabic) {
           const raw = node.textContent;
           const key = raw.trim();
@@ -2235,6 +2330,23 @@
             if (saved != null) { el.setAttribute(a, saved); delete el.dataset['en' + a.replace('-', '')]; }
           }
         });
+      });
+    });
+    /* The controls are page chrome, so they are swapped separately and with the
+       other map. Only the visible text moves; data-value is what every pill row
+       reads, so behaviour and snippets are untouched by this. */
+    document.querySelectorAll('.controls').forEach((box) => {
+      if (box.closest('.demo')) return;   /* entry 01's controls ARE its specimen */
+      box.querySelectorAll('.ctl-name, .pill').forEach((el) => {
+        if (toArabic) {
+          const key = el.textContent.trim();
+          if (!AR_UI[key]) return;
+          if (el.dataset.enui == null) el.dataset.enui = el.textContent;
+          el.textContent = AR_UI[key];
+        } else if (el.dataset.enui != null) {
+          el.textContent = el.dataset.enui;
+          delete el.dataset.enui;
+        }
       });
     });
     rebuildTabs();
