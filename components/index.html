@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260906x"></script>
+<script src="../gate.js?v=20260906y"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260906x"></script>
+<script type="module" src="vendor/jelly.js?v=20260906y"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260906x">
-<link rel="stylesheet" href="showcase.css?v=20260906x">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260906y">
+<link rel="stylesheet" href="showcase.css?v=20260906y">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -551,68 +551,45 @@
        and stretches between segments. It reports a value and nothing else &mdash;
        for the version that also owns the content it switches, see entry 29.</p>
 
-    <!-- THE DEMO HERE IS A FIELD; ENTRY 29's IS A SET OF PANELS. They were
-         nearly identical at first -- both picking Monthly / Quarterly / One-time
-         -- and Ahmad asked what the difference between the two components even
-         was, which is the correct question to ask of two pages that show the
-         same picture. The bar genuinely IS the same component: jelly-tabs builds
-         a jelly-segmented in its shadow root. So the specimens have to carry the
-         difference, because the controls cannot:
+    <!-- THE CONTROLLER IS THE ORIGINAL'S: value, size, disabled. Nothing else.
+
+         This entry had grown to six rows -- roles, label and a per-option
+         disabled had been added because those attributes are real -- and that
+         was the wrong instinct. An entry is not an attribute list. The original
+         documents this control with three rows and so does this one.
+
+         What the source carries beyond those three is recorded HERE instead, so
+         it is not later mistaken for a gap and re-added as a row:
+
+           label       the fifth observed attribute -- the full list is value,
+                       disabled, size, roles, label. syncLabel() writes it onto
+                       .wrap as aria-label. The specimen keeps label="Period" so
+                       the group has an accessible name; it draws nothing.
+           roles       radiogroup or tablist. The two render identically; what
+                       changes is the announced role and whether state is
+                       carried on aria-checked or aria-selected.
+           one option  a CHILD's own `disabled` takes that option out while the
+                       out         track stays live -- measured: that segment
+                       0.45 and dead, the other two clickable, host opacity 1.
+                       The `disabled` row below is a different thing entirely --
+                       all three at 0.45, host 0.55, pointer-events none.
+           form        `static formAssociated = true`, and syncValue() pushes
+                       the active segment through internals.setFormValue(), so
+                       the control submits with a form like a native input.
+           change      fires ONLY on a user selection. select() emits nothing
+                       unless its second argument is set, so a scripted .value
+                       moves the pill silently -- which is why the value row
+                       re-reads from the element instead of trusting the pills.
+
+         THE DEMO HERE IS A FIELD; ENTRY 29's IS A SET OF PANELS. The bar really
+         is the same component -- jelly-tabs builds a jelly-segmented in its own
+         shadow root -- so the specimens have to carry the difference:
 
            here      a period, chosen. Nothing below it moves.
            entry 29  Details / Schedule / History, and the content swaps.
 
          Pick segmented when the value configures something ELSEWHERE, and tabs
-         when it swaps sibling regions in place.
-
-         `roles` IS THE ROW THAT CHANGES NOTHING YOU CAN SEE, and it is here
-         anyway. radiogroup and tablist draw identically; what moves is the
-         announced role, so the difference is real to a screen reader and
-         invisible to everyone else. It is kept because the choice is a
-         decision an implementer has to make, and a library that only documents
-         what photographs well would leave them guessing. The caption it
-         replaces said as much in prose.
-
-         Everything here was checked at RUNTIME after jelly-switch turned out to
-         settle its geometry on connect: size, roles and disabled all take
-         effect live on this component, so no re-connect trick is needed.
-
-         `value` goes through the PROPERTY and is re-read on `change`, because
-         clicking a segment is the obvious way to move it.
-
-         AUDITED AGAINST THE SOURCE, and two things were missing from this page.
-
-         `label` IS THE FIFTH OBSERVED ATTRIBUTE -- the full list is value,
-         disabled, size, roles, label -- and it had no row here even though the
-         specimen was already carrying label="Period". syncLabel() puts it on
-         the .wrap as `aria-label`, so it names the group for a screen reader
-         and draws nothing, exactly like `roles`. Same argument, same decision:
-         a row.
-
-         ONE OPTION CAN BE TAKEN OUT WITHOUT DISABLING THE TRACK. sync() reads
-         each child's `disabled` and writes it onto that shadow button alone.
-         This used to live in its own entry for &lt;jelly-segment&gt;, which is
-         not a component the library publishes -- it is a display:none child
-         with no appearance -- so the behaviour belongs here, on the control
-         that honours it. Measured, and the two states are nothing alike:
-
-           one option out   that segment 0.45 and dead, the others live,
-                            host opacity 1, clicks on the rest still land
-           disabled         all three 0.45, host opacity 0.55,
-                            pointer-events none on the whole host
-
-         TWO MORE THINGS THE SOURCE HAS that no row can show, recorded so they
-         are not mistaken for gaps:
-
-         It is FORM-ASSOCIATED. `static formAssociated = true`, and syncValue()
-         pushes the active segment through `internals.setFormValue()`, so the
-         control submits with a form like a native input rather than needing a
-         hidden field.
-
-         `change` FIRES ONLY ON A USER SELECTION. select() takes a second
-         argument and emits nothing unless it is set, so setting `.value` from
-         script moves the pill silently. That is why the value row above calls
-         sync() itself instead of waiting for the event. -->
+         when it swaps sibling regions in place. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">value</span>
@@ -620,25 +597,6 @@
           <jelly-button class="pill" data-value="monthly" aria-pressed="true">monthly</jelly-button>
           <jelly-button class="pill" data-value="quarterly" aria-pressed="false">quarterly</jelly-button>
           <jelly-button class="pill" data-value="onetime" aria-pressed="false">onetime</jelly-button>
-        </div>
-      </div>
-      <div class="ctl">
-        <span class="ctl-name">roles</span>
-        <div class="pillset" id="sg-roles" role="group" aria-label="Roles">
-          <jelly-button class="pill" data-value="radiogroup" aria-pressed="true">radiogroup</jelly-button>
-          <jelly-button class="pill" data-value="tablist" aria-pressed="false">tablist</jelly-button>
-        </div>
-      </div>
-      <div class="ctl">
-        <span class="ctl-name">label</span>
-        <jelly-input id="sg-label" size="small" label="Group label"
-                     placeholder="Names the group"></jelly-input>
-      </div>
-      <div class="ctl">
-        <span class="ctl-name">one option out</span>
-        <div class="pillset" id="sg-optdis" role="group" aria-label="Disable one option">
-          <jelly-button class="pill" data-value="none" aria-pressed="true">none</jelly-button>
-          <jelly-button class="pill" data-value="quarterly" aria-pressed="false">quarterly</jelly-button>
         </div>
       </div>
       <div class="ctl">
@@ -2332,8 +2290,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260906x"></script>
-<script src="minaa-jelly.js?v=20260906x"></script>
-<script src="showcase.js?v=20260906x" defer></script>
+<script src="micons.js?v=20260906y"></script>
+<script src="minaa-jelly.js?v=20260906y"></script>
+<script src="showcase.js?v=20260906y" defer></script>
 </body>
 </html>

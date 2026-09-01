@@ -1353,23 +1353,18 @@
   function wireSegmentedDemo() {
     const el = document.getElementById('sg-demo');
     const val = document.getElementById('sg-value');
-    const roles = document.getElementById('sg-roles');
     const size = document.getElementById('sg-size');
     const dis = document.getElementById('sg-disabled');
-    const lbl = document.getElementById('sg-label');
-    const optdis = document.getElementById('sg-optdis');
-    if (!el || !val || !roles || !size || !dis || !lbl || !optdis
-        || el.dataset.wired) return;
+    if (!el || !val || !size || !dis || el.dataset.wired) return;
     el.dataset.wired = '1';
 
     function snippet() {
       const box = document.querySelector('#c-11 .code code');
       if (!box) return;
       const a = [];
+      /* Printed because the specimen carries it -- it is the group's accessible
+         name. There is no row for it; see the entry note. */
       if (el.getAttribute('label')) a.push('label="' + el.getAttribute('label') + '"');
-      /* radiogroup is the default, so only tablist is worth printing. */
-      const r = el.getAttribute('roles');
-      if (r && r !== 'radiogroup') a.push('roles="' + r + '"');
       const sz = el.getAttribute('size');
       if (sz && sz !== 'medium') a.push('size="' + sz + '"');
       if (el.hasAttribute('disabled')) a.push('disabled');
@@ -1380,7 +1375,6 @@
       el.querySelectorAll('jelly-segment').forEach((sg) => {
         const v = sg.getAttribute('value');
         lines.push('  <jelly-segment value="' + v + '"' + (v === el.value ? ' selected' : '')
-          + (sg.hasAttribute('disabled') ? ' disabled' : '')
           + '>' + sg.textContent.trim() + '</jelly-segment>');
       });
       lines.push('</jelly-segmented>');
@@ -1388,7 +1382,9 @@
     }
 
     /* Clicking a segment is the obvious way to move the selection, so the value
-       row is pushed back from the element rather than assumed from the pills. */
+       row is pushed back from the element rather than assumed from the pills.
+       It has to be: `change` fires only on a user selection, never on a
+       scripted .value, so nothing else would keep the row honest. */
     function sync() {
       val.querySelectorAll('.pill').forEach(
         (p) => p.setAttribute('aria-pressed', String(p.dataset.value === el.value)));
@@ -1396,37 +1392,12 @@
     }
 
     pillRow(val, (v) => { el.value = v; }, sync);
-    pillRow(roles, (v) => el.setAttribute('roles', v), snippet);
     pillRow(size, (v) => el.setAttribute('size', v), snippet);
     /* toggleAttribute: jelly-segmented defines accessors for value, isTablist
        and stateAttribute -- not for disabled. */
     pillRow(dis, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
-
-    /* `label` names the GROUP, not a segment -- syncLabel() copies it onto the
-       .wrap as aria-label. Nothing about the control changes shape, which is
-       the same reason `roles` earns a row. Empty removes the attribute rather
-       than setting an empty string, so the snippet never prints label="". */
-    const applyLabel = () => {
-      const v = lbl.value == null ? '' : String(lbl.value).trim();
-      if (v) el.setAttribute('label', v); else el.removeAttribute('label');
-      snippet();
-    };
-    lbl.addEventListener('input', applyLabel);
-    lbl.addEventListener('change', applyLabel);
-
-    /* One option out. The attribute goes on the CHILD; jelly-segment observes
-       it and calls sync() on this control, which rewrites that one shadow
-       button as disabled. Nothing is set on the host, so the track stays live
-       -- which is the whole distinction from the row above. */
-    pillRow(optdis, (v) => {
-      el.querySelectorAll('jelly-segment').forEach((sg) => {
-        sg.toggleAttribute('disabled', sg.getAttribute('value') === v);
-      });
-    }, snippet);
-
     el.addEventListener('change', sync);
 
-    lbl.value = el.getAttribute('label') || '';
     sync();
   }
 
