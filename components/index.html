@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260905d"></script>
+<script src="../gate.js?v=20260905f"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260905d"></script>
+<script type="module" src="vendor/jelly.js?v=20260905f"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260905d">
-<link rel="stylesheet" href="showcase.css?v=20260905d">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260905f">
+<link rel="stylesheet" href="showcase.css?v=20260905f">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -1611,9 +1611,9 @@ drawer.open = true;   // side = start | end | bottom</template>
     <div class="entry-text">
     <p class="entry-num">Content &middot; 30</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-radiogroup"/></svg> &lt;jelly-chip&gt;</h2>
-    <p class="entry-note">A small capsule that can be selected, removed, or
-       neither. Six tones &mdash; brand and semantic &mdash; and the fill
-       crossfades rather than snapping.</p>
+    <p class="entry-note">A small jelly capsule: a static label, a toggleable
+       filter, or a removable tag. Six tones, named for the colour they paint,
+       and the fill crossfades rather than snapping.</p>
 
     <!-- THE MARK IS BORROWED, AND IT IS A WEAKER BORROW THAN ENTRY 29's.
          Micons has no chip glyph, and this is interface/category, already
@@ -1639,23 +1639,35 @@ drawer.open = true;   // side = start | end | bottom</template>
          rather than one with six tones. Set `selected` to false and the tone
          row goes visually quiet; that is the design, not a dead row.
 
-         THE SEMANTICS ARE THE BRAND SEMANTIC COLOURS: Green 600, Yellow 400,
-         Orange 500. The same three the toaster paints from, so a success chip
-         and a success toast are one colour rather than two that nearly match.
+         THE TONES ARE NAMED FOR THEIR COLOUR, NOT FOR A MEANING. mgreen,
+         myellow and morange -- Minaa green, yellow and orange. They paint
+         exactly the hues the guidelines define, the same three the toaster
+         uses. What they do not carry is a claim about state.
 
-         Built once at the deep steps instead, on a contrast argument, and that
-         was the wrong call to make alone -- "semantic" names a palette in the
-         guidelines, not a licence to pick whichever step measures best. On
-         Cream these read 2.75, 1.75 and 2.83; the toaster already carries the
-         same three at the same figures, so this is consistent with what ships
-         rather than worse than it. Revisiting belongs across the whole
-         semantic set at once, not in one component.
+         That is the whole distinction. A chip is a static label, a toggleable
+         filter or a removable tag; none of those is a status, so nothing about
+         a chip is reporting success or failure. This shipped as success,
+         warning and error for two builds, and those names invite a reader --
+         or an agent generating markup -- to reach for tone="error" to mean
+         something went wrong. On a filter pill it means the filter is orange.
 
-         Neutral 100 does take Primary 700 ink rather than Cream, and that one
-         is not a preference: cream on cream is an invisible label, the exact
-         failure the variant rule exists for. Secondary 600 keeps its own step
-         at 3.57 -- it is the brand red and what the buttons already put cream
-         on. -->
+         The colours never changed and were never the problem. Only the names
+         were, and they now say what they paint. Where a status IS being
+         reported the semantic names remain correct and remain in use: the
+         toaster at 17, the alert at 24.
+
+         The TOKENS keep their semantic names -- var(--success), var(--warning),
+         var(--error) -- because that is what the guidelines call those steps,
+         and the palette is shared with the components where the meaning is
+         real. The rename belongs at this component's API, which is where the
+         confusion would have happened.
+
+         Contrast, recorded once and already settled: against Cream the three
+         read 2.75, 1.75 and 2.83, the same figures the toaster carries.
+         Primary 700 is 5.55, Secondary 600 is 3.57, and Neutral 100 is 5.55
+         the other way up -- it takes Primary 700 ink rather than Cream, and
+         that one is not a preference: cream on cream is the invisible label
+         the variant rule exists for. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">tone</span>
@@ -1663,9 +1675,9 @@ drawer.open = true;   // side = start | end | bottom</template>
           <jelly-button class="pill" data-value="primary" aria-pressed="true">primary</jelly-button>
           <jelly-button class="pill" data-value="secondary" aria-pressed="false">secondary</jelly-button>
           <jelly-button class="pill" data-value="neutral" aria-pressed="false">neutral</jelly-button>
-          <jelly-button class="pill" data-value="success" aria-pressed="false">success</jelly-button>
-          <jelly-button class="pill" data-value="warning" aria-pressed="false">warning</jelly-button>
-          <jelly-button class="pill" data-value="error" aria-pressed="false">error</jelly-button>
+          <jelly-button class="pill" data-value="mgreen" aria-pressed="false">mgreen</jelly-button>
+          <jelly-button class="pill" data-value="myellow" aria-pressed="false">myellow</jelly-button>
+          <jelly-button class="pill" data-value="morange" aria-pressed="false">morange</jelly-button>
         </div>
       </div>
       <div class="ctl">
@@ -2327,8 +2339,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260905d"></script>
-<script src="minaa-jelly.js?v=20260905d"></script>
-<script src="showcase.js?v=20260905d" defer></script>
+<script src="micons.js?v=20260905f"></script>
+<script src="minaa-jelly.js?v=20260905f"></script>
+<script src="showcase.js?v=20260905f" defer></script>
 </body>
 </html>

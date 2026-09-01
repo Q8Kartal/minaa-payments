@@ -1899,33 +1899,33 @@ jelly-alert[tone="danger"]  { --jelly-fill: var(--error);   }  /* Orange 500 */
    to; CSS reads the attribute and the tokens do the rest, the same way the
    drawer reads `side`.
 
-   THE SEMANTICS ARE THE BRAND SEMANTIC COLOURS, AT THEIR OWN STEPS. Green 600,
-   Yellow 400 and Orange 500 -- the three the guidelines define, and the same
-   three the toaster paints from, so a success chip and a success toast are one
-   colour rather than two that nearly match.
+   THE TONES ARE NAMED FOR THEIR COLOUR, NOT FOR A MEANING. mgreen, myellow
+   and morange -- Minaa green, yellow and orange -- carry exactly the hues the
+   guidelines define, and they are the same three the toaster paints from. What
+   they do NOT carry is a claim about state.
 
-   This was first built at the deep steps instead, on a contrast argument, and
-   that was the wrong call to make alone: "semantic" names a palette in the
-   guidelines, not a licence to pick the step that measures best. Ahmad chose
-   the semantic palette knowing the numbers.
+   That distinction is the whole point. A chip is a static label, a toggleable
+   filter or a removable tag; none of those is a status, so nothing about a
+   chip is reporting success or failure. Calling the tones success, warning and
+   error -- which this shipped with for two builds -- invites a reader, or an
+   agent generating markup, to reach for tone="error" to mean something went
+   wrong. On a filter pill it means the filter is orange.
 
-   The numbers, recorded because they are real, not because they overrule
-   anything. Against Cream:
+   The colours were never the problem and are unchanged. Only the names were,
+   and they now say what they paint.
 
-     Green 600  #05AA00   2.75
-     Orange 500 #E56E1F   2.83
-     Yellow 400 #E5B11F   1.75
+   The TOKENS keep their semantic names -- var(--success), var(--warning),
+   var(--error) -- because that is what the guidelines call those steps and the
+   palette is shared with the toaster and the alert, where the meaning is real.
+   The renaming belongs at this component's API, which is where the confusion
+   would have happened.
 
-   The toaster carries the same three on Cream, so the chip is no worse than
-   what already ships and is now consistent with it. If this is revisited it
-   goes THERE FIRST, across the semantic set at once -- a chip using a
-   different green from the toast beside it is a worse outcome than a known
-   contrast figure.
-
-   Primary 700 is 5.55, Secondary 600 is 3.57, and Neutral 100 is 5.55 the
-   other way up: it takes Primary 700 ink instead of Cream, because a cream
-   chip with cream text is the exact failure the variant rule was written
-   about. That one is not a preference -- it is an invisible label.
+   Contrast, recorded once and already settled: against Cream the three read
+   2.75, 1.75 and 2.83, the same figures the toaster carries. Primary 700 is
+   5.55 and Secondary 600 is 3.57. Neutral 100 is 5.55 the other way up, taking
+   Primary 700 ink rather than Cream, and that one is not a preference -- a
+   cream chip with cream text is the invisible label the variant rule exists
+   for.
 
    The rest fill is --m-field, the same surface the inputs use: Primary 300 in
    light at 3.85 against Primary 700 ink, Primary 900 in dark at 8.90 against
@@ -1968,10 +1968,10 @@ jelly-chip[shape="square"] { --jelly-chip-radius: var(--radius-8); }
 
 /* The tones. Only --jelly-on moves -- the rest fill is the same quiet surface
    for every chip, so an unselected row reads as one set rather than six. */
-jelly-chip[tone="secondary"] { --jelly-on: var(--secondary);    }  /* Secondary 600 */
-jelly-chip[tone="success"]   { --jelly-on: var(--success);      }  /* Green 600     */
-jelly-chip[tone="warning"]   { --jelly-on: var(--warning);      }  /* Yellow 400    */
-jelly-chip[tone="error"]     { --jelly-on: var(--error);        }  /* Orange 500    */
+jelly-chip[tone="secondary"] { --jelly-on: var(--secondary); }  /* Secondary 600 */
+jelly-chip[tone="mgreen"]    { --jelly-on: var(--success);   }  /* Green 600     */
+jelly-chip[tone="myellow"]   { --jelly-on: var(--warning);   }  /* Yellow 400    */
+jelly-chip[tone="morange"]   { --jelly-on: var(--error);     }  /* Orange 500    */
 jelly-chip[tone="neutral"] {
   --jelly-on:       var(--cream);         /* Neutral 100 */
   --jelly-label-on: var(--primary);       /* Primary 700 -- see above */
