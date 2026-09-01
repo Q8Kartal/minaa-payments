@@ -2008,68 +2008,56 @@ jelly-chip[tone="neutral"] {
    builds its segmented INSIDE its shadow root and needed ::part(). The
    difference is where the child lives, not how the parent is written.
 
-   THE HEADER SURFACE, which Jelly does not give it. `.head` is
-   `background: transparent` with a 7%-accent tint on hover and nothing at
-   rest, so a collapsible was a line of text with a chevron -- and in light the
-   text came out Secondary 600, because --jelly-color-foreground-default maps
-   to --m-value. Primary 300 in light, Secondary 600 in dark, per Ahmad; he has
-   said the colours get another pass.
+   A STANDALONE COLLAPSIBLE IS LEFT ENTIRELY ALONE -- no sizing, no colour.
+   Everything about the header surface is scoped to the accordion in the block
+   below. Entry 31 renders Jelly as shipped, which is what Ahmad asked for.
 
-   ::part(header) reaches it -- Jelly does put a part on that button -- so this
-   is a page rule and not an injection. The hover has to be restated because an
-   outer ::part rule outranks the shadow's own `.head:hover`, which would
-   otherwise be dead; it is a 12% shift toward the ink, so it moves against
-   whichever surface the mode supplies. The accordion's items pick all of this
-   up for the light-dom reason above. */
-/* THE SURFACE IS A STATE, NOT A SKIN, which is how Jelly built it and what the
-   previous version of this rule got wrong. Reading the shadow stylesheet:
+   One thing that stays visibly wrong there and is not ours to fix in this
+   pass: in light the header text comes out Secondary 600, because
+   --jelly-color-foreground-default maps to --m-value. Flagged, not touched. */
+/* ── The accordion's headers ───────────────────────────────────────────────
+   SCOPED TO jelly-accordion, AND ONLY THERE. A standalone jelly-collapsible
+   keeps Jelly's own behaviour untouched -- transparent at rest, its own 7%
+   hover tint, its own ink. That is entry 31 and it is not ours to restyle;
+   this block previously used a bare `jelly-collapsible::part(header)` and hit
+   both, which was the bug.
 
-     .head          background: transparent          <- nothing at rest
-     .head:hover    color-mix(accent 7%, transparent) <- the only surface state
+   The descendant selector works because the accordion's items are light-dom
+   children, so they are reachable from the page; ::part then crosses into each
+   item's shadow root. Same property that let the accordion skip every sizing
+   rule.
+
+   THE SURFACE IS A STATE, NOT A SKIN, which is how Jelly built it:
+
+     .head          background: transparent            <- nothing at rest
+     .head:hover    color-mix(accent 7%, transparent)  <- the only surface
      :host([open])  rotates the chevron, expands .wrap, reveals .content
 
-   [open] never touches the background. So the faint card on an opened item is
-   the HOVER tint with a cursor over it, not an open state -- worth stating
-   because it is easy to read the other way round, and it was read the other
-   way round here.
+   [open] never touches the background upstream, so the faint card on an opened
+   item is the HOVER tint with a cursor over it. The open surface below is
+   therefore an addition, and a deliberate one: in a stack the open item has to
+   stay marked after the pointer leaves.
 
-   A flat always-on surface therefore made every header a solid block and lost
-   the distinction the component is built around. Rest is transparent again.
+   Three steps, per Ahmad:
 
-   Ahmad's colours: Primary 700 ink, and the card at Primary 300 around 60-70%.
-   65% is the middle of that. Dark keeps Secondary 600, set earlier.
+     rest    transparent
+     hover   the surface at 65%
+     open    the surface at 100%
 
-   [open] IS AN ADDITION, and the only thing here that Jelly does not do. It is
-   in because a stack of collapsibles wants the open one marked -- with hover
-   alone the accordion shows nothing once the pointer leaves. Say the word and
-   it comes out; the hover half is the part that matches the source. */
-jelly-collapsible::part(header) {
+   Light Primary 300, dark Secondary 600, ink Primary 700 and Cream. At full
+   opacity the open row measures 3.85 in light and 3.57 in dark -- the same two
+   pairs the rest of the library already uses. */
+jelly-accordion jelly-collapsible::part(header) {
   background: transparent;
   color:      var(--m-disclosure-ink);
 }
 
-jelly-collapsible::part(header):hover,
-jelly-collapsible[open]::part(header) {
+jelly-accordion jelly-collapsible::part(header):hover {
   background: color-mix(in srgb, var(--m-disclosure-surface) 65%, transparent);
 }
 
-/* ── Card ──────────────────────────────────────────────────────────────────
-   All four measurements are named, so all four bind.
-
-                       Jelly (sm/md/lg)     bound
-     padding-block     16 / 22 / 28         16 / 20 / 24
-     padding-inline    18 / 24 / 30         20 / 24 / 32
-     font              13.5 / 15 / 16.5     14 / 16 / 18
-
-   The radius does NOT step. Jelly moves it 18 / 22 / 26; one bound value
-   across all three, the same call made for the square chip and the
-   collapsible -- a corner treatment is not a dimension. */
-jelly-card {
-  --jelly-card-padding-block:  var(--space-250);   /* 20 */
-  --jelly-card-padding-inline: var(--space-300);   /* 24 */
-  --jelly-card-font-size:      var(--text-md);     /* 16 */
-  line-height:                 var(--text-md-lh);
-  --jelly-radius:              var(--radius-24);
+jelly-accordion jelly-collapsible[open]::part(header) {
+  background: var(--m-disclosure-surface);
 }
 
 jelly-card[size="small"], jelly-card[size="sm"] {
