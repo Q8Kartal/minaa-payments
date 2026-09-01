@@ -122,6 +122,13 @@
   --control-icon-20: 20px;
   --control-icon-24: 24px;
   --control-icon-16: 16px;
+  /* 32, NOT 28, and the ramp's own rhythm is the reason it needs saying. The
+     three steps above rise by 4, so 28 is what continuing the pattern would
+     give -- and 28 is not a step on the Minaa scale, which runs 16, 20, 24, 32,
+     40. A size the system does not have is a size nothing else can ever line up
+     with. 32 is --space-400, and it is also what Ahmad's own Squircle Icon set
+     steps to after 24. */
+  --control-icon-32: 32px;
   --control-stroke: 1.5px;
   /* A SURFACE's edge, not a control's. --control-stroke is the hairline on an
      input, a select and an OTP digit, and at that weight it merges into a
@@ -2641,16 +2648,21 @@ jelly-tooltip {
    <svg class="mi"> painting with currentColor: --jelly-label drives Jelly's
    canvas, currentColor drives our slotted mark.
 
-   THE GLYPH IS 24, his box size, not the full-bleed ratio the squircle
-   version used. The button stays at Jelly's 40 so the hit area is a comfortable
-   target -- with no fill, the box only decides where you can click, and 24px of
-   ink is a small thing to have to hit. */
+   THE GLYPH IS 32, one step up his own set from the 24 he drew, not the
+   full-bleed ratio the squircle version used. 24 was the top of --control-icon-*
+   and there was no next step, so the ramp gains one: 32, which is --space-400
+   and the next variant in his set, rather than the 28 that continuing the
+   ramp's own +4 rhythm would have given -- 28 is on no Minaa scale.
+
+   The button stays at Jelly's 40. With no fill the box only decides where you
+   can click, so it is a hit target rather than a frame, and 40 around a 32
+   mark still leaves 4px of slack on each side. */
 jelly-tooltip > jelly-icon-button:not([slot]) {
   --jelly-fill:  transparent;
   --jelly-label: var(--m-tooltip-icon-mark);
   color:         var(--m-tooltip-icon-mark);
 }
 jelly-tooltip > jelly-icon-button:not([slot]) .mi {
-  width:  var(--control-icon-24);
-  height: var(--control-icon-24);
+  width:  var(--control-icon-32);
+  height: var(--control-icon-32);
 }
