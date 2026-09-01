@@ -1032,7 +1032,7 @@
                        superellipse and a circle differ by under 3px, and
                        `circle` must stay a circle: roundness is an affordance.
                        Its radius is hardcoded in shape(), hence the wrap. */
-  var TAGS = ['jelly-alert', 'jelly-card', 'jelly-skeleton'];
+  var TAGS = ['jelly-alert', 'jelly-card', 'jelly-icon-button', 'jelly-skeleton'];
   var TARGETS = TAGS.join(', ');
 
   /* ONE TEST, TWO READERS, AND THAT IS THE WHOLE POINT OF IT BEING A FUNCTION.
@@ -1057,7 +1057,15 @@
 
   function wantsSquircle(el) {
     var tag = el.tagName.toLowerCase();
+    /* jelly-icon-button joins the alert and the card for the same reason: its
+       corner already comes from a token the stylesheet owns
+       (--jelly-icon-button-radius), so it needs the exponent and nothing else.
+
+       NOT WHEN IT IS A CIRCLE. shape="circle" asks for a circle explicitly and
+       gets one -- the same call as the skeleton's `circle`, where roundness is
+       an affordance rather than a corner. */
     if (tag === 'jelly-alert' || tag === 'jelly-card') return true;
+    if (tag === 'jelly-icon-button') return el.getAttribute('shape') !== 'circle';
     return isRect(el);
   }
 

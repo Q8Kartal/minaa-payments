@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260907g"></script>
+<script src="../gate.js?v=20260907h"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260907g"></script>
+<script type="module" src="vendor/jelly.js?v=20260907h"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260907g">
-<link rel="stylesheet" href="showcase.css?v=20260907g">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260907h">
+<link rel="stylesheet" href="showcase.css?v=20260907h">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -1264,13 +1264,13 @@ drawer.open = true;   // side = start | end | bottom</template>
     <div class="demo" data-demo>
       <div class="overlay-stage" data-controls>
         <jelly-tooltip id="tip-demo" text="Copy payment link">
-          <jelly-icon-button label="Copy payment link">
+          <jelly-icon-button label="Copy payment link" size="large">
             <svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-ropeknot"/></svg>
           </jelly-icon-button>
         </jelly-tooltip>
       </div>
       <template data-snippet-text>&lt;jelly-tooltip text="Copy payment link"&gt;
-  &lt;jelly-icon-button label="Copy payment link"&gt;
+  &lt;jelly-icon-button label="Copy payment link" size="large"&gt;
     &lt;svg class="mi"&gt;&lt;use href="#mi-ropeknot"/&gt;&lt;/svg&gt;
   &lt;/jelly-icon-button&gt;
 &lt;/jelly-tooltip&gt;</template>
@@ -2350,8 +2350,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260907g"></script>
-<script src="minaa-jelly.js?v=20260907g"></script>
-<script src="showcase.js?v=20260907g" defer></script>
+<script src="micons.js?v=20260907h"></script>
+<script src="minaa-jelly.js?v=20260907h"></script>
+<script src="showcase.js?v=20260907h" defer></script>
 </body>
 </html>

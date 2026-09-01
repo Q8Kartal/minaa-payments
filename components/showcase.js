@@ -1570,7 +1570,7 @@
       if (sz && sz !== 'medium') a.push('size="' + sz + '"');
       const lbl = el.querySelector('jelly-icon-button').getAttribute('label');
       box.textContent = '<jelly-tooltip ' + a.join(' ') + '>\n'
-        + '  <jelly-icon-button label="' + lbl + '">\n'
+        + '  <jelly-icon-button label="' + lbl + '" size="large">\n'
         + '    <svg class="mi"><use href="#mi-ropeknot"/></svg>\n'
         + '  </jelly-icon-button>\n'
         + '</jelly-tooltip>';

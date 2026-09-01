@@ -566,6 +566,17 @@ svg[data-sq-fill] {
   color: currentColor;
 }
 
+/* INSIDE AN ICON BUTTON THE COMPONENT SETS THE SIZE, not this class. Jelly
+   already sizes slotted svg from --jelly-icon-button-icon-size, and .mi's fixed
+   20 was overriding it -- a light-dom class beats the shadow's ::slotted() --
+   so the glyph stayed 20 while the button grew and the mark read as a speck.
+   The token is read off the host, so the icon steps 18 / 20 / 23 with it. */
+jelly-icon-button .mi {
+  width: var(--jelly-icon-button-icon-size);
+  height: var(--jelly-icon-button-icon-size);
+}
+
+
 /* ── Small screens ───────────────────────────────────────────────────────── */
 
 /* Two columns need roughly 400 of prose plus 64 of gutter plus a demo wide

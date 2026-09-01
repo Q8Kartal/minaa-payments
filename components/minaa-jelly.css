@@ -729,9 +729,20 @@ jelly-icon-button {
   /* Same reasoning as jelly-button above: filled, so the mark on it is
      --m-on-accent rather than the prose ink. */
   --jelly-label:                 var(--m-on-accent);
-  --jelly-icon-button-size:      var(--control-48);
-  --jelly-icon-button-icon-size: var(--control-icon-20);
-  --jelly-icon-button-radius:    var(--radius-full);
+
+  /* NO SIZING. Jelly's own ramp stands -- 40 / 48 / 56 box, 18 / 20 / 23 icon,
+     13 / 16 / 18 corner. Two of the three pins that used to sit here were
+     Jelly's medium values written out again (48 and 20), so they changed
+     nothing at the default and quietly flattened small and large into it. The
+     third made the corner --radius-full, which is what turned every icon
+     button in this library into a circle.
+
+     THE CIRCLE WAS NOT ARBITRARY -- Minaa's own icon rail in the app is a row
+     of circular icon buttons, and this line mirrored jelly-button's pill. But
+     the app does not read this stylesheet; only the component library does, and
+     a library documents the component, which is a rounded square. Ahmad asked
+     for a squircle here, so the corner comes from Jelly and the CURVE comes
+     from us -- see minaaSkeletonSquircle(), which now carries this tag. */
   --jelly-icon-button-font-size: var(--text-lg);
   line-height:        var(--text-lg-lh);
 }
