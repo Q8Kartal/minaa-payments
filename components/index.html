@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260904g"></script>
+<script src="../gate.js?v=20260904k"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260904g"></script>
+<script type="module" src="vendor/jelly.js?v=20260904k"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260904g">
-<link rel="stylesheet" href="showcase.css?v=20260904g">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260904k">
+<link rel="stylesheet" href="showcase.css?v=20260904k">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -942,30 +942,41 @@
   </section>
   <section class="entry" id="c-18">
     <div class="entry-text">
-    <p class="entry-num">Overlays · 18</p>
+    <p class="entry-num">Overlays &middot; 18</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-dialog"/></svg> &lt;jelly-dialog&gt;</h2>
-    <p class="entry-note">A modal panel. It is not a native <code>&lt;dialog&gt;</code> and never enters the top
-       layer &mdash; it is fixed-position with its own backdrop &mdash; and on open it <b>moves itself to
-       <code>document.body</code></b>. The bridge still reaches it there, but a scoped
-       <code>&lt;jelly-theme&gt;</code> does not: a dialog written inside one renders in the page&rsquo;s mode, not
-       the scope&rsquo;s. The scrim is ours rather than Jelly&rsquo;s, which derives it from the text colour and so
-       washed the page cream in dark and red in light.</p>
+    <p class="entry-note">A modal panel with its own backdrop, opened through <code>open</code>.</p>
+
+    <!-- WHAT THE LONGER NOTE USED TO SAY, kept because none of it is obvious:
+         it is NOT a native <dialog> and never enters the top layer -- it is
+         fixed-position with its own scrim -- and on open it MOVES ITSELF to
+         document.body. The bridge still reaches it there; a scoped
+         <jelly-theme> does not, so a dialog written inside one renders in the
+         page's mode rather than the scope's. The scrim is ours: Jelly derives
+         its own from the text colour, which washed the page cream in dark and
+         red in light.
+
+         `open` IS THE ONLY ROW because it is the only thing that varies --
+         observedAttributes is ["open", "label"] and label sets the accessible
+         name only, so a row for it would move nothing anyone can see.
+
+         THE ACTIONS ARE SLOTTED and have to be. jelly-dialog ships a panel and
+         a dismiss control and nothing else. A confirmation without its own
+         buttons is not a smaller demo, it is a broken one: the x means
+         "dismiss", never "no". -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">open</span>
+        <div class="pillset" id="dlg-open-row" role="group" aria-label="Open">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <figure class="specimen">
-          <jelly-button id="dlg-open" class="overlay-trigger">Delete payment</jelly-button>
-          <figcaption>Opens the dialog</figcaption>
-        </figure>
+      <div class="overlay-stage" data-controls>
+        <jelly-button id="dlg-open" class="overlay-trigger">Delete payment</jelly-button>
       </div>
-      <!-- label sets the accessible name only -- it is never rendered -- so the
-           heading is slotted as well. Passing label alone gives a modal that
-           screen readers announce and sighted readers see untitled. -->
-      <!-- THE ACTIONS ARE SLOTTED. jelly-dialog ships a panel and a dismiss
-           control and nothing else, so a confirmation has to bring its own
-           buttons -- and a confirmation without them is not a smaller demo, it
-           is a broken one: the x means "dismiss", never "no", so a dialog
-           asking to delete something offered no way to answer it. -->
       <jelly-dialog id="dlg-demo" label="Delete this payment?">
         <h3 class="dlg-title">Delete this payment?</h3>
         <p>Bay 4 &middot; 150.000 KWD. This cannot be undone.</p>
@@ -983,36 +994,51 @@
   &lt;/div&gt;
 &lt;/jelly-dialog&gt;
 
-dialog.setAttribute('open', '');   // or dialog.showModal()</template>
+dialog.open = true;   // the property, so the exit animation runs</template>
     </div>
   </section>
   <section class="entry" id="c-19">
     <div class="entry-text">
     <p class="entry-num">Overlays &middot; 19</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-drawer"/></svg> &lt;jelly-drawer&gt;</h2>
-    <p class="entry-note">The dialog lying against an edge. Same portal, same scrim, same close control &mdash;
-       and it inherited the same three bugs, so it takes the same three fixes rather than copies of them.
-       <code>side</code> is <b>not an observed attribute</b>: it is read by CSS only, so setting it in
-       JavaScript after load moves the sheet but fires no update. The corner is <b>capped</b>, not left to
-       fill the space: a sheet is tall, and &ldquo;as round as it can be&rdquo; would stand a capsule on end.
-       The cap is one value the whole overlay family shares, so a bottom sheet and a dialog of the same
-       height draw the same corner &mdash; it tracks what the surface <i>is</i>, not how big it happens
-       to be.</p>
+    <p class="entry-note">The dialog lying against an edge. <code>side</code> chooses which one.</p>
+
+    <!-- `side` IS NOT AN OBSERVED ATTRIBUTE -- CSS reads it, nothing else --
+         and it still works at runtime, which is worth knowing before anyone
+         "fixes" it: measured, the sheet moved from l=786 to l=16 to a
+         full-width bottom as the attribute changed. Nothing fires an update
+         because nothing needs to.
+
+         start and end, not left and right: the logical pair follows the
+         writing direction and this library gets an RTL build later, where
+         left would stay left and be wrong.
+
+         THE CORNER IS CAPPED rather than left to fill the space. A sheet is
+         tall, and "as round as it can be" would stand a capsule on end. One
+         value serves the whole overlay family, so a bottom sheet and a dialog
+         of the same height draw the same corner -- it tracks what the surface
+         IS, not how big it happens to be. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">side</span>
+        <div class="pillset" id="drw-side" role="group" aria-label="Side">
+          <jelly-button class="pill" data-value="start" aria-pressed="false">start</jelly-button>
+          <jelly-button class="pill" data-value="end" aria-pressed="true">end</jelly-button>
+          <jelly-button class="pill" data-value="bottom" aria-pressed="false">bottom</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">open</span>
+        <div class="pillset" id="drw-open-row" role="group" aria-label="Open">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <figure class="specimen">
-          <jelly-button id="drw-start" class="overlay-trigger">Open at the start</jelly-button>
-          <figcaption>side="start"</figcaption>
-        </figure>
-        <figure class="specimen">
-          <jelly-button id="drw-end" class="overlay-trigger">Open at the end</jelly-button>
-          <figcaption>side="end"</figcaption>
-        </figure>
-        <figure class="specimen">
-          <jelly-button id="drw-bottom" class="overlay-trigger">Open at the bottom</jelly-button>
-          <figcaption>side="bottom"</figcaption>
-        </figure>
+      <div class="overlay-stage" data-controls>
+        <jelly-button id="drw-open" class="overlay-trigger">Open the drawer</jelly-button>
       </div>
       <jelly-drawer id="drw-demo" side="end" label="Payment details">
         <h3 class="dlg-title">Payment details</h3>
@@ -1023,22 +1049,58 @@ dialog.setAttribute('open', '');   // or dialog.showModal()</template>
   &lt;p&gt;Bay 4 &middot; 150.000 KWD &middot; monthly.&lt;/p&gt;
 &lt;/jelly-drawer&gt;
 
-drawer.open = true;   // side = start | end | left | right | bottom</template>
+drawer.open = true;   // side = start | end | bottom</template>
     </div>
   </section>
-
   <section class="entry" id="c-20">
     <div class="entry-text">
     <p class="entry-num">Overlays &middot; 20</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-popover"/></svg> &lt;jelly-popover&gt;</h2>
-    <p class="entry-note">A panel tethered to its trigger. Two named slots, and both are required:
-       <code>trigger</code> is what you click, <code>content</code> is what appears. Unlike the dialog it does
-       <b>not</b> portal and has no scrim, so it stays inside a scoped <code>&lt;jelly-theme&gt;</code> &mdash;
-       the one overlay on this page that does.</p>
+    <p class="entry-note">A panel tethered to its trigger, on two required slots:
+       <code>trigger</code> and <code>content</code>. Placement flips when the
+       side it asks for has no room.</p>
+
+    <!-- THE ONE OVERLAY THAT DOES NOT PORTAL. No scrim either, so it stays
+         inside a scoped <jelly-theme> where the dialog and drawer do not.
+
+         NO `size` ROW, and that is not an oversight. size is observed and
+         Jelly defines per-size hosts for it, but the bridge pins one set of
+         --jelly-popover-* tokens with an unscoped rule that outranks them, so
+         the attribute moves nothing: measured 16px font and 16px padding at
+         small, medium and large alike. A row for it would document a control
+         that does nothing. The same is true of the tooltip and the menu, and
+         it is the bridge's gap to close, not the component's.
+
+         `end` LOOKS DEAD AT THIS WIDTH AND IS NOT -- it flips to start, and
+         that is the component behaving. Measured at 1162px: the trigger's
+         right edge is 890, leaving 272px, and the panel is 272 wide and wants
+         8px of gap, so it is short by exactly 8 and goes the other way. At
+         1700px the same pill puts the panel at 1167 against a trigger ending
+         at 1159 -- on the right, where it was asked for.
+
+         So the pill stays. The rule for these rows is that a value must DO
+         something; a value that does the RIGHT something and happens to be
+         overruled by the viewport still qualifies, and hiding it would
+         document the component as less capable than it is. The entry note
+         carries the flip so a reader who clicks `end` on a laptop does not
+         read it as broken. The menu, being narrower, does not flip here:
+         distinct on all four (top 328/702, bottom 529/702, start 429/507,
+         end 429/898). -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">placement</span>
+        <div class="pillset" id="pop-placement" role="group" aria-label="Placement">
+          <jelly-button class="pill" data-value="top" aria-pressed="false">top</jelly-button>
+          <jelly-button class="pill" data-value="bottom" aria-pressed="true">bottom</jelly-button>
+          <jelly-button class="pill" data-value="start" aria-pressed="false">start</jelly-button>
+          <jelly-button class="pill" data-value="end" aria-pressed="false">end</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <jelly-popover placement="bottom" label="Rate detail">
+      <div class="overlay-stage" data-controls>
+        <jelly-popover id="pop-demo" placement="bottom" label="Rate detail">
           <jelly-button slot="trigger">Exchange rate</jelly-button>
           <div slot="content">
             <b>1 USD = 0.3065 KWD</b>
@@ -1052,23 +1114,30 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
 &lt;/jelly-popover&gt;</template>
     </div>
   </section>
-
   <section class="entry" id="c-21">
     <div class="entry-text">
     <p class="entry-num">Overlays &middot; 21</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-tooltip"/></svg> &lt;jelly-tooltip&gt;</h2>
-    <p class="entry-note">A hint on hover and on focus. The text is an <b>attribute</b>, not a slot, so it
-       cannot carry markup &mdash; and it is the one component that names its own
-       <code>--jelly-tooltip-background</code> and <code>--jelly-tooltip-color</code> instead of reading the
-       surface tokens. Left alone it paints a near-black chip, which is a colour this system does not have.</p>
+    <p class="entry-note">A hint on hover and on focus. The text is an attribute, so it carries no markup.</p>
+
+    <!-- It is the one component that names its own --jelly-tooltip-background
+         and --jelly-tooltip-color instead of reading the surface tokens. Left
+         alone it paints a near-black chip, which is a colour this system does
+         not have.
+
+         `text` IS THE ROW because it is the only attribute that moves anything
+         here -- see the popover's note for why `size` is not offered. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">text</span>
+        <jelly-input id="tip-text" size="small" value="Converted at today&rsquo;s rate" label="Tooltip text"></jelly-input>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <jelly-tooltip text="Converted at today&rsquo;s rate">
+      <div class="overlay-stage" data-controls>
+        <jelly-tooltip id="tip-demo" text="Converted at today&rsquo;s rate">
           <jelly-button>150.000 KWD</jelly-button>
-        </jelly-tooltip>
-        <jelly-tooltip text="Every three months" size="small">
-          <jelly-button>Quarterly</jelly-button>
         </jelly-tooltip>
       </div>
       <template data-snippet-text>&lt;jelly-tooltip text="Converted at today&amp;rsquo;s rate"&gt;
@@ -1076,18 +1145,32 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
 &lt;/jelly-tooltip&gt;</template>
     </div>
   </section>
-
   <section class="entry" id="c-22">
     <div class="entry-text">
     <p class="entry-num">Overlays &middot; 22</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-menu"/></svg> &lt;jelly-menu&gt;</h2>
-    <p class="entry-note">A list of actions hung off a trigger. It shares its panel tokens with
-       <code>&lt;jelly-select&gt;</code>, which draws its own dropdown rather than opening a menu &mdash; so the
-       bridge declares <code>--jelly-menu-*</code> on both, and a change to one silently moves the other.</p>
+    <p class="entry-note">A list of actions hung off a trigger.</p>
+
+    <!-- It shares its panel tokens with <jelly-select>, which draws its own
+         dropdown rather than opening a menu -- so the bridge declares
+         --jelly-menu-* on both, and a change to one silently moves the other.
+
+         No `size` row: same reason as the popover, measured the same way. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">placement</span>
+        <div class="pillset" id="menu-placement" role="group" aria-label="Placement">
+          <jelly-button class="pill" data-value="top" aria-pressed="false">top</jelly-button>
+          <jelly-button class="pill" data-value="bottom" aria-pressed="true">bottom</jelly-button>
+          <jelly-button class="pill" data-value="start" aria-pressed="false">start</jelly-button>
+          <jelly-button class="pill" data-value="end" aria-pressed="false">end</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <jelly-menu placement="bottom">
+      <div class="overlay-stage" data-controls>
+        <jelly-menu id="menu-demo" placement="bottom">
           <jelly-button slot="trigger">Payment actions</jelly-button>
           <jelly-menu-item>Edit</jelly-menu-item>
           <jelly-menu-item>Duplicate</jelly-menu-item>
@@ -1101,25 +1184,49 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
 &lt;/jelly-menu&gt;</template>
     </div>
   </section>
-
   <section class="entry" id="c-23">
     <div class="entry-text">
     <p class="entry-num">Overlays &middot; 23</p>
     <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-menuitem"/></svg> &lt;jelly-menu-item&gt;</h2>
-    <p class="entry-note">One row of a menu, and the only component here that is never used alone. It has no
-       tokens of its own &mdash; <code>--jelly-menu-item-*</code> are declared by the <b>menu</b>, so an item
-       outside one falls back to Jelly&rsquo;s defaults and quietly stops matching the rows beside it.</p>
+    <p class="entry-note">One row of a menu, and the only component here never used alone.</p>
+
+    <!-- It has no tokens of its own: --jelly-menu-item-* are declared by the
+         MENU, so an item outside one falls back to Jelly's defaults and quietly
+         stops matching the rows beside it.
+
+         `disabled` GOES THROUGH THE ATTRIBUTE, NOT THE PROPERTY. The component
+         exposes a `disabled` accessor and assigning it does not take -- measured,
+         `item.disabled = true` read back false. Setting the attribute works and
+         gives the rendered row aria-disabled="true" and opacity .4. The row the
+         menu paints is a div.item in the menu's own shadow, built from this
+         element rather than being it, which is the likely reason.
+
+         THE IDS HERE ARE `mitem-`, NOT `mi-`. `mi-` IS THE ICON SPRITE'S
+         NAMESPACE. The demo menu was `id="mi-menu"` and that is exactly the id
+         the sprite wants for a menu glyph, so `<use href="#mi-menu"/>` two
+         entries up resolved to this jelly-menu instead of a symbol and entry
+         22's title rendered with no icon at all. It looked like a missing
+         icon; it was a namespace collision on top of one. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="mitem-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
     </div>
     <div class="demo" data-demo>
-      <div class="row" data-controls>
-        <jelly-menu placement="bottom">
+      <div class="overlay-stage" data-controls>
+        <jelly-menu id="mitem-menu" placement="bottom">
           <jelly-button slot="trigger">Rows</jelly-button>
-          <jelly-menu-item>Default</jelly-menu-item>
-          <jelly-menu-item disabled>Disabled</jelly-menu-item>
+          <jelly-menu-item id="mitem-demo">Edit</jelly-menu-item>
+          <jelly-menu-item>Duplicate</jelly-menu-item>
         </jelly-menu>
       </div>
       <template data-snippet-text>&lt;jelly-menu-item&gt;Edit&lt;/jelly-menu-item&gt;
-&lt;jelly-menu-item disabled&gt;Disabled&lt;/jelly-menu-item&gt;</template>
+&lt;jelly-menu-item&gt;Duplicate&lt;/jelly-menu-item&gt;</template>
     </div>
   </section>
   <section class="entry" id="c-24">
@@ -1418,8 +1525,8 @@ drawer.open = true;   // side = start | end | left | right | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260904g"></script>
-<script src="minaa-jelly.js?v=20260904g"></script>
-<script src="showcase.js?v=20260904g" defer></script>
+<script src="micons.js?v=20260904k"></script>
+<script src="minaa-jelly.js?v=20260904k"></script>
+<script src="showcase.js?v=20260904k" defer></script>
 </body>
 </html>

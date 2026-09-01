@@ -1093,6 +1093,86 @@
     snippet();
   }
 
+  /* The three remaining overlays. Each specimen is a TRIGGER, so the rows drive
+     the thing it opens rather than the button itself, and the snippet prints
+     the component the reader would type. */
+
+  function wirePopoverDemo() {
+    const el = document.getElementById('pop-demo');
+    const row = document.getElementById('pop-placement');
+    if (!el || !row || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-20 .code code');
+      if (!box) return;
+      box.textContent = '<jelly-popover placement="' + (el.getAttribute('placement') || 'bottom') + '">\n'
+        + '  <jelly-button slot="trigger">Exchange rate</jelly-button>\n'
+        + '  <div slot="content">1 USD = 0.3065 KWD</div>\n'
+        + '</jelly-popover>';
+    };
+    pillRow(row, (v) => el.setAttribute('placement', v), snippet);
+    snippet();
+  }
+
+  function wireTooltipDemo() {
+    const el = document.getElementById('tip-demo');
+    const field = document.getElementById('tip-text');
+    if (!el || !field || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-21 .code code');
+      if (!box) return;
+      box.textContent = '<jelly-tooltip text="' + (el.getAttribute('text') || '') + '">\n'
+        + '  <jelly-button>150.000 KWD</jelly-button>\n'
+        + '</jelly-tooltip>';
+    };
+    const apply = () => {
+      const v = field.value == null ? '' : String(field.value);
+      if (v) el.setAttribute('text', v); else el.removeAttribute('text');
+      snippet();
+    };
+    field.addEventListener('input', apply);
+    field.addEventListener('change', apply);
+    snippet();
+  }
+
+  function wireMenuDemo() {
+    const el = document.getElementById('menu-demo');
+    const row = document.getElementById('menu-placement');
+    if (el && row && !el.dataset.wiredCtl) {
+      el.dataset.wiredCtl = '1';
+      const snippet = () => {
+        const box = document.querySelector('#c-22 .code code');
+        if (!box) return;
+        box.textContent = '<jelly-menu placement="' + (el.getAttribute('placement') || 'bottom') + '">\n'
+          + '  <jelly-button slot="trigger">Payment actions</jelly-button>\n'
+          + '  <jelly-menu-item>Edit</jelly-menu-item>\n'
+          + '  <jelly-menu-item>Duplicate</jelly-menu-item>\n'
+          + '</jelly-menu>';
+      };
+      pillRow(row, (v) => el.setAttribute('placement', v), snippet);
+      snippet();
+    }
+
+    /* Entry 23. toggleAttribute, NOT the property: jelly-menu-item exposes a
+       `disabled` accessor and assigning it does not take -- measured,
+       item.disabled = true read back false. The attribute works, and gives the
+       rendered row aria-disabled="true" and opacity .4. */
+    const item = document.getElementById('mitem-demo');
+    const dis = document.getElementById('mitem-disabled');
+    if (item && dis && !item.dataset.wiredCtl) {
+      item.dataset.wiredCtl = '1';
+      const snip = () => {
+        const box = document.querySelector('#c-23 .code code');
+        if (!box) return;
+        box.textContent = '<jelly-menu-item' + (item.hasAttribute('disabled') ? ' disabled' : '')
+          + '>Edit</jelly-menu-item>\n<jelly-menu-item>Duplicate</jelly-menu-item>';
+      };
+      pillRow(dis, (v) => item.toggleAttribute('disabled', v === 'true'), snip);
+      snip();
+    }
+  }
+
   function wireAlertDemo() {
     const el = document.getElementById('alert-demo');
     const tone = document.getElementById('alert-tone');
@@ -1360,6 +1440,19 @@
     btn.dataset.wired = '1';
     btn.addEventListener('click', () => dlg.setAttribute('open', ''));
 
+    /* The `open` row, and the dialog closes ITSELF -- the x, Escape, both
+       answers -- so the row is re-read from the element on every change rather
+       than trusted to whichever pill was last pressed. */
+    const openRow = document.getElementById('dlg-open-row');
+    if (openRow) {
+      const syncOpen = () => openRow.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed',
+          String((p.dataset.value === 'true') === dlg.hasAttribute('open'))));
+      pillRow(openRow, (v) => { dlg.open = (v === 'true'); }, syncOpen);
+      new MutationObserver(syncOpen).observe(dlg, { attributes: true, attributeFilter: ['open'] });
+      syncOpen();
+    }
+
     /* Both answers close, through the `open` PROPERTY rather than the
        attribute, so the exit animation runs -- removing the attribute cuts it.
        The confirm also raises a toast, because a confirmation whose confirm
@@ -1406,20 +1499,46 @@
      would be an odd thing for the page to contradict. */
   function wireDrawer() {
     const drw = document.getElementById('drw-demo');
-    if (!drw) return;
+    const btn = document.getElementById('drw-open');
+    const side = document.getElementById('drw-side');
+    const openRow = document.getElementById('drw-open-row');
+    if (!drw || !btn || !side || !openRow || drw.dataset.wiredCtl) return;
+    drw.dataset.wiredCtl = '1';
+
+    function snippet() {
+      const box = document.querySelector('#c-19 .code code');
+      if (!box) return;
+      box.textContent =
+        '<jelly-drawer side="' + (drw.getAttribute('side') || 'end') + '" label="Payment details">\n'
+        + '  <h3>Payment details</h3>\n'
+        + '  <p>Bay 4 \u00b7 150.000 KWD \u00b7 monthly.</p>\n'
+        + '</jelly-drawer>\n\n'
+        + 'drawer.open = true;   // side = start | end | bottom';
+    }
+
+    /* The drawer closes itself -- the scrim, the x, Escape -- so the row is
+       pushed back from the element rather than assumed from the last pill. */
+    function sync() {
+      const isOpen = drw.hasAttribute('open');
+      openRow.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String((p.dataset.value === 'true') === isOpen)));
+      snippet();
+    }
+
     /* start and end, not left and right. Jelly accepts all four, but the
        logical pair follows the writing direction and the physical pair does
        not -- and this library gets an RTL build later, where left would stay
        left and be wrong. */
-    for (const [id, side] of [['drw-start', 'start'], ['drw-end', 'end'], ['drw-bottom', 'bottom']]) {
-      const btn = document.getElementById(id);
-      if (!btn || btn.dataset.wired) continue;
-      btn.dataset.wired = '1';
-      btn.addEventListener('click', () => {
-        drw.setAttribute('side', side);
-        drw.open = true;
-      });
-    }
+    pillRow(side, (v) => drw.setAttribute('side', v), snippet);
+    /* .open, the PROPERTY, on the way out: removing the attribute cuts the
+       exit animation. */
+    pillRow(openRow, (v) => { drw.open = (v === 'true'); }, snippet);
+    btn.addEventListener('click', () => { drw.open = true; setTimeout(sync, 60); });
+
+    /* No close event to listen for, so the attribute is watched instead. */
+    new MutationObserver(sync).observe(drw, { attributes: true, attributeFilter: ['open'] });
+
+    sync();
   }
 
   /* ── Squircle cards ──────────────────────────────────────────────────────
@@ -1572,7 +1691,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {

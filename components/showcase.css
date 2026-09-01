@@ -994,6 +994,21 @@ svg[data-sq-fill] {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* One stage for all six overlays. Every specimen here is a TRIGGER -- the thing
+   being documented only exists once opened -- so they are all the same shape and
+   want the same floor. No width: a jelly-button carries its own.
+
+   The panels themselves are not floored, and must not be. A dialog and a drawer
+   portal to document.body and a popover and a menu are absolutely positioned, so
+   none of them takes part in this card's layout at all. */
+.overlay-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 /* Centred and floored. The trigger is a jelly-button at its own height, and no
    width is set -- it is page furniture that fires the component, not the
    component itself, so nothing here should shape it. */

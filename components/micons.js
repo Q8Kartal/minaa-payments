@@ -233,7 +233,15 @@ const MICONS = {
 };
 
 /* One sprite, referenced by <use>, so each path is stored once no matter how
-   many times its icon appears. */
+   many times its icon appears.
+
+   `mi-` IS THIS SPRITE'S NAMESPACE. NOTHING ELSE ON A PAGE MAY TAKE AN id FROM
+   IT. The sprite is appended to documentElement, so it is the LAST thing in the
+   document: any element in the body holding the same id wins getElementById and
+   wins the <use> lookup, and the icon silently renders as nothing. That is not
+   theoretical -- a demo <jelly-menu id="mi-menu"> in the overlays section ate
+   #mi-menu and entry 22's title went bare. It reads exactly like a missing
+   glyph, and the glyph was here the whole time. */
 (function injectSprite() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('aria-hidden', 'true');
