@@ -130,6 +130,7 @@
      steps to after 24. */
   --control-icon-32: 32px;
   --control-icon-40: 40px;
+  --control-icon-48: 48px;
   --control-stroke: 1.5px;
   /* A SURFACE's edge, not a control's. --control-stroke is the hairline on an
      input, a select and an OTP digit, and at that weight it merges into a
@@ -2649,26 +2650,51 @@ jelly-tooltip {
    <svg class="mi"> painting with currentColor: --jelly-label drives Jelly's
    canvas, currentColor drives our slotted mark.
 
-   THE GLYPH IS 40, the top of Ahmad's own Squircle Icon set. --control-icon-*
-   stopped at 24 and has been extended twice to reach it, 32 then 40, both of
-   them steps the system already had elsewhere: --space-400 and --space-500, and
-   the two variants his set steps to after 24. The one number NOT taken was 28,
-   which is what continuing the ramp's own +4 rhythm would have given and which
-   appears on no Minaa scale.
+   THE GLYPH IS 48. --control-icon-* stopped at 24 and has been extended three
+   times to get here -- 32, 40, 48 -- every one of them a number the system
+   already had: --space-400, --space-500, --space-600, with 40 also the top of
+   Ahmad's Squircle Icon set and 48 also --control-48. The one number never
+   taken was 28, which is what continuing the ramp's own +4 rhythm would have
+   given and which appears on no Minaa scale.
 
-   THE BUTTON HAD TO GROW WITH IT. At 40 the mark exactly fills a 40 box, so the
-   hit area would have been the ink and nothing else -- no slack to aim at, and
-   a press landing on the very edge of the glyph. Dropping the size attribute
-   takes it to Jelly's own default of 48 and restores 4px each side. The
-   attribute is ABSENT rather than set to medium, because medium IS 48: writing
-   it would document a value that changes nothing, the same call the divider,
-   the resizable and the tooltip's own placement row already make. */
+   THE BUTTON GROWS WITH THE GLYPH, EVERY TIME. A mark the same size as its box
+   leaves the hit area exactly equal to the ink -- nothing to aim at, and a
+   press landing on the glyph's edge. At 48 the button takes Jelly's large, 56,
+   which is the last rung of its ramp and keeps the same 4px of slack each side
+   the 32 and 40 steps had. There is no step above this one: the icon would
+   need a --control-icon-56 and the button a box Jelly does not offer. */
 jelly-tooltip > jelly-icon-button:not([slot]) {
   --jelly-fill:  transparent;
   --jelly-label: var(--m-tooltip-icon-mark);
   color:         var(--m-tooltip-icon-mark);
 }
 jelly-tooltip > jelly-icon-button:not([slot]) .mi {
-  width:  var(--control-icon-40);
-  height: var(--control-icon-40);
+  width:  var(--control-icon-48);
+  height: var(--control-icon-48);
+
+  /* JELLY'S MOTION, NOT A MOTION OF OURS. An unfilled button has no membrane to
+     watch: measured through a full press, the canvas painted zero pixels and
+     the body never left `resting`, so the control had no behaviour at all --
+     it read as a static SVG that happened to be clickable.
+
+     The numbers are Jelly's own, lifted from the one place the library animates
+     something that is NOT a soft body: its breadcrumb links, which do
+
+       a          transition: transform .18s cubic-bezier(.34,1.7,.5,1)
+       a:hover    transform: scale(1.08)
+       a:active   transform: scale(.94)
+
+     Same curve, same two scales, same duration. Inventing a spring here would
+     have put a second motion language in a library whose whole point is one. */
+  transition: transform .18s cubic-bezier(.34, 1.7, .5, 1);
+}
+jelly-tooltip > jelly-icon-button:not([slot]):hover  .mi { transform: scale(1.08); }
+jelly-tooltip > jelly-icon-button:not([slot]):active .mi { transform: scale(.94); }
+
+/* Jelly guards every one of its own transforms this way -- twelve times in the
+   library -- so the borrowed motion carries the guard it was written with. */
+@media (prefers-reduced-motion: reduce) {
+  jelly-tooltip > jelly-icon-button:not([slot]) .mi { transition: none; }
+  jelly-tooltip > jelly-icon-button:not([slot]):hover  .mi,
+  jelly-tooltip > jelly-icon-button:not([slot]):active .mi { transform: none; }
 }
