@@ -1069,19 +1069,30 @@ svg[data-sq-fill] {
    is still `flex: 1 1 100%` and still fills what it is given. */
 .divider-stage jelly-divider { max-inline-size: min(100%, var(--control-96) * 4); }
 
+/* Tall enough for all THREE directions, not just the widest one. `both` is a
+   2x2 grid and `vertical` stacks three panes, so the old 96px box would have
+   given `both` two rows of 41 and `vertical` three panes of 23. The height is
+   the parent's to supply -- the component has none of its own. */
 .resizable-stage {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: calc(var(--space-1000) * 2 + var(--space-400));
+  min-height: calc(var(--space-1000) * 3 + var(--space-400) * 2);   /* 240 + 64 */
   padding-block: var(--space-400);
 }
-.resizable-stage jelly-resizable { block-size: var(--control-96); }
+.resizable-stage jelly-resizable { block-size: calc(var(--space-1000) * 3); }
+
+/* The panes are the author's -- render() sets only slot, flex and overflow on
+   each child, and paints nothing. Unpainted, the demo was labels either side of
+   a line with no visible thing to drag. --m-page on --m-card is the pairing
+   already used for a surface sitting on the demo panel. */
 .rz-pane {
   display: flex;
   align-items: center;
   justify-content: center;
   block-size: 100%;
+  border-radius: var(--radius-16);
+  background: var(--m-page);
   color: var(--m-ink);
   font-size: var(--text-md);
 }

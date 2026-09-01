@@ -1170,13 +1170,20 @@
     const snippet = () => {
       const box = document.querySelector('#c-35 .code code');
       if (!box) return;
-      box.textContent = '<jelly-resizable direction="'
-        + (el.getAttribute('direction') || 'horizontal') + '">\n'
+      const d = el.getAttribute('direction');
+      box.textContent = '<jelly-resizable' + (d ? ' direction="' + d + '"' : '') + '>\n'
         + '  <div>Bays</div>\n'
         + '  <div>Payments</div>\n'
+        + '  <div>Invoices</div>\n'
         + '</jelly-resizable>';
     };
-    pillRow(dir, (v) => el.setAttribute('direction', v), snippet);
+    /* `row` is the default and the component spells it as the ABSENCE of the
+       attribute, so the pill removes it rather than setting direction="row" --
+       a value the component does not recognise and would silently ignore. */
+    pillRow(dir, (v) => {
+      if (v === 'row') el.removeAttribute('direction');
+      else el.setAttribute('direction', v);
+    }, snippet);
     snippet();
   }
 

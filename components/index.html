@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260906p"></script>
+<script src="../gate.js?v=20260906q"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260906p"></script>
+<script type="module" src="vendor/jelly.js?v=20260906q"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260906p">
-<link rel="stylesheet" href="showcase.css?v=20260906p">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260906q">
+<link rel="stylesheet" href="showcase.css?v=20260906q">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -2002,35 +2002,52 @@ drawer.open = true;   // side = start | end | bottom</template>
          styling surface, so there is nothing here to bind to the scale and
          nothing injected: the handle geometry is Jelly's and stays Jelly's.
 
-         `direction` IS THE ONLY ATTRIBUTE, and the values are horizontal and
-         vertical. It reports pane sizes through a `sizes` accessor and fires
-         `change` when a drag settles, which is what the snippet reads.
+         `direction` IS THE ONLY ATTRIBUTE and it takes THREE values, not two:
+         ROW, VERTICAL and BOTH. Row is the default and is spelt as the ABSENCE
+         of the attribute -- `.container` is already `flex-direction: row`, and
+         only `[direction="vertical"]` and `[direction="both"]` override it.
 
-         IT NEEDS A HEIGHT FROM ITS PARENT in horizontal mode and its children
-         need one in vertical, which is why the panes below carry their own.
-         A resizable with no height renders as a 600x0 strip -- measured, and
-         the reason the first probe of this component looked like it was
-         broken. -->
+         This entry used to offer `horizontal`, which is not a value the
+         component knows. It looked right for the worst reason: an unrecognised
+         value matches no rule, so the container kept its default row and a
+         wrong label sat over the right layout.
+
+         `both` is a 2x2 grid with two dividers that cross. It reserves four
+         slots and hides any child past the fourth, so three panes fill three
+         quadrants and leave one open -- the component's own behaviour, not a
+         gap in the demo.
+
+         Panes are the AUTHOR'S. render() sets only `slot`, `flex: 1 1 0` and
+         `overflow: auto` on each child and paints nothing, which is why the
+         panes below carry a surface: without one there is visibly nothing to
+         drag apart.
+
+         IT NEEDS A HEIGHT FROM ITS PARENT. A resizable with no height renders
+         as a 600x0 strip -- measured, and the reason the first probe of this
+         component looked like it was broken. -->
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">direction</span>
         <div class="pillset" id="rz-direction" role="group" aria-label="Direction">
-          <jelly-button class="pill" data-value="horizontal" aria-pressed="true">horizontal</jelly-button>
+          <jelly-button class="pill" data-value="row" aria-pressed="true">row</jelly-button>
           <jelly-button class="pill" data-value="vertical" aria-pressed="false">vertical</jelly-button>
+          <jelly-button class="pill" data-value="both" aria-pressed="false">both</jelly-button>
         </div>
       </div>
     </div>
     </div>
     <div class="demo" data-demo>
       <div class="resizable-stage" data-controls>
-        <jelly-resizable id="rz-demo" direction="horizontal">
+        <jelly-resizable id="rz-demo">
           <div class="rz-pane">Bays</div>
           <div class="rz-pane">Payments</div>
+          <div class="rz-pane">Invoices</div>
         </jelly-resizable>
       </div>
-      <template data-snippet-text>&lt;jelly-resizable direction="horizontal"&gt;
+      <template data-snippet-text>&lt;jelly-resizable&gt;
   &lt;div&gt;Bays&lt;/div&gt;
   &lt;div&gt;Payments&lt;/div&gt;
+  &lt;div&gt;Invoices&lt;/div&gt;
 &lt;/jelly-resizable&gt;</template>
     </div>
   </section>
@@ -2371,8 +2388,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260906p"></script>
-<script src="minaa-jelly.js?v=20260906p"></script>
-<script src="showcase.js?v=20260906p" defer></script>
+<script src="micons.js?v=20260906q"></script>
+<script src="minaa-jelly.js?v=20260906q"></script>
+<script src="showcase.js?v=20260906q" defer></script>
 </body>
 </html>
