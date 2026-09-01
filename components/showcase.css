@@ -1052,6 +1052,19 @@ svg[data-sq-fill] {
 
    A floor instead, sized to the closed state, so the card does not collapse
    when everything is shut. The accordion floors at three closed headers. */
+/* align-items DIFFERS BETWEEN THESE TWO, AND IT IS THE WHOLE POINT.
+
+   jelly-collapsible is display:block, so in a stretch container it takes the
+   full card -- 539px here regardless of `size`, which leaves the size row able
+   to change the height and nothing else. That is the failure already removed
+   from the field, the progress bar and the skeleton: a page width overriding a
+   dimension the component's own size scale exists to demonstrate. Centring it
+   makes the flex item size to its content, so small / medium / large move the
+   width AND the height, which is what the reader came to see.
+
+   The ACCORDION stays stretched, deliberately. Its children are a stack, and a
+   stack whose rows each hug their own label is a ragged edge -- they share a
+   width because they are one control, not three. */
 .collapsible-stage,
 .accordion-stage {
   display: flex;
@@ -1059,6 +1072,8 @@ svg[data-sq-fill] {
   justify-content: center;
   padding-block: var(--space-400);                       /* 32 */
 }
+.collapsible-stage { align-items: center; }
+.accordion-stage   { align-items: stretch; }
 .collapsible-stage { min-height: calc(var(--space-800) + var(--space-400) * 2); }
 .accordion-stage   { min-height: calc(var(--space-1000) * 2 + var(--space-400)); }
 
