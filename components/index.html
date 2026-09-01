@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260904x"></script>
+<script src="../gate.js?v=20260905a"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,12 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260904x"></script>
+<script type="module" src="vendor/jelly.js?v=20260905a"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260904x">
-<link rel="stylesheet" href="showcase.css?v=20260904x">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260905a">
+<link rel="stylesheet" href="showcase.css?v=20260905a">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -2130,6 +2130,181 @@ drawer.open = true;   // side = start | end | bottom</template>
       <template data-snippet-text>&lt;jelly-kbd key="Escape"&gt;Esc&lt;/jelly-kbd&gt;</template>
     </div>
   </section>
+  <section class="entry" id="c-39">
+    <div class="entry-text">
+    <p class="entry-num">Forms &middot; 39</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-select"/></svg> &lt;jelly-option&gt;</h2>
+    <p class="entry-note">One row of a select. It renders nothing itself &mdash; the
+       select draws it.</p>
+
+    <!-- IT SETS display:none ON ITSELF. jelly-option is a data carrier, not a
+         visible element: connectedCallback hides it and calls syncOptions() on
+         the nearest jelly-select, which is what actually draws the row. So the
+         specimen here is a SELECT, and the controller drives the middle option
+         inside it. The same shape as entry 23, where the specimen is a menu.
+
+         Its value is the `value` attribute, FALLING BACK TO ITS TEXT. That is
+         worth knowing: an option with no value attribute still submits, it
+         just submits its own label, so a label change silently changes the
+         value. The row shows both -- clear the value and the snippet stops
+         printing one, while the select keeps working.
+
+         Both rows take effect live. attributeChangedCallback calls the
+         parent's syncOptions() on every change, so unlike the tab panel below
+         there is no rebuild trick needed. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">selected</span>
+        <div class="pillset" id="op-selected" role="group" aria-label="Selected">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="op-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">value</span>
+        <jelly-input id="op-value" size="small" label="Value"
+                     placeholder="Empty falls back to the text"></jelly-input>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="select-stage" data-controls>
+        <jelly-select id="op-select" label="Currency">
+          <jelly-option value="KWD" selected>Kuwaiti Dinar</jelly-option>
+          <jelly-option id="op-demo" value="USD">US Dollar</jelly-option>
+          <jelly-option value="EUR">Euro</jelly-option>
+        </jelly-select>
+      </div>
+      <template data-snippet-text>&lt;jelly-option value="USD"&gt;US Dollar&lt;/jelly-option&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-40">
+    <div class="entry-text">
+    <p class="entry-num">Forms &middot; 40</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-segment&gt;</h2>
+    <p class="entry-note">One option of a segmented control, and of a tab bar,
+       which is the same thing.</p>
+
+    <!-- THE SAME SHAPE AS THE OPTION ABOVE: display:none on itself, and every
+         change calls sync() on the nearest jelly-segmented. It carries no
+         appearance of its own at all; what you see is the pill the parent
+         paints.
+
+         IT IS ALSO WHAT A TAB IS MADE OF. jelly-tabs builds one jelly-segment
+         per panel inside its shadow root -- see entry 29 -- so this element is
+         reached far more often than it is written. That is also why its own
+         styling lives on jelly-segmented in the bridge and not here.
+
+         `disabled` ON A SEGMENT IS NOT `disabled` ON THE CONTROL. This one
+         takes a single option out while the rest stay live; entry 11's row
+         disables the whole track. Both are in the library and they are easy to
+         confuse.
+
+         THERE IS NO `selected` ROW, AND THAT IS A FINDING, NOT AN OMISSION.
+         `selected` on a segment is a CONNECT-TIME SEED. jelly-segmented picks
+         its index like this:
+
+           value attribute matches a segment   ->  use it
+           otherwise                           ->  first segment with `selected`
+
+         and the control reflects a `value` attribute onto itself as soon as it
+         syncs. From that moment the first branch always wins and no `selected`
+         a page sets afterwards is ever read. Measured: with `selected` moved
+         so that ONLY the second segment carried it, the control stayed on the
+         first. A row for it would move an attribute and change nothing.
+
+         THE OPTION ABOVE IS DIFFERENT, and the difference is one line:
+         jelly-select never reflects a value attribute. So its children stay
+         authoritative and entry 39's `selected` row works live -- verified,
+         it moves the select to EUR, to USD, and back to KWD when cleared. Two
+         elements with the same three attributes and the same shape, and only
+         one of them can be driven after connect. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="sm-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="segmented-stage" data-controls>
+        <jelly-segmented id="sm-parent" label="Period">
+          <jelly-segment value="monthly" selected>Monthly</jelly-segment>
+          <jelly-segment id="sm-demo" value="quarterly">Quarterly</jelly-segment>
+          <jelly-segment value="onetime">One-time</jelly-segment>
+        </jelly-segmented>
+      </div>
+      <template data-snippet-text>&lt;jelly-segment value="quarterly"&gt;Quarterly&lt;/jelly-segment&gt;</template>
+    </div>
+  </section>
+  <section class="entry" id="c-41">
+    <div class="entry-text">
+    <p class="entry-num">Navigation &middot; 41</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-segmented"/></svg> &lt;jelly-tab-panel&gt;</h2>
+    <p class="entry-note">One panel of a tab set. It carries the tab's label and
+       holds the content behind it.</p>
+
+    <!-- IT OBSERVES NOTHING. Not one attribute -- the class has no
+         observedAttributes at all, which makes it the only documented element
+         in this library with no runtime API. `label`, `value` and `active` are
+         read ONCE, by jelly-tabs, while it builds its bar.
+
+         SO THE LABEL ROW RE-APPENDS THE TABS TO APPLY, and that is the honest
+         way to show it rather than a row that silently does nothing. The same
+         trick entry 14 needs for the switch, and for the same underlying
+         reason: state settled at connect. Watch the bar rebuild when the field
+         changes -- that IS the documentation.
+
+         What each attribute does, all of it at connect:
+           label    the text on the tab; falls back to the panel's own text,
+                    then to "Tab N"
+           value    what jelly-tabs matches against; falls back to the index
+           active   which panel starts open; the first one wins
+
+         The element also sets role="tabpanel" on itself and mirrors `label`
+         into aria-label, so the accessible name comes from the same place the
+         visible one does. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">label</span>
+        <jelly-input id="tp-label" size="small" label="Tab label"
+                     placeholder="Rebuilds the bar"></jelly-input>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">active</span>
+        <div class="pillset" id="tp-active" role="group" aria-label="Active">
+          <jelly-button class="pill" data-value="first" aria-pressed="true">first</jelly-button>
+          <jelly-button class="pill" data-value="second" aria-pressed="false">second</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="tabs-stage" data-controls>
+        <jelly-tabs id="tp-tabs">
+          <jelly-tab-panel id="tp-demo" value="first" label="Schedule" active>
+            150.000 KWD monthly, due on the 1st.
+          </jelly-tab-panel>
+          <jelly-tab-panel value="second" label="History">
+            Nine payments, none late.
+          </jelly-tab-panel>
+        </jelly-tabs>
+      </div>
+      <template data-snippet-text>&lt;jelly-tab-panel value="first" label="Schedule" active&gt;
+  150.000 KWD monthly, due on the 1st.
+&lt;/jelly-tab-panel&gt;</template>
+    </div>
+  </section>
 
   <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
@@ -2152,8 +2327,8 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260904x"></script>
-<script src="minaa-jelly.js?v=20260904x"></script>
-<script src="showcase.js?v=20260904x" defer></script>
+<script src="micons.js?v=20260905a"></script>
+<script src="minaa-jelly.js?v=20260905a"></script>
+<script src="showcase.js?v=20260905a" defer></script>
 </body>
 </html>

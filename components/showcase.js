@@ -970,6 +970,136 @@
   /* Entries 31 and 32. */
   /* Entries 33 to 38. */
 
+  /* Entries 39 to 41 -- the three child elements. Each one renders nothing of
+     its own, so every specimen here is the PARENT and the rows drive one child
+     inside it. */
+
+  function wireOptionDemo() {
+    const el = document.getElementById('op-demo');
+    const sel = document.getElementById('op-select');
+    const selected = document.getElementById('op-selected');
+    const disabled = document.getElementById('op-disabled');
+    const field = document.getElementById('op-value');
+    if (!el || !sel || !selected || !disabled || !field || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-39 .code code');
+      if (!box) return;
+      const a = [];
+      if (el.hasAttribute('value')) a.push('value="' + el.getAttribute('value') + '"');
+      if (el.hasAttribute('selected')) a.push('selected');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-option' + (a.length ? ' ' + a.join(' ') : '') + '>'
+        + el.textContent.trim() + '</jelly-option>';
+    };
+    /* Selecting through the trigger moves it too, so the row is pushed back
+       from the select rather than assumed. */
+    const sync = () => {
+      selected.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed',
+          String((p.dataset.value === 'true') === el.hasAttribute('selected'))));
+      snippet();
+    };
+    pillRow(selected, (v) => el.toggleAttribute('selected', v === 'true'), sync);
+    pillRow(disabled, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    /* An empty field REMOVES the attribute, which is the interesting state:
+       the option then submits its own text instead. */
+    const apply = () => {
+      const v = field.value == null ? '' : String(field.value).trim();
+      if (v) el.setAttribute('value', v); else el.removeAttribute('value');
+      snippet();
+    };
+    field.addEventListener('input', apply);
+    field.addEventListener('change', apply);
+    sel.addEventListener('change', sync);
+    sync();
+  }
+
+  function wireSegmentDemo() {
+    const el = document.getElementById('sm-demo');
+    const parent = document.getElementById('sm-parent');
+    const disabled = document.getElementById('sm-disabled');
+    if (!el || !parent || !disabled || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+    const snippet = () => {
+      const box = document.querySelector('#c-40 .code code');
+      if (!box) return;
+      const a = ['value="' + (el.getAttribute('value') || '') + '"'];
+      if (el.hasAttribute('selected')) a.push('selected');
+      if (el.hasAttribute('disabled')) a.push('disabled');
+      box.textContent = '<jelly-segment ' + a.join(' ') + '>'
+        + el.textContent.trim() + '</jelly-segment>';
+    };
+    pillRow(disabled, (v) => el.toggleAttribute('disabled', v === 'true'), snippet);
+    /* Clicking a pill in the track moves the selection, which changes whether
+       this segment is the selected one -- so the snippet is re-read from the
+       element rather than tracked. */
+    parent.addEventListener('change', snippet);
+    snippet();
+  }
+
+  function wireTabPanelDemo() {
+    const field = document.getElementById('tp-label');
+    const active = document.getElementById('tp-active');
+    const first = document.getElementById('tp-demo');
+    if (!first || !field || !active || first.dataset.wiredCtl) return;
+    first.dataset.wiredCtl = '1';
+
+    /* EVERY LOOKUP IS BY ID, NEVER A CACHED NODE. The rebuild below replaces
+       the jelly-tabs element, so any reference captured in this closure is
+       detached the moment it runs once -- and the SECOND label edit then fails
+       against a node with no parent. That is not hypothetical: it shipped for
+       one build and the bar stopped updating after the first change. */
+    const tabsNow = () => document.getElementById('tp-tabs');
+    const panelNow = () => document.getElementById('tp-demo');
+
+    const snippet = () => {
+      const box = document.querySelector('#c-41 .code code');
+      const el = panelNow(), tabs = tabsNow();
+      if (!box || !el || !tabs) return;
+      box.textContent = '<jelly-tab-panel value="' + (el.getAttribute('value') || '')
+        + '" label="' + (el.getAttribute('label') || '') + '"'
+        + (tabs.value === el.getAttribute('value') ? ' active' : '') + '>\n'
+        + '  150.000 KWD monthly, due on the 1st.\n'
+        + '</jelly-tab-panel>';
+    };
+
+    /* THE REBUILD, AND WHY IT IS HERE. jelly-tabs reads its panels once, in
+       connectedCallback, and never looks again -- its `built` flag lives on the
+       element -- so a label changed afterwards never reaches the bar. A fresh
+       node is what is needed, not a re-insert of the same one. The same trick
+       entry 14 needs for the switch, for the same reason: state settled at
+       connect. Watching the bar rebuild IS the documentation. */
+    const rebuild = () => {
+      const tabs = tabsNow();
+      if (!tabs || !tabs.parentNode) return;
+      const open = tabs.value;
+      const fresh = tabs.cloneNode(true);
+      /* Carry the open panel across, so editing a label does not also throw
+         the reader back to the first tab. */
+      fresh.querySelectorAll('jelly-tab-panel').forEach((p) => {
+        p.toggleAttribute('active', p.getAttribute('value') === open);
+      });
+      tabs.parentNode.replaceChild(fresh, tabs);
+      fresh.addEventListener('change', snippet);
+    };
+
+    const apply = () => {
+      const v = field.value == null ? '' : String(field.value).trim();
+      const el = panelNow();
+      if (!el) return;
+      if (v) el.setAttribute('label', v); else el.removeAttribute('label');
+      rebuild();
+      snippet();
+    };
+    field.addEventListener('input', apply);
+    field.addEventListener('change', apply);
+    pillRow(active, (v) => { const t = tabsNow(); if (t) t.value = v; }, snippet);
+    tabsNow().addEventListener('change', snippet);
+
+    snippet();
+  }
+
   function wireCardDemo() {
     const el = document.getElementById('cd-demo');
     const squish = document.getElementById('cd-squish');
@@ -2027,7 +2157,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireOptionDemo(); wireSegmentDemo(); wireTabPanelDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireSquircleCards();
   }
 
   if (window.customElements) {
