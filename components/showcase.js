@@ -543,7 +543,8 @@
     const add = document.getElementById('sel-add');
     const lbl = document.getElementById('sel-label');
     const ph = document.getElementById('sel-placeholder');
-    if (!el || !value || !size || !dis || !add || !lbl || !ph
+    const del = document.getElementById('sel-remove');
+    if (!el || !value || !size || !dis || !add || !lbl || !ph || !del
         || el.dataset.wired) return;
     el.dataset.wired = '1';
 
@@ -628,12 +629,68 @@
       snippet();
       return true;
     }
+    /* REMOVING ONE. The mirror of addOption: drop the jelly-option and its
+       pill, then make sure the control is not left pointing at something that
+       no longer exists.
+
+       Matching is exact on the value first and case-insensitive second, so
+       typing `usd` finds USD without letting two options that differ only in
+       case collide -- addOption already refuses those.
+
+       THE LAST OPTION IS NOT REMOVABLE. A jelly-select with no children still
+       renders, but its panel is an empty box and every row below documents
+       nothing, so the floor is one.
+
+       If the option being removed is the SELECTED one, the selection moves to
+       the first survivor rather than being left dangling: syncOptions() would
+       otherwise find the host still carrying a value that matches no child,
+       land on selectedIndex -1, and drop the trigger back to the placeholder
+       with no pill pressed. */
+    function removeOption(raw) {
+      const v = String(raw == null ? '' : raw).trim();
+      if (!v) return false;
+      const opts = [...el.querySelectorAll('jelly-option')];
+      if (opts.length <= 1) return false;
+      const val = (o) => o.getAttribute('value') || o.textContent.trim();
+      const opt = opts.find((o) => val(o) === v)
+        || opts.find((o) => val(o).toLowerCase() === v.toLowerCase());
+      if (!opt) return false;
+      const gone = val(opt);
+      /* Read the selection BEFORE the node goes, and work out what should be
+         selected after from what we know -- never by reading el.value back once
+         the child is gone. jelly-select re-derives through a MutationObserver,
+         which fires asynchronously, so a read straight after remove() races it:
+         measured, the pills came back with nothing pressed while the trigger
+         and the host attribute had both settled on the right option. */
+      const wasSelected = el.value === gone;
+      opt.remove();
+      const pill = value.querySelector('.pill[data-value="' + CSS.escape(gone) + '"]');
+      if (pill) pill.remove();
+      let keep = wasSelected ? '' : el.value;
+      if (wasSelected) {
+        const first = el.querySelector('jelly-option');
+        if (first) {
+          keep = first.getAttribute('value') || first.textContent.trim();
+          el.value = keep;
+        }
+      }
+      value.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === keep)));
+      snippet();
+      return true;
+    }
+
     /* Enter, on the host: jelly-input's keydown crosses the shadow boundary
        composed, so there is no need to reach inside for the real input. */
     add.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       e.preventDefault();
       if (addOption(add.value)) add.value = '';
+    });
+    del.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (removeOption(del.value)) del.value = '';
     });
 
     /* Two observed attributes that draw nothing by themselves. Empty removes
