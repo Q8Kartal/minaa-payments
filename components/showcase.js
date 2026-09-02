@@ -1495,12 +1495,22 @@
   }
 
   /* One sentence per tone, so each still fires the message it was written for
-     rather than a single generic string across all four. */
+     rather than a single generic string across all four.
+
+     BOTH LANGUAGES LIVE HERE TOGETHER because a toast is built at CLICK time.
+     There is no node on the page for the direction swap to walk -- which is
+     exactly why these four were the last English left in RTL, and why they
+     cannot be fixed the way every other string was. */
   const TOAST_MESSAGE = {
-    info:    'List updated',
-    success: 'Payment saved',
-    warning: 'Exchange rate is stale',
-    danger:  'Could not save'
+    info:    { en: 'List updated',           ar: 'تم تحديث القائمة' },
+    success: { en: 'Payment saved',          ar: 'تم حفظ الدفعة' },
+    warning: { en: 'Exchange rate is stale', ar: 'أسعار الصرف قديمة' },
+    danger:  { en: 'Could not save',         ar: 'تعذّر الحفظ' }
+  };
+  const toastText = (tone) => {
+    const m = TOAST_MESSAGE[tone];
+    if (!m) return null;
+    return document.documentElement.getAttribute('dir') === 'rtl' ? m.ar : m.en;
   };
 
   function wireToastDemo() {
@@ -1523,10 +1533,18 @@
        the dataset is the whole update, with no re-binding. */
     pillRow(tone, (v) => {
       el.dataset.tone = v;
-      el.dataset.toast = TOAST_MESSAGE[v] || el.dataset.toast;
+      el.dataset.toast = toastText(v) || el.dataset.toast;
     }, snippet);
 
-    snippet();
+    /* The trigger carries its message in data-toast and nothing else on the
+       page owns that string, so a direction change has to rewrite it and
+       reprint the snippet. */
+    const follow = () => {
+      el.dataset.toast = toastText(el.dataset.tone || 'success') || el.dataset.toast;
+      snippet();
+    };
+    document.addEventListener('minaa:direction', follow);
+    follow();
   }
 
   /* The three remaining overlays. Each specimen is a TRIGGER, so the rows drive
@@ -2113,6 +2131,12 @@
        CLAUDE.md's Payment Types table still records اشتراك / 3 أشهر as the
        app's quarterly label, and that is untouched here. */
     "Quarterly": "ربع سنوي",
+    /* THE WHOLE ATTRIBUTE, not the word. "or" is two letters and the code pass
+       replaces by substring, so the bare word would rewrite color, border, for
+       and horizontal in every snippet on the page. Spelling out the attribute
+       makes the key unambiguous, and it is the only reason this lives in AR
+       rather than beside its AR_SHORT twin. */
+    "content=\"or\"": "content=\"أو\"",
     "One-time": "مرة واحدة",
     "Recurring monthly": "شهري متكرر",
     "Every three months": "كل ثلاثة أشهر",
@@ -2328,7 +2352,57 @@
     "history": "السجل"
   };
 
-  const AR_ATTRS = ['label', 'text', 'placeholder', 'aria-label'];
+  /* WHAT A CONTROLLER'S TEXT FIELD SAYS ABOUT ITSELF -- the floating label over
+     it and the hint inside it. A third map rather than a third use of the
+     other two, because these are neither specimen content nor a row name:
+     "Group legend" and "Shown when nothing is picked" are instructions to the
+     reader, and they only ever appear on a field.
+
+     Enter keeps its name in the two "then Enter" hints for the same reason the
+     key rows do -- it is what is printed on the key. */
+  const AR_FIELD = {
+    "Placeholder text": "النص البديل",
+    "Field value": "قيمة الحقل",
+    "Group legend": "عنوان المجموعة",
+    "Accessible name": "الاسم الوصفي",
+    "Tooltip text": "نص التلميح",
+    "Placeholder": "النص البديل",
+    "Label": "التسمية",
+    "Add an option": "إضافة خيار",
+    "Remove an option": "إزالة خيار",
+    "0 to max": "من 0 إلى الحد الأقصى",
+    "1 or more": "1 أو أكثر",
+    "4 to 8": "من 4 إلى 8",
+    "Add an option, then Enter": "اكتب خياراً ثم اضغط Enter",
+    "Remove an option, then Enter": "اكتب خياراً لإزالته ثم اضغط Enter",
+    "Names the trigger": "يسمّي الزرّ",
+    "Shown when nothing is picked": "يظهر عند عدم اختيار شيء",
+    "A word, or nothing": "كلمة، أو لا شيء",
+    "Type here": "اكتب هنا"
+  };
+
+  /* WORDS TOO SHORT TO PUT IN THE CONTENT MAP. AR is applied to a code block by
+     SUBSTRING, longest key first, so a two-letter entry would rewrite every
+     snippet on the page -- "or" lives inside color, border, for, horizontal.
+     These are therefore matched only against a WHOLE attribute value, never
+     against running text.
+
+     Just the divider's content="or" today. It is real specimen content: the
+     word painted in the break of the rule, and it was the last visible English
+     left in the RTL demos. */
+  const AR_SHORT = {
+    "or": "أو"
+  };
+
+  /* The two entries whose title is not a tag name. Every other h2 on the page
+     is <jelly-something> and stays in Latin because it is code; these two are
+     descriptions, so in an Arabic page they read as Arabic. */
+  const AR_TITLE = {
+    "theme switch": "مفتاح السمة",
+    "toasts": "التنبيهات"
+  };
+
+  const AR_ATTRS = ['label', 'text', 'placeholder', 'aria-label', 'content'];
   /* Longest first: substring replacement inside code blocks depends on it. */
   const AR_KEYS = Object.keys(AR).sort((a, b) => b.length - a.length);
 
@@ -2404,11 +2478,15 @@
         AR_ATTRS.forEach((a) => {
           const cur = el.getAttribute(a);
           if (toArabic) {
-            if (cur == null || !AR[cur.trim()]) return;
+            /* AR_SHORT second, and ONLY here -- see the note on it. An
+               attribute value is matched whole, so a short word is safe
+               against an attribute in a way it is not against prose. */
+            const hit = cur == null ? null : (AR[cur.trim()] || AR_SHORT[cur.trim()]);
+            if (!hit) return;
             if (el.dataset['en' + a.replace('-', '')] == null) {
               el.dataset['en' + a.replace('-', '')] = cur;
             }
-            el.setAttribute(a, AR[cur.trim()]);
+            el.setAttribute(a, hit);
           } else {
             const saved = el.dataset['en' + a.replace('-', '')];
             if (saved != null) { el.setAttribute(a, saved); delete el.dataset['en' + a.replace('-', '')]; }
@@ -2416,6 +2494,23 @@
         });
       });
     });
+    /* An entry title is normally a tag name and must not move. The two that
+       are descriptions instead are keyed by their own text, so nothing else in
+       an h2 can be caught by accident. */
+    document.querySelectorAll('.entry-title').forEach((h) => {
+      const node = [...h.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+      if (!node) return;
+      if (toArabic) {
+        const hit = AR_TITLE[node.textContent.trim()];
+        if (!hit) return;
+        if (node.__en == null) node.__en = node.textContent;
+        node.textContent = node.textContent.replace(node.textContent.trim(), hit);
+      } else if (node.__en != null) {
+        node.textContent = node.__en;
+        node.__en = null;
+      }
+    });
+
     /* The controls are page chrome, so they are swapped separately and with the
        other map. Only the visible text moves; data-value is what every pill row
        reads, so behaviour and snippets are untouched by this. */
@@ -2432,6 +2527,56 @@
           delete el.dataset.enui;
         }
       });
+    });
+
+    /* THE CONTROLLER'S TEXT FIELDS, which neither map above could reach. A
+       pill's word is a text node; a field's word is an ATTRIBUTE, and the word
+       it is currently showing is a PROPERTY that the attribute stops tracking
+       the moment anyone types. The swap only ever walked text nodes, so in RTL
+       the التسمية row still read "Payment type" and النص البديل still read
+       "Your name" -- 25 strings across nine entries.
+
+       Two sources, because they are two different kinds of word:
+         label / placeholder   guidance ABOUT the control        -> AR_FIELD
+         value                 the specimen content it drives    -> AR
+
+       The value has to come from the CONTENT map or the page would hold two
+       Arabic words for one string: rg-label's value IS what the radio group
+       renders, and the group already renders نوع الدفعة.
+
+       THE INPUT EVENT AT THE END IS THE POINT. Every one of these fields is
+       wired with addEventListener('input'), so dispatching it is what carries
+       the new word into the demo and into the snippet beside it. Setting the
+       value silently would translate the controller and leave the specimen it
+       drives in English -- a worse state than not translating at all. */
+    document.querySelectorAll('.controls jelly-input, .controls jelly-textarea, .controls jelly-select').forEach((el) => {
+      if (el.closest('.demo')) return;
+      ['label', 'placeholder'].forEach((a) => {
+        const cur = el.getAttribute(a);
+        const key = 'enf' + a;
+        if (toArabic) {
+          if (cur == null || !AR_FIELD[cur.trim()]) return;
+          if (el.dataset[key] == null) el.dataset[key] = cur;
+          el.setAttribute(a, AR_FIELD[cur.trim()]);
+        } else if (el.dataset[key] != null) {
+          el.setAttribute(a, el.dataset[key]);
+          delete el.dataset[key];
+        }
+      });
+      let moved = false;
+      if (toArabic) {
+        const hit = AR[String(el.value == null ? '' : el.value).trim()];
+        if (hit) {
+          if (el.dataset.enfvalue == null) el.dataset.enfvalue = el.value;
+          el.value = hit;
+          moved = true;
+        }
+      } else if (el.dataset.enfvalue != null) {
+        el.value = el.dataset.enfvalue;
+        delete el.dataset.enfvalue;
+        moved = true;
+      }
+      if (moved) el.dispatchEvent(new Event('input', { bubbles: true }));
     });
     /* Prose: innerHTML, keyed by section, originals stashed on the element. */
     const setHTML = (el, html) => {
@@ -2488,6 +2633,9 @@
       const fact = document.querySelector('[data-direction-fact]');
       if (fact) fact.textContent = dir.toUpperCase();
       swapDirectionText(dir === 'rtl');
+      /* For anything whose text exists only at the moment it is created, and so
+         has no node here to swap -- the toasts. */
+      document.dispatchEvent(new CustomEvent('minaa:direction', { detail: { dir } }));
     };
 
     el.addEventListener('change', () => apply(el.value));
