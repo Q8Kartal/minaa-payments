@@ -1548,6 +1548,21 @@
     return document.documentElement.getAttribute('dir') === 'rtl' ? m.ar : m.en;
   };
 
+  /* A TOAST THAT BELONGS TO ONE TRIGGER rather than to the tone row -- the
+     dialog's confirm fires it to show the action completing. Kept here with
+     TOAST_MESSAGE and for the same reason: it is built at click time, so there
+     is no node on the page for the direction swap to walk, and it went on
+     saying "Payment deleted" under an Arabic dialog. Separate map because
+     TOAST_MESSAGE is keyed by TONE, and an action is not a tone. */
+  const TOAST_ACTION = {
+    deleted: { en: 'Payment deleted', ar: 'تم حذف الدفعة' }
+  };
+  const actionToast = (key) => {
+    const m = TOAST_ACTION[key];
+    if (!m) return '';
+    return document.documentElement.getAttribute('dir') === 'rtl' ? m.ar : m.en;
+  };
+
   function wireToastDemo() {
     const el = document.getElementById('tst-demo');
     const tone = document.getElementById('tst-tone');
@@ -2019,7 +2034,7 @@
       /* A confirmation whose confirm button just closes teaches the wrong
          thing -- the demo should show the action completing. */
       if (typeof jellyToast === 'function') {
-        jellyToast('Payment deleted', { tone: 'success' });
+        jellyToast(actionToast('deleted'), { tone: 'success' });
       }
     });
   }
@@ -2321,6 +2336,25 @@
     "h1": "مكتبة المكوّنات",
     "p": "واجهة Jelly بهوية ميناء. كل عنصر تحكّم أدناه هو مكوّن Jelly الحقيقي، دون تعديل يُذكر — والهوية تأتي من جسر رموز واحد يستبدل لغة تصميم Jelly بلغتنا: أحد عشر رمزاً لونياً، ومقياس المسافات ذو الأربع عشرة خطوة، وخط 29LT Idris Round."
   };
+  /* THE FOOTER, which the masthead's map next to it always had and this never
+     did -- so RTL translated the page's opening and left its closing in
+     English. Jelly UI, bmson.com and vendor/README.md stay as they are: they
+     are a product, a domain and a path, not copy. */
+  const AR_FOOT = [
+    'واجهة Jelly مرخّصة بـ MIT ومن تطوير <a href="https://bmson.com">bmson.com</a>. هذه الصفحة تعيد تنسيقها عبر جسر رموز. المكتبة مُضمَّنة هنا بدل تحميلها من مصدرها، وتحمل ثلاثة رموز مضافة — كلٌّ منها يرجع إلى قيمة Jelly عند غيابه، ولا يمسّ أيٌّ منها الفيزياء. الفرق موثّق في <code>vendor/README.md</code>.',
+    'ميناء — المكوّنات. ليست عامة بعد.'
+  ];
+
+  /* THE TABLE OF CONTENTS IS TAG NAMES, and a tag name is code -- checkbox,
+     radio-group and the rest stay Latin for the same reason the <h2>s do.
+     TWO ROWS ARE NOT: entries 16 and 17 are described rather than named, and
+     their headings now read Arabic, so leaving the contents in English made
+     the page disagree with itself. Only those two move. */
+  const AR_TOC = {
+    "16 theme switch": "16 مفتاح السمة",
+    "17 toasts": "17 التنبيهات"
+  };
+
   const AR_DEMO_NOTES = ["الإعدادات الثلاثة كلها ترسم بهوية ميناء الآن. <b>داكن</b> هو الطرف العميق من تدرّج Primary — 900 للحقل و950 للسطح — مع الكريمي حبراً؛ و<b>تلقائي</b> يتبع ما يستخدمه نظام تشغيلك. هذه المعاينة محدَّدة النطاق، فتغييرها هنا لا يمسّ بقية الصفحة.", "تُطلَق في <code>&lt;jelly-toaster&gt;</code> الوحيد في الصفحة، المثبَّت أسفل النهاية. وهو يحمل بالفعل <code>position=\"bottom\"</code>، وهو ما يجعل المكدّس ينمو إلى أعلى لا إلى أسفل."];
 
   const AR_UI = {
@@ -2590,6 +2624,29 @@
       } else if (node.__en != null) {
         node.textContent = node.__en;
         node.__en = null;
+      }
+    });
+
+    document.querySelectorAll('.toc a').forEach((a) => {
+      if (toArabic) {
+        const hit = AR_TOC[a.textContent.trim()];
+        if (!hit) return;
+        if (a.dataset.entoc == null) a.dataset.entoc = a.textContent;
+        a.textContent = hit;
+      } else if (a.dataset.entoc != null) {
+        a.textContent = a.dataset.entoc;
+        delete a.dataset.entoc;
+      }
+    });
+
+    [...document.querySelectorAll('.foot p')].forEach((p, i) => {
+      if (toArabic) {
+        if (AR_FOOT[i] == null) return;
+        if (p.__enHTML == null) p.__enHTML = p.innerHTML;
+        p.innerHTML = AR_FOOT[i];
+      } else if (p.__enHTML != null) {
+        p.innerHTML = p.__enHTML;
+        p.__enHTML = null;
       }
     });
 
