@@ -2849,7 +2849,8 @@
   function wireLangSwitchDemo() {
     const el = document.getElementById('ls-demo');
     const row = document.getElementById('ls-direction');
-    if (!el || !row || el.dataset.wiredCtl) return;
+    const geom = document.getElementById('ls-geom');
+    if (!el || !row || !geom || el.dataset.wiredCtl) return;
     el.dataset.wiredCtl = '1';
 
     /* Hand-built, like the theme switch's, and for the same reason: the generic
@@ -2861,7 +2862,7 @@
       const sw = el.querySelector('jelly-switch');
       if (!box || !sw) return;
       box.textContent = [
-        '<span class="lang-switch" data-lang-switch>',
+        '<span class="lang-switch" data-lang-switch data-size="' + (el.dataset.size || 'desktop') + '">',
         '  <jelly-switch aria-label="Language"' + (sw.checked ? ' checked' : '') + '></jelly-switch>',
         '  <span class="ls-mark ls-en">E</span>',
         '  <span class="ls-mark ls-ar">\u0636</span>',
@@ -2881,6 +2882,10 @@
       sw.checked = v === 'ltr';
       sw.dispatchEvent(new Event('change', { bubbles: true }));
     }, sync);
+
+    /* The geometry rides on data-size, exactly where a reader would type it, so
+       the row moves the attribute and the snippet reprints from it. */
+    pillRow(geom, (v) => { el.dataset.size = v; }, sync);
 
     document.addEventListener('minaa:direction', sync);
     sync();

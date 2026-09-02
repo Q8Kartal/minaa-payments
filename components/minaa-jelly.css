@@ -1715,6 +1715,7 @@ jelly-textarea::part(textarea):-webkit-autofill {
   position: relative;
   display: inline-flex;
   --ls-track-h: var(--control-40);   /* must agree with --jelly-switch-height */
+  --ls-mark:    var(--control-icon-24);
   --ls-inset:   var(--space-050);    /* the track padding, uniform, as drawn */
 }
 
@@ -1735,18 +1736,31 @@ jelly-textarea::part(textarea):-webkit-autofill {
 /* Both letters are rendered and cross-faded rather than swapped, for the same
    reason as the theme switch's icons: a swap at the end of the travel pops
    while the track is still settling. */
+/* THE LETTER TAKES THE ICON'S BOX, WHICH IS THE POINT OF THIS RULE. The two
+   switches sit one above the other in the masthead, so a mark sized and placed
+   by its own logic reads as a different family however close the colours are.
+   Every line below is the theme switch's icon rule with --ts-icon swapped for
+   --ls-mark: same box, same measured-from-the-top placement, same 4 inset. The
+   letter is then set AT the box size rather than at a type step, because what
+   it has to match is the icon beside it and not a paragraph.
+
+   It was display-sm, 32, taken off the drawing's own binding. Against a 24
+   icon that is simply too big — the drawing was made without the theme switch
+   sitting under it. */
 .lang-switch .ls-mark {
   position: absolute;
-  /* From the TOP, which the host and the painted track share — the host is
-     46 tall where the track is 40 and the spare sits entirely below it, so
-     centring on the host would drop the letter 3px. */
-  top: 0;
-  height: var(--ls-track-h);
-  display: flex;
-  align-items: center;
+  /* NOT top: 50%. The jelly-switch host is taller than its painted track and
+     the spare sits entirely BELOW it, so the host centre is lower than the
+     track centre. Measuring down from the top, which host and track share, is
+     exact — the same reasoning as the icons on the twin. */
+  top: calc((var(--ls-track-h) - var(--ls-mark)) / 2);
+  width:  var(--ls-mark);
+  height: var(--ls-mark);
+  display: grid;
+  place-items: center;
   font-family: var(--font-bold);
-  font-size:   var(--display-sm);
-  line-height: var(--display-sm-lh);
+  font-size:   var(--ls-mark);
+  line-height: 1;
   color: var(--m-thumb);      /* Secondary 600, as drawn */
   pointer-events: none;       /* the switch underneath keeps the drag */
   transition: opacity .18s ease;
@@ -1762,6 +1776,33 @@ jelly-textarea::part(textarea):-webkit-autofill {
 @media (prefers-reduced-motion: reduce) {
   .lang-switch .ls-mark { transition: none; }
 }
+
+/* ---- Sizes ---------------------------------------------------------------
+   The theme switch's three, to the pixel, because these two are one family and
+   a reader who changes `geometry` on one expects the other to follow. Named
+   for where the control is used rather than small/medium/large: the reason to
+   change size here is the pointing device, not emphasis.
+
+   Two numbers per size, the track and the mark, both off the control ladder.
+   The inset stays 4 at every size, as on the twin, so the thumb derives as
+   track - 4*2 — 24, 32, 40. */
+.lang-switch[data-size="desktop"] jelly-switch {
+  --jelly-switch-width:  var(--control-80);
+  --jelly-switch-height: var(--control-40);
+}
+.lang-switch[data-size="desktop"] { --ls-track-h: var(--control-40); --ls-mark: var(--control-icon-24); }
+
+.lang-switch[data-size="ios"] jelly-switch {
+  --jelly-switch-width:  var(--control-64);
+  --jelly-switch-height: var(--control-32);
+}
+.lang-switch[data-size="ios"] { --ls-track-h: var(--control-32); --ls-mark: var(--control-icon-20); }
+
+.lang-switch[data-size="android"] jelly-switch {
+  --jelly-switch-width:  var(--control-96);
+  --jelly-switch-height: var(--control-48);
+}
+.lang-switch[data-size="android"] { --ls-track-h: var(--control-48); --ls-mark: var(--control-icon-24); }
 
 /* ---- Sizes ---------------------------------------------------------------
    Named for where the control is used rather than small/medium/large, because
