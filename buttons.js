@@ -150,10 +150,13 @@
     const aria = disabled ? ' aria-disabled="true"' : '';
     if (config === 'icononly')
       return '<jelly-icon-button shape="circle" label="' + T.search + '" data-config="icononly"' + aria + ' ' +
-             'class="' + variantCls + ' s' + size + '">' + ICON + '</jelly-icon-button>';
+             'class="mn-btn ' + variantCls + ' s' + size + '">' + ICON + '</jelly-icon-button>';
     const build = CONFIGS.find(c => c[0] === config)[2];
+    /* mn-btn is what button-family.css keys every one of its rules on -- the
+       family now lives in a file three pages load, and the marker is what
+       keeps it off the component library's own jelly-buttons. */
     return '<jelly-button dir="' + dir + '" data-config="' + config + '"' + aria + ' ' +
-           'class="' + variantCls + ' s' + size + '">' +
+           'class="mn-btn ' + variantCls + ' s' + size + '">' +
            '<span class="jelly-label">' + build(LABEL[dir]) + '</span></jelly-button>';
   }
 
