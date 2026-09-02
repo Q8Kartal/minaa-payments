@@ -2068,8 +2068,9 @@
 
      WHERE THE APP ALREADY SAYS IT, THE APP'S WORDING IS USED VERBATIM rather
      than translated afresh -- نوع الدفعة, العملة, دينار كويتي, شهري,
-     اشتراك / 3 أشهر, مرة واحدة, البريد الإلكتروني, أسعار الصرف, تعديل,
-     جارٍ التحميل. minaa-payments.html is the product's own voice and there is
+     مرة واحدة, البريد الإلكتروني, أسعار الصرف, تعديل, جارٍ التحميل. The one
+     place that rule is broken is quarterly, where the app's label does not fit
+     the component -- see the note on it below. minaa-payments.html is the product's own voice and there is
      no reason for the library to invent a second one. The rest are new, and
      they are the ones worth a designer's eye.
 
@@ -2102,7 +2103,16 @@
     "One-time code": "رمز التحقق",
     "Payment type": "نوع الدفعة",
     "Monthly": "شهري",
-    "Quarterly": "اشتراك / 3 أشهر",
+    /* ربع سنوي, NOT the app's own اشتراك / 3 أشهر. The app's label is 15
+       characters and 2.87em of text in a segment that offers 2.82em -- it
+       overflowed the track at every size, which is the bug this replaces. The
+       component's geometry is fixed and the text is what gives way. It also
+       makes the specimen agree with the controller, which already said
+       ربع سنوي; the page used to show two different Arabic words for one value
+       in the same row. Noting the divergence rather than hiding it:
+       CLAUDE.md's Payment Types table still records اشتراك / 3 أشهر as the
+       app's quarterly label, and that is untouched here. */
+    "Quarterly": "ربع سنوي",
     "One-time": "مرة واحدة",
     "Recurring monthly": "شهري متكرر",
     "Every three months": "كل ثلاثة أشهر",
@@ -2197,7 +2207,7 @@
     "c-08": "زر اختيار؛ الأزرار التي تشترك في <code>name</code> تحت الجذر نفسه تكوّن مجموعة، بتنقّل بالأسهم وtabindex متنقّل.",
     "c-09": "حاوية معنونة تحمل العنوان والتخطيط والحجم لأزرار الاختيار داخلها، بما فيها ما يُضاف لاحقاً.",
     "c-10": "مقبضان يحدّدان مجالاً بين حدٍّ أدنى وأعلى، لكلٍّ منهما تركيزه وARIA الخاص به، على مسار المنزلق ومقبضه ليُقرآ كعائلة واحدة.",
-    "c-11": "مسار كبسولي لخيارات متنافية، بحبّة تنزلق وتميل وتتمدّد بين الأقسام. يُبلّغ عن قيمة فقط — وللنسخة التي تملك أيضاً المحتوى الذي تبدّله، انظر المدخل 29.",
+    "c-11": "مسار كبسولي لخيارات متنافية، بحبّة تنزلق وتميل وتتمدّد بين الأقسام. يُبلّغ عن قيمة فقط — وللنسخة التي تملك أيضاً المحتوى الذي تبدّله، انظر المدخل 29. <b>عرض كل قسم يساوي متوسّط عرض التسميات</b>، فالأطول دائماً أقلّها مساحة، وكلمة واحدة طويلة تُضيّق البقية. اجعل التسميات متقاربة في الطول — وثمانية أحرف تقريباً هي حدّ الراحة في العربية، وأقلّ منها في اللاتينية.",
     "c-12": "قائمة منسدلة مركّبة، مشغّلها ولوحتها سطحان ليّنان؛ تنفتح اللوحة من الحقل وتنقلب إلى أعلاه عند غياب المساحة أسفله.",
     "c-13": "قيمة واحدة على مسار، مدعومة بحقل range أصلي مخفي لتبقى تُرسل مع النموذج وتستجيب للوحة المفاتيح.",
     "c-14": "مفتاح قابل للسحب يتمدّد إبهامه كقطرة سائلة، بينما يتلاشى المسار بين وضعَي التشغيل والإيقاف.",
