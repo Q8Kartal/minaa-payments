@@ -2168,6 +2168,80 @@
      secondary, neutral, mgreen, myellow, morange -- which are Minaa token
      names, not UI copy. Translating a token name would invent a second name
      for something the system already names once. */
+  /* THE PROSE. Entry notes, category names, the masthead and the two captions
+     that sit inside demos. Keyed by SECTION ID and swapped as innerHTML rather
+     than by matching text, because a note is not a plain string: most carry
+     inline <code> for the attribute they describe, and a whole-node match can
+     never see past the first element boundary.
+
+     API NAMES STAY LATIN inside the Arabic -- open, side, single, squish,
+     total, page, length, size, for, indeterminate, jelly-segmented. That is
+     what Arabic technical writing does, and it is the same rule the controller
+     map follows: a word you would type stays the word you would type. */
+  const AR_FACTS = {
+    "Forms · 12 components": "النماذج · 12 مكوّناً",
+    "1 theme switch": "مفتاح سمة واحد",
+    "Overlays · 6 of 6": "الطبقات · 6 من 6",
+    "Feedback · 6 of 6": "التغذية الراجعة · 6 من 6",
+    "1 token bridge": "جسر رموز واحد",
+    "3 forked tokens": "3 رموز متفرّعة",
+    "Minaã Blue throughout": "أزرق ميناء في كل مكان"
+  };
+
+  const AR_NOTES = {
+    "c-01": "المزوّد الذي يمنح كل مدخل آخر في هذه الصفحة هوية ميناء. يحدّد مجموعة الرموز الكاملة لشجرته الفرعية، والمكوّنات المرسومة على canvas تقرأ تلك الرموز وقت الرسم — ولهذا يُطبَّق الجسر هنا لا على <code>:root</code> وحده. الصفحة تعمل على auto، فتتبع نظام تشغيلك وتتبدّل مباشرة عند تغييره.",
+    "c-04": "مربع اختيار مرتبط بالنموذج، بحالتَي محدَّد ومحدَّد جزئياً، مرسوم كمربع ليّن ينبض عند تبديله.",
+    "c-05": "حقل نص من سطر واحد على سطح جيلي ليّن: التركيز يرفع الغشاء ويحيطه بحلقة، وكل ضغطة مفتاح تُحدث تموّجاً عند المؤشر.",
+    "c-06": "تسمية نموذج تقترن بأي عنصر تحكم عبر <code>for</code>: النقر عليها يُركّز الهدف، ويصبح نصّها اسمه الوصفي.",
+    "c-07": "مربع لكل رقم، مع معالجة الكتابة والمسح والأسهم واللصق. <code>length</code> و<code>size</code> مستقلّان. والوضع محدَّد النطاق داخل الكبسولة.",
+    "c-08": "زر اختيار؛ الأزرار التي تشترك في <code>name</code> تحت الجذر نفسه تكوّن مجموعة، بتنقّل بالأسهم وtabindex متنقّل.",
+    "c-09": "حاوية معنونة تحمل العنوان والتخطيط والحجم لأزرار الاختيار داخلها، بما فيها ما يُضاف لاحقاً.",
+    "c-10": "مقبضان يحدّدان مجالاً بين حدٍّ أدنى وأعلى، لكلٍّ منهما تركيزه وARIA الخاص به، على مسار المنزلق ومقبضه ليُقرآ كعائلة واحدة.",
+    "c-11": "مسار كبسولي لخيارات متنافية، بحبّة تنزلق وتميل وتتمدّد بين الأقسام. يُبلّغ عن قيمة فقط — وللنسخة التي تملك أيضاً المحتوى الذي تبدّله، انظر المدخل 29.",
+    "c-12": "قائمة منسدلة مركّبة، مشغّلها ولوحتها سطحان ليّنان؛ تنفتح اللوحة من الحقل وتنقلب إلى أعلاه عند غياب المساحة أسفله.",
+    "c-13": "قيمة واحدة على مسار، مدعومة بحقل range أصلي مخفي لتبقى تُرسل مع النموذج وتستجيب للوحة المفاتيح.",
+    "c-14": "مفتاح قابل للسحب يتمدّد إبهامه كقطرة سائلة، بينما يتلاشى المسار بين وضعَي التشغيل والإيقاف.",
+    "c-15": "نص متعدد الأسطر ينمو تلقائياً بين حدٍّ أدنى وأقصى بينما يتبعه الغشاء. نصف القطر 24 بدل كبسولة الحقل، لأن صندوقاً ينمو لا يمكن أن يبقى كبسولة.",
+    "c-16": "<code>&lt;jelly-switch&gt;</code> بأبعاد Figma 253:26، يقود <code>&lt;jelly-theme&gt;</code> هذه الصفحة. المحدَّد هو الفاتح؛ والأيقونة تجلس في النصف الذي تركه الإبهام.",
+    "c-17": "التنبيهات من صفحة الأزرار، تُطلَق عبر <code>jellyToast()</code>. النبرات الأربع دلالية، فهي متطابقة في الوضعين.",
+    "c-18": "لوحة حوارية بخلفيتها الخاصة، تُفتح عبر <code>open</code>.",
+    "c-19": "اللوحة الحوارية مستندة إلى حافة، و<code>side</code> تختار أيّها.",
+    "c-20": "لوحة مربوطة بمشغّلها، على فتحتين مطلوبتين: <code>trigger</code> و<code>content</code>. وينقلب الموضع حين لا تتوفّر مساحة في الجهة المطلوبة.",
+    "c-21": "تلميح عند المرور وعند التركيز. النص سمة، فلا يحمل أي ترميز.",
+    "c-22": "قائمة إجراءات معلّقة على مشغّل.",
+    "c-24": "شريط تنبيه على سطح جيلي، بأربع نبرات وزر إغلاق اختياري.",
+    "c-25": "شارة أو وسم أو حبّة حالة صغيرة، تنبض كلما تغيّر نصّها.",
+    "c-26": "شريط تقدّم تتموّج حافته الأمامية وهو يتقدّم؛ و<code>indeterminate</code> يُرسل كتلة ترتدّ من جدار إلى جدار.",
+    "c-27": "عنصر نائب للتحميل يتنفّس بهدوء — اهتزاز جيلي ليّن بدل الوميض.",
+    "c-28": "مؤشر تحميل بشكلين — نقاط لزجة، أو كتلة واحدة تتحوّل وهي تدور.",
+    "c-29": "يبدّل بين مناطق المحتوى. الشريط هو <code>jelly-segmented</code> — المدخل 11 — واللوحات هي ما تضيفه التبويبات إليه.",
+    "c-30": "كبسولة جيلي صغيرة: تسمية ثابتة، أو مرشّح قابل للتبديل، أو وسم قابل للإزالة. ست نبرات، مسمّاة بالألوان التي ترسمها.",
+    "c-31": "رأس يفتح لوحة تحته. التسمية فتحة، فيمكنها أن تحمل أكثر من نص.",
+    "c-32": "مكدّس من العناصر القابلة للطي. مع <code>single</code>، فتح واحدٍ يُغلق البقية.",
+    "c-33": "سطح ليّن يجلس عليه المحتوى. ومع <code>squish</code> يتشوّه تحت الضغط.",
+    "c-34": "خط فاصل بين الأشياء، مع كلمة موضوعة فيه اختيارياً. ويصبح عمودياً عبر <code>direction</code>.",
+    "c-35": "ألواح يمكن للقارئ سحبها لتتباعد. كل ابنٍ لوح، والمقبض يقع بينها.",
+    "c-36": "صفحات مرقّمة مع نقاط حذف حين تكثر. <code>total</code> و<code>page</code> يقودانها.",
+    "c-37": "المسار للعودة إلى الأعلى. روابط في الفتحات للخطوات، ونص عادي للخطوة التي أنت عليها.",
+    "c-38": "غطاء مفتاح. ينضغط عندما يُضغط المفتاح الذي يسمّيه فعلاً."
+  };
+  const AR_CATS = {
+    "Theming": "السمات",
+    "Forms": "النماذج",
+    "Feedback": "التغذية الراجعة",
+    "Overlays": "الطبقات",
+    "Navigation": "التنقل",
+    "Content": "المحتوى",
+    "Disclosure": "الإفصاح",
+    "Layout": "التخطيط"
+  };
+  const AR_MAST = {
+    "eyebrow": "المكوّنات",
+    "h1": "مكتبة المكوّنات",
+    "p": "واجهة Jelly بهوية ميناء. كل عنصر تحكّم أدناه هو مكوّن Jelly الحقيقي، دون تعديل يُذكر — والهوية تأتي من جسر رموز واحد يستبدل لغة تصميم Jelly بلغتنا: أحد عشر رمزاً لونياً، ومقياس المسافات ذو الأربع عشرة خطوة، وخط 29LT Idris Round."
+  };
+  const AR_DEMO_NOTES = ["الإعدادات الثلاثة كلها ترسم بهوية ميناء الآن. <b>داكن</b> هو الطرف العميق من تدرّج Primary — 900 للحقل و950 للسطح — مع الكريمي حبراً؛ و<b>تلقائي</b> يتبع ما يستخدمه نظام تشغيلك. هذه المعاينة محدَّدة النطاق، فتغييرها هنا لا يمسّ بقية الصفحة.", "تُطلَق في <code>&lt;jelly-toaster&gt;</code> الوحيد في الصفحة، المثبَّت أسفل النهاية. وهو يحمل بالفعل <code>position=\"bottom\"</code>، وهو ما يجعل المكدّس ينمو إلى أعلى لا إلى أسفل."];
+
   const AR_UI = {
     "mode": "الوضع",
     "accent": "اللون المميز",
@@ -2348,6 +2422,45 @@
           delete el.dataset.enui;
         }
       });
+    });
+    /* Prose: innerHTML, keyed by section, originals stashed on the element. */
+    const setHTML = (el, html) => {
+      if (!el) return;
+      if (toArabic) {
+        if (el.__enHTML == null) el.__enHTML = el.innerHTML;
+        if (html) el.innerHTML = html;
+      } else if (el.__enHTML != null) {
+        el.innerHTML = el.__enHTML;
+        el.__enHTML = null;
+      }
+    };
+    document.querySelectorAll('section.entry').forEach((sec) => {
+      setHTML(sec.querySelector('.entry-note'), AR_NOTES[sec.id]);
+      const num = sec.querySelector('.entry-num');
+      if (num) {
+        if (toArabic) {
+          if (num.__enHTML == null) num.__enHTML = num.innerHTML;
+          let t = num.__enHTML;
+          Object.keys(AR_CATS).forEach((en) => { t = t.replace(en, AR_CATS[en]); });
+          num.innerHTML = t;
+        } else if (num.__enHTML != null) { num.innerHTML = num.__enHTML; num.__enHTML = null; }
+      }
+    });
+    document.querySelectorAll('.demo-note').forEach((el, i) => setHTML(el, AR_DEMO_NOTES[i]));
+    setHTML(document.querySelector('.masthead .eyebrow'), AR_MAST.eyebrow);
+    setHTML(document.querySelector('.masthead h1'), AR_MAST.h1);
+    /* :not(.eyebrow) -- the eyebrow IS a <p>, so a bare '.masthead p' matched it
+       first and dropped the whole description into the eyebrow slot, leaving the
+       real paragraph in English underneath. */
+    setHTML(document.querySelector('.masthead p:not(.eyebrow)'), AR_MAST.p);
+    document.querySelectorAll('.facts li').forEach((li) => {
+      if (li.hasAttribute('data-direction-fact')) return;
+      if (toArabic) {
+        const k = li.textContent.trim();
+        if (!AR_FACTS[k]) return;
+        if (li.__enHTML == null) li.__enHTML = li.innerHTML;
+        li.textContent = AR_FACTS[k];
+      } else if (li.__enHTML != null) { li.innerHTML = li.__enHTML; li.__enHTML = null; }
     });
     rebuildTabs();
   }

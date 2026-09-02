@@ -128,30 +128,14 @@ body {
    islands there would be content-based direction detection -- the thing that
    file forbids. Here the content really is English and the page direction is a
    preview control, so naming it is honest rather than adaptive. */
-html[dir="rtl"] .entry-text,
-html[dir="rtl"] .masthead,
-html[dir="rtl"] .toc,
-html[dir="rtl"] .foot {
+/* ONLY THE CODE STAYS LTR NOW. The prose used to be held left-to-right because
+   it was English and bidi put its full stops at the start of the line. It is
+   Arabic in RTL, so it belongs to the page like everything else, and the island
+   shrinks to the one thing that is never natural language: a code block. */
+html[dir="rtl"] .code {
   direction: ltr;
 }
 
-/* THE CONTROLS COME BACK OUT OF THAT ISLAND, because in RTL their words are
-   Arabic. They sit inside .entry-text, which is held LTR for the English prose
-   and the code -- so without this the row labels and pills would read Arabic
-   in a left-to-right box, labels stranded on the wrong side of their controls.
-   The prose stays LTR, the controls follow the page. */
-html[dir="rtl"] .controls {
-  direction: rtl;
-}
-
-/* AND .demo-note GOES THE OTHER WAY. It sits inside a demo, so it inherited
-   RTL, but it is English documentation rather than specimen content -- the
-   caption under entries 01 and 17. Same reason the entry prose is held LTR:
-   bidi was putting its full stop at the start of the last line. It is the one
-   thing inside a demo that is not the component. */
-html[dir="rtl"] .demo-note {
-  direction: ltr;
-}
 
 .eyebrow {
   margin: 0 0 var(--space-100);
