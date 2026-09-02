@@ -2668,6 +2668,33 @@
       });
     });
 
+    /* ARABIC ASKS نعم أم لا -- yes, then no. The rows are authored false/true,
+       which is the order the attribute itself takes and the order English
+       reads, and MIRRORING THE PAGE DOES NOT FIX IT: RTL only moves لا to the
+       right-hand side, so the question still reads "no or yes".
+
+       Reordered in the DOM rather than flipped with row-reverse, so the tab
+       order and what a screen reader announces follow the same sequence the
+       eye does. Deterministic from data-value, so no original has to be
+       stashed anywhere: Arabic wants true first, English wants false first,
+       and running it twice changes nothing.
+
+       Counted before writing the selector: 30 rows are exactly false/true and
+       no other row on the page carries a `true` at all, so this cannot catch a
+       size or tone row by accident. */
+    document.querySelectorAll('.pillset').forEach((set) => {
+      const pills = [...set.querySelectorAll(':scope > .pill')];
+      if (pills.length !== 2) return;
+      const yes = pills.find((p) => p.dataset.value === 'true');
+      const no = pills.find((p) => p.dataset.value === 'false');
+      if (!yes || !no) return;
+      const first = toArabic ? yes : no;
+      const second = toArabic ? no : yes;
+      if (set.firstElementChild === first) return;
+      set.appendChild(first);
+      set.appendChild(second);
+    });
+
     /* THE CONTROLLER'S TEXT FIELDS, which neither map above could reach. A
        pill's word is a text node; a field's word is an ATTRIBUTE, and the word
        it is currently showing is a PROPERTY that the attribute stops tracking
