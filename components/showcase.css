@@ -1358,6 +1358,16 @@ jelly-icon-button .mi {
   padding-block: var(--space-400);                             /* 32 */
 }
 
+/* The button specimens are rebuilt on every row change, so the stage holds the
+   height rather than letting the demo jump as a 56 becomes a 40. */
+.btn-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 .themeswitch-stage {
   display: flex;
   align-items: center;

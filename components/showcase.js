@@ -2287,6 +2287,8 @@
   const AR_NOTES = {
     "c-01": "المزوّد الذي يمنح كل مدخل آخر في هذه الصفحة هوية ميناء. يحدّد مجموعة الرموز الكاملة لشجرته الفرعية، والمكوّنات المرسومة على canvas تقرأ تلك الرموز وقت الرسم — ولهذا يُطبَّق الجسر هنا لا على <code>:root</code> وحده. الصفحة تعمل على auto، فتتبع نظام تشغيلك وتتبدّل مباشرة عند تغييره.",
     "c-02": "مفتاح <code>&lt;jelly-switch&gt;</code> بأبعاد Figma 328:31، يقود اتجاه هذه الصفحة. الوضع المحدَّد هو الإنجليزية؛ والحرف يجلس في النصف الذي تركه الإبهام.",
+    "c-39": "عائلة أزرار ميناء نفسها، الموثّقة في <a href=\"../buttons.html\">مكتبة الأزرار</a> — <code>&lt;jelly-button&gt;</code> بخمس هيئات وثلاثة أحجام، واللون يقوده تشوّه Jelly الحي لا مؤقّت. الملفّان هما نفسهما اللذان تحمّلهما تلك الصفحة.",
+    "c-40": "عائلة مستقلّة لا صيغة من الزر: <code>&lt;jelly-icon-button&gt;</code> دائري ضلعه يساوي ارتفاع الزر، فيصطفّ معه في الصف الواحد. نفس الهيئات والأحجام ومعالجة التعطيل.",
     "c-04": "مربع اختيار مرتبط بالنموذج، بحالتَي محدَّد ومحدَّد جزئياً، مرسوم كمربع ليّن ينبض عند تبديله.",
     "c-05": "حقل نص من سطر واحد على سطح جيلي ليّن: التركيز يرفع الغشاء ويحيطه بحلقة، وكل ضغطة مفتاح تُحدث تموّجاً عند المؤشر.",
     "c-06": "تسمية نموذج تقترن بأي عنصر تحكم عبر <code>for</code>: النقر عليها يُركّز الهدف، ويصبح نصّها اسمه الوصفي.",
@@ -2329,6 +2331,7 @@
     "Overlays": "الطبقات",
     "Navigation": "التنقل",
     "Content": "المحتوى",
+    "Actions": "الإجراءات",
     "Disclosure": "الإفصاح",
     "Layout": "التخطيط"
   };
@@ -2352,6 +2355,8 @@
      their headings now read Arabic, so leaving the contents in English made
      the page disagree with itself. Only those two move. */
   const AR_TOC = {
+    "39 Button": "39 زر",
+    "40 Icon Button": "40 زر أيقونة",
     "02 language switch": "02 مفتاح اللغة",
     "16 theme switch": "16 مفتاح السمة",
     "17 toasts": "17 التنبيهات"
@@ -2481,6 +2486,8 @@
      is <jelly-something> and stays in Latin because it is code; these two are
      descriptions, so in an Arabic page they read as Arabic. */
   const AR_TITLE = {
+    "Button": "زر",
+    "Icon Button": "زر أيقونة",
     "language switch": "مفتاح اللغة",
     "theme switch": "مفتاح السمة",
     "toasts": "التنبيهات"
@@ -2846,6 +2853,86 @@
   /* Entry 02's row. The switch is the source of truth and the pills are a view
      of it: they push through the same change event a pointer would, then read
      the answer back off the document rather than off their own last click. */
+  /* ── Entries 39 and 40: the Minaã button family ──────────────────────────
+     The specimen is BUILT here rather than authored once and mutated, because
+     each configuration owns its content -- the button library's own rule, and
+     it exists because hiding an icon left one configuration with two widths and
+     reflowed the row on every toggle.
+
+     Rebuilding means re-wiring, which is the whole reason minaaButtonFamily
+     takes a root. It is handed THIS STAGE, never the document: every controller
+     pill on this page is a jelly-button too, and the runtime would happily wire
+     its physics to all eighty of them. */
+  const BTN_LABEL = { ltr: 'Button', rtl: 'دقمة' };
+  const BTN_ICON = '<svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-search"/></svg>';
+
+  function buttonMarkup(s) {
+    const aria = s.disabled ? ' aria-disabled="true"' : '';
+    const label = '<span>' + BTN_LABEL[s.dir] + '</span>';
+    const inner = s.config === 'leading' ? BTN_ICON + label
+      : s.config === 'trailing' ? label + BTN_ICON
+        : s.config === 'both' ? BTN_ICON + label + BTN_ICON
+          : label;
+    return '<jelly-button dir="' + s.dir + '" data-config="' + s.config + '"' + aria +
+      ' class="mn-btn ' + s.appearance + ' s' + s.size + '">' +
+      '<span class="jelly-label">' + inner + '</span></jelly-button>';
+  }
+
+  function iconButtonMarkup(s) {
+    const aria = s.disabled ? ' aria-disabled="true"' : '';
+    return '<jelly-icon-button shape="circle" label="Search"' + aria +
+      ' class="mn-btn ' + s.appearance + ' s' + s.size + '">' + BTN_ICON + '</jelly-icon-button>';
+  }
+
+  /* One wiring for both entries: they differ in which rows exist and in what
+     they build, and in nothing else. */
+  function wireFamilyDemo(cfg) {
+    const stage = document.getElementById(cfg.stage);
+    if (!stage || stage.dataset.wiredCtl) return;
+    stage.dataset.wiredCtl = '1';
+    const state = Object.assign({}, cfg.state);
+
+    const snippet = () => {
+      const box = document.querySelector('#' + cfg.entry + ' .code code');
+      if (!box) return;
+      box.textContent = cfg.build(state)
+        .split('><span class="jelly-label">').join('>NEWLINE  <span class="jelly-label">')
+        .split('</span></jelly-button>').join('</span>NEWLINE</jelly-button>')
+        .split('NEWLINE').join('\n');
+    };
+
+    const render = () => {
+      stage.innerHTML = cfg.build(state);
+      if (typeof minaaButtonFamily === 'function') minaaButtonFamily(stage);
+      snippet();
+    };
+
+    cfg.rows.forEach(([id, key, cast]) => {
+      const row = document.getElementById(id);
+      if (!row) return;
+      pillRow(row, (v) => { state[key] = cast ? cast(v) : v; }, render);
+    });
+    render();
+  }
+
+  function wireButtonDemo() {
+    wireFamilyDemo({
+      stage: 'bt-stage', entry: 'c-39', build: buttonMarkup,
+      state: { dir: 'ltr', config: 'leading', appearance: 'primary', size: '48', disabled: false },
+      rows: [['bt-dir', 'dir'], ['bt-config', 'config'], ['bt-appearance', 'appearance'],
+        ['bt-size', 'size'], ['bt-disabled', 'disabled', (v) => v === 'true']]
+    });
+  }
+
+  function wireIconButtonDemo() {
+    wireFamilyDemo({
+      stage: 'ib-stage', entry: 'c-40', build: iconButtonMarkup,
+      state: { appearance: 'primary', size: '48', disabled: false },
+      rows: [['ib-appearance', 'appearance'], ['ib-size', 'size'],
+        ['ib-disabled', 'disabled', (v) => v === 'true']]
+    });
+  }
+
   function wireLangSwitchDemo() {
     const el = document.getElementById('ls-demo');
     const row = document.getElementById('ls-direction');
@@ -3035,7 +3122,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireLangSwitchDemo(); wireDirection(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireLangSwitchDemo(); wireButtonDemo(); wireIconButtonDemo(); wireDirection(); wireSquircleCards();
   }
 
   if (window.customElements) {

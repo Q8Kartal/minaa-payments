@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260908y"></script>
+<script src="../gate.js?v=20260909a"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,12 +22,17 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260908y"></script>
+<script type="module" src="vendor/jelly.js?v=20260909a"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
-<link rel="stylesheet" href="minaa-jelly.css?v=20260908y">
-<link rel="stylesheet" href="showcase.css?v=20260908y">
+<!-- The button family, shared verbatim with buttons.html and buttons-en.html.
+     Every rule in it is scoped to .mn-btn, which is what keeps it off this
+     page's own jelly-buttons -- the controller pills, the dialog's two
+     buttons, the toast trigger. See the header in the file. -->
+<link rel="stylesheet" href="../button-family.css?v=20260902b">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260909a">
+<link rel="stylesheet" href="showcase.css?v=20260909a">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -2438,6 +2443,125 @@ drawer.open = true;   // side = start | end | bottom</template>
       <template data-snippet-text>&lt;jelly-kbd key="Escape"&gt;Esc&lt;/jelly-kbd&gt;</template>
     </div>
   </section>
+
+  <!-- ── 39 ─────────────────────────────────────────────────────────── -->
+  <section class="entry" id="c-39">
+    <div class="entry-text">
+    <p class="entry-num">Actions &middot; 39</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-button"/></svg> Button</h2>
+    <p class="entry-note">Minaã&rsquo;s own button family, the one documented on the
+       <a href="../buttons-en.html">button library</a> &mdash; a <code>&lt;jelly-button&gt;</code> in five
+       appearances and three sizes, with the colour driven by Jelly&rsquo;s live deformation rather than a
+       timer. The stylesheet and the runtime are the same two files that page loads.</p>
+
+    <!-- DIRECTION IS THIS ENTRY'S OWN, not the page's. The masthead switch sets
+         `dir` on <html> and everything follows; this row sets it on the button
+         alone, so the two reading orders can be compared without leaving the
+         entry. That is also the honest demonstration: `dir` on the element is
+         what a consumer would write.
+
+         EACH CONFIGURATION AUTHORS ITS OWN CONTENT and the specimen is rebuilt
+         rather than having parts hidden -- the button library's rule, and it is
+         there because hiding an icon left one configuration with two widths.
+         Rebuilding means re-wiring, which is why the runtime takes a root. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">direction</span>
+        <div class="pillset" id="bt-dir" role="group" aria-label="Direction">
+          <jelly-button class="pill" data-value="ltr" aria-pressed="true">ltr</jelly-button>
+          <jelly-button class="pill" data-value="rtl" aria-pressed="false">rtl</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">icon</span>
+        <div class="pillset" id="bt-config" role="group" aria-label="Icon">
+          <jelly-button class="pill" data-value="text" aria-pressed="false">none</jelly-button>
+          <jelly-button class="pill" data-value="leading" aria-pressed="true">leading</jelly-button>
+          <jelly-button class="pill" data-value="trailing" aria-pressed="false">trailing</jelly-button>
+          <jelly-button class="pill" data-value="both" aria-pressed="false">both</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">appearance</span>
+        <div class="pillset" id="bt-appearance" role="group" aria-label="Appearance">
+          <jelly-button class="pill" data-value="primary" aria-pressed="true">primary</jelly-button>
+          <jelly-button class="pill" data-value="secondary" aria-pressed="false">secondary</jelly-button>
+          <jelly-button class="pill" data-value="outline" aria-pressed="false">outline</jelly-button>
+          <jelly-button class="pill" data-value="ghost" aria-pressed="false">ghost</jelly-button>
+          <jelly-button class="pill" data-value="ghostsec" aria-pressed="false">ghostsec</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="bt-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="56" aria-pressed="false">56</jelly-button>
+          <jelly-button class="pill" data-value="48" aria-pressed="true">48</jelly-button>
+          <jelly-button class="pill" data-value="40" aria-pressed="false">40</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="bt-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="btn-stage" id="bt-stage">
+          <jelly-button dir="ltr" data-config="leading" class="mn-btn primary s48"><span class="jelly-label"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-search"/></svg><span>Button</span></span></jelly-button>
+        </div>
+    </div>
+  </section>
+
+  <!-- ── 40 ─────────────────────────────────────────────────────────── -->
+  <section class="entry" id="c-40">
+    <div class="entry-text">
+    <p class="entry-num">Actions &middot; 40</p>
+    <h2 class="entry-title"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-iconbutton"/></svg> Icon Button</h2>
+    <p class="entry-note">Its own family rather than a configuration of Button: a circular
+       <code>&lt;jelly-icon-button&gt;</code> whose side equals the button height, so it lines up in a row
+       with one. Same five appearances, same three sizes, same disabled treatment.</p>
+
+    <!-- NO `icon` ROW AND NO `direction` ROW, and both absences are the point.
+         A circle has nothing to mirror, and the icon is not a variable here --
+         it is the whole content. -->
+    <div class="controls controls--stacked" data-controls>
+      <div class="ctl">
+        <span class="ctl-name">appearance</span>
+        <div class="pillset" id="ib-appearance" role="group" aria-label="Appearance">
+          <jelly-button class="pill" data-value="primary" aria-pressed="true">primary</jelly-button>
+          <jelly-button class="pill" data-value="secondary" aria-pressed="false">secondary</jelly-button>
+          <jelly-button class="pill" data-value="outline" aria-pressed="false">outline</jelly-button>
+          <jelly-button class="pill" data-value="ghost" aria-pressed="false">ghost</jelly-button>
+          <jelly-button class="pill" data-value="ghostsec" aria-pressed="false">ghostsec</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">size</span>
+        <div class="pillset" id="ib-size" role="group" aria-label="Size">
+          <jelly-button class="pill" data-value="56" aria-pressed="false">56</jelly-button>
+          <jelly-button class="pill" data-value="48" aria-pressed="true">48</jelly-button>
+          <jelly-button class="pill" data-value="40" aria-pressed="false">40</jelly-button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="ctl-name">disabled</span>
+        <div class="pillset" id="ib-disabled" role="group" aria-label="Disabled">
+          <jelly-button class="pill" data-value="false" aria-pressed="true">false</jelly-button>
+          <jelly-button class="pill" data-value="true" aria-pressed="false">true</jelly-button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="demo" data-demo>
+      <div class="btn-stage" id="ib-stage">
+          <jelly-icon-button shape="circle" label="Search" class="mn-btn primary s48"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-search"/></svg></jelly-icon-button>
+        </div>
+    </div>
+  </section>
+
 <footer class="foot">
     <p>Jelly UI is MIT-licensed and built by <a href="https://bmson.com">bmson.com</a>. This page restyles it
        through a token bridge. The library is vendored here rather than loaded from its own origin, and
@@ -2459,8 +2583,9 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260908y"></script>
-<script src="minaa-jelly.js?v=20260908y"></script>
-<script src="showcase.js?v=20260908y" defer></script>
+<script src="micons.js?v=20260909a"></script>
+<script src="minaa-jelly.js?v=20260909a"></script>
+<script src="../button-family.js?v=20260902b" defer></script>
+<script src="showcase.js?v=20260909a" defer></script>
 </body>
 </html>

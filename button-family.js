@@ -21,6 +21,9 @@
 (function () {
   'use strict';
 
+  const WIRED = [];
+  let resizeBound = false;
+
   window.minaaButtonFamily = function (scope) {
     const root = scope || document;
 
@@ -395,10 +398,25 @@
      backing store while the CSS box stays put — measured after a viewport
      switch: our layer held 468x288 against Jelly's 410x252 at an identical
      234px on screen, which would have drawn the stroke at 0.88 scale. */
-  addEventListener('resize', () => CONTROLS.forEach(el => {
-    el.__rest = null;
-    settleRing(el);
-  }));
+  /* ONE RESIZE BINDING PER PAGE, not one per call. The button pages wire once
+     and would never notice, but the component library re-wires its specimen
+     every time a row changes -- each configuration authors its own content
+     there, the way it does here -- and a listener per call would pile up.
+
+     The wired sets go in a list the single handler walks, and a set whose
+     buttons have left the document is dropped on the next wiring, so replacing
+     a specimen collects the one it replaced. */
+  WIRED.push({ controls: CONTROLS, settle: settleRing });
+  for (let i = WIRED.length - 1; i >= 0; i--) {
+    if (!WIRED[i].controls.some(el => el.isConnected)) WIRED.splice(i, 1);
+  }
+  if (!resizeBound) {
+    resizeBound = true;
+    addEventListener('resize', () => WIRED.forEach(w => w.controls.forEach(el => {
+      el.__rest = null;
+      w.settle(el);
+    })));
+  }
 
   /* Repaint until Jelly has finished resizing rather than once on the event.
      Painting immediately syncs to the size Jelly is about to abandon, and the
