@@ -2609,6 +2609,36 @@ jelly-drawer jelly-button {
   --jelly-label: var(--m-overlay-ink);
 }
 
+/* THE SCROLLBAR IN THE DIALOG WAS THE BUTTONS' EMPTY CANVAS.
+
+   Jelly paints a control's membrane into a canvas far larger than the host --
+   256x136 around a 168x48 button -- and the dialog panel is Jelly's own
+   overflow: auto. So the panel counted that empty margin as content it could
+   scroll to and grew a bar on both axes. Measured: the two action buttons'
+   canvases reach 20px past the panel's padding box, the close control another
+   18 to the side; 33 x 20 of scrollable overflow around content that otherwise
+   fits its box EXACTLY (24 + 140 + 24 = 188). The drawer had the same, 33 wide.
+
+   None of it was ever visible. The panel carries a squircle clip-path, so
+   everything past its edge was already clipped -- the bar scrolled to reveal
+   nothing, and the card moved when it had no reason to.
+
+   THE MARGIN IS NOT DECORATION, WHICH IS WHY THIS IS NOT A PLAIN CLIP. Under a
+   real press the membrane deforms 7px beyond the host, top and bottom
+   (measured through 45 frames of an actual pointer press -- a synthetic
+   PointerEvent does not drive the physics at all and reports a rest frame,
+   which is worth knowing before trusting any number here). overflow: clip with
+   no margin would shave those 7px off every press.
+
+   12 is the largest step that costs no scrollbar: 16 puts 4px back on the
+   horizontal axis, and 8 works but gives the press less room than 12 for
+   nothing gained. Seven needed, twelve given, zero overflow. */
+jelly-dialog jelly-button,
+jelly-drawer jelly-button {
+  overflow: clip;
+  overflow-clip-margin: var(--space-150);   /* 12 */
+}
+
 jelly-dialog jelly-button[data-primary],
 jelly-drawer jelly-button[data-primary] {
   --jelly-fill: var(--m-overlay-ink);

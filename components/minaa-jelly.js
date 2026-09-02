@@ -129,6 +129,12 @@
         --jelly-icon-button-icon-size: var(--control-icon-24);
         --jelly-fill: transparent;
         --jelly-label: var(--m-close-mark);
+        /* Its canvas overhung the panel by 18 and the panel is overflow: auto,
+           so it was part of what grew a scrollbar around content that fits.
+           Same 12 as the action buttons in the bridge -- enough for the 7px a
+           press deforms, small enough to add nothing to the scroll area. */
+        overflow: clip;
+        overflow-clip-margin: var(--space-150);
       }
       .minaa-close[data-hover] {
         --jelly-fill: var(--m-close-disc);
@@ -182,6 +188,12 @@
         --jelly-icon-button-icon-size: var(--control-icon-24);
         --jelly-fill: transparent;
         --jelly-label: var(--m-close-mark);
+        /* Its canvas overhung the panel by 18 and the panel is overflow: auto,
+           so it was part of what grew a scrollbar around content that fits.
+           Same 12 as the action buttons in the bridge -- enough for the 7px a
+           press deforms, small enough to add nothing to the scroll area. */
+        overflow: clip;
+        overflow-clip-margin: var(--space-150);
       }
       .minaa-close[data-hover] {
         --jelly-fill: var(--m-close-disc);
