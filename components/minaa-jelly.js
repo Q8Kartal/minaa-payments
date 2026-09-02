@@ -284,6 +284,37 @@
        is better than naming two colours: the tick is not a thing with a colour
        of its own, it is punctuation on the row, so it should read as whatever
        the row reads as. The glyph is already stroke="currentColor". */
+    /* THE TRACK IS SIZED FROM A MINIMUM, NOT FROM ITS CONTENT, and any label
+       longer than that minimum spills out of the capsule. Measured on the
+       Arabic segmented, where "اشتراك / 3 أشهر" needs 59px of text in a segment
+       that offers 38:
+
+         small   segment 66 wide, 38 for text after padding, label needs 59
+         medium  segment 79 wide, 43 for text, label needs 66
+         large   segment 92 wide, 48 for text, label needs 73
+
+       Nothing reported an overflow -- the segment's own scrollWidth matched its
+       width -- because the label lives in an inline-grid span that spills
+       without growing its parent. Only the painted result showed it.
+
+       This is not an Arabic bug. Jelly lays the segments out flex: 1 1 0 with
+       min-width 50 / 60 / 74, so the track is n x min-width whatever the labels
+       say; English fits because English fits, not because the layout works.
+
+       THE SEGMENTS MUST STAY EQUAL, which is what rules out the obvious fix.
+       The pill is painted on the canvas at trackW / segments.length, so a track
+       of unequal segments puts the pill under the wrong one. A grid with
+       grid-auto-columns: 1fr keeps every column identical AND floors each at
+       min-content -- and since the label is white-space: nowrap, its min-content
+       IS the full label. So all columns end up the width of the longest one,
+       which is both equal and big enough. */
+    'jelly-segmented': `
+      .wrap {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 1fr;
+      }`,
+
     'jelly-select': `
       .row.active:not([aria-disabled="true"]) {
         background: var(--m-row-selected);
