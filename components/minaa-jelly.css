@@ -69,6 +69,7 @@
 
   --primary-200: #C8E3FF;   /* Primary 200  — dark-mode disabled slider fill */
   --primary-300: #A1CFFF;   /* Primary 300  — light-mode fields and tracks */
+  --primary-400: #68B4FF;   /* Primary 400  — the disabled button's ink in light */
   --primary-600: #007FDA;   /* Primary 600  */
   --primary:     #0062AD;   /* Primary 700  — Minaã Blue */
   --primary-900: #00437B;   /* Primary 900  — dark-mode page and fields */
@@ -195,6 +196,8 @@ jelly-theme {
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
   --m-lang-track:  var(--primary-300);  /* Primary 300 — Figma 328:31 */
+  --m-btn-disabled-fill: var(--primary-300);   /* Primary 300 */
+  --m-btn-disabled-ink:  var(--primary-400);   /* Primary 400 */
   --m-check-box:   var(--primary-300);  /* Primary 300 */
   --m-check-mark:  var(--secondary);    /* Secondary 600 */
   --m-seg-track:   var(--primary-300);  /* Primary 300 */
@@ -318,6 +321,8 @@ jelly-theme {
     --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
     --m-lang-track:  var(--primary);        /* Primary 700 — Figma 356:256 */
+    --m-btn-disabled-fill: var(--secondary-300);   /* Secondary 300 */
+    --m-btn-disabled-ink:  var(--secondary-400);   /* Secondary 400 */
     --m-check-box:   var(--secondary);
     --m-check-mark:  var(--cream);
     --m-seg-track:   var(--secondary);
@@ -390,6 +395,8 @@ jelly-theme[mode="dark"] {
   --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
   --m-lang-track:  var(--primary);        /* Primary 700 — Figma 356:256 */
+  --m-btn-disabled-fill: var(--secondary-300);   /* Secondary 300 */
+  --m-btn-disabled-ink:  var(--secondary-400);   /* Secondary 400 */
   --m-check-box:   var(--secondary);
   --m-check-mark:  var(--cream);
   --m-seg-track:   var(--secondary);
@@ -454,6 +461,8 @@ jelly-theme[mode="light"] {
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
   --m-lang-track:  var(--primary-300);    /* Primary 300 — Figma 328:31 */
+  --m-btn-disabled-fill: var(--primary-300);   /* Primary 300 */
+  --m-btn-disabled-ink:  var(--primary-400);   /* Primary 400 */
   --m-check-box:   var(--primary-300);
   --m-check-mark:  var(--secondary);
   --m-seg-track:   var(--primary-300);

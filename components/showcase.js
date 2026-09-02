@@ -2400,6 +2400,13 @@
     "content": "المحتوى",
     "total": "الإجمالي",
     "key": "المفتاح",
+    "icon": "الأيقونة",
+    "appearance": "الهيئة",
+    "none": "بلا",
+    "leading": "أمامية",
+    "trailing": "خلفية",
+    "true · dark": "نعم · داكن",
+    "true · light": "نعم · فاتح",
     "false": "لا",
     "true": "نعم",
     "small": "صغير",
@@ -2666,6 +2673,9 @@
     document.querySelectorAll('.controls').forEach((box) => {
       if (box.closest('.demo')) return;   /* entry 01's controls ARE its specimen */
       box.querySelectorAll('.ctl-name, .pill').forEach((el) => {
+        /* A row can opt its VALUES out. They are identifiers that happen to be
+           words, and one of them collides with a real entry in the dictionary. */
+        if (el.classList.contains('pill') && el.closest('[data-literal]')) return;
         if (toArabic) {
           const key = el.textContent.trim();
           if (!AR_UI[key]) return;
@@ -2863,6 +2873,15 @@
      takes a root. It is handed THIS STAGE, never the document: every controller
      pill on this page is a jelly-button too, and the runtime would happily wire
      its physics to all eighty of them. */
+  /* One row, two variables, and they are not independent: a mode only means
+     anything while the button is disabled, because that is the only state whose
+     colours differ between them. Splitting it into a second row would have
+     offered a choice with no effect for two thirds of its combinations. */
+  const DISABLED_ROW = (v, s) => {
+    s.disabled = v !== 'false';
+    s.mode = v === 'false' ? null : v;
+  };
+
   const BTN_LABEL = { ltr: 'Button', rtl: 'دقمة' };
   const BTN_ICON = '<svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-search"/></svg>';
 
@@ -2902,15 +2921,27 @@
     };
 
     const render = () => {
-      stage.innerHTML = cfg.build(state);
+      /* A LOCAL jelly-theme, NOT the page's. The disabled pair is the one part
+         of the family that changes with the mode, and forcing the whole page
+         dark to read it would take every other entry with it. minaa-jelly.css
+         declares its four mode blocks under a bare jelly-theme[mode] as well as
+         under :root, so a wrapper here scopes the tokens to this specimen.
+
+         It wraps rather than being written into build(): the theme is a way of
+         looking at the button, not part of using one, so it stays out of the
+         snippet the same way the controls do. */
+      const markup = cfg.build(state);
+      stage.innerHTML = state.mode
+        ? '<jelly-theme mode="' + state.mode + '">' + markup + '</jelly-theme>'
+        : markup;
       if (typeof minaaButtonFamily === 'function') minaaButtonFamily(stage);
       snippet();
     };
 
-    cfg.rows.forEach(([id, key, cast]) => {
+    cfg.rows.forEach(([id, apply]) => {
       const row = document.getElementById(id);
       if (!row) return;
-      pillRow(row, (v) => { state[key] = cast ? cast(v) : v; }, render);
+      pillRow(row, (v) => apply(v, state), render);
     });
     render();
   }
@@ -2918,18 +2949,22 @@
   function wireButtonDemo() {
     wireFamilyDemo({
       stage: 'bt-stage', entry: 'c-39', build: buttonMarkup,
-      state: { dir: 'ltr', config: 'leading', appearance: 'primary', size: '48', disabled: false },
-      rows: [['bt-dir', 'dir'], ['bt-config', 'config'], ['bt-appearance', 'appearance'],
-        ['bt-size', 'size'], ['bt-disabled', 'disabled', (v) => v === 'true']]
+      state: { dir: 'ltr', config: 'leading', appearance: 'primary', size: '48', disabled: false, mode: null },
+      rows: [['bt-dir', (v, s) => { s.dir = v; }],
+        ['bt-config', (v, s) => { s.config = v; }],
+        ['bt-appearance', (v, s) => { s.appearance = v; }],
+        ['bt-size', (v, s) => { s.size = v; }],
+        ['bt-disabled', DISABLED_ROW]]
     });
   }
 
   function wireIconButtonDemo() {
     wireFamilyDemo({
       stage: 'ib-stage', entry: 'c-40', build: iconButtonMarkup,
-      state: { appearance: 'primary', size: '48', disabled: false },
-      rows: [['ib-appearance', 'appearance'], ['ib-size', 'size'],
-        ['ib-disabled', 'disabled', (v) => v === 'true']]
+      state: { appearance: 'primary', size: '48', disabled: false, mode: null },
+      rows: [['ib-appearance', (v, s) => { s.appearance = v; }],
+        ['ib-size', (v, s) => { s.size = v; }],
+        ['ib-disabled', DISABLED_ROW]]
     });
   }
 

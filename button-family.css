@@ -24,7 +24,21 @@
   :root {
     --button-icon-size-20: 20px;   /* leading/trailing icon at sizes 56 and 48 */
     --button-icon-size-16: 16px;   /* leading/trailing icon at size 40 */
-    --cream-700:     #895A30;      /* Neutral 700 — disabled ink */
+    --cream-700:     #895A30;      /* Neutral 700 */
+    /* Read off Colour Foundations. Primary 400 was in this project once, for
+       the tooltip icon box, and was removed with it; recovered from that commit
+       rather than picked again. */
+    --primary-400:   #68B4FF;      /* Primary 400   */
+    --secondary-300: #FCBBAD;      /* Secondary 300 */
+    --secondary-400: #FA937D;      /* Secondary 400 */
+
+    /* THE DISABLED PAIR IS A TOKEN, NOT A LITERAL, because it is the one part
+       of the family that changes with the mode. Light is declared here and is
+       all the button pages ever see -- neither has a dark mode. The component
+       library redeclares both per mode in minaa-jelly.css, where the four mode
+       blocks already live, and it loads after this file so its values win. */
+    --m-btn-disabled-fill: var(--primary-300);
+    --m-btn-disabled-ink:  var(--primary-400);
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -178,20 +192,28 @@
      activation is blocked in the capture phase in buttons.js. */
   jelly-button.mn-btn[aria-disabled="true"],
   jelly-icon-button.mn-btn[aria-disabled="true"] {
-    --fill-rest:    var(--cream-200);   /* Neutral 200 */
-    --label-rest:   var(--cream-700);   /* Neutral 700 */
+    /* AHMAD'S PAIR, per mode: Primary 300 behind Primary 400 in light, Secondary
+       300 behind Secondary 400 in dark.
+
+       MEASURED BEFORE IT WENT IN, because the note below records the opposite
+       call and should not be left reading as though it still held: both pairs
+       are adjacent steps of one ramp, so the label lands at 1.35:1 either way,
+       against the 4.57:1 the Neutral pair gave. That is his decision to make
+       and it is made; the number is here so nobody has to re-derive it. */
+    --fill-rest:    var(--m-btn-disabled-fill);
+    --label-rest:   var(--m-btn-disabled-ink);
     /* --p never rises, because disabled buttons are excluded from CONTROLS and
        so are never wired. The active pair is pinned to the same values anyway,
        so no future change to that wiring can bleed an appearance colour back
        into a disabled button. */
-    --fill-active:  var(--cream-200);
-    --label-active: var(--cream-700);
+    --fill-active:  var(--m-btn-disabled-fill);
+    --label-active: var(--m-btn-disabled-ink);
     cursor: not-allowed;
   }
   /* Scoped to Outline alone: the other four never set --stroke, and setting it
      here would hand every disabled button a rim it does not have when enabled. */
   jelly-button.mn-btn.outline[aria-disabled="true"],
-  jelly-icon-button.mn-btn.outline[aria-disabled="true"] { --stroke: var(--cream-700); }
+  jelly-icon-button.mn-btn.outline[aria-disabled="true"] { --stroke: var(--m-btn-disabled-ink); }
 
   /* ── Focus ring ─────────────────────────────────────────────────────────
      Logged as an accessibility gap in Phase 4 and closed here: the library had
