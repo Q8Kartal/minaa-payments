@@ -352,6 +352,9 @@
        one and the others are released. Returns a setter, so the initial state
        can be applied without firing a synthetic click through the handler. */
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       const select = (v) => root.querySelectorAll('.pill').forEach(
         (p) => p.setAttribute('aria-pressed', String(p.dataset.value === v)));
       root.addEventListener('click', (e) => {
@@ -441,6 +444,9 @@
     }
 
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('.pill');
         if (!b) return;
@@ -508,6 +514,9 @@
     text(val, (v) => v ? el.setAttribute('value', v) : el.removeAttribute('value'));
 
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('.pill');
         if (!b) return;
@@ -585,6 +594,9 @@
     }
 
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('.pill');
         if (!b) return;
@@ -725,7 +737,30 @@
 
   /* One pill row, delegated. Shared by the three wirings below rather than
      written out three times. */
+  /* EVERY CONTROLLER REPRINTS ITS SNIPPET WITH textContent =, WHICH REPLACES
+     THE TEXT NODE. The direction swap stashes each English original on the node
+     it translated, so the moment a controller reprints, that original is gone
+     with the node -- and switching back leaves Arabic markup under an English
+     page. Measured after interacting once per entry in RTL: ten entries came
+     back to LTR still printing Arabic.
+
+     Restoring from a copy kept on the <code> element instead would only trade
+     the bug: the copy goes stale the moment a row changes size or value, so it
+     would restore the right language and the wrong markup.
+
+     What is actually needed is for each controller to print itself again once
+     the DOM around it has changed language -- they all build from the live DOM,
+     so a reprint is correct in either direction by construction. Every one of
+     them already hands pillRow the function that does it, which makes that
+     argument the one place all of them can be reached at once. */
+  const REPRINT = [];
+  const reprintable = (fn) => {
+    if (fn && REPRINT.indexOf(fn) < 0) REPRINT.push(fn);
+    return fn;
+  };
+
   function pillRow(root, onPick, after) {
+    reprintable(after);
     root.addEventListener('click', (e) => {
       const b = e.target.closest('.pill');
       if (!b) return;
@@ -1677,6 +1712,9 @@
     }
 
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('.pill');
         if (!b) return;
@@ -1729,6 +1767,9 @@
     }
 
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('.pill');
         if (!b) return;
@@ -1797,6 +1838,9 @@
     });
 
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('.pill');
         if (!b) return;
@@ -1846,6 +1890,9 @@
     }
 
     function pills(root, onPick) {
+      /* This controller predates pillRow and carries its own copy of it, so it
+         joins the reprint registry by hand -- see the note on REPRINT. */
+      reprintable(snippet);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('.pill');
         if (!b) return;
@@ -2421,15 +2468,50 @@
      attributeChangedCallback, jelly-select through a MutationObserver,
      jelly-menu on each open, and a radio group's legend is an observed
      attribute. Tabs is the single exception. */
-  function rebuildTabs() {
+  /* THE TAB BAR IS BUILT ONCE AND NEVER REBUILT. jelly-tabs reads every panel's
+     label in connectedCallback, writes the bar out as jelly-segment children,
+     and guards the whole thing behind `this.built` -- so a translated label
+     changes the panel and leaves the bar saying the old word.
+
+     THIS USED TO CLONE THE ELEMENT to force a fresh connectedCallback, and that
+     one line caused both of the bugs reported against entry 29:
+
+       the size row died   wireTabsDemo captures its element once. Replacing the
+                           node left the closure holding a detached copy, so
+                           every size click wrote size="large" onto an element
+                           that was no longer on the page. Measured: broken in
+                           LTR too, from the first render, because the direction
+                           control applies itself at init and cloned before
+                           anyone had touched anything.
+
+       the card vanished   wireSquircleCards paints a [data-sq-fill] layer and
+                           watches the card with a ResizeObserver. cloneNode
+                           copies the layer but not the observation, so the new
+                           card carried a FROZEN path -- and a panel that was
+                           hidden when it was cloned had been measured at 0x0,
+                           so its path was degenerate and stayed that way when
+                           the panel was shown.
+
+     Neither needed the clone. Writing to the bar's own jelly-segment children
+     updates it in place -- verified: editing one re-rendered .segment-top and
+     .segment-bottom immediately. The element keeps its identity, so the
+     controller keeps its reference, the layer keeps its observer, and the
+     component keeps its value and size. */
+  function refreshTabBars() {
     document.querySelectorAll('jelly-tabs').forEach((tabs) => {
-      if (!tabs.parentNode) return;
-      const open = tabs.value;
-      const fresh = tabs.cloneNode(true);
-      fresh.querySelectorAll('jelly-tab-panel').forEach((p) => {
-        p.toggleAttribute('active', p.getAttribute('value') === open);
+      const bar = tabs.shadowRoot && tabs.shadowRoot.querySelector('jelly-segmented');
+      if (!bar) return;
+      const panels = [...tabs.querySelectorAll('jelly-tab-panel')];
+      [...bar.querySelectorAll('jelly-segment')].forEach((seg, i) => {
+        const panel = panels[i];
+        if (!panel) return;
+        /* Jelly's own panelLabel(), so the bar says exactly what the component
+           would have said had it built itself now. */
+        const label = panel.getAttribute('label')
+          || (panel.textContent || '').trim()
+          || ('Tab ' + (i + 1));
+        if (seg.textContent.trim() !== label) seg.textContent = label;
       });
-      tabs.parentNode.replaceChild(fresh, tabs);
     });
   }
 
@@ -2617,7 +2699,7 @@
         li.textContent = AR_FACTS[k];
       } else if (li.__enHTML != null) { li.innerHTML = li.__enHTML; li.__enHTML = null; }
     });
-    rebuildTabs();
+    refreshTabBars();
   }
 
   function wireDirection() {
@@ -2636,6 +2718,14 @@
       /* For anything whose text exists only at the moment it is created, and so
          has no node here to swap -- the toasts. */
       document.dispatchEvent(new CustomEvent('minaa:direction', { detail: { dir } }));
+
+      /* AFTER the swap, never before: every one of these builds its snippet by
+         reading the live DOM, so they have to run once that DOM is in the new
+         language. Caught individually -- one controller throwing should cost
+         its own snippet, not every snippet after it in the list. */
+      REPRINT.forEach((fn) => {
+        try { fn(); } catch (err) { console.warn('snippet reprint failed', err); }
+      });
     };
 
     el.addEventListener('change', () => apply(el.value));
@@ -2763,6 +2853,25 @@
       ? new ResizeObserver((recs) => recs.forEach((r) => shape(r.target)))
       : null;
     cards.forEach((el) => { shape(el); if (ro) ro.observe(el); });
+
+    /* A TAB PANEL THAT HAS NEVER BEEN OPENED HAS NEVER HAD A BOX. It is
+       display:none until its tab is picked, so at this point it measures 0x0
+       and there is nothing to shape -- its card gets no layer at all. The
+       ResizeObserver does catch it, but only once the browser has laid the
+       panel out and delivered the callback: measured at roughly 200ms of
+       visible, unpainted card the first time each tab is opened.
+
+       jelly-tabs makes the panel visible SYNCHRONOUSLY inside activate(), so
+       shaping on the same event paints it in the frame the reader first sees
+       it. The observer stays as the backstop for every later resize. */
+    document.querySelectorAll('jelly-tabs').forEach((tabs) => {
+      tabs.addEventListener('change', () => {
+        tabs.querySelectorAll('.tab-card').forEach((card) => {
+          shape(card);
+          if (ro) ro.observe(card);
+        });
+      });
+    });
   }
 
   function start() {
