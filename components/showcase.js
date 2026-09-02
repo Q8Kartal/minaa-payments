@@ -38,7 +38,7 @@
   const NOISE_EXACT = new Set(['role', 'tabindex', 'style', 'slot', 'part', 'class']);
   /* Bookkeeping the wiring writes at runtime, plus the marker that names a
      snippet root. None of it is anything a reader should type. */
-  const NOISE_RUNTIME = new Set(['data-snippet-root', 'data-wired', 'data-mode']);
+  const NOISE_RUNTIME = new Set(['data-snippet-root', 'data-wired', 'data-mode', 'data-lang']);
 
   /* Set only while serialising a declared root. `class` is noise on a Jelly
      element -- the page hangs layout classes on them that have nothing to do
@@ -2286,6 +2286,7 @@
 
   const AR_NOTES = {
     "c-01": "المزوّد الذي يمنح كل مدخل آخر في هذه الصفحة هوية ميناء. يحدّد مجموعة الرموز الكاملة لشجرته الفرعية، والمكوّنات المرسومة على canvas تقرأ تلك الرموز وقت الرسم — ولهذا يُطبَّق الجسر هنا لا على <code>:root</code> وحده. الصفحة تعمل على auto، فتتبع نظام تشغيلك وتتبدّل مباشرة عند تغييره.",
+    "c-02": "مفتاح <code>&lt;jelly-switch&gt;</code> بأبعاد Figma 328:31، يقود اتجاه هذه الصفحة. الوضع المحدَّد هو الإنجليزية؛ والحرف يجلس في النصف الذي تركه الإبهام.",
     "c-04": "مربع اختيار مرتبط بالنموذج، بحالتَي محدَّد ومحدَّد جزئياً، مرسوم كمربع ليّن ينبض عند تبديله.",
     "c-05": "حقل نص من سطر واحد على سطح جيلي ليّن: التركيز يرفع الغشاء ويحيطه بحلقة، وكل ضغطة مفتاح تُحدث تموّجاً عند المؤشر.",
     "c-06": "تسمية نموذج تقترن بأي عنصر تحكم عبر <code>for</code>: النقر عليها يُركّز الهدف، ويصبح نصّها اسمه الوصفي.",
@@ -2351,6 +2352,7 @@
      their headings now read Arabic, so leaving the contents in English made
      the page disagree with itself. Only those two move. */
   const AR_TOC = {
+    "02 language switch": "02 مفتاح اللغة",
     "16 theme switch": "16 مفتاح السمة",
     "17 toasts": "17 التنبيهات"
   };
@@ -2479,6 +2481,7 @@
      is <jelly-something> and stays in Latin because it is code; these two are
      descriptions, so in an Arabic page they read as Arabic. */
   const AR_TITLE = {
+    "language switch": "مفتاح اللغة",
     "theme switch": "مفتاح السمة",
     "toasts": "التنبيهات"
   };
@@ -2787,12 +2790,27 @@
   }
 
   function wireDirection() {
-    const el = document.querySelector('.masthead-direction');
-    if (!el || el.dataset.wired) return;
-    el.dataset.wired = '1';
+    const hosts = [...document.querySelectorAll('[data-lang-switch]')];
+    if (!hosts.length) return;
 
-    const apply = (v) => {
-      const dir = v === 'rtl' ? 'rtl' : 'ltr';
+    const apply = (dir) => {
+      dir = dir === 'rtl' ? 'rtl' : 'ltr';
+      /* IDEMPOTENT ON PURPOSE, and it is what stops the loop. Setting .checked
+         on one switch makes it emit `change`, which lands back here; asking for
+         the direction the document is already in falls out below after the
+         marks are synced, so two switches settle instead of ringing. */
+      const already = document.documentElement.getAttribute('dir') === dir;
+
+      hosts.forEach((host) => {
+        const sw = host.querySelector('jelly-switch');
+        /* Checked is English -- the thumb rests at the end and leaves the start
+           half, which is where E shows. The property, not the attribute: it is
+           how the theme switch beside it is driven too. */
+        if (sw && sw.checked !== (dir === 'ltr')) sw.checked = (dir === 'ltr');
+        host.setAttribute('data-lang', dir === 'rtl' ? 'ar' : 'en');
+      });
+      if (already) return;
+
       document.documentElement.setAttribute('dir', dir);
       /* The masthead lists the page's facts, and direction was one of them as
          a hardcoded LTR. A fact that a control can falsify has to follow it. */
@@ -2812,8 +2830,60 @@
       });
     };
 
-    el.addEventListener('change', () => apply(el.value));
-    apply(el.value || 'ltr');
+    hosts.forEach((host) => {
+      const sw = host.querySelector('jelly-switch');
+      if (!sw || sw.dataset.wiredDir) return;
+      sw.dataset.wiredDir = '1';
+      sw.addEventListener('change', () => apply(sw.checked ? 'ltr' : 'rtl'));
+    });
+
+    /* Force the first pass past the guard above, so the switches and their
+       marks start in step with the document rather than with their markup. */
+    document.documentElement.removeAttribute('dir');
+    apply('ltr');
+  }
+
+  /* Entry 02's row. The switch is the source of truth and the pills are a view
+     of it: they push through the same change event a pointer would, then read
+     the answer back off the document rather than off their own last click. */
+  function wireLangSwitchDemo() {
+    const el = document.getElementById('ls-demo');
+    const row = document.getElementById('ls-direction');
+    if (!el || !row || el.dataset.wiredCtl) return;
+    el.dataset.wiredCtl = '1';
+
+    /* Hand-built, like the theme switch's, and for the same reason: the generic
+       serialiser strips every aria-* and keeps the id, so it would print a
+       composition that is both unlabelled and specific to this page. What a
+       reader should be able to copy is the canonical markup. */
+    const snippet = () => {
+      const box = document.querySelector('#c-02 .code code');
+      const sw = el.querySelector('jelly-switch');
+      if (!box || !sw) return;
+      box.textContent = [
+        '<span class="lang-switch" data-lang-switch>',
+        '  <jelly-switch aria-label="Language"' + (sw.checked ? ' checked' : '') + '></jelly-switch>',
+        '  <span class="ls-mark ls-en">E</span>',
+        '  <span class="ls-mark ls-ar">\u0636</span>',
+        '</span>'].join('\n');
+    };
+
+    const sync = () => {
+      const dir = document.documentElement.getAttribute('dir') || 'ltr';
+      row.querySelectorAll('.pill').forEach(
+        (p) => p.setAttribute('aria-pressed', String(p.dataset.value === dir)));
+      snippet();
+    };
+
+    pillRow(row, (v) => {
+      const sw = el.querySelector('jelly-switch');
+      if (!sw) return;
+      sw.checked = v === 'ltr';
+      sw.dispatchEvent(new Event('change', { bubbles: true }));
+    }, sync);
+
+    document.addEventListener('minaa:direction', sync);
+    sync();
   }
 
   function wireSquircleCards() {
@@ -2960,7 +3030,7 @@
 
   function start() {
     buildCode(); wireThemeDemo(); wireThemeSwitch(); wireToasts();
-    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireDirection(); wireSquircleCards();
+    wireOtpDemo(); wireInputDemo(); wireCheckboxDemo(); wireLabelDemo(); wireSwitchDemo(); wireRadioGroupDemo(); wireSegmentedDemo(); wireTabsDemo(); wireChipDemo(); wireCollapsibleDemo(); wireAccordionDemo(); wireCardDemo(); wireDividerDemo(); wireResizableDemo(); wirePaginationDemo(); wireBreadcrumbsDemo(); wireKbdDemo(); wireThemeSwitchDemo(); wireToastDemo(); wireRadioDemo(); wireSelectDemo(); wireSliderDemo(); wireRangeDemo(); wireTextareaDemo(); wireAlertDemo(); wireBadgeDemo(); wireProgressDemo(); wireSpinnerDemo(); wireSkeletonDemo(); wireDialog(); wireDrawer(); wirePopoverDemo(); wireTooltipDemo(); wireMenuDemo(); wireLangSwitchDemo(); wireDirection(); wireSquircleCards();
   }
 
   if (window.customElements) {

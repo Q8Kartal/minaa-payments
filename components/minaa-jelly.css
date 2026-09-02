@@ -194,6 +194,7 @@ jelly-theme {
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
+  --m-lang-track:  var(--primary-300);  /* Primary 300 — Figma 328:31 */
   --m-check-box:   var(--primary-300);  /* Primary 300 */
   --m-check-mark:  var(--secondary);    /* Secondary 600 */
   --m-seg-track:   var(--primary-300);  /* Primary 300 */
@@ -316,6 +317,7 @@ jelly-theme {
     --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
     --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
+    --m-lang-track:  var(--primary);        /* Primary 700 — Figma 356:256 */
     --m-check-box:   var(--secondary);
     --m-check-mark:  var(--cream);
     --m-seg-track:   var(--secondary);
@@ -387,6 +389,7 @@ jelly-theme[mode="dark"] {
   --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
   --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
+  --m-lang-track:  var(--primary);        /* Primary 700 — Figma 356:256 */
   --m-check-box:   var(--secondary);
   --m-check-mark:  var(--cream);
   --m-seg-track:   var(--secondary);
@@ -450,6 +453,7 @@ jelly-theme[mode="light"] {
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
+  --m-lang-track:  var(--primary-300);    /* Primary 300 — Figma 328:31 */
   --m-check-box:   var(--primary-300);
   --m-check-mark:  var(--secondary);
   --m-seg-track:   var(--primary-300);
@@ -1683,6 +1687,80 @@ jelly-textarea::part(textarea):-webkit-autofill {
 
 @media (prefers-reduced-motion: reduce) {
   .theme-switch .mi { transition: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE LANGUAGE SWITCH — Figma 328:31 (light) and 356:256 (dark)
+
+   The theme switch's twin, and deliberately built from the same parts: a real
+   <jelly-switch> carrying the physics, with the mark sitting in whichever half
+   the thumb has left. Nothing here reimplements a toggle in CSS.
+
+   ONE DIFFERENCE FROM ITS TWIN, AND IT IS THE WHOLE POINT OF THE TWO DRAWINGS.
+   On the theme switch the track colour IS the state — off is Primary 700 and
+   on is Primary 300, because the control's job is to say which theme you are
+   in. Here the two drawings are the SAME control in the two themes, so the
+   track follows the MODE and both states share it. What tells the states apart
+   is the letter, not the colour.
+
+   Geometry is the drawing's, and every number is already a token: track
+   80 x 40 (space-1000 x control-40), thumb 32 from the uniform 4 inset
+   (space-050), radius full. The mark is display-sm — 32/40, which is exactly
+   the line-heights-display-sm the drawing binds — in ExtraBold, Secondary 600.
+
+   The 4 inset matches the drawing's E exactly. Its ض sits 7 from the other
+   edge rather than 4; that 3px is the glyph's own side bearing, not a second
+   spacing value, so both marks bind to the one token. */
+.lang-switch {
+  position: relative;
+  display: inline-flex;
+  --ls-track-h: var(--control-40);   /* must agree with --jelly-switch-height */
+  --ls-inset:   var(--space-050);    /* the track padding, uniform, as drawn */
+}
+
+/* On the ELEMENT, not the wrapper — see the note on the theme switch below:
+   Jelly declares these on :host, where an explicit declaration beats an
+   inherited one, so a rule written on .lang-switch never reaches it. */
+.lang-switch jelly-switch {
+  --jelly-switch-width:  var(--space-1000);   /* 80 */
+  --jelly-switch-height: var(--control-40);
+  --jelly-switch-gap: 0;
+  --jelly-switch-inset: var(--space-050);
+  --jelly-off: var(--m-lang-track);
+  --jelly-on:  var(--m-lang-track);
+  --jelly-switch-thumb-off: var(--m-thumb);
+  --jelly-switch-thumb-on:  var(--m-thumb);
+}
+
+/* Both letters are rendered and cross-faded rather than swapped, for the same
+   reason as the theme switch's icons: a swap at the end of the travel pops
+   while the track is still settling. */
+.lang-switch .ls-mark {
+  position: absolute;
+  /* From the TOP, which the host and the painted track share — the host is
+     46 tall where the track is 40 and the spare sits entirely below it, so
+     centring on the host would drop the letter 3px. */
+  top: 0;
+  height: var(--ls-track-h);
+  display: flex;
+  align-items: center;
+  font-family: var(--font-bold);
+  font-size:   var(--display-sm);
+  line-height: var(--display-sm-lh);
+  color: var(--m-thumb);      /* Secondary 600, as drawn */
+  pointer-events: none;       /* the switch underneath keeps the drag */
+  transition: opacity .18s ease;
+}
+
+/* Unchecked is Arabic: the thumb rests at the start and leaves the end half,
+   which is where ض shows. Checked is English and the mirror of it. */
+.lang-switch .ls-en { inset-inline-start: var(--ls-inset); opacity: 0; }
+.lang-switch .ls-ar { inset-inline-end:   var(--ls-inset); opacity: 1; }
+.lang-switch[data-lang="en"] .ls-en { opacity: 1; }
+.lang-switch[data-lang="en"] .ls-ar { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-switch .ls-mark { transition: none; }
 }
 
 /* ---- Sizes ---------------------------------------------------------------

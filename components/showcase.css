@@ -1350,6 +1350,14 @@ jelly-icon-button .mi {
    theme switch flush against a clip edge is the exact bug that shipped once
    from the masthead, bulging on the free side and slicing flat on the clipped
    one. In the middle of a card it has hundreds of pixels of room. */
+.langswitch-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
+  padding-block: var(--space-400);                             /* 32 */
+}
+
 .themeswitch-stage {
   display: flex;
   align-items: center;
