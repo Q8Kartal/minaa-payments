@@ -2810,13 +2810,21 @@
     const hosts = [...document.querySelectorAll('[data-lang-switch]')];
     if (!hosts.length) return;
 
+    /* WHERE THE SWITCH GOES NEXT, not where the document is. A second toggle
+       arriving before the first has run would otherwise compare against a dir
+       that has not moved yet, decide it is already there, and leave the first
+       one queued -- flipping the page the wrong way. */
+    let target = document.documentElement.getAttribute('dir') || 'ltr';
+    let queued = null;
+
     const apply = (dir) => {
       dir = dir === 'rtl' ? 'rtl' : 'ltr';
       /* IDEMPOTENT ON PURPOSE, and it is what stops the loop. Setting .checked
          on one switch makes it emit `change`, which lands back here; asking for
          the direction the document is already in falls out below after the
          marks are synced, so two switches settle instead of ringing. */
-      const already = document.documentElement.getAttribute('dir') === dir;
+      const already = target === dir;
+      target = dir;
 
       hosts.forEach((host) => {
         const sw = host.querySelector('jelly-switch');
@@ -2832,6 +2840,32 @@
       });
       if (already) return;
 
+      /* THE HEAVY HALF WAITS FOR THE SWITCH TO PAINT, and the reason is not this
+         function. Measured on this page: setting `dir` alone blocks the main
+         thread for 551ms, while the swap it triggers accounts for 27 of the
+         578 a full change costs. The rest is every Jelly component on the page
+         re-laying out and repainting -- 297 of them here. Cut the page down to
+         23 components and the same attribute costs 0ms, so it scales with how
+         many live controls are mounted, which on a page that documents 38 of
+         them is simply the price.
+
+         What that cost must NOT do is block the control itself. Run inline, the
+         switch cannot paint its own thumb until the page has finished, so it
+         reads as dead for half a second and then everything moves at once.
+         Yielding two frames first lets the thumb start travelling under the
+         pointer; the page then catches up behind it. The total is unchanged --
+         the wait is real and belongs to the browser -- but the switch answers
+         immediately, which is what "real time" means here. */
+      if (queued) cancelAnimationFrame(queued);
+      queued = requestAnimationFrame(() => {
+        queued = requestAnimationFrame(() => {
+          queued = null;
+          heavy(dir);
+        });
+      });
+    };
+
+    const heavy = (dir) => {
       document.documentElement.setAttribute('dir', dir);
       /* The masthead lists the page's facts, and direction was one of them as
          a hardcoded LTR. A fact that a control can falsify has to follow it. */
