@@ -1683,13 +1683,28 @@ jelly-textarea::part(textarea):-webkit-autofill {
      CHECKED state is light mode, and the track colours follow it. */
   --jelly-off: var(--primary);        /* Primary 700 - dark  */
   --jelly-on:  var(--primary-300);    /* Primary 300 - light */
-  --jelly-switch-thumb-off: var(--m-thumb);
-  --jelly-switch-thumb-on:  var(--m-thumb);
+  /* THE THUMB CHANGES WITH THE STATE NOW, which is new in Figma 381:206 and is
+     why these are palette steps rather than --m-thumb. That token is Secondary
+     600 in every mode, and the drawing wants the thumb to invert with the
+     track: Secondary 600 on the dark track, Neutral 100 on the light one. The
+     switch's own state IS the page mode here, so state and mode agree. */
+  --jelly-switch-thumb-off: var(--secondary);   /* Secondary 600 - on the dark track  */
+  --jelly-switch-thumb-on:  var(--cream);       /* Neutral 100   - on the light track */
 }
 
 /* Exactly one icon is visible: the one in the half the thumb has left. Both
    are rendered and cross-faded rather than swapped, because a swap at the end
-   of the travel pops while the track colour is still crossfading. */
+   of the travel pops while the track colour is still crossfading.
+
+   THE ICON NAMES WHERE YOU ARE GOING, NOT WHERE YOU ARE. Figma 381:206 titles
+   its two variants "Switch from dark mode to light mode" and "Switch from
+   light mode to dark mode": the dark track carries a SUN and the light track a
+   MOON. That is the reverse of what shipped before, where the icon reported
+   the mode you were already in, so both the visible side and the pairing
+   flipped here rather than only the artwork.
+
+   Each icon therefore has ONE colour, not a per-mode pair: the sun is only
+   ever seen on the dark track and the moon only on the light one. */
 .theme-switch .mi {
   position: absolute;
   /* NOT top: 50%. The jelly-switch host is 46 tall where its painted track is
@@ -1700,14 +1715,24 @@ jelly-textarea::part(textarea):-webkit-autofill {
   top: calc((var(--ts-track-h) - var(--ts-icon)) / 2);
   width:  var(--ts-icon);
   height: var(--ts-icon);
-  color: var(--m-thumb);      /* Secondary 600, as drawn */
   pointer-events: none;       /* the switch underneath keeps the drag */
   transition: opacity .18s ease;
 }
-.theme-switch .mi-sun  { inset-inline-start: var(--ts-inset); opacity: 0; }
-.theme-switch .mi-moon { inset-inline-end:   var(--ts-inset); opacity: 1; }
-.theme-switch[data-mode="light"] .mi-sun  { opacity: 1; }
-.theme-switch[data-mode="light"] .mi-moon { opacity: 0; }
+/* Unchecked is dark, so the sun is the one showing, and it sits in the half the
+   thumb has left -- the END, because the thumb rests at the start. Checked is
+   light and the mirror of it. */
+.theme-switch .mi-sun {
+  inset-inline-end: var(--ts-inset);
+  opacity: 1;
+  color: var(--cream);        /* Neutral 100  - on the dark track */
+}
+.theme-switch .mi-moon {
+  inset-inline-start: var(--ts-inset);
+  opacity: 0;
+  color: var(--secondary);    /* Secondary 600 - on the light track */
+}
+.theme-switch[data-mode="light"] .mi-sun  { opacity: 0; }
+.theme-switch[data-mode="light"] .mi-moon { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   .theme-switch .mi { transition: none; }
@@ -1832,6 +1857,13 @@ jelly-textarea::part(textarea):-webkit-autofill {
    Named for where the control is used rather than small/medium/large, because
    the reason to change size here is the pointing device, not emphasis.
 
+   ONLY THE 80x40 IS DRAWN. Figma 381:206 gives one geometry, and its Sun and
+   Moon ink 30.9 and 29.4 across inside a 40 track -- too big for the 24 box
+   that shipped, so desktop takes 32, the next step on the icon ramp, and the
+   ink sits inside it the way a glyph normally does. ios and android keep the
+   same 0.8 of their track that desktop now has, which lands on 24 and 40
+   without inventing a number. If Ahmad draws those two, they win over this.
+
    Every number comes off the control ladder, and only two are written per
    size: the track. The thumb derives from the 4 inset (height - 4*2) and the
    gap is whatever is left, so a size cannot be internally inconsistent.
@@ -1852,19 +1884,19 @@ jelly-textarea::part(textarea):-webkit-autofill {
   --jelly-switch-width:  var(--control-80);
   --jelly-switch-height: var(--control-40);
 }
-.theme-switch[data-size="desktop"] { --ts-track-h: var(--control-40); --ts-icon: var(--control-icon-24); }
+.theme-switch[data-size="desktop"] { --ts-track-h: var(--control-40); --ts-icon: var(--control-icon-32); }   /* 32 - the drawn Sun and Moon ink 30.9 and 29.4 wide in a 40 track */
 
 .theme-switch[data-size="ios"] jelly-switch {
   --jelly-switch-width:  var(--control-64);
   --jelly-switch-height: var(--control-32);
 }
-.theme-switch[data-size="ios"] { --ts-track-h: var(--control-32); --ts-icon: var(--control-icon-20); }
+.theme-switch[data-size="ios"] { --ts-track-h: var(--control-32); --ts-icon: var(--control-icon-24); }   /* 24 - the same 0.8 of the track */
 
 .theme-switch[data-size="android"] jelly-switch {
   --jelly-switch-width:  var(--control-96);
   --jelly-switch-height: var(--control-48);
 }
-.theme-switch[data-size="android"] { --ts-track-h: var(--control-48); --ts-icon: var(--control-icon-24); }
+.theme-switch[data-size="android"] { --ts-track-h: var(--control-48); --ts-icon: var(--control-icon-40); }   /* 40 - the same 0.8 of the track */
 
 /* ═══════════════════════════════════════════════════════════════════════════
    THE TOASTER
