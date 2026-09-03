@@ -2823,7 +2823,11 @@
         /* Checked is English -- the thumb rests at the end and leaves the start
            half, which is where E shows. The property, not the attribute: it is
            how the theme switch beside it is driven too. */
-        if (sw && sw.checked !== (dir === 'ltr')) sw.checked = (dir === 'ltr');
+        /* CHECKED IS ARABIC, the inverse of what this used to be. The drawings
+           name the destination: the state showing ض is the one that takes
+           you to Arabic, so THAT state is English -- and English is the thumb's
+           resting position. */
+        if (sw && sw.checked !== (dir === 'rtl')) sw.checked = (dir === 'rtl');
         host.setAttribute('data-lang', dir === 'rtl' ? 'ar' : 'en');
       });
       if (already) return;
@@ -2851,7 +2855,7 @@
       const sw = host.querySelector('jelly-switch');
       if (!sw || sw.dataset.wiredDir) return;
       sw.dataset.wiredDir = '1';
-      sw.addEventListener('change', () => apply(sw.checked ? 'ltr' : 'rtl'));
+      sw.addEventListener('change', () => apply(sw.checked ? 'rtl' : 'ltr'));
     });
 
     /* Force the first pass past the guard above, so the switches and their
@@ -2986,8 +2990,8 @@
       box.textContent = [
         '<span class="lang-switch" data-lang-switch data-size="' + (el.dataset.size || 'desktop') + '">',
         '  <jelly-switch aria-label="Language"' + (sw.checked ? ' checked' : '') + '></jelly-switch>',
-        '  <span class="ls-mark ls-en">E</span>',
-        '  <span class="ls-mark ls-ar">\u0636</span>',
+        '  <svg class="ls-mark ls-en"><use href="#mi-langEn"/></svg>',
+        '  <svg class="ls-mark ls-ar"><use href="#mi-langAr"/></svg>',
         '</span>'].join('\n');
     };
 

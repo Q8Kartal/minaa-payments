@@ -200,9 +200,10 @@ jelly-theme {
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);    /* Secondary 600 — every thumb and dot */
-  --m-lang-track:  var(--primary-300);  /* Primary 300 — Figma 328:31 */
   --m-btn-disabled-fill: var(--primary-300);   /* Primary 300 */
   --m-btn-disabled-ink:  var(--primary-400);   /* Primary 400 */
+  --m-lang-rest:   var(--primary-300);   /* Primary 300   - Figma 328:31  */
+  --m-lang-active: var(--secondary);     /* Secondary 600 - Figma 328:31  */
   --m-check-box:   var(--primary-300);  /* Primary 300 */
   --m-check-mark:  var(--secondary);    /* Secondary 600 */
   --m-seg-track:   var(--primary-300);  /* Primary 300 */
@@ -325,9 +326,10 @@ jelly-theme {
     --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
     --m-page-btn-active: var(--secondary);      /* Secondary 600 */
     --m-thumb:       var(--secondary);
-    --m-lang-track:  var(--primary);        /* Primary 700 — Figma 356:256 */
     --m-btn-disabled-fill: var(--secondary-300);   /* Secondary 300 */
     --m-btn-disabled-ink:  var(--secondary-400);   /* Secondary 400 */
+    --m-lang-rest:   var(--secondary);     /* Secondary 600 - Figma 381:187 */
+    --m-lang-active: var(--cream);         /* Neutral 100   - Figma 381:187 */
     --m-check-box:   var(--secondary);
     --m-check-mark:  var(--cream);
     --m-seg-track:   var(--secondary);
@@ -399,9 +401,10 @@ jelly-theme[mode="dark"] {
   --m-disclosure-ink:     var(--cream);        /* Neutral 100  */
   --m-page-btn-active: var(--secondary);      /* Secondary 600 */
   --m-thumb:       var(--secondary);
-  --m-lang-track:  var(--primary);        /* Primary 700 — Figma 356:256 */
   --m-btn-disabled-fill: var(--secondary-300);   /* Secondary 300 */
   --m-btn-disabled-ink:  var(--secondary-400);   /* Secondary 400 */
+  --m-lang-rest:   var(--secondary);     /* Secondary 600 - Figma 381:187 */
+  --m-lang-active: var(--cream);         /* Neutral 100   - Figma 381:187 */
   --m-check-box:   var(--secondary);
   --m-check-mark:  var(--cream);
   --m-seg-track:   var(--secondary);
@@ -465,9 +468,10 @@ jelly-theme[mode="light"] {
   --m-disclosure-ink:     var(--m-ink);        /* Primary 700 */
   --m-page-btn-active: var(--m-accent);   /* Primary 700 */
   --m-thumb:       var(--secondary);
-  --m-lang-track:  var(--primary-300);    /* Primary 300 — Figma 328:31 */
   --m-btn-disabled-fill: var(--primary-300);   /* Primary 300 */
   --m-btn-disabled-ink:  var(--primary-400);   /* Primary 400 */
+  --m-lang-rest:   var(--primary-300);   /* Primary 300   - Figma 328:31  */
+  --m-lang-active: var(--secondary);     /* Secondary 600 - Figma 328:31  */
   --m-check-box:   var(--primary-300);
   --m-check-mark:  var(--secondary);
   --m-seg-track:   var(--primary-300);
@@ -1765,7 +1769,11 @@ jelly-textarea::part(textarea):-webkit-autofill {
   display: inline-flex;
   --ls-track-h: var(--control-40);   /* must agree with --jelly-switch-height */
   --ls-mark:    var(--control-icon-24);
-  --ls-inset:   var(--space-050);    /* the track padding, uniform, as drawn */
+  /* 8, which is what both drawings inset the mark by -- 8 from the near edge in
+     the E variant and 9 in the ض variant, the extra 1 being the artwork's own
+     side bearing. The THUMB keeps its 4 through --jelly-switch-inset; this is
+     the MARK's inset and the two are no longer the same number. */
+  --ls-inset:   var(--space-100);
 }
 
 /* On the ELEMENT, not the wrapper — see the note on the theme switch below:
@@ -1776,26 +1784,39 @@ jelly-textarea::part(textarea):-webkit-autofill {
   --jelly-switch-height: var(--control-40);
   --jelly-switch-gap: 0;
   --jelly-switch-inset: var(--space-050);
-  --jelly-off: var(--m-lang-track);
-  --jelly-on:  var(--m-lang-track);
-  --jelly-switch-thumb-off: var(--m-thumb);
-  --jelly-switch-thumb-on:  var(--m-thumb);
+  /* TRACK AND THUMB TRADE PLACES BETWEEN THE STATES, which is what the two
+     drawings per mode actually say. One pair per mode, used both ways round:
+
+       light   rest Primary 300     active Secondary 600
+       dark    rest Secondary 600   active Neutral 100
+
+     unchecked is English -- the track takes `rest` and the thumb `active`;
+     checked is Arabic and the exact mirror. Four combinations out of two
+     tokens, and none of them needs a colour the other three do not. */
+  --jelly-off: var(--m-lang-rest);
+  --jelly-on:  var(--m-lang-active);
+  --jelly-switch-thumb-off: var(--m-lang-active);
+  --jelly-switch-thumb-on:  var(--m-lang-rest);
 }
 
 /* Both letters are rendered and cross-faded rather than swapped, for the same
    reason as the theme switch's icons: a swap at the end of the travel pops
    while the track is still settling. */
-/* THE LETTER TAKES THE ICON'S BOX, WHICH IS THE POINT OF THIS RULE. The two
-   switches sit one above the other in the masthead, so a mark sized and placed
-   by its own logic reads as a different family however close the colours are.
-   Every line below is the theme switch's icon rule with --ts-icon swapped for
-   --ls-mark: same box, same measured-from-the-top placement, same 4 inset. The
-   letter is then set AT the box size rather than at a type step, because what
-   it has to match is the icon beside it and not a paragraph.
+/* THE MARK IS ARTWORK NOW, not a typed letter. Figma 328:31 and 381:187 draw
+   the letter with two sparkles as one flattened Union, 33 x 26.169, so it lives
+   in the sprite as mi-langEn / mi-langAr and carries its own viewBox -- see the
+   note beside them in micons.js.
 
-   It was display-sm, 32, taken off the drawing's own binding. Against a 24
-   icon that is simply too big — the drawing was made without the theme switch
-   sitting under it. */
+   That ends the type problem this rule kept having. It was a 32px glyph, then a
+   24px one so it would sit beside the theme switch's icon, and either way it
+   hung off the font's own metrics -- the same metrics that turned out to be
+   clipping Arabic in the fields. Artwork has none to fight.
+
+   HEIGHT COMES OFF THE ICON RAMP, WIDTH FOLLOWS THE ARTWORK. The drawn mark is
+   26.169 tall and 24 is the ramp's nearest step: 2px under, and the only step
+   that fits, since 32 would make it 40.3 wide against a 40 track. The width is
+   left to the viewBox rather than set, so the sparkles keep the spacing they
+   were drawn with instead of being squeezed into a square. */
 .lang-switch .ls-mark {
   position: absolute;
   /* NOT top: 50%. The jelly-switch host is taller than its painted track and
@@ -1803,24 +1824,38 @@ jelly-textarea::part(textarea):-webkit-autofill {
      track centre. Measuring down from the top, which host and track share, is
      exact — the same reasoning as the icons on the twin. */
   top: calc((var(--ls-track-h) - var(--ls-mark)) / 2);
-  width:  var(--ls-mark);
   height: var(--ls-mark);
-  display: grid;
-  place-items: center;
-  font-family: var(--font-bold);
-  font-size:   var(--ls-mark);
-  line-height: 1;
-  color: var(--m-thumb);      /* Secondary 600, as drawn */
+  /* AN <svg> HAS NO INTRINSIC SIZE, so `width: auto` alone does not read the
+     viewBox -- it falls back to the replaced-element default and the mark
+     measured 300 wide. aspect-ratio states the artwork's own proportion, and
+     the width then follows the height off the ramp. */
+  aspect-ratio: 33.0003 / 26.1689;
+  width:  auto;
   pointer-events: none;       /* the switch underneath keeps the drag */
   transition: opacity .18s ease;
 }
 
-/* Unchecked is Arabic: the thumb rests at the start and leaves the end half,
-   which is where ض shows. Checked is English and the mirror of it. */
-.lang-switch .ls-en { inset-inline-start: var(--ls-inset); opacity: 0; }
-.lang-switch .ls-ar { inset-inline-end:   var(--ls-inset); opacity: 1; }
-.lang-switch[data-lang="en"] .ls-en { opacity: 1; }
-.lang-switch[data-lang="en"] .ls-ar { opacity: 0; }
+/* THE MARK NAMES THE LANGUAGE YOU SWITCH TO, not the one you are reading. The
+   drawings are titled that way round -- the switch showing ض is the one that
+   takes you to Arabic, so THAT state is English. It inverts what shipped
+   before, where the mark reported the current language.
+
+   Unchecked is therefore English: the thumb rests at the start and leaves the
+   end half, which is where ض shows. Checked is Arabic and the mirror, with E
+   in the start half. Each mark keeps one colour, because each is only ever seen
+   in its own state -- ض against `active`, E against `rest`. */
+.lang-switch .ls-ar {
+  inset-inline-end: var(--ls-inset);
+  opacity: 1;
+  color: var(--m-lang-active);
+}
+.lang-switch .ls-en {
+  inset-inline-start: var(--ls-inset);
+  opacity: 0;
+  color: var(--m-lang-rest);
+}
+.lang-switch[data-lang="ar"] .ls-ar { opacity: 0; }
+.lang-switch[data-lang="ar"] .ls-en { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   .lang-switch .ls-mark { transition: none; }

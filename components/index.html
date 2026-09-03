@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260909i"></script>
+<script src="../gate.js?v=20260909k"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,7 +22,7 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260909i"></script>
+<script type="module" src="vendor/jelly.js?v=20260909k"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
@@ -31,8 +31,8 @@
      page's own jelly-buttons -- the controller pills, the dialog's two
      buttons, the toast trigger. See the header in the file. -->
 <link rel="stylesheet" href="../button-family.css?v=20260902b">
-<link rel="stylesheet" href="minaa-jelly.css?v=20260909i">
-<link rel="stylesheet" href="showcase.css?v=20260909i">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260909k">
+<link rel="stylesheet" href="showcase.css?v=20260909k">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -75,8 +75,8 @@
          overflow clip. -->
     <span class="lang-switch masthead-direction" data-lang-switch data-size="desktop" data-lang="en">
       <jelly-switch aria-label="Language"></jelly-switch>
-      <span class="ls-mark ls-en" aria-hidden="true">E</span>
-      <span class="ls-mark ls-ar" aria-hidden="true">ض</span>
+      <svg class="ls-mark ls-en" aria-hidden="true" focusable="false"><use href="#mi-langEn"/></svg>
+      <svg class="ls-mark ls-ar" aria-hidden="true" focusable="false"><use href="#mi-langAr"/></svg>
     </span>
     <p class="eyebrow">Components</p>
     <h1>Component library</h1>
@@ -205,8 +205,8 @@
       <div class="langswitch-stage" data-controls>
         <span class="lang-switch" id="ls-demo" data-lang-switch data-snippet-root data-size="desktop" data-lang="en">
           <jelly-switch aria-label="Language"></jelly-switch>
-          <span class="ls-mark ls-en" aria-hidden="true">E</span>
-          <span class="ls-mark ls-ar" aria-hidden="true">ض</span>
+          <svg class="ls-mark ls-en" aria-hidden="true" focusable="false"><use href="#mi-langEn"/></svg>
+          <svg class="ls-mark ls-ar" aria-hidden="true" focusable="false"><use href="#mi-langAr"/></svg>
         </span>
       </div>
     </div>
@@ -2605,9 +2605,9 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260909i"></script>
-<script src="minaa-jelly.js?v=20260909i"></script>
+<script src="micons.js?v=20260909k"></script>
+<script src="minaa-jelly.js?v=20260909k"></script>
 <script src="../button-family.js?v=20260902b" defer></script>
-<script src="showcase.js?v=20260909i" defer></script>
+<script src="showcase.js?v=20260909k" defer></script>
 </body>
 </html>
