@@ -1399,13 +1399,28 @@ jelly-icon-button .mi {
 }
 
 /* The button specimens are rebuilt on every row change, so the stage holds the
-   height rather than letting the demo jump as a 56 becomes a 40. */
+   height rather than letting the demo jump as a 56 becomes a 40.
+
+   AND IT RESERVES THE BLEED INLINE, which every other control stage on this
+   page gets for free by being centred. Jelly paints into a canvas a measured
+   44px wider than its host on each side -- constant at all three sizes -- and
+   .demo carries overflow-x: clip. A centred 60px specimen has hundreds of
+   pixels either side and never comes near it; a `block` one is the full width
+   of this stage by definition, so its canvas lands precisely on the clip.
+
+   .demo's own padding happened to cover it on desktop, 48 against 44, with 4px
+   to spare. It drops to 24 at the narrow breakpoint, where the canvas would
+   have been sliced by 20px at each end -- the lopsided-blob bug the theme
+   switch already shipped once from the masthead. 48 is the step that clears
+   the measured 44, it is declared here rather than left to a neighbour's
+   padding, and it costs the centred specimens nothing. */
 .btn-stage {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: calc(var(--space-800) + var(--space-400) * 2);   /* 64 + 32 + 32 */
   padding-block: var(--space-400);                             /* 32 */
+  padding-inline: var(--space-600);                            /* 48 > the 44 bleed */
 }
 
 .themeswitch-stage {

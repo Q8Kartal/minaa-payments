@@ -94,6 +94,41 @@
     inline-size: fit-content;
   }
 
+  /* ── block — the one case where the button does NOT hug its content ──────
+     A full-width action: the primary CTA at the foot of a form, the button
+     that spans a phone. It is a layout instruction rather than an appearance,
+     so it composes with all five appearances and all three sizes instead of
+     being a sixth of either.
+
+     TWO RULES HAVE TO AGREE AND ONLY ONE OF THEM IS OURS. Jelly already ships
+     `:host([block]) { display: block }` and `:host([block]) button
+     { width: 100% }`, so the attribute stretches its inner button on its own.
+     What it cannot do is widen the HOST, and the rule directly above pins that
+     to `fit-content`. Measured before writing this: the attribute alone moved
+     nothing at all -- host and inner both stayed 60.4px inside a 539px stage.
+     Releasing the host is the entire fix; nothing else here is needed.
+
+     100%, NOT `auto`. `auto` is correct in normal flow and wrong in every
+     container a full-width button actually sits in -- a flex row shrink-wraps
+     its items, so `auto` left the button at its intrinsic width in exactly the
+     layouts this attribute exists for. Verified both ways on the live
+     component. The attribute is the author saying "fill the container", and
+     100% is the only value that means that in flow and in flex alike.
+
+     The label needs nothing. Jelly centres its inner button's content, so the
+     label and its icons stay a centred group and the new space opens evenly
+     either side -- measured at full width, 259.5px on each side.
+
+     WHAT DOES NEED WATCHING IS THE BLEED, and it is not visible from here.
+     Jelly paints into a canvas a measured 44px wider than the host on every
+     side, constant across the three sizes. A button that hugs its content
+     leaves that margin somewhere inside its container; a block one puts it
+     exactly on the container's edge. Any clipping ancestor has to be given the
+     room first -- see .btn-stage in components/showcase.css, where .demo's
+     `overflow-x: clip` would otherwise have sliced 20px off each end at the
+     narrow breakpoint. */
+  jelly-button.mn-btn[block] { inline-size: 100%; }
+
   /* Content advances one space-050 in the reading direction as p rises.
      Jelly exposes a single --jelly-button-padding-inline for both sides, so
      the offset is a transform on the slotted content rather than asymmetric

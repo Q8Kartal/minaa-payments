@@ -2402,6 +2402,7 @@
     "key": "المفتاح",
     "icon": "الأيقونة",
     "appearance": "الهيئة",
+    "block": "عرض كامل",
     "none": "بلا",
     "leading": "أمامية",
     "trailing": "خلفية",
@@ -2925,12 +2926,16 @@
 
   function buttonMarkup(s) {
     const aria = s.disabled ? ' aria-disabled="true"' : '';
+    /* A bare attribute, printed the way it would be written by hand -- it is a
+       boolean, and `block="true"` would be the same to the browser and wrong
+       to a reader copying the snippet. */
+    const block = s.block ? ' block' : '';
     const label = '<span>' + BTN_LABEL[s.dir] + '</span>';
     const inner = s.config === 'leading' ? BTN_ICON + label
       : s.config === 'trailing' ? label + BTN_ICON
         : s.config === 'both' ? BTN_ICON + label + BTN_ICON
           : label;
-    return '<jelly-button dir="' + s.dir + '" data-config="' + s.config + '"' + aria +
+    return '<jelly-button dir="' + s.dir + '" data-config="' + s.config + '"' + block + aria +
       ' class="mn-btn ' + s.appearance + ' s' + s.size + '">' +
       '<span class="jelly-label">' + inner + '</span></jelly-button>';
   }
@@ -2987,11 +2992,12 @@
   function wireButtonDemo() {
     wireFamilyDemo({
       stage: 'bt-stage', entry: 'c-39', build: buttonMarkup,
-      state: { dir: 'ltr', config: 'leading', appearance: 'primary', size: '48', disabled: false, mode: null },
+      state: { dir: 'ltr', config: 'leading', appearance: 'primary', size: '48', block: false, disabled: false, mode: null },
       rows: [['bt-dir', (v, s) => { s.dir = v; }],
         ['bt-config', (v, s) => { s.config = v; }],
         ['bt-appearance', (v, s) => { s.appearance = v; }],
         ['bt-size', (v, s) => { s.size = v; }],
+        ['bt-block', (v, s) => { s.block = v === 'true'; }],
         ['bt-disabled', DISABLED_ROW]]
     });
   }
