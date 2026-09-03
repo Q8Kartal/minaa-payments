@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idris descender check</title>
+
+<style>
+  /* THE SAME FACE, REGISTERED TWICE, so the override can be proved rather than
+     asserted. RAW is the font exactly as it ships. FIXED is the identical file
+     with descent-override, at the value read off its own outlines.
+
+     A native <input> is clipped by the browser to the line box it computes from
+     the declared metrics, and Idris declares 0.300 em of descent while its
+     glyphs use up to 0.4293. That is the whole bug, and it is why no amount of
+     page CSS fixed it: measured, line-height 46 in a 46px field still clipped,
+     while a <div> with identical font, size, line-height and height did not --
+     a div cannot clip glyph ink, an input can. */
+  @font-face {
+    font-family: "Idris RAW";
+    src: url("fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+    font-weight: 100 900; font-display: block;
+  }
+  @font-face {
+    font-family: "Idris FIXED";
+    src: url("fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+    font-weight: 100 900; font-display: block;
+    /* Medium's deepest ink is -1288 of 3000 upm = 0.4293 em, in
+       uni062D.fina.PostLow. Rounded up so it cannot graze the edge. */
+    descent-override: 43%;
+  }
+
+  html { font-synthesis: none; }
+  body {
+    margin: 0; padding: 20px 24px 40px;
+    background: #00264B; color: #FBF0DC;
+    font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  h1 { font: 600 17px/1.4 ui-monospace, monospace; margin: 0 0 4px; }
+  p.lede { margin: 0 0 18px; color: #A1CFFF; max-width: 78ch; }
+
+  .case { margin: 0 0 22px; }
+  .case h2 {
+    font: 600 12px/1.4 ui-monospace, monospace; color: #A1CFFF;
+    margin: 0 0 8px; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .cell .tag { font: 600 10px/1.8 ui-monospace, monospace; color: #A1CFFF; letter-spacing: .04em; }
+
+  /* Identical type on all three. The only differences are the registered face
+     and whether the element is an input or a div. */
+  .spec, .ref {
+    color: #FBF0DC; direction: rtl; padding: 0 14px;
+    width: 100%; box-sizing: border-box; border: 0; border-radius: 8px;
+    display: block;
+  }
+  .spec { background: #003a6b; }
+  .ref  { background: #0a5a9e; }
+
+  table { border-collapse: collapse; margin-top: 20px; font-size: 12.5px; }
+  th, td { text-align: left; padding: 3px 16px 3px 0; vertical-align: top; }
+  th { color: #A1CFFF; font-weight: 600; white-space: nowrap; }
+  .bad  { color: #FA937D; font-weight: 600; }
+  .good { color: #9BE8A0; font-weight: 600; }
+  .verdict { margin-top: 18px; font: 600 14px/1.6 ui-monospace, monospace; }
+</style>
+</head>
+<body>
+
+<h1>Idris descender check &mdash; descent-override</h1>
+<p class="lede">
+  Three columns, same string, same size, same line-height, same box height. The
+  <b>div</b> cannot clip glyph ink, so it is the reference. If <b>input FIXED</b>
+  matches it and <b>input RAW</b> does not, the override is what fixed it.
+  Zoom to 300% to judge the bowls of &#1580; &#1581; &#1582; &#1593;.
+</p>
+
+<div id="cases"></div>
+
+<div class="verdict" id="verdict"></div>
+<table id="report"></table>
+
+<script>
+  var TEXT = 'ج ح خ ع';
+
+  /* The three geometries the library actually ships. Heights and line-heights
+     are the components' own -- nothing here is adjusted to make the test pass. */
+  var CASES = [
+    { name: 'small — 16px / 24 / box 46', fs: 16, lh: 24, h: 46 },
+    { name: 'medium — 18px / 28 / box 56', fs: 18, lh: 28, h: 56 },
+    { name: 'large — 20px / 30 / box 64', fs: 20, lh: 30, h: 64 }
+  ];
+
+  var host = document.getElementById('cases');
+
+  CASES.forEach(function (c) {
+    var wrap = document.createElement('div');
+    wrap.className = 'case';
+    wrap.innerHTML = '<h2>' + c.name + '</h2>';
+
+    var grid = document.createElement('div');
+    grid.className = 'grid';
+
+    var cells = [
+      { tag: 'input &mdash; RAW font', tag2: 'input', fam: 'Idris RAW' },
+      { tag: 'input &mdash; FIXED font', tag2: 'input', fam: 'Idris FIXED' },
+      { tag: 'div &mdash; reference, cannot clip', tag2: 'div', fam: 'Idris RAW' }
+    ];
+
+    cells.forEach(function (spec) {
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.innerHTML = '<div class="tag">' + spec.tag + '</div>';
+
+      var el = document.createElement(spec.tag2);
+      el.className = spec.tag2 === 'input' ? 'spec' : 'ref';
+      if (spec.tag2 === 'input') { el.value = TEXT; } else { el.textContent = TEXT; }
+      el.style.fontFamily = '"' + spec.fam + '", sans-serif';
+      el.style.fontSize = c.fs + 'px';
+      el.style.height = c.h + 'px';
+      /* The div gets its height as its line-height so the single line centres
+         in the same box; the inputs keep the component's own line-height. */
+      el.style.lineHeight = (spec.tag2 === 'input' ? c.lh + 'px' : c.h + 'px');
+      cell.appendChild(el);
+      grid.appendChild(cell);
+    });
+
+    wrap.appendChild(grid);
+    host.appendChild(wrap);
+  });
+
+  /* The numbers that decide it. actualBoundingBoxDescent is how far the ink
+     really goes; fontBoundingBoxDescent is how far the browser BELIEVES it
+     goes. Closing that gap is the entire fix, so the report shows both faces. */
+  document.fonts.ready.then(function () {
+    var cv = document.createElement('canvas').getContext('2d');
+    var rows = [];
+    var add = function (k, v, cls) {
+      rows.push('<tr><th>' + k + '</th><td class="' + (cls || '') + '">' + v + '</td></tr>');
+    };
+
+    var read = function (fam, fs) {
+      cv.font = fs + 'px "' + fam + '"';
+      var m = cv.measureText('ح');
+      return { declared: m.fontBoundingBoxDescent, ink: m.actualBoundingBoxDescent };
+    };
+
+    var ok = true;
+    [16, 18, 20].forEach(function (fs) {
+      var raw = read('Idris RAW', fs);
+      var fix = read('Idris FIXED', fs);
+      add(fs + 'px RAW — declared / ink',
+          raw.declared.toFixed(2) + ' / ' + raw.ink.toFixed(2) + 'px  (short by ' +
+          (raw.ink - raw.declared).toFixed(2) + ')',
+          raw.ink > raw.declared ? 'bad' : 'good');
+      add(fs + 'px FIXED — declared / ink',
+          fix.declared.toFixed(2) + ' / ' + fix.ink.toFixed(2) + 'px  (headroom ' +
+          (fix.declared - fix.ink).toFixed(2) + ')',
+          fix.declared >= fix.ink ? 'good' : 'bad');
+      if (fix.declared < fix.ink) ok = false;
+    });
+
+    add('user agent', navigator.userAgent);
+    add('devicePixelRatio', window.devicePixelRatio);
+
+    /* NOT CSS.supports, which only tests PROPERTIES and reports false for every
+       @font-face DESCRIPTOR whether supported or not -- it said "NO" here while
+       the override was demonstrably working. The FontFace constructor takes the
+       same descriptors and echoes back what it understood, so it is the honest
+       check. */
+    var supported = 'unknown';
+    try {
+      var probe = new FontFace('probe', 'url(fonts/29LTIdrisRound-Medium.woff2)',
+                               { descentOverride: '43%' });
+      supported = probe.descentOverride === '43%' ? 'yes' : 'reports "' + probe.descentOverride + '"';
+    } catch (e) { supported = 'threw: ' + e.message; }
+    add('descent-override supported', supported, supported === 'yes' ? 'good' : 'bad');
+
+    document.getElementById('report').innerHTML = rows.join('');
+    document.getElementById('verdict').innerHTML = ok
+      ? '<span class="good">PASS &mdash; the overridden face declares enough descent for its own ink at every size.</span>'
+      : '<span class="bad">FAIL &mdash; the override is still short of the ink.</span>';
+  });
+</script>
+
+</body>
+</html>

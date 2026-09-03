@@ -17,6 +17,30 @@
        strokes and fills the counters, mangling the script on phones. Claiming
        the range means every one of those requests resolves to this face
        exactly, with nothing left to synthesise. */
+    /* ── The field faces ──────────────────────────────────────────────────
+       The same two files under their own names, carrying the descent Idris
+       actually uses. SCOPED ON PURPOSE: a face's metrics belong to the face, so
+       overriding them on the real families moved the baseline in every centred
+       box and lifted the label inside every button. The clipping only ever
+       happened in a native <input>, which the browser cuts to the line box it
+       computes from the declared metrics -- so only the field asks for these.
+       Same URL as the real faces, so no extra download.
+
+       0.4247 em Regular and 0.4293 em Medium, read off the outlines with
+       fontTools at 3000 units per em and rounded up to 43%. ExtraBold is not
+       here because no field uses it; its ink reaches 0.5200 em if one ever does. */
+    @font-face {
+      font-family: "29LT Idris Round Regular Field";
+      src: url("fonts/29LTIdrisRound-Regular.woff2") format("woff2");
+      descent-override: 43%;
+      font-weight: 100 900; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: "29LT Idris Round Medium Field";
+      src: url("fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+      descent-override: 43%;
+      font-weight: 100 900; font-style: normal; font-display: swap;
+    }
     @font-face {
       font-family: "29LT Idris Round Regular";
       src: url("fonts/29LTIdrisRound-Regular.woff2") format("woff2");
@@ -40,6 +64,8 @@
     :root {
       /* 29LT Idris Round — each weight ships as a separate family name,
          so pick the family, not the font-weight. Cairo is the fallback. */
+      --font-field-regular: "29LT Idris Round Regular Field", 'Cairo', sans-serif;
+      --font-field-medium:  "29LT Idris Round Medium Field", 'Cairo', sans-serif;
       --font-regular: "29LT Idris Round Regular", 'Cairo', sans-serif;
       --font-medium:  "29LT Idris Round Medium", 'Cairo', sans-serif;
       --font-bold:    "29LT Idris Round ExtraBold", 'Cairo', sans-serif;
@@ -327,6 +353,17 @@
     }
     .field { display: flex; flex-direction: column; gap: var(--space-050); position: relative; min-width: 0; }
     .field jelly-input, .field jelly-select { width: 100%; min-width: 0; }
+
+    /* THE FIELD FACE, not the page face -- see the note beside the @font-face
+       rules above. Only the two clipped controls take the corrected descent. */
+    jelly-input::part(input),
+    jelly-textarea::part(textarea) {
+      font-family: var(--font-field-medium);
+    }
+    jelly-input::part(input)::placeholder,
+    jelly-textarea::part(textarea)::placeholder {
+      font-family: var(--font-field-regular);
+    }
 
     /* iOS/Safari paints autofilled fields yellow. The native input is transparent
        with the jelly canvas behind it, so mask the yellow with the same fill.

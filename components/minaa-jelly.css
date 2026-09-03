@@ -49,6 +49,10 @@
   --font-regular: "29LT Idris Round Regular", sans-serif;
   --font-medium:  "29LT Idris Round Medium", sans-serif;
   --font-bold:    "29LT Idris Round ExtraBold", sans-serif;
+  /* Same two files, corrected descent, and ONLY the field parts ask for them --
+     see the note beside the @font-face rules in showcase.css. */
+  --font-field-regular: "29LT Idris Round Regular Field", sans-serif;
+  --font-field-medium:  "29LT Idris Round Medium Field", sans-serif;
 
   /* Mirrors the Foundations Typography page (node 4008:3624) exactly -- size
      and line height read from the variables, not transcribed by eye. Three
@@ -66,6 +70,7 @@
   --display-lg: 48px; --display-lg-lh: 60px;
   --display-xl: 60px; --display-xl-lh: 72px;
   --display-2xl: 72px; --display-2xl-lh: 90px;
+
 
   --primary-200: #C8E3FF;   /* Primary 200  — dark-mode disabled slider fill */
   --primary-300: #A1CFFF;   /* Primary 300  — light-mode fields and tracks */
@@ -1378,14 +1383,24 @@ jelly-select[size="large"], jelly-select[size="lg"] {
 
    ::placeholder is the only reliable hook for "empty", since the value itself
    carries no state to select on. */
+/* THE FIELD FACE, NOT THE PAGE FACE. Idris declares 0.300 em of descent and
+   uses up to 0.4293, and a native <input> is clipped to the line box the
+   browser computes from that declaration -- which is what cut the bowls off
+   ج ح خ ع inside every field.
+
+   The corrected metrics sit on their own families so the correction cannot
+   reach anything else. Overriding the real faces fixed the fields and broke
+   the buttons in the same stroke: a face's metrics belong to the face, so the
+   baseline moved in every centred box and the label and icon rose inside every
+   pill. Nothing outside these two rules should ask for a Field face. */
 jelly-input::part(input),
 jelly-textarea::part(textarea) {
-  font-family: var(--font-medium);
+  font-family: var(--font-field-medium);
 }
 
 jelly-input::part(input)::placeholder,
 jelly-textarea::part(textarea)::placeholder {
-  font-family: var(--font-regular);
+  font-family: var(--font-field-regular);
   color: var(--m-placeholder);
   opacity: 1;
 }

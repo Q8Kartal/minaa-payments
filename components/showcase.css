@@ -34,6 +34,46 @@
   font-display: swap;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   THE FIELD FACES — the same three files, registered again under their own
+   names, with the descent Idris actually uses.
+
+   THE OVERRIDE HAS TO BE SCOPED, and that is the whole point of these. A face's
+   metrics belong to the face, so overriding the descent on the real families
+   moved the baseline in EVERY centred box that uses them -- it lifted the label
+   and icon inside every button. The clipping it fixes only ever happened in a
+   native <input>, which the browser cuts to the line box it computes from the
+   declared metrics. So the corrected metrics live on separate families and only
+   the field parts ask for them; everything else keeps the font as it ships.
+
+   Same URL as the real faces, so this costs no extra download -- the browser
+   already has the file.
+
+   THE NUMBERS ARE THIS FONT'S OWN, read off the outlines with fontTools at
+   3000 units per em, the deepest ink in each face rounded up:
+
+     Regular     -1274  = 0.4247 em  ->  43%   (uni062D.fina.PostLow)
+     Medium      -1288  = 0.4293 em  ->  43%   (uni062D.fina.PostLow)
+
+   ExtraBold is not registered here because no field uses it -- the input is
+   Medium and its placeholder is Regular. Its own ink reaches 0.5200 em, so if
+   a field ever takes the bold face it needs a third face at 52%.
+   ══════════════════════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: "29LT Idris Round Regular Field";
+  src: url("../fonts/29LTIdrisRound-Regular.woff2") format("woff2");
+  descent-override: 43%;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "29LT Idris Round Medium Field";
+  src: url("../fonts/29LTIdrisRound-Medium.woff2") format("woff2");
+  descent-override: 43%;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 * { box-sizing: border-box; }
 
 body {
