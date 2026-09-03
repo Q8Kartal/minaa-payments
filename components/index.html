@@ -6,7 +6,7 @@
 <title>Component library – Minaã</title>
 <!-- Not public yet. See the header of gate.js: this is obscurity, not security. -->
 <meta name="robots" content="noindex, nofollow">
-<script src="../gate.js?v=20260909m"></script>
+<script src="../gate.js?v=20260909n"></script>
 
 <!-- The three faces are the slowest thing on the page and are only discovered
      once the stylesheet parses. Preloading starts them with the document. -->
@@ -22,7 +22,7 @@
      falls back to Jelly's own value, so a component that sets none behaves
      exactly as before. The physics is untouched — not one spring constant or
      paint routine. Diff and rationale in vendor/README.md. -->
-<script type="module" src="vendor/jelly.js?v=20260909m"></script>
+<script type="module" src="vendor/jelly.js?v=20260909n"></script>
 
 <!-- The bridge first, then the page around it. Order matters: showcase.css
      reads the tokens the bridge defines. -->
@@ -30,9 +30,9 @@
      Every rule in it is scoped to .mn-btn, which is what keeps it off this
      page's own jelly-buttons -- the controller pills, the dialog's two
      buttons, the toast trigger. See the header in the file. -->
-<link rel="stylesheet" href="../button-family.css?v=20260909m">
-<link rel="stylesheet" href="minaa-jelly.css?v=20260909m">
-<link rel="stylesheet" href="showcase.css?v=20260909m">
+<link rel="stylesheet" href="../button-family.css?v=20260909n">
+<link rel="stylesheet" href="minaa-jelly.css?v=20260909n">
+<link rel="stylesheet" href="showcase.css?v=20260909n">
 </head>
 
 <!-- mode="auto" — it follows the operating system and flips live when the
@@ -2539,6 +2539,25 @@ drawer.open = true;   // side = start | end | bottom</template>
       <div class="btn-stage" id="bt-stage">
           <jelly-button dir="ltr" data-config="leading" class="mn-btn primary s48"><span class="jelly-label"><svg class="mi" aria-hidden="true" focusable="false"><use href="#mi-search"/></svg><span>Button</span></span></jelly-button>
         </div>
+      <!-- ONLY WHILE `block` IS TRUE, because it is only true then. Said in the
+           entry note it would read as a property of the button; said here it is
+           a property of the state you are looking at, which is what it is.
+
+           It answers the thing the control makes you ask: with block on, `size`
+           stops changing the width and looks broken. It is not -- the width has
+           moved to the container. Everything else the size carries still moves,
+           measured across the three: 56/48/40 tall, 20/18/16 type, 20/20/16
+           icon, 24/20/16 inner padding.
+
+           data-controls, like the other two demo notes: it documents the demo
+           and must stay out of the snippet the reader copies.
+
+           It stays in the DOM when hidden rather than being built on demand --
+           the Arabic pass maps .demo-note elements to AR_DEMO_NOTES BY INDEX,
+           so one that comes and goes would renumber the notes after it. -->
+      <p class="demo-note" data-controls id="bt-block-note" hidden>With <code>block</code> the
+         width comes from the container rather than from <code>size</code>, so the three sizes
+         change the height and the type and leave the width alone.</p>
     </div>
   </section>
 
@@ -2621,9 +2640,9 @@ drawer.open = true;   // side = start | end | bottom</template>
      because it is part of the components, not part of the page. -->
 <!-- micons.js FIRST: minaa-jelly.js inlines a toast mark out of MICONS, because
      a sprite reference cannot cross into the toaster shadow root. -->
-<script src="micons.js?v=20260909m"></script>
-<script src="minaa-jelly.js?v=20260909m"></script>
-<script src="../button-family.js?v=20260909m" defer></script>
-<script src="showcase.js?v=20260909m" defer></script>
+<script src="micons.js?v=20260909n"></script>
+<script src="minaa-jelly.js?v=20260909n"></script>
+<script src="../button-family.js?v=20260909n" defer></script>
+<script src="showcase.js?v=20260909n" defer></script>
 </body>
 </html>

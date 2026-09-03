@@ -2362,7 +2362,7 @@
     "17 toasts": "17 التنبيهات"
   };
 
-  const AR_DEMO_NOTES = ["الإعدادات الثلاثة كلها ترسم بهوية ميناء الآن. <b>داكن</b> هو الطرف العميق من تدرّج Primary — 900 للحقل و950 للسطح — مع الكريمي حبراً؛ و<b>تلقائي</b> يتبع ما يستخدمه نظام تشغيلك. هذه المعاينة محدَّدة النطاق، فتغييرها هنا لا يمسّ بقية الصفحة.", "تُطلَق في <code>&lt;jelly-toaster&gt;</code> الوحيد في الصفحة، المثبَّت أسفل النهاية. وهو يحمل بالفعل <code>position=\"bottom\"</code>، وهو ما يجعل المكدّس ينمو إلى أعلى لا إلى أسفل."];
+  const AR_DEMO_NOTES = ["الإعدادات الثلاثة كلها ترسم بهوية ميناء الآن. <b>داكن</b> هو الطرف العميق من تدرّج Primary — 900 للحقل و950 للسطح — مع الكريمي حبراً؛ و<b>تلقائي</b> يتبع ما يستخدمه نظام تشغيلك. هذه المعاينة محدَّدة النطاق، فتغييرها هنا لا يمسّ بقية الصفحة.", "تُطلَق في <code>&lt;jelly-toaster&gt;</code> الوحيد في الصفحة، المثبَّت أسفل النهاية. وهو يحمل بالفعل <code>position=\"bottom\"</code>، وهو ما يجعل المكدّس ينمو إلى أعلى لا إلى أسفل.", "مع <code>block</code> يأتي العرض من الحاوية لا من <code>size</code>، فالأحجام الثلاثة تغيّر الارتفاع والخط وتترك العرض كما هو."];
 
   const AR_UI = {
     "mode": "الوضع",
@@ -2979,6 +2979,9 @@
         : markup;
       if (typeof minaaButtonFamily === 'function') minaaButtonFamily(stage);
       snippet();
+      /* Anything about this specimen that is not the specimen. Optional, because
+         only one of the two entries has any. */
+      if (cfg.after) cfg.after(state);
     };
 
     cfg.rows.forEach(([id, apply]) => {
@@ -2998,7 +3001,14 @@
         ['bt-appearance', (v, s) => { s.appearance = v; }],
         ['bt-size', (v, s) => { s.size = v; }],
         ['bt-block', (v, s) => { s.block = v === 'true'; }],
-        ['bt-disabled', DISABLED_ROW]]
+        ['bt-disabled', DISABLED_ROW]],
+      /* The note belongs to the state, not to the button, so it comes and goes
+         with it -- Ahmad's call, and the right one: it is only true while block
+         is. Hidden rather than removed, so the Arabic pass keeps its index. */
+      after: (s) => {
+        const note = document.getElementById('bt-block-note');
+        if (note) note.hidden = !s.block;
+      }
     });
   }
 
