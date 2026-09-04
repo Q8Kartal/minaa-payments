@@ -85,10 +85,26 @@ h1 { font-size:18px; margin:0 0 4px; }
 
 <div id="rows"></div>
 
+<!-- SECOND SECTION, ADDED AFTER THE PHONE ANSWERED THE FIRST.
+     On the iPhone every readonly row above rendered whole — even 30%, no
+     override — while the live component, focused with the keyboard up, cut.
+     Every screenshot that ever showed the cut had a caret in the field. So
+     focus is the untested variable, and on iOS a focused field goes down a
+     different rendering path from an idle one. These rows are editable: tap
+     into each, type nothing, and screenshot with the keyboard up. If a bare
+     input clips only when focused, no metric fixes it on iOS and the visible
+     glyphs cannot live in the focused native input at all. -->
+<h2 style="font-size:13px;margin:22px 0 6px;opacity:.8;letter-spacing:.04em;text-transform:uppercase">
+  Tap into these — screenshot while the keyboard is up</h2>
+<div id="rows-live"></div>
+
 <p class="note">
-  Read it top to bottom: the <b>first row that is whole</b> is the headroom your
-  screen needs. Then read the grey box — if <b>cached</b> and <b>network</b>
-  disagree, your browser was showing the old stylesheet.
+  <b>Top section</b>, read top to bottom: the first row that is whole is the headroom
+  your screen needs.<br>
+  <b>Bottom section</b>: tap into a field and screenshot it focused. If it is cut only
+  while focused, the cause is iOS's focused-field rendering, not the font.<br>
+  Then the grey box — if <b>cached</b> and <b>network</b> disagree, earlier screenshots
+  were of the old stylesheet.
 </p>
 
 <div id="report">checking…</div>
@@ -115,6 +131,21 @@ ROWS.forEach(([id, fam, detail]) => {
                 '<div class="field">' + el + '</div>';
   host.appendChild(d);
 });
+
+/* The editable set. Not readonly, so the phone can focus them; the value is
+   preset so nothing needs typing. inputmode="none" keeps the keyboard from
+   covering the field on the smallest phones while still focusing it. */
+const live = document.getElementById('rows-live');
+[['30', 'D30', 'no override'], ['54', 'D54', 'what is live'], ['90', 'D90', '8.5px spare']]
+  .forEach(([id, fam, detail]) => {
+    const d = document.createElement('div');
+    d.className = 'row';
+    d.innerHTML = '<div class="tag"><b>' + id + '% focused</b> <span>&mdash; ' + detail +
+                  ' &mdash; tap in</span></div>' +
+                  '<div class="field"><input value="' + AR + '" autocomplete="off" ' +
+                  'autocorrect="off" spellcheck="false" style="font-family:\'' + fam + '\',sans-serif"></div>';
+    live.appendChild(d);
+  });
 
 (async () => {
   const out = [];
