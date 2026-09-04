@@ -26,7 +26,7 @@
        node -e "console.log(require('crypto').createHash('sha256').update('NEW','utf8').digest('hex'))"
      and paste the result here. Bump the ?v= on every <script src="gate.js">
      afterwards, or Pages will serve the old hash for ten minutes. */
-  var HASH = '24e08d2b9c89e1362af7e81c15878c19c329712dceee49550309e3ef60ecb341';
+  var HASH = 'b1b1b9cae025ade6f1dce45acc20f59d72c78080bfe5922d8c1ea44c0e2f27b4';
 
   var KEY = 'minaa_gate_v1';
   var HOSTS = ['q8kartal.github.io'];
