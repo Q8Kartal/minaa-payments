@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iOS font check — Minaã</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     WHY THIS PAGE EXISTS
+
+     On iOS the value of a jelly-input renders as Arabic ح where the markup
+     says "Your name". Desktop is correct. The value uses the Medium FIELD
+     face and the placeholder, which renders correctly, uses the Regular
+     FIELD face — so the suspect is the Field faces themselves.
+
+     Those faces exist for the 29LT descender fix: the same WOFF2 files
+     registered a SECOND time under their own family names, carrying
+     descent-override so a native <input> stops clipping ج ح خ ع. Two
+     @font-face rules therefore point at one URL, which is the thing WebKit
+     is being asked to keep straight.
+
+     Each row below changes exactly one variable, so whichever rows are wrong
+     name the cause:
+
+       A  real faces, same file, NO override, no duplicate registration
+       B  field faces, same file registered twice, override ON
+       C  field faces from a COPY of the file at its own URL, override ON
+          (if B is broken and C is fine, the duplicate src is the cause)
+       D  field faces, duplicate src, override OFF
+          (if B is broken and D is fine, the override is the cause)
+
+     Row C's URLs 404 until the copies exist — that is deliberate. A 404 row
+     falls back to the system font and reads as obviously plain, which is
+     itself a clear answer rather than a silent one.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<style>
+/* ── A · the real faces, exactly as the app ships them ─────────────────── */
+@font-face { font-family:"Idris Regular";  src:url("fonts/29LTIdrisRound-Regular.woff2") format("woff2"); font-weight:100 900; font-display:block; }
+@font-face { font-family:"Idris Medium";   src:url("fonts/29LTIdrisRound-Medium.woff2")  format("woff2"); font-weight:100 900; font-display:block; }
+
+/* ── B · the field faces as they ship: same URL, second family, override ── */
+@font-face { font-family:"Idris Regular Field"; src:url("fonts/29LTIdrisRound-Regular.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
+@font-face { font-family:"Idris Medium Field";  src:url("fonts/29LTIdrisRound-Medium.woff2")  format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
+
+/* ── C · same override, but its own file, so no src is shared ──────────── */
+@font-face { font-family:"Idris Medium CopyURL"; src:url("fonts/29LTIdrisRound-Medium-Field.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
+
+/* ── D · duplicate src again, but WITHOUT the override ─────────────────── */
+@font-face { font-family:"Idris Medium NoOverride"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
+
+:root { color-scheme: light; }
+html { font-synthesis: none; }
+body {
+  margin:0; padding:20px 16px 64px;
+  background:#FDF9F0; color:#0062AD;
+  font:15px/1.4 system-ui, -apple-system, sans-serif;
+}
+h1 { font-size:19px; margin:0 0 4px; }
+.sub { font-size:13px; opacity:.72; margin:0 0 20px; }
+.row { border-top:1px solid rgba(0,98,173,.22); padding:14px 0; }
+.tag { font:600 11px/1.3 ui-monospace, monospace; letter-spacing:.04em; opacity:.72; margin-bottom:8px; }
+.tag b { color:#E8411D; }
+.pair { display:grid; grid-template-columns:1fr; gap:8px; }
+.cell { display:flex; align-items:center; gap:10px; }
+.what { font:600 10px/1 ui-monospace, monospace; opacity:.55; min-width:52px; }
+input, .div {
+  flex:1; min-width:0; box-sizing:border-box;
+  font-size:20px; line-height:1.5;
+  padding:8px 12px; border:1px solid rgba(0,98,173,.35); border-radius:10px;
+  background:#fff; color:#0062AD;
+}
+.div { background:#F2F8FF; }
+#report { margin-top:24px; font:12px/1.6 ui-monospace, monospace; white-space:pre-wrap;
+          background:#F2F8FF; padding:12px; border-radius:10px; }
+.verdict { margin-top:18px; font-size:14px; padding:12px; border-radius:10px;
+           background:#FFF3E8; border:1px solid rgba(232,65,29,.35); }
+</style>
+</head>
+<body>
+
+<h1>iOS font check</h1>
+<p class="sub">Every row shows the same two strings. Latin must read <b>Your name</b>.
+   If a row shows Arabic instead, that row&rsquo;s face is the broken one.</p>
+
+<div id="rows"></div>
+
+<div class="verdict">
+  <b>How to read it:</b> if <b>B</b> is wrong and <b>C</b> is right, the shared
+  <code>src</code> is the cause. If <b>B</b> is wrong and <b>D</b> is right, the
+  <code>descent-override</code> is the cause. If <b>A</b> is also wrong, it is
+  neither — the file itself is the problem on iOS.
+</div>
+
+<div id="report">loading…</div>
+
+<script>
+/* One row per face, each drawn twice — once in a native <input>, which is what
+   is broken in the app, and once in a <div>, which cannot clip glyph ink and so
+   separates "wrong glyphs" from "clipped glyphs". */
+const LATIN = 'Your name';
+const ARABIC = 'حجخع';   /* ح ج خ ع — the deep descenders */
+
+const ROWS = [
+  ['A', 'Idris Regular',            'real face, no override'],
+  ['A', 'Idris Medium',             'real face, no override'],
+  ['B', 'Idris Regular Field',      'duplicate src + override  ← shipping'],
+  ['B', 'Idris Medium Field',       'duplicate src + override  ← shipping, THE SUSPECT'],
+  ['C', 'Idris Medium CopyURL',     'own file + override (404 until the copy exists)'],
+  ['D', 'Idris Medium NoOverride',  'duplicate src, no override'],
+];
+
+const host = document.getElementById('rows');
+ROWS.forEach(([group, family, note]) => {
+  const row = document.createElement('div');
+  row.className = 'row';
+  const text = LATIN + '  ' + ARABIC;
+  row.innerHTML =
+    '<div class="tag"><b>' + group + '</b> &nbsp;' + family + ' &mdash; ' + note + '</div>' +
+    '<div class="pair">' +
+      '<div class="cell"><span class="what">input</span>' +
+        '<input value="' + text + '" style="font-family:\'' + family + '\',system-ui" spellcheck="false"></div>' +
+      '<div class="cell"><span class="what">div</span>' +
+        '<div class="div" style="font-family:\'' + family + '\',system-ui">' + text + '</div></div>' +
+    '</div>';
+  host.appendChild(row);
+});
+
+/* Which faces the browser believes it loaded. A face that failed outright says
+   so here, which separates "did not load" from "loaded and drew nonsense". */
+(async () => {
+  try { await document.fonts.ready; } catch (e) {}
+  const seen = [];
+  document.fonts.forEach(f => seen.push(f.family + '  ' + f.status));
+  const checks = ROWS.map(([, fam]) => {
+    let ok = false;
+    try { ok = document.fonts.check('20px "' + fam + '"'); } catch (e) {}
+    return '  ' + (ok ? 'OK  ' : 'MISS') + '  ' + fam;
+  });
+  document.getElementById('report').textContent =
+    'document.fonts.check()\n' + checks.join('\n') +
+    '\n\nregistered faces (' + seen.length + ')\n  ' + seen.sort().join('\n  ') +
+    '\n\nUA\n  ' + navigator.userAgent;
+})();
+</script>
+</body>
+</html>
