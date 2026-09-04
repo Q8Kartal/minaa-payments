@@ -49,7 +49,7 @@
      otp            Security/Password
      radiogroup     List/Checklist
      range          Essentional, UI/Slider Minimalistic Horizontal
-     search         Search/Magnifer
+     search         Search/Magnifer  — OUTLINE, not Bold. See below.
      select         List/List Arrow Down
      slider         Essentional, UI/Slider Horizontal
      textarea       Notes/Notes
@@ -59,6 +59,18 @@
      toast-success  Essentional, UI/Check Circle
      toast-warning  Essentional, UI/Danger Triangle
 
+
+   SEARCH IS THE ONE OUTLINE FACE, AND THAT EXCEPTION IS OLDER THAN THIS
+   MIGRATION. It is not a section marker: it sits INSIDE the example buttons at
+   16-20px, and the Bold Magnifer is a solid disc with no lens cut out of it, so
+   at that size it stops being a magnifier and becomes a lollipop. Rendered it
+   at 16/20/24/32/48 to check rather than trusting the note, and the note was
+   right — it only resolves from about 32px up. Every other Bold circle here
+   survives small because its glyph is knocked OUT of the disc with
+   fill-rule="evenodd"; the magnifier has nothing knocked out.
+
+   So Bold everywhere else, Outline here. Same rule as before the library
+   changed, re-verified against the new artwork.
 
    TWO PICKS NAMED THE RIGHT WORD AND DREW THE WRONG THING, caught by putting
    all 32 on one sheet and looking rather than by reading the names:
@@ -221,7 +233,7 @@ const MICONS = {
      examples. Same export, same paths. */
   button: '<path d="M12 2C14.7597 2 16.1397 2.00007 17.251 2.38184C19.3017 3.0866 20.9134 4.69827 21.6182 6.74902C21.9999 7.86026 22 9.24028 22 12C22 14.7597 21.9999 16.1397 21.6182 17.251C20.9134 19.3017 19.3017 20.9134 17.251 21.6182C16.1397 21.9999 14.7597 22 12 22C9.24028 22 7.86026 21.9999 6.74902 21.6182C4.69827 20.9134 3.0866 19.3017 2.38184 17.251C2.00007 16.1397 2 14.7597 2 12C2 9.24028 2.00007 7.86026 2.38184 6.74902C3.0866 4.69827 4.69827 3.0866 6.74902 2.38184C7.86026 2.00007 9.24028 2 12 2ZM12 7.85645C11.5858 7.85645 11.25 8.19223 11.25 8.60645V10.1895L10.0303 8.96973C9.73738 8.67683 9.26262 8.67683 8.96973 8.96973C8.67702 9.26264 8.6769 9.73744 8.96973 10.0303L10.1895 11.25H8.60645C8.19223 11.25 7.85645 11.5858 7.85645 12C7.85646 12.4142 8.19224 12.75 8.60645 12.75H10.1895L8.96973 13.9697C8.67699 14.2626 8.67689 14.7374 8.96973 15.0303C9.26258 15.3229 9.73743 15.3229 10.0303 15.0303L11.25 13.8105V15.3945C11.2503 15.8085 11.586 16.1445 12 16.1445C12.414 16.1445 12.7497 15.8085 12.75 15.3945V13.8105L13.9697 15.0303C14.2626 15.3229 14.7374 15.3229 15.0303 15.0303C15.3231 14.7374 15.323 14.2626 15.0303 13.9697L13.8105 12.75H15.3945C15.8085 12.7497 16.1445 12.414 16.1445 12C16.1445 11.586 15.8085 11.2503 15.3945 11.25H13.8105L15.0303 10.0303C15.3231 9.73744 15.323 9.26264 15.0303 8.96973C14.7374 8.67683 14.2626 8.67683 13.9697 8.96973L12.75 10.1895V8.60645C12.75 8.19223 12.4142 7.85645 12 7.85645Z" fill="currentColor"/>',
   iconbutton: '<rect x="16.4016" y="7.75009" width="8.80305" height="8.80305" rx="4.40153" transform="rotate(90 16.4016 7.75009)" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><path d="M1.99999 12.1516H7.38513" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M16.5435 12.1516L22.0001 12.1516" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
-  search: '<path fill-rule="evenodd" clip-rule="evenodd" d="M21.7883 21.7883C22.0706 21.506 22.0706 21.0483 21.7883 20.7659L18.1224 17.1002C19.4884 15.5007 20.3133 13.425 20.3133 11.1566C20.3133 6.09956 16.2137 2 11.1566 2C6.09956 2 2 6.09956 2 11.1566C2 16.2137 6.09956 20.3133 11.1566 20.3133C13.4249 20.3133 15.5006 19.4885 17.1 18.1225L20.7659 21.7883C21.0483 22.0706 21.506 22.0706 21.7883 21.7883Z" fill="currentColor"/>',
+  search: '<path fill-rule="evenodd" clip-rule="evenodd" d="M11.5 2.75C6.66751 2.75 2.75 6.66751 2.75 11.5C2.75 16.3325 6.66751 20.25 11.5 20.25C16.3325 20.25 20.25 16.3325 20.25 11.5C20.25 6.66751 16.3325 2.75 11.5 2.75ZM1.25 11.5C1.25 5.83908 5.83908 1.25 11.5 1.25C17.1609 1.25 21.75 5.83908 21.75 11.5C21.75 14.0605 20.8111 16.4017 19.2589 18.1982L22.5303 21.4697C22.8232 21.7626 22.8232 22.2374 22.5303 22.5303C22.2374 22.8232 21.7626 22.8232 21.4697 22.5303L18.1982 19.2589C16.4017 20.8111 14.0605 21.75 11.5 21.75C5.83908 21.75 1.25 17.1609 1.25 11.5Z" fill="currentColor"/>',
   menuitem: '<path fill-rule="evenodd" clip-rule="evenodd" d="M3.25 7C3.25 6.58579 3.58579 6.25 4 6.25H20C20.4142 6.25 20.75 6.58579 20.75 7C20.75 7.41421 20.4142 7.75 20 7.75H4C3.58579 7.75 3.25 7.41421 3.25 7ZM3.25 12C3.25 11.5858 3.58579 11.25 4 11.25H15C15.4142 11.25 15.75 11.5858 15.75 12C15.75 12.4142 15.4142 12.75 15 12.75H4C3.58579 12.75 3.25 12.4142 3.25 12ZM3.25 17C3.25 16.5858 3.58579 16.25 4 16.25H9C9.41421 16.25 9.75 16.5858 9.75 17C9.75 17.4142 9.41421 17.75 9 17.75H4C3.58579 17.75 3.25 17.4142 3.25 17Z" fill="currentColor"/>',
 
 };
