@@ -299,6 +299,23 @@ html[dir="rtl"] .code {
   text-transform: uppercase;
 }
 
+/* ── NO TRACKING ON ARABIC ──────────────────────────────────────────────────
+   The eyebrow and the entry number carry .14em of letter-spacing for the
+   Latin small caps — COMPONENTS, FORMS · 05. Arabic is a connected script, and
+   spacing its letters apart does not track it, it breaks every join: on an
+   iPhone the RTL eyebrow read as separated isolated forms. Blink hides this by
+   refusing to apply letter-spacing to cursive scripts at all, which is why the
+   desktop never showed it; WebKit applies what it is given.
+
+   CSS Text says the UA should not apply it; on the engine that does, we do not
+   ask. The h1's -.01em goes under the same rule — invisible either way, and one
+   rule is easier to trust than one rule with an exception. text-transform is
+   inert on Arabic and stays. Been this way since the RTL build shipped; only
+   noticed once the phone was being looked at closely for C-05. */
+html[dir="rtl"] .eyebrow,
+html[dir="rtl"] .entry-num,
+html[dir="rtl"] .masthead h1 { letter-spacing: 0; }
+
 .entry-title {
   display: flex;
   align-items: center;
