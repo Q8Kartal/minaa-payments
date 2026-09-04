@@ -3,161 +3,120 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Descender check — component</title>
+<title>Descender check — live page</title>
 
 <!-- ══════════════════════════════════════════════════════════════════════
-     THE COMPONENT ITSELF, BISECTED ON THE DEVICE THAT REPORTS THE BUG.
+     THE LIVE PAGE ITSELF, WITH THE FIELD CLONED AND BISECTED IN PLACE.
 
-     The phone has now cleared everything but the component:
-       - a bare input in the field's exact box renders whole at ANY declared
-         descent, 30% through 90%, idle or focused, typed into or not;
-       - the cached and network stylesheets agree, both 54%;
-       - the live <jelly-input>, on the same phone, cuts.
+     Three harnesses have now failed to reproduce the cut on the phone:
+       1. a bare input in the field's exact box — whole at every declared
+          descent, idle or focused, typed into or not;
+       2. real <jelly-input> fields loading Jelly, the bridge, the same
+          @font-face and the shadow patcher — whole, every variant, V0 too.
+     And the phone reports the Field face's natural height as 20px where the
+     desktop reads 23.4 — iOS is not applying descent-override at all, which is
+     consistent with (1): the override is moot there.
 
-     And the desktop this is written on does not reproduce the component cut
-     at all, so every comparison made here was uninformative. This page puts
-     real <jelly-input> elements on YOUR screen, one variable changed in each,
-     next to a bare input. The first variant that comes out whole names the
-     cause. The page loads exactly what the library loads for a field: Jelly,
-     the Minaã bridge, the same @font-face declarations, the shadow patcher.
+     So the cut is in something ONLY the library page has: showcase.css,
+     showcase.js, or the controller the field sits in. This page stops
+     imitating that page and uses it. It loads components/index.html in a
+     same-origin frame, waits for it to settle, finds the real placeholder
+     field in entry 05, clones its whole controller row eight times inside the
+     live document, injects one rule into each clone's shadow root, and scrolls
+     to them. Same stylesheets, same script, same ancestors, same everything.
 
-       V0  stock                       — must be cut on your phone, or this
-                                          page is not reproducing the field
-       V1  membrane canvas hidden
-       V2  .jelly-content without its stacking context
-       V3  input on its own compositing layer (translateZ)
-       V4  input font-weight 400 instead of the inherited 500
-       V5  input line-height = the control height
-       V6  input -webkit-text-size-adjust: 100%
-       V7  input on a face THIS page declares (70%), bypassing ::part
-       ref a bare input in the same box, the way the last page drew it
+       V0  stock clone                V4  input font-weight 400
+       V1  membrane canvas hidden     V5  input line-height = control height
+       V2  .jelly-content no z-index  V6  input text-size-adjust 100%
+       V3  input on its own layer     V7  input on the REAL Medium face
+
+     V0 has to be cut, because it IS the live field. If it is whole while the
+     original above it is cut, the difference is the clone's state, which is
+     itself the answer.
      ══════════════════════════════════════════════════════════════════════ -->
 
-<!-- what the library loads, in the library's order -->
-<script type="module" src="components/vendor/jelly.js?v=20260909t"></script>
-<link rel="stylesheet" href="components/minaa-jelly.css?v=20260909t">
-
 <style>
-/* the faces as showcase.css declares them, paths from the repo root */
-@font-face { font-family:"29LT Idris Round Regular";   src:url("fonts/29LTIdrisRound-Regular.woff2")   format("woff2"); font-weight:100 900; font-display:block; }
-@font-face { font-family:"29LT Idris Round Medium";    src:url("fonts/29LTIdrisRound-Medium.woff2")    format("woff2"); font-weight:100 900; font-display:block; }
-@font-face { font-family:"29LT Idris Round ExtraBold"; src:url("fonts/29LTIdrisRound-ExtraBold.woff2") format("woff2"); font-weight:100 900; font-display:block; }
-@font-face { font-family:"29LT Idris Round Regular Field"; src:url("fonts/29LTIdrisRound-Regular.woff2") format("woff2"); descent-override:54%; font-weight:100 900; font-display:block; }
-@font-face { font-family:"29LT Idris Round Medium Field";  src:url("fonts/29LTIdrisRound-Medium.woff2")  format("woff2"); descent-override:54%; font-weight:100 900; font-display:block; }
-/* this page's own face, for the variant that bypasses ::part */
-@font-face { font-family:"Probe70"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:70%; font-weight:100 900; font-display:block; }
-
-body { margin:0; padding:16px 12px 60px; background:var(--m-page, #0062AD); color:var(--m-ink, #FBF0DC);
-       font-family:var(--font-regular, system-ui); }
-h1 { font-size:18px; margin:0 0 4px; font-family:var(--font-bold, inherit); }
-.sub { font-size:12.5px; opacity:.8; margin:0 0 6px; line-height:1.45; }
-.row { border-top:1px solid rgba(251,240,220,.25); padding:11px 0 6px; }
-.tag { font:700 11px/1.35 ui-monospace, monospace; margin-bottom:8px; opacity:.9; }
-.tag b { color:#FA937D; }
-.tag span { font-weight:400; opacity:.75; }
-.stage { display:flex; }
-/* the bare reference, drawn the way the previous page drew it */
-.field { position:relative; height:56px; width:280px; border:1px solid rgba(251,240,220,.4);
-         border-radius:9999px; }
-.field > input { position:absolute; inset:0; width:100%; height:56px; margin:0; padding:0 20px;
-                 border:0; background:transparent; color:#FBF0DC; box-sizing:border-box;
-                 font-family:"29LT Idris Round Medium Field", sans-serif; font-size:18px; line-height:28px; }
-.note { font-size:12.5px; line-height:1.45; margin:20px 0 0; padding:11px; background:rgba(251,240,220,.12);
-        border:1px solid rgba(251,240,220,.35); border-radius:10px; }
-#report { margin-top:14px; font:11px/1.6 ui-monospace, monospace; white-space:pre-wrap;
-          background:rgba(0,0,0,.25); padding:11px; border-radius:10px; }
+html, body { margin:0; height:100%; background:#0062AD; }
+#status { position:fixed; top:0; left:0; right:0; z-index:9; padding:8px 12px;
+          font:600 12px/1.4 ui-monospace, monospace; color:#FBF0DC; background:rgba(0,38,75,.92);
+          white-space:pre-wrap; max-height:40vh; overflow:auto; }
+iframe { display:block; width:100%; height:100vh; border:0; }
 </style>
 </head>
 <body>
-<jelly-theme mode="auto">
+<div id="status">loading the live page…</div>
+<iframe id="live" src="components/index.html?v=20260909t"></iframe>
 
-<h1>Descender check — the component</h1>
-<p class="sub">Real <code>&lt;jelly-input&gt;</code> fields, one thing changed in each.
-   Tap into one so it is focused, then screenshot. <b>V0 must be cut</b> — if it is not,
-   this page is not reproducing the field and I need to know that too.</p>
-
-<div id="rows"></div>
-
-<p class="note">The first variant that is <b>whole while V0 is cut</b> is the cause.
-   If V7 is whole and V0 is cut, the bridge's field face is not reaching the input on this device.
-   If nothing is whole but <b>ref</b>, the cause is still inside the component and I bisect again.</p>
-
-<div id="report">loading…</div>
-
-</jelly-theme>
-
-<script src="components/minaa-jelly.js?v=20260909t" defer></script>
 <script>
 const AR = 'ج ح خ ع';
 const VARIANTS = [
-  ['V0', 'stock — the live field', ''],
+  ['V0', 'stock clone of the live field', ''],
   ['V1', 'membrane canvas hidden', 'canvas { visibility: hidden !important; }'],
-  ['V2', '.jelly-content without its stacking context', '.jelly-content { z-index: auto !important; }'],
+  ['V2', '.jelly-content without stacking context', '.jelly-content { z-index: auto !important; }'],
   ['V3', 'input on its own compositing layer', 'input { transform: translateZ(0) !important; }'],
   ['V4', 'input font-weight 400', 'input { font-weight: 400 !important; }'],
   ['V5', 'input line-height = control height', 'input { line-height: 56px !important; }'],
   ['V6', 'input text-size-adjust 100%', 'input { -webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }'],
-  ['V7', 'face declared by THIS page, 70%, bypassing ::part', 'input { font-family: "Probe70", sans-serif !important; }'],
+  ['V7', 'input on the REAL Medium face (no override)', 'input { font-family: "29LT Idris Round Medium", sans-serif !important; }'],
 ];
+const status = document.getElementById('status');
+const say = (t) => { status.textContent = t; };
 
-const rows = document.getElementById('rows');
-const made = [];
-VARIANTS.forEach(([id, title, css]) => {
-  const d = document.createElement('div');
-  d.className = 'row';
-  d.innerHTML = '<div class="tag"><b>' + id + '</b> <span>&mdash; ' + title + '</span></div><div class="stage"></div>';
-  const el = document.createElement('jelly-input');
-  el.setAttribute('size', 'medium');
-  el.setAttribute('value', AR);
-  el.setAttribute('aria-label', id);
-  d.querySelector('.stage').appendChild(el);
-  rows.appendChild(d);
-  made.push({ id, el, css });
-});
-{
-  const d = document.createElement('div');
-  d.className = 'row';
-  d.innerHTML = '<div class="tag"><b>ref</b> <span>&mdash; a bare input in the same box</span></div>' +
-                '<div class="stage"><div class="field"><input value="' + AR + '" autocomplete="off" spellcheck="false"></div></div>';
-  rows.appendChild(d);
-}
+const f = document.getElementById('live');
+f.addEventListener('load', async () => {
+  const w = f.contentWindow, doc = f.contentDocument;
+  say('live page loaded — waiting for it to settle…');
+  await new Promise(r => setTimeout(r, 6500));
 
-(async () => {
-  const out = [];
-  try { await customElements.whenDefined('jelly-input'); } catch (e) { out.push('jelly-input never defined: ' + e); }
-  try { await document.fonts.ready; } catch (e) {}
-  await new Promise(r => setTimeout(r, 600));
+  const orig = doc.getElementById('in-placeholder');
+  const row = orig && orig.closest('.ctl');
+  if (!row) { say('could not find the placeholder field in entry 05'); return; }
 
-  /* Inject each variant's rule into its own shadow root, then read back what
-     the native input actually computed, so a rule that did not take is
-     visible in the report rather than silently making a row meaningless. */
-  made.forEach(({ id, el, css }) => {
-    const sr = el.shadowRoot;
-    if (!sr) { out.push(id + '  NO SHADOW ROOT'); return; }
-    if (css) { const st = document.createElement('style'); st.textContent = css; sr.appendChild(st); }
-    const n = sr.querySelector('input');
-    if (n && !n.value) n.value = AR;
-    const c = n ? getComputedStyle(n) : null;
-    out.push(id + '  ' + (c ? [
-      c.fontFamily.split(',')[0].replace(/"/g, ''),
-      c.fontSize, 'lh ' + c.lineHeight, 'w' + c.fontWeight,
-      Math.round(n.getBoundingClientRect().height) + 'px box'
-    ].join(' · ') : 'no input'));
+  /* Put the deep descenders in the ORIGINAL too, so the first thing on screen
+     is the live field itself, cut or not, directly above its clones. */
+  const on = orig.shadowRoot && orig.shadowRoot.querySelector('input');
+  if (on) { on.value = AR; on.dispatchEvent(new w.Event('input', { bubbles: true })); }
+  const name0 = row.querySelector('.ctl-name');
+  if (name0) { name0.textContent = 'LIVE — the original field'; name0.style.cssText = 'color:#FA937D;font-weight:700'; }
+
+  const made = [];
+  let after = row;
+  VARIANTS.forEach(([id, title, css]) => {
+    const c = row.cloneNode(true);
+    c.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+    const ji = c.querySelector('jelly-input');
+    ji.setAttribute('value', AR);
+    ji.setAttribute('aria-label', id);
+    const nm = c.querySelector('.ctl-name');
+    if (nm) { nm.textContent = id + ' — ' + title; nm.style.cssText = 'color:#FA937D;font-weight:700'; }
+    after.insertAdjacentElement('afterend', c);
+    after = c;
+    made.push({ id, ji, css });
   });
 
-  const p = document.createElement('div');
-  p.style.cssText = 'position:fixed;left:-9999px;font-family:"29LT Idris Round Medium Field",sans-serif;font-size:18px;line-height:normal';
-  p.textContent = 'ح'; document.body.appendChild(p);
-  const h = p.getBoundingClientRect().height; p.remove();
+  await new Promise(r => setTimeout(r, 1200));
+  const lines = [];
+  made.forEach(({ id, ji, css }) => {
+    const sr = ji.shadowRoot;
+    if (!sr) { lines.push(id + '  no shadow root'); return; }
+    if (css) { const st = doc.createElement('style'); st.textContent = css; sr.appendChild(st); }
+    const n = sr.querySelector('input');
+    if (n) { n.value = AR; n.dispatchEvent(new w.Event('input', { bubbles: true })); }
+    const cs = n ? w.getComputedStyle(n) : null;
+    lines.push(id + '  ' + (cs ? [cs.fontFamily.split(',')[0].replace(/"/g, ''), cs.fontSize, 'lh ' + cs.lineHeight, 'w' + cs.fontWeight,
+      Math.round(n.getBoundingClientRect().height) + 'px'].join(' · ') : 'no input'));
+  });
 
-  out.push('');
-  out.push('DPR ' + devicePixelRatio + ' · viewport ' + innerWidth + 'x' + innerHeight);
-  out.push('Field face natural height @18px: ' + (Math.round(h * 10) / 10) + 'px  (23.x means 54% is live here)');
-  out.push('patcher loaded: ' + (typeof window.minaaSquirclePath === 'function'));
-  out.push('');
-  out.push(navigator.userAgent);
-  document.getElementById('report').textContent = out.join('\n');
-})();
+  /* iOS expands a same-origin iframe to its content, so the PARENT scrolls.
+     Scroll both, so whichever one is actually scrolling lands on the field. */
+  row.scrollIntoView({ block: 'start' });
+  await new Promise(r => setTimeout(r, 400));
+  const top = f.offsetTop + row.getBoundingClientRect().top + (w.scrollY || 0) - 8;
+  window.scrollTo(0, Math.max(0, top));
+
+  say('LIVE field above, clones below — tap into one, screenshot the list\n' +
+      lines.join('\n') + '\nDPR ' + devicePixelRatio + ' · ' + navigator.userAgent.match(/(iPhone OS [\d_]+|Windows NT [\d.]+|Mac OS X [\d_]+)/)?.[0]);
+});
 </script>
 </body>
 </html>
