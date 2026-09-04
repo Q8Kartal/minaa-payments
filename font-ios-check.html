@@ -3,120 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Descender check — live page</title>
-
-<!-- ══════════════════════════════════════════════════════════════════════
-     THE LIVE PAGE ITSELF, WITH THE FIELD CLONED AND BISECTED IN PLACE.
-
-     Three harnesses have now failed to reproduce the cut on the phone:
-       1. a bare input in the field's exact box — whole at every declared
-          descent, idle or focused, typed into or not;
-       2. real <jelly-input> fields loading Jelly, the bridge, the same
-          @font-face and the shadow patcher — whole, every variant, V0 too.
-     And the phone reports the Field face's natural height as 20px where the
-     desktop reads 23.4 — iOS is not applying descent-override at all, which is
-     consistent with (1): the override is moot there.
-
-     So the cut is in something ONLY the library page has: showcase.css,
-     showcase.js, or the controller the field sits in. This page stops
-     imitating that page and uses it. It loads components/index.html in a
-     same-origin frame, waits for it to settle, finds the real placeholder
-     field in entry 05, clones its whole controller row eight times inside the
-     live document, injects one rule into each clone's shadow root, and scrolls
-     to them. Same stylesheets, same script, same ancestors, same everything.
-
-       V0  stock clone                V4  input font-weight 400
-       V1  membrane canvas hidden     V5  input line-height = control height
-       V2  .jelly-content no z-index  V6  input text-size-adjust 100%
-       V3  input on its own layer     V7  input on the REAL Medium face
-
-     V0 has to be cut, because it IS the live field. If it is whole while the
-     original above it is cut, the difference is the clone's state, which is
-     itself the answer.
-     ══════════════════════════════════════════════════════════════════════ -->
-
+<title>Descender check — launcher</title>
+<!-- The bisect now runs INSIDE the live components page, top level, because
+     that is the only context in which the cut exists — every harness,
+     including the live page inside a frame, rendered whole on the phone.
+     This page only launches it. See font-ios-bisect.js. -->
 <style>
-html, body { margin:0; height:100%; background:#0062AD; }
-#status { position:fixed; top:0; left:0; right:0; z-index:9; padding:8px 12px;
-          font:600 12px/1.4 ui-monospace, monospace; color:#FBF0DC; background:rgba(0,38,75,.92);
-          white-space:pre-wrap; max-height:40vh; overflow:auto; }
-iframe { display:block; width:100%; height:100vh; border:0; }
+body { margin:0; padding:24px 16px; background:#FDF9F0; color:#0062AD; font:16px/1.5 system-ui,-apple-system,sans-serif; }
+h1 { font-size:19px; margin:0 0 6px; }
+p { margin:0 0 14px; font-size:14px; opacity:.85; }
+a { display:block; margin:10px 0; padding:14px 16px; background:#0062AD; color:#FBF0DC; border-radius:14px;
+    text-decoration:none; font-weight:600; }
+a small { display:block; font-weight:400; opacity:.85; margin-top:3px; }
 </style>
 </head>
 <body>
-<div id="status">loading the live page…</div>
-<iframe id="live" src="components/index.html?v=20260909t"></iframe>
-
-<script>
-const AR = 'ج ح خ ع';
-const VARIANTS = [
-  ['V0', 'stock clone of the live field', ''],
-  ['V1', 'membrane canvas hidden', 'canvas { visibility: hidden !important; }'],
-  ['V2', '.jelly-content without stacking context', '.jelly-content { z-index: auto !important; }'],
-  ['V3', 'input on its own compositing layer', 'input { transform: translateZ(0) !important; }'],
-  ['V4', 'input font-weight 400', 'input { font-weight: 400 !important; }'],
-  ['V5', 'input line-height = control height', 'input { line-height: 56px !important; }'],
-  ['V6', 'input text-size-adjust 100%', 'input { -webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }'],
-  ['V7', 'input on the REAL Medium face (no override)', 'input { font-family: "29LT Idris Round Medium", sans-serif !important; }'],
-];
-const status = document.getElementById('status');
-const say = (t) => { status.textContent = t; };
-
-const f = document.getElementById('live');
-f.addEventListener('load', async () => {
-  const w = f.contentWindow, doc = f.contentDocument;
-  say('live page loaded — waiting for it to settle…');
-  await new Promise(r => setTimeout(r, 6500));
-
-  const orig = doc.getElementById('in-placeholder');
-  const row = orig && orig.closest('.ctl');
-  if (!row) { say('could not find the placeholder field in entry 05'); return; }
-
-  /* Put the deep descenders in the ORIGINAL too, so the first thing on screen
-     is the live field itself, cut or not, directly above its clones. */
-  const on = orig.shadowRoot && orig.shadowRoot.querySelector('input');
-  if (on) { on.value = AR; on.dispatchEvent(new w.Event('input', { bubbles: true })); }
-  const name0 = row.querySelector('.ctl-name');
-  if (name0) { name0.textContent = 'LIVE — the original field'; name0.style.cssText = 'color:#FA937D;font-weight:700'; }
-
-  const made = [];
-  let after = row;
-  VARIANTS.forEach(([id, title, css]) => {
-    const c = row.cloneNode(true);
-    c.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
-    const ji = c.querySelector('jelly-input');
-    ji.setAttribute('value', AR);
-    ji.setAttribute('aria-label', id);
-    const nm = c.querySelector('.ctl-name');
-    if (nm) { nm.textContent = id + ' — ' + title; nm.style.cssText = 'color:#FA937D;font-weight:700'; }
-    after.insertAdjacentElement('afterend', c);
-    after = c;
-    made.push({ id, ji, css });
-  });
-
-  await new Promise(r => setTimeout(r, 1200));
-  const lines = [];
-  made.forEach(({ id, ji, css }) => {
-    const sr = ji.shadowRoot;
-    if (!sr) { lines.push(id + '  no shadow root'); return; }
-    if (css) { const st = doc.createElement('style'); st.textContent = css; sr.appendChild(st); }
-    const n = sr.querySelector('input');
-    if (n) { n.value = AR; n.dispatchEvent(new w.Event('input', { bubbles: true })); }
-    const cs = n ? w.getComputedStyle(n) : null;
-    lines.push(id + '  ' + (cs ? [cs.fontFamily.split(',')[0].replace(/"/g, ''), cs.fontSize, 'lh ' + cs.lineHeight, 'w' + cs.fontWeight,
-      Math.round(n.getBoundingClientRect().height) + 'px'].join(' · ') : 'no input'));
-  });
-
-  /* iOS expands a same-origin iframe to its content, so the PARENT scrolls.
-     Scroll both, so whichever one is actually scrolling lands on the field. */
-  row.scrollIntoView({ block: 'start' });
-  await new Promise(r => setTimeout(r, 400));
-  const top = f.offsetTop + row.getBoundingClientRect().top + (w.scrollY || 0) - 8;
-  window.scrollTo(0, Math.max(0, top));
-
-  say('LIVE field above, clones below — tap into one, screenshot the list\n' +
-      lines.join('\n') + '\nDPR ' + devicePixelRatio + ' · ' + navigator.userAgent.match(/(iPhone OS [\d_]+|Windows NT [\d.]+|Mac OS X [\d_]+)/)?.[0]);
-});
-</script>
+<h1>Descender check</h1>
+<p>Both open the real components page with the field cloned and bisected in place.
+   Tap into a field, then screenshot the whole column and the box at the top.</p>
+<a href="components/index.html?bisect#c-05">1 · Bisect in the live page
+  <small>LIVE, V0–V9, then BARE and DIV</small></a>
+<a href="components/index.html?bisect&amp;noclip#c-05">2 · Same, with the root's overflow-x clip lifted
+  <small>only if 1 is still cut</small></a>
 </body>
 </html>

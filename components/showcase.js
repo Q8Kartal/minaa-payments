@@ -3224,3 +3224,12 @@
      has to document itself, so the snippets are built regardless. */
   setTimeout(start, 2500);
 })();
+
+/* DIAGNOSTIC HOOK. Loads the iOS descender bisect ONLY when the URL carries
+   `?bisect`; otherwise this is a dead branch. See font-ios-bisect.js for why
+   it has to run inside this page rather than in a harness. Remove with it. */
+if (/[?&]bisect/.test(location.search)) {
+  const s = document.createElement('script');
+  s.src = '../font-ios-bisect.js?v=' + Date.now();
+  document.head.appendChild(s);
+}
