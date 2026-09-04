@@ -76,6 +76,26 @@
 
 * { box-sizing: border-box; }
 
+/* THE BLEED BACKSTOP. Every soft-body Jelly control paints into a canvas far
+   wider than itself, and that transparent margin counts toward scrollWidth --
+   measured once at 657px of horizontal overflow on a 375px screen. Something
+   has to swallow it, and the page is the only place that can without standing
+   between an overlay and the viewport: a clip on a CARD also cuts the select
+   and menu panels that open past the card's edge, which is the bug this moved
+   to fix. See .demo.
+
+   `clip` rather than `hidden` on purpose. `hidden` would make this a scroll
+   container, which changes how position:sticky and anchored panels resolve;
+   `clip` just cuts the paint, and only ever the empty bleed -- the deformation
+   itself happens at the control, nowhere near the viewport edge.
+
+   Verified after the move: anchor navigation still works, and the dialog and
+   drawer -- which portal to <body>, inside this clip -- both open fully on
+   screen at 375. */
+html {
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   /* The chrome reads the same semantic layer the components do, so the page
@@ -314,18 +334,34 @@ html[dir="rtl"] .code {
   padding: var(--space-600);             /* 48 */
   border-radius: var(--radius-24);       /* pre-paint fallback only */
 
-  /* Jelly gives every soft-body component a BLEED CANVAS wider than the
-     control, so the blob has room to deform past its own box — a 279px slider
-     gets a 1032px canvas. The extra area is transparent, but it still counts
-     toward scrollWidth, and on a 375px screen that produced 657px of
-     horizontal page overflow. Measured, not guessed: the host, the track and
-     the input all reported 279 while `part="jelly"` reported 1032.
+  /* THE BLEED BACKSTOP LIVES ON THE PAGE NOW, NOT HERE — see html above.
 
-     `clip` rather than `hidden` on purpose. `hidden` would make this a scroll
-     container, which changes how position:sticky and anchored panels resolve
-     inside it; `clip` just cuts the paint. Only the empty bleed is lost — the
-     deformation happens at the control, well inside the card. */
-  overflow-x: clip;
+     Jelly gives every soft-body component a bleed canvas wider than the
+     control, so the blob has room to deform past its own box: a 279px slider
+     gets a 1032px canvas. That area is transparent but still counts toward
+     scrollWidth, and on a 375px screen it produced 657px of horizontal page
+     overflow. That is why this element used to carry `overflow-x: clip`, and
+     the overflow is real — the clip was not wrong, only in the wrong place.
+
+     Reported from an iPhone: a select's option list was sliced off at the
+     card's bottom edge. The panel opens 85px below this card, and a clip here
+     sits between that panel and the viewport. Per spec `overflow-x: clip` with
+     `overflow-y: visible` leaves the vertical axis alone, which is what Chrome
+     does and why this never reproduced on desktop; WebKit cuts it.
+
+     So the clip moved up to the page, where it still swallows the bleed and
+     still refuses the scrollbar, but is no longer an ancestor standing between
+     an overlay and the screen. Measured after the move, at 375: the page keeps
+     scrollWidth 375 against clientWidth 375, the select has ZERO clipping
+     ancestors left, and the dialog and drawer both open fully on screen.
+
+     Removing it from here is safe on its own terms too — checked at 320, 375,
+     414, 540, 768 and 1024, the card's clip changed the page's scrollWidth at
+     none of them. But the page-level one stays regardless: the 657px was
+     measured once and a backstop that costs nothing should not be dropped on
+     the strength of not being able to reproduce it today.
+
+     position: relative is what the squircle layer is positioned against. */
 }
 
 /* Specimens sit in a row that wraps, each labelled with what varies. Same
