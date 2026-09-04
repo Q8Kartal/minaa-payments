@@ -27,18 +27,32 @@
        Same URL as the real faces, so no extra download.
 
        0.4247 em Regular and 0.4293 em Medium, read off the outlines with
-       fontTools at 3000 units per em and rounded up to 43%. ExtraBold is not
-       here because no field uses it; its ink reaches 0.5200 em if one ever does. */
+       fontTools at 3000 units per em: 0.4293 em Regular, 0.4247 Medium.
+
+       THE VALUE IS 54, NOT THAT INK ROUNDED UP. It shipped as 43% first, which
+       is the measurement rounded to the nearest whole percent and therefore
+       buys 0.0126px at the 18px a field renders at. That is not a margin; the
+       clip lands on a device pixel and the bowl survives or not depending which
+       way it rounds. It rendered clean in a 34px test harness and clipped in
+       the live field on the same iPhone, both at 43%, because 34px buys twice
+       as little nothing as 18px does.
+
+       54% is the foundry's own usWinDescent -- 29LT already declare that the
+       ink reaches 0.540 em and left only the layout metric shallow. Their
+       number, not one picked to make the symptom go away, and it buys 1.99px.
+
+       ExtraBold is not here because no field uses it; its ink reaches 0.5200 em
+       if one ever does. */
     @font-face {
       font-family: "29LT Idris Round Regular Field";
       src: url("fonts/29LTIdrisRound-Regular.woff2") format("woff2");
-      descent-override: 43%;
+      descent-override: 54%;
       font-weight: 100 900; font-style: normal; font-display: swap;
     }
     @font-face {
       font-family: "29LT Idris Round Medium Field";
       src: url("fonts/29LTIdrisRound-Medium.woff2") format("woff2");
-      descent-override: 43%;
+      descent-override: 54%;
       font-weight: 100 900; font-style: normal; font-display: swap;
     }
     @font-face {

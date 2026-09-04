@@ -58,18 +58,40 @@
    ExtraBold is not registered here because no field uses it -- the input is
    Medium and its placeholder is Regular. Its own ink reaches 0.5200 em, so if
    a field ever takes the bold face it needs a third face at 52%.
+
+   WHY 54 AND NOT THE 43 THAT SHIPPED FIRST. 43% was the measured ink rounded up
+   -- 0.4293 em becomes 0.43 -- and rounding the true value up to the nearest
+   whole percent is not a margin, it is a coincidence. At the size a field
+   actually renders, 18px, it buys 0.0126px. The clip lands on a device pixel,
+   so whether the bowl survives comes down to which way that rounds.
+
+   Reported from a real iPhone: the harness rendered clean and the live
+   <jelly-input> did not. Both carried 43%. The harness draws at 34px, where the
+   same ratio buys 0.0238px -- nearly double the slack, in absolute terms, which
+   is what a renderer rounds against. Same percentage, different outcome, purely
+   because one had twice as little nothing as the other.
+
+   54% is the foundry's own usWinDescent, 0.540 em: 29LT already state in the
+   font that the ink reaches that depth, and only the layout metric was left
+   shallow. So this is their number, not one invented to make the bug go away,
+   and it buys 1.99px at 18px instead of a hundredth of one.
+
+   It costs a ~1px baseline lift inside the fields and nothing anywhere else.
+   line-height is set explicitly on these parts, so the line box stays 28px and
+   only the half-leading redistributes; the faces are asked for by two rules and
+   two rules only.
    ══════════════════════════════════════════════════════════════════════════ */
 @font-face {
   font-family: "29LT Idris Round Regular Field";
   src: url("../fonts/29LTIdrisRound-Regular.woff2") format("woff2");
-  descent-override: 43%;
+  descent-override: 54%;
   font-weight: 100 900;
   font-display: swap;
 }
 @font-face {
   font-family: "29LT Idris Round Medium Field";
   src: url("../fonts/29LTIdrisRound-Medium.woff2") format("woff2");
-  descent-override: 43%;
+  descent-override: 54%;
   font-weight: 100 900;
   font-display: swap;
 }

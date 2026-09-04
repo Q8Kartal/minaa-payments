@@ -6,65 +6,76 @@
 <title>iOS descender check — Minaã</title>
 
 <!-- ══════════════════════════════════════════════════════════════════════
-     WHAT THE FIRST VERSION OF THIS PAGE GOT WRONG
+     WHY THIS PAGE CHANGED AGAIN
 
-     It asked whether iOS was drawing the wrong GLYPHS, and it answered that
-     question by accident: every <div> rendered "Your name" correctly in all
-     six faces. A face that mis-maps glyphs cannot draw a div correctly, so no
-     face is mis-mapping anything. The duplicate src and the descent-override
-     are both cleared.
+     The last version rendered clean on iOS and the live <jelly-input> did not.
+     Both were on descent-override: 43%. The difference was the SIZE: this page
+     drew at 34px and the field draws at 18px.
 
-     It also had a hole: the inputs were editable, so they got typed into, and
-     six rows of different typed strings cannot be compared with each other.
-     Every input here is now readonly. Nothing on this page can be edited.
+     43% is the measured ink, 0.4293 em, rounded up to the nearest whole
+     percent. That leaves 0.0126px at 18px and 0.0238px at 34px. Neither is a
+     margin — but a clip lands on a device pixel, and twice as little nothing
+     is still what decides which way it rounds. So a harness that did not match
+     the field's type size could not reproduce the field's bug.
 
-     WHAT IT ASKS NOW is the question that was actually being tested by hand:
-     does a native <input> on iOS still cut the bowl off ج ح خ ع, and does
-     descent-override fix it there the way it does on desktop?
+     THIS PAGE NOW MIRRORS THE FIELD EXACTLY: 18px type, 28px line box, a 56px
+     box with zero padding, the input absolutely positioned at inset 0 inside a
+     relative wrapper — every number read off the live component, not chosen.
 
-     The pairing is the whole design. Each block shows one string three times:
+     Three rows per block:
 
-       div        cannot clip glyph ink at all — this is the reference
-       input OFF  the face as it ships to headings and buttons, no override
-       input ON   the same file with descent-override: 43%
+       div        cannot clip glyph ink — the reference
+       input 43   what shipped, and what clipped on your phone
+       input 54   the fix: the foundry's own usWinDescent, 0.540 em
 
-     Read the two inputs against the div directly above them. If ON matches the
-     div and OFF is cut, the override works on iOS and the app is already
-     correct. If BOTH are cut, the override does nothing on iOS and 29LT's
-     recommendation does not survive WebKit.
+     If 54 matches the div and 43 is cut, the fix is right and the app is
+     already carrying it. If BOTH are cut at 18px, the descent metric is not
+     what is doing the cutting and the next place to look is WebKit's own
+     vertical centring of single-line inputs.
      ══════════════════════════════════════════════════════════════════════ -->
 
 <style>
-/* No override — the face as headings and buttons get it. */
-@font-face { font-family:"Idris OFF"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
-/* descent-override, as jelly-input gets it today. 0.4293 em of real ink at
-   3000 upem, rounded up; the font declares 0.300. */
-@font-face { font-family:"Idris ON";  src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
+/* Same file three times; only the declared descent differs. */
+@font-face { font-family:"Idris 43"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
+@font-face { font-family:"Idris 54"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:54%; font-weight:100 900; font-display:block; }
+@font-face { font-family:"Idris raw"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
 
 :root { color-scheme: light; }
 html { font-synthesis: none; -webkit-text-size-adjust: 100%; }
-body {
-  margin:0; padding:18px 14px 60px;
-  background:#FDF9F0; color:#0062AD;
-  font:15px/1.45 system-ui, -apple-system, sans-serif;
-}
+body { margin:0; padding:18px 14px 60px; background:#FDF9F0; color:#0062AD;
+       font:15px/1.45 system-ui, -apple-system, sans-serif; }
 h1 { font-size:19px; margin:0 0 4px; }
 .sub { font-size:13px; opacity:.75; margin:0 0 18px; }
-.block { border-top:1px solid rgba(0,98,173,.22); padding:16px 0 4px; }
+.block { border-top:1px solid rgba(0,98,173,.22); padding:16px 0 6px; }
 .blocktag { font:600 11px/1.3 ui-monospace, monospace; letter-spacing:.03em; opacity:.7; margin-bottom:10px; }
-.line { display:flex; align-items:center; gap:9px; margin-bottom:9px; }
-.what { font:700 9px/1.1 ui-monospace, monospace; opacity:.6; min-width:64px; text-align:start; }
-.spec {
-  flex:1; min-width:0; box-sizing:border-box;
-  font-size:34px; line-height:1.5;
-  padding:6px 12px;
-  border:1px solid rgba(0,98,173,.3); border-radius:12px;
-  background:#fff; color:#0062AD;
-  /* the input must not be nudged by anything but its own metrics */
-  margin:0; -webkit-appearance:none; appearance:none;
+.line { display:flex; align-items:center; gap:9px; margin-bottom:10px; }
+.what { font:700 9px/1.1 ui-monospace, monospace; opacity:.6; min-width:60px; }
+
+/* ── the field's geometry, copied off the live component ──────────────────
+   jelly-input at size medium measures: host 280x56, native input absolutely
+   positioned at inset 0, height 56, padding 0, font-size 18, line-height 28. */
+.field {
+  position: relative;
+  flex: 1; min-width: 0;
+  height: 56px;
+  border: 1px solid rgba(0,98,173,.3);
+  border-radius: 9999px;
+  background: #fff;
+  overflow: hidden;            /* only to keep the pill tidy; the input is inset 0 */
 }
-.ref { background:#F2F8FF; }
-.note { font-size:12.5px; opacity:.8; margin:22px 0 0; padding:12px;
+.field > input, .field > .asdiv {
+  position: absolute; inset: 0;
+  width: 100%; height: 56px;
+  margin: 0; padding: 0 20px;
+  border: 0; background: transparent; color: #0062AD;
+  font-size: 18px; line-height: 28px;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+}
+/* the reference: same box, same metrics, but a div — it cannot clip ink */
+.asdiv { display: flex; align-items: center; }
+
+.note { font-size:12.5px; opacity:.85; margin:22px 0 0; padding:12px;
         background:#FFF3E8; border:1px solid rgba(232,65,29,.3); border-radius:10px; }
 #report { margin-top:16px; font:11.5px/1.55 ui-monospace, monospace; white-space:pre-wrap;
           background:#F2F8FF; padding:11px; border-radius:10px; direction:ltr; text-align:left; }
@@ -73,56 +84,61 @@ h1 { font-size:19px; margin:0 0 4px; }
 <body>
 
 <h1>iOS descender check</h1>
-<p class="sub">Nothing here can be typed into &mdash; every field is <code>readonly</code>.
-   In each block, compare the two inputs against the <b>div</b> above them.
-   The div cannot clip glyph ink, so it shows the letters whole.</p>
+<p class="sub">Every box below is the live field's geometry to the pixel &mdash;
+   18px type, 28px line box, 56px tall, no padding. Nothing can be typed into.
+   Compare each input against the <b>div</b> in the same block.</p>
 
 <div id="blocks"></div>
 
 <p class="note">
-  <b>ON matches the div, OFF is cut</b> &rarr; <code>descent-override</code> works on iOS
-  and the app is already right.<br>
-  <b>Both cut the same</b> &rarr; the override does nothing on iOS, and the fix has to come
-  from somewhere else.<br>
-  <b>Nothing is cut anywhere</b> &rarr; there is no clipping left on your phone.
+  <b>54 matches the div, 43 is cut</b> &rarr; the fix is right and the app already has it.<br>
+  <b>Both cut</b> &rarr; the descent metric is not the cause at this size, and WebKit's
+  centring of single-line inputs is the next place to look.<br>
+  <b>Neither cut</b> &rarr; this still is not reproducing the field, and I need the
+  component itself rather than a copy of it.
 </p>
 
 <div id="report">…</div>
 
 <script>
-/* Deep descenders only. uni062D.fina.PostLow — ح in a final position — is the
-   glyph measured at 0.4293 em, the deepest ink in the Medium face, against the
-   0.300 the font declares. The words are real so the shaper produces the final
-   forms rather than isolated ones. */
 const BLOCKS = [
-  ['نجح  صحيح', 'final ج and medial ح'],
-  ['ج ح خ ع', 'the four bowls, isolated'],
+  ['نجح  صحيح',      'final ج and medial ح'],
+  ['ج ح خ ع',        'the four bowls, isolated'],
   ['مج  مح  مخ  مع', 'each bowl in final position'],
+];
+const ROWS = [
+  ['div (ref)', 'Idris 54', 'asdiv'],
+  ['input 43',  'Idris 43', 'input'],
+  ['input 54',  'Idris 54', 'input'],
 ];
 
 const host = document.getElementById('blocks');
 BLOCKS.forEach(([text, label]) => {
   const b = document.createElement('div');
   b.className = 'block';
-  b.innerHTML =
-    '<div class="blocktag">' + label + '</div>' +
-    '<div class="line"><span class="what">div (ref)</span>' +
-      '<div class="spec ref" style="font-family:\'Idris OFF\',sans-serif">' + text + '</div></div>' +
-    '<div class="line"><span class="what">input OFF</span>' +
-      '<input class="spec" readonly value="' + text + '" style="font-family:\'Idris OFF\',sans-serif"></div>' +
-    '<div class="line"><span class="what">input ON</span>' +
-      '<input class="spec" readonly value="' + text + '" style="font-family:\'Idris ON\',sans-serif"></div>';
+  let html = '<div class="blocktag">' + label + '</div>';
+  ROWS.forEach(([what, family, kind]) => {
+    const style = 'font-family:\'' + family + '\',sans-serif';
+    const cell = kind === 'input'
+      ? '<input readonly value="' + text + '" style="' + style + '">'
+      : '<div class="asdiv" style="' + style + '">' + text + '</div>';
+    html += '<div class="line"><span class="what">' + what + '</span>' +
+            '<div class="field">' + cell + '</div></div>';
+  });
+  b.innerHTML = html;
   host.appendChild(b);
 });
 
 (async () => {
   try { await document.fonts.ready; } catch (e) {}
-  let off = false, on = false;
-  try { off = document.fonts.check('34px "Idris OFF"'); } catch (e) {}
-  try { on  = document.fonts.check('34px "Idris ON"');  } catch (e) {}
+  const l = f => { try { return document.fonts.check('18px "' + f + '"') ? 'loaded' : 'MISSING'; }
+                   catch (e) { return 'ERR'; } };
   document.getElementById('report').textContent =
-    'Idris OFF  ' + (off ? 'loaded' : 'MISSING') + '\n' +
-    'Idris ON   ' + (on  ? 'loaded' : 'MISSING') + '\n\n' + navigator.userAgent;
+    'Idris 43   ' + l('Idris 43') + '\n' +
+    'Idris 54   ' + l('Idris 54') + '\n\n' +
+    'ink 0.4293em -> at 18px the bowl needs 7.727px below the baseline\n' +
+    '  43% gives 7.740px  (0.013px spare)\n' +
+    '  54% gives 9.720px  (1.993px spare)\n\n' + navigator.userAgent;
 })();
 </script>
 </body>
