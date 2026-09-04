@@ -301,11 +301,11 @@
     <div class="controls controls--stacked" data-controls>
       <div class="ctl">
         <span class="ctl-name">placeholder</span>
-        <jelly-input id="in-placeholder" value="Your name" label="Placeholder text"></jelly-input>
+        <jelly-input id="in-placeholder" value="Your name" label="Placeholder text" maxlength="40"></jelly-input>
       </div>
       <div class="ctl">
         <span class="ctl-name">value</span>
-        <jelly-input id="in-value" placeholder="Type here" label="Field value"></jelly-input>
+        <jelly-input id="in-value" placeholder="Type here" label="Field value" maxlength="64"></jelly-input>
       </div>
       <div class="ctl">
         <span class="ctl-name">type</span>
@@ -341,7 +341,7 @@
     </div>
     <div class="demo" data-demo>
       <div class="input-stage" data-controls>
-        <jelly-input id="in-demo" size="medium" label="Warehouse name" placeholder="Your name"></jelly-input>
+        <jelly-input id="in-demo" size="medium" label="Warehouse name" placeholder="Your name" maxlength="64"></jelly-input>
       </div>
       <template data-snippet-text>&lt;jelly-input size="medium" placeholder="Your name"&gt;&lt;/jelly-input&gt;</template>
     </div>
@@ -2645,7 +2645,7 @@ drawer.open = true;   // side = start | end | bottom</template>
 <!-- THE FIELD MIRROR: a jelly-input's visible text is painted by a div, because a
      single-line native input on iOS cuts Arabic descenders. Standalone and shared
      with the app; see the header of the file. Loads after the patcher. -->
-<script src="../field-mirror.js?v=20260909w"></script>
+<script src="../field-mirror.js?v=20260909x"></script>
 <script src="../button-family.js?v=20260909w" defer></script>
 <script src="showcase.js?v=20260909w" defer></script>
 </body>
