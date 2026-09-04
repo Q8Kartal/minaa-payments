@@ -678,6 +678,34 @@ jelly-icon-button .mi {
   .wrap { padding-block: var(--space-500) var(--space-800); }
   .masthead h1 { font-size: var(--display-sm); line-height: var(--display-sm-lh); }
   .masthead { margin-block-end: var(--space-600); }
+
+  /* ── THE TWO SWITCHES SHARE ONE BAND INSTEAD OF STACKING ────────────────
+     Absolutely positioned at the end and stacked one above the other, they
+     need a column wide enough that the heading never reaches them. Below 720
+     there is no such column: measured at 375, the masthead is 327 wide, the
+     language switch sits 223..303, and the h1 runs the full 24..351 straight
+     underneath it. Reported from a real iPhone, where the switch landed on the
+     title and the intro paragraph both.
+
+     Side by side they need 160 of host plus 96 of canvas bleed = 256, and 327
+     is what there is. Each one still gets the 48 it must have: the switch at
+     the start lands its canvas exactly on the masthead's start clip edge and
+     the one at the end on its end edge -- the same clearance the desktop rule
+     buys, and for the same reason. See .masthead-switch above; a soft-body
+     control with its bleed clipped deforms into a lopsided blob.
+
+     The text then starts below the band rather than behind it. 64 clears the
+     49 the band actually measures, and is a step on the scale where 49 is not. */
+  .masthead { padding-block-start: var(--space-800); }        /* 64 > the band's 49 */
+  .masthead-switch {
+    top: 0;
+    inset-inline-end: var(--space-600);                       /* 48 -- the bleed */
+  }
+  .masthead-direction {
+    top: 0;
+    inset-inline-start: var(--space-600);                     /* 48 -- the bleed */
+    inset-inline-end: auto;                                   /* release the desktop rule */
+  }
   .demo { padding: var(--space-300); gap: var(--space-400); }   /* 24 / 32 */
   .entry { padding-block-start: var(--space-600); }
   .entry + .entry { margin-block-start: var(--space-600); }
