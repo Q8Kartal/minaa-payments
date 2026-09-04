@@ -368,6 +368,12 @@
     .field { display: flex; flex-direction: column; gap: var(--space-050); position: relative; min-width: 0; }
     .field jelly-input, .field jelly-select { width: 100%; min-width: 0; }
 
+    /* iOS text-size adjustment, off. The same fault the component library
+       had: with this unset, iOS inflates a field's text after the control has
+       sized its editor, and Arabic descenders are cut off the bottom. Inert on
+       every other platform. See the note in components/minaa-jelly.css. */
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
     /* THE FIELD FACE, not the page face -- see the note beside the @font-face
        rules above. Only the two clipped controls take the corrected descent. */
     jelly-input::part(input),

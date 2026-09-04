@@ -666,6 +666,22 @@ jelly-progress {
 :root { font-family: var(--font-regular); }
 html { font-synthesis: none; }
 
+/* ── iOS text-size adjustment, off ─────────────────────────────────────────
+   Found by elimination on a real iPhone, 2026-09-04, after every other lever
+   was cleared. The field's Arabic descenders were cut on this page and on no
+   harness built to reproduce it: not a bare input in the same box, not a real
+   jelly-input loading everything this page loads, not even THIS page loaded
+   inside a frame. The one thing every whole context shared and the cut one
+   lacked: iOS's text-size adjustment was neutralised — the harnesses set
+   -webkit-text-size-adjust: 100% on html, frames never autosize, and desktop
+   has no such thing. Top level, unset, iOS inflates the field's text after the
+   control has sized its editor from the un-inflated metrics, and the bowls
+   fall past the edge. Every metric fix was aimed at the wrong thing.
+
+   100%, not none: none is the legacy spelling and Safari treats it the same,
+   but 100% is what the spec names. Inert everywhere but iOS. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
 jelly-theme, jelly-accordion, jelly-alert, jelly-badge, jelly-breadcrumbs,
 jelly-button, jelly-card, jelly-checkbox, jelly-chip, jelly-collapsible,
 jelly-dialog, jelly-divider, jelly-drawer, jelly-icon-button, jelly-input,
