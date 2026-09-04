@@ -1,144 +1,150 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>iOS descender check — Minaã</title>
+<title>Descender check — headroom</title>
 
 <!-- ══════════════════════════════════════════════════════════════════════
-     WHY THIS PAGE CHANGED AGAIN
+     WHAT THIS PAGE NOW KNOWS, AND WHAT IT STILL CANNOT KNOW FROM HERE.
 
-     The last version rendered clean on iOS and the live <jelly-input> did not.
-     Both were on descent-override: 43%. The difference was the SIZE: this page
-     drew at 34px and the field draws at 18px.
+     Bisected on desktop Chrome (DPR 1.75), 2026-09-04, with the live field's
+     exact geometry — 18px type, 28px line box, 56px box, no padding, input
+     absolute at inset 0 — and a full computed-style diff between the native
+     jelly-input and a bare <input> in the same shadow root.
 
-     43% is the measured ink, 0.4293 em, rounded up to the nearest whole
-     percent. That leaves 0.0126px at 18px and 0.0238px at 34px. Neither is a
-     margin — but a clip lands on a device pixel, and twice as little nothing
-     is still what decides which way it rounds. So a harness that did not match
-     the field's type size could not reproduce the field's bug.
+     CLEARED, each by a direct test at real size: the Field faces (a div
+     renders every one whole), the line box (56px changed nothing), padding,
+     unicode-bidi, appearance, font-weight, overflow (the UA forces `clip`
+     back), the membrane canvas (below the content, and hidden it changed
+     nothing), Jelly's input handler (no inline style, scrollTop 0, and the
+     input renders the same with or without the event), and the shadow
+     environment (a bare input transplanted into it renders whole).
 
-     THIS PAGE NOW MIRRORS THE FIELD EXACTLY: 18px type, 28px line box, a 56px
-     box with zero padding, the input absolutely positioned at inset 0 inside a
-     relative wrapper — every number read off the live component, not chosen.
+     ONE THEORY WAS A CONFOUND AND IS RECORDED SO IT IS NOT CHASED AGAIN.
+     "direction: ltr cuts, rtl is whole" held at 44px type in a 56px box, where
+     the BOX was clipping and direction only moved the line inside it. At a
+     proportional 3x — box scaled with the type — ltr and rtl are both whole,
+     and at real size the component is whole in every direction state here.
 
-     Three rows per block:
+     WHAT IS LEFT is the descent metric, which is the only lever that moved the
+     cut line at all — and the machine the report came from. On this machine
+     43% does not cut at 18px and neither does 54%. On Ahmad's PC and iPhone
+     the field cuts. Two explanations remain and this page tells them apart:
 
-       div        cannot clip glyph ink — the reference
-       input 43   what shipped, and what clipped on your phone
-       input 54   the fix: the foundry's own usWinDescent, 0.540 em
+       1. the browser held a cached index.html (Pages sends max-age=600) that
+          points at the OLD stylesheet — 43%, which has 0.013px of headroom.
+       2. 54% is still not enough headroom at that device-pixel ratio.
 
-     If 54 matches the div and 43 is cut, the fix is right and the app is
-     already carrying it. If BOTH are cut at 18px, the descent metric is not
-     what is doing the cutting and the next place to look is WebKit's own
-     vertical centring of single-line inputs.
+     So: rows of the SAME field at rising override values, so whichever row is
+     the first whole one names the headroom the phone actually needs; and a
+     report that fetches the live components stylesheet twice — once from the
+     browser's cache, once from the network — and prints the override each one
+     carries. If those two numbers differ, it was the cache.
      ══════════════════════════════════════════════════════════════════════ -->
 
 <style>
-/* Same file three times; only the declared descent differs. */
-@font-face { font-family:"Idris 43"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
-@font-face { font-family:"Idris 54"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:54%; font-weight:100 900; font-display:block; }
-@font-face { font-family:"Idris raw"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
+@font-face { font-family:"D30"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
+@font-face { font-family:"D43"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:43%;  font-weight:100 900; font-display:block; }
+@font-face { font-family:"D54"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:54%;  font-weight:100 900; font-display:block; }
+@font-face { font-family:"D70"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:70%;  font-weight:100 900; font-display:block; }
+@font-face { font-family:"D90"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:90%;  font-weight:100 900; font-display:block; }
 
 :root { color-scheme: light; }
 html { font-synthesis: none; -webkit-text-size-adjust: 100%; }
-body { margin:0; padding:18px 14px 60px; background:#FDF9F0; color:#0062AD;
+body { margin:0; padding:16px 12px 60px; background:#FDF9F0; color:#0062AD;
        font:15px/1.45 system-ui, -apple-system, sans-serif; }
-h1 { font-size:19px; margin:0 0 4px; }
-.sub { font-size:13px; opacity:.75; margin:0 0 18px; }
-.block { border-top:1px solid rgba(0,98,173,.22); padding:16px 0 6px; }
-.blocktag { font:600 11px/1.3 ui-monospace, monospace; letter-spacing:.03em; opacity:.7; margin-bottom:10px; }
-.line { display:flex; align-items:center; gap:9px; margin-bottom:10px; }
-.what { font:700 9px/1.1 ui-monospace, monospace; opacity:.6; min-width:60px; }
+h1 { font-size:18px; margin:0 0 4px; }
+.sub { font-size:12.5px; opacity:.75; margin:0 0 6px; }
+.row { border-top:1px solid rgba(0,98,173,.22); padding:11px 0 4px; }
+.tag { font:700 11px/1.35 ui-monospace, monospace; margin-bottom:7px; }
+.tag b { color:#E8411D; }
+.tag span { font-weight:400; opacity:.72; }
 
-/* ── the field's geometry, copied off the live component ──────────────────
-   jelly-input at size medium measures: host 280x56, native input absolutely
-   positioned at inset 0, height 56, padding 0, font-size 18, line-height 28. */
-.field {
-  position: relative;
-  flex: 1; min-width: 0;
-  height: 56px;
-  border: 1px solid rgba(0,98,173,.3);
-  border-radius: 9999px;
-  background: #fff;
-  overflow: hidden;            /* only to keep the pill tidy; the input is inset 0 */
-}
-.field > input, .field > .asdiv {
-  position: absolute; inset: 0;
-  width: 100%; height: 56px;
-  margin: 0; padding: 0 20px;
-  border: 0; background: transparent; color: #0062AD;
-  font-size: 18px; line-height: 28px;
-  -webkit-appearance: none; appearance: none;
-  box-sizing: border-box;
-}
-/* the reference: same box, same metrics, but a div — it cannot clip ink */
-.asdiv { display: flex; align-items: center; }
+/* the live field's box, copied off the component */
+.field { position:relative; height:56px; border:1px solid rgba(0,98,173,.32);
+         border-radius:9999px; background:#fff; }
+.field > * { position:absolute; inset:0; width:100%; height:56px; margin:0; padding:0 20px;
+             border:0; background:transparent; color:#0062AD; box-sizing:border-box;
+             font-size:18px; line-height:28px; direction:ltr; }
+.asdiv { display:flex; align-items:center; }
 
-.note { font-size:12.5px; opacity:.85; margin:22px 0 0; padding:12px;
-        background:#FFF3E8; border:1px solid rgba(232,65,29,.3); border-radius:10px; }
-#report { margin-top:16px; font:11.5px/1.55 ui-monospace, monospace; white-space:pre-wrap;
-          background:#F2F8FF; padding:11px; border-radius:10px; direction:ltr; text-align:left; }
+.note { font-size:12.5px; margin:22px 0 0; padding:11px; background:#FFF3E8;
+        border:1px solid rgba(232,65,29,.32); border-radius:10px; }
+#report { margin-top:14px; font:11.5px/1.6 ui-monospace, monospace; white-space:pre-wrap;
+          background:#F2F8FF; padding:11px; border-radius:10px; }
+#report b { color:#E8411D; }
 </style>
 </head>
 <body>
 
-<h1>iOS descender check</h1>
-<p class="sub">Every box below is the live field's geometry to the pixel &mdash;
-   18px type, 28px line box, 56px tall, no padding. Nothing can be typed into.
-   Compare each input against the <b>div</b> in the same block.</p>
+<h1>Descender check — headroom</h1>
+<p class="sub">The live field's exact box, at its real size, LTR like the English build.
+   Same font file in every row; only the declared descent changes.
+   Nothing can be typed into.</p>
 
-<div id="blocks"></div>
+<div id="rows"></div>
 
 <p class="note">
-  <b>54 matches the div, 43 is cut</b> &rarr; the fix is right and the app already has it.<br>
-  <b>Both cut</b> &rarr; the descent metric is not the cause at this size, and WebKit's
-  centring of single-line inputs is the next place to look.<br>
-  <b>Neither cut</b> &rarr; this still is not reproducing the field, and I need the
-  component itself rather than a copy of it.
+  Read it top to bottom: the <b>first row that is whole</b> is the headroom your
+  screen needs. Then read the grey box — if <b>cached</b> and <b>network</b>
+  disagree, your browser was showing the old stylesheet.
 </p>
 
-<div id="report">…</div>
+<div id="report">checking…</div>
 
 <script>
-const BLOCKS = [
-  ['نجح  صحيح',      'final ج and medial ح'],
-  ['ج ح خ ع',        'the four bowls, isolated'],
-  ['مج  مح  مخ  مع', 'each bowl in final position'],
-];
+const AR = 'ج ح خ ع';
 const ROWS = [
-  ['div (ref)', 'Idris 54', 'asdiv'],
-  ['input 43',  'Idris 43', 'input'],
-  ['input 54',  'Idris 54', 'input'],
+  ['30', 'D30', 'the font as shipped — no override'],
+  ['43', 'D43', 'what shipped first: 0.013px spare at 18px'],
+  ['54', 'D54', 'what is live now: 1.99px spare'],
+  ['70', 'D70', '4.9px spare'],
+  ['90', 'D90', '8.5px spare'],
+  ['ref', 'D54', 'a div — cannot clip ink'],
 ];
-
-const host = document.getElementById('blocks');
-BLOCKS.forEach(([text, label]) => {
-  const b = document.createElement('div');
-  b.className = 'block';
-  let html = '<div class="blocktag">' + label + '</div>';
-  ROWS.forEach(([what, family, kind]) => {
-    const style = 'font-family:\'' + family + '\',sans-serif';
-    const cell = kind === 'input'
-      ? '<input readonly value="' + text + '" style="' + style + '">'
-      : '<div class="asdiv" style="' + style + '">' + text + '</div>';
-    html += '<div class="line"><span class="what">' + what + '</span>' +
-            '<div class="field">' + cell + '</div></div>';
-  });
-  b.innerHTML = html;
-  host.appendChild(b);
+const host = document.getElementById('rows');
+ROWS.forEach(([id, fam, detail]) => {
+  const d = document.createElement('div');
+  d.className = 'row';
+  const el = id === 'ref'
+    ? '<div class="asdiv" style="font-family:\'' + fam + '\',sans-serif">' + AR + '</div>'
+    : '<input readonly value="' + AR + '" style="font-family:\'' + fam + '\',sans-serif">';
+  d.innerHTML = '<div class="tag"><b>' + (id === 'ref' ? 'ref' : id + '%') + '</b> ' +
+                '<span>&mdash; ' + detail + '</span></div>' +
+                '<div class="field">' + el + '</div>';
+  host.appendChild(d);
 });
 
 (async () => {
+  const out = [];
+  out.push('device pixel ratio     : ' + devicePixelRatio);
+  out.push('viewport               : ' + innerWidth + ' x ' + innerHeight);
   try { await document.fonts.ready; } catch (e) {}
-  const l = f => { try { return document.fonts.check('18px "' + f + '"') ? 'loaded' : 'MISSING'; }
-                   catch (e) { return 'ERR'; } };
-  document.getElementById('report').textContent =
-    'Idris 43   ' + l('Idris 43') + '\n' +
-    'Idris 54   ' + l('Idris 54') + '\n\n' +
-    'ink 0.4293em -> at 18px the bowl needs 7.727px below the baseline\n' +
-    '  43% gives 7.740px  (0.013px spare)\n' +
-    '  54% gives 9.720px  (1.993px spare)\n\n' + navigator.userAgent;
+
+  /* Read the override straight out of the stylesheet the components page
+     uses — once from whatever the browser has cached, once from the network. */
+  const url = 'components/showcase.css';
+  const pick = t => { const m = t.match(/descent-override:\s*(\d+)%/); return m ? m[1] + '%' : '(none found)'; };
+  const get = async (mode) => {
+    try {
+      const r = await fetch(url + '?v=20260909t', { cache: mode });
+      return pick(await r.text());
+    } catch (e) { return 'fetch failed: ' + e.message; }
+  };
+  const cached = await get('force-cache');
+  const network = await get('reload');
+  out.push('');
+  out.push('components/showcase.css descent-override');
+  out.push('  cached copy  : ' + cached);
+  out.push('  network copy : ' + network);
+  out.push('  verdict      : ' + (cached === network
+      ? 'same — the page you saw was on ' + network
+      : 'DIFFERENT — the browser was showing the old stylesheet'));
+  out.push('');
+  out.push(navigator.userAgent);
+  document.getElementById('report').innerHTML = out.join('\n')
+    .replace(/DIFFERENT/, '<b>DIFFERENT</b>').replace(/same —/, '<b>same</b> —');
 })();
 </script>
 </body>
