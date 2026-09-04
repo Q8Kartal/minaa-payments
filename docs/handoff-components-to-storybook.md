@@ -11,6 +11,29 @@
 
 Do them in that order. Renaming first means the clean-up and the stories are written once, against the final names.
 
+## Sources of truth — read this before you copy anything (Ahmad, 2026-09-05)
+
+The old showcase page is a **migration and functional reference only**. It is **not** a visual design-system authority. Do not derive the new Storybook's page layout, spacing, colours, visual hierarchy, shape rules or any general rule from it.
+
+| source | authority |
+|---|---|
+| **Figma Foundations** | **Primary** visual and foundation source of truth: colour palette and colour variables, typography, spacing, layout rules, sizing, grid/responsive where defined, and any other approved variables. Migrated in a later phase; until then, do not restate them from the old page. |
+| **C-01 `jelly-theme`** | **Verified component-level reference for Minaã Light Mode and Dark Mode.** It survives the migration as design-system information, not as page styling. |
+| **Verified component decisions** | Source of truth for a component's own design and behaviour — the things confirmed on Ahmad's iPhone and recorded in `CLAUDE.md` Known Quirks and the docs below. |
+| **The showcase page around them** | Not authoritative. Its masthead, entry layout, controllers and captions are a harness. |
+
+**Where C-01 actually lives, so you preserve the right files:** the entry markup is C-01 in `index.html`; the definitions are the four-layer cascade in `minaa-jelly.css` (documented at its top: page default, `prefers-color-scheme: dark`, `jelly-theme[mode="dark"]` at line ~380, `jelly-theme[mode="light"]` at line ~447, each carrying the full `--m-*` set); the behaviour is `wireThemeDemo()` and `wireThemeSwitch()` in `showcase.js`. When Figma Foundations arrive they stay primary and are **reconciled** with this verified implementation where they differ — neither silently overwrites the other; the difference is raised.
+
+**Radius is not a Foundation.** Figma has no approved Radius foundation, scale or tokens. Do not create, infer or introduce one because radius values exist in the old code (`--radius-*`, `--m-surface-corner: 64px`, the "radius-64 step worth raising" note in the squircle skill). That note is an observation, not an approval.
+
+**Squircle is a design option, not a universal rule.** Minaã uses the squircle on certain surfaces — some cards and containers — and not automatically on every card, panel, container or component. The rule for future agents is a checkpoint, not a Foundation category:
+
+> When designing a new page, component, card, container, panel or other surface where shape treatment is relevant, ask Ahmad whether Squircle should be used for that specific case. Do not default to `border-radius`. Do not default to Squircle.
+
+The `/squircle` skill stays as the **how** (geometry, paint-don't-clip, the four traps) for the cases where Ahmad says yes. It is not the **whether**.
+
+**If a Foundation is not explicitly defined in Figma, do not invent it**, and do not promote a value from the old page into a permanent rule to fill the gap. Leave the gap visible and ask.
+
 ## What you are moving — the inventory
 
 The library is `components/` in the repo `Q8Kartal/minaa-payments` (public), plus five files it pulls from the repo root.
@@ -93,7 +116,7 @@ All in `CLAUDE.md` and `.claude/skills/squircle`; the short list:
 
 - **Never touch Jelly's physics.** The fork adds tokens only, every edit marked `MINAA`. Read `vendor/README.md`.
 - **Never clip a Jelly control.** ~44–48px of canvas bleed on every side; a clipping ancestor slices the press. Reserve room (`--space-600`), keep the page-level `html { overflow-x: clip }` as the backstop.
-- **Squircle is painted, never clipped.** `/squircle` skill: four traps that each shipped once. The dialog/drawer panels are still clipped and that is why the dialog's × renders square on iPhone — open item, Ahmad's call.
+- **Where a squircle is used, it is painted, never clipped.** `/squircle` skill: four traps that each shipped once. Whether a surface gets the squircle at all is Ahmad's decision per case (see Sources of truth). The dialog/drawer panels are still clipped and that is why the dialog's × renders square on iPhone — open item, Ahmad's call.
 - **Direction is fixed per build, never content-adaptive.** No `unicode-bidi: plaintext`, no `direction: ltr` islands. The page has a switch; each state is a whole build.
 - **No `letter-spacing` on Arabic.** WebKit applies it and breaks every join.
 - **Fonts: one family name per weight, `font-weight: 100 900` on every face**, `font-synthesis: none`. The two `…Field` faces with `descent-override: 54%` are used only by `::part(input)` / `::part(textarea)`.
@@ -103,6 +126,8 @@ All in `CLAUDE.md` and `.claude/skills/squircle`; the short list:
 - **Emulated mobile is not a mobile browser.** Anything touching SVG, flex, `::part` or text needs Ahmad's iPhone. His read of his screen beats any screenshot.
 
 ## Storybook — recommendation, to confirm with Ahmad
+
+The Storybook's **presentation** (its own layout, spacing, colours, hierarchy) is built from the Figma Foundations when that phase comes, not from the old showcase page. The list below is mechanics only. Final navigation is **Foundations** (Colors, Typography, Spacing, Motion, …) then **Components** (Button, Input, Select, …), even though components are migrated first — implementation order is not navigation order. No Radius entry under Foundations unless Figma gains one.
 
 - Framework: **`@storybook/web-components-vite`**. The components are custom elements with no framework; this is the matching renderer and needs no wrapper.
 - Load order in `.storybook/preview`: fonts → `vendor/jelly.js` (module) → `minaa-jelly.css` → `minaa-jelly.js` → `field-mirror.js` → `button-family.*` → `micons.js`. Same order as `index.html` today; the patcher must run after Jelly defines its elements.
