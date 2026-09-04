@@ -28,17 +28,31 @@ See `DESIGN.md` for the full system. Essentials:
   - No Fontstand, so **no per-domain licensing, no 403 on unregistered origins, no 10,000 pageview meter, and `file://` works**.
 - **Logo:** Blue seagull-on-bollard logomark — the official `Artboard 17.svg`, embedded as an SVG data URI in the `<img>` inside `.logo-wrap` (no text lockup)
 - **Icons — Micons, ours, and no third party.** The library is the Figma file
-  `BlltPtiVnS9ULiuMVKo2oM` (page `108:30`), 18 categories. The button-library
+  `BlltPtiVnS9ULiuMVKo2oM` (page `108:30`). **Replaced wholesale on 2026-09-04**
+  — new glyphs, new names, new tiers: **1241 icons in two tiers, `Bold` and
+  `Outline`, over 37 categories**, named `Micons/<Tier>/<Category>/<Name>`. The
+  two tiers carry identical name sets. The old `brand/*` / `-solid` / `-line`
+  tiers this file used to describe no longer exist. The button-library
   pages inline them as a `<symbol>` sprite in `buttons.js`, referenced with
   `<svg class="mi"><use href="#mi-NAME"/></svg>`; both builds share the one
   sprite, so an icon cannot differ between Arabic and English.
-  - **Choose by tier, in order: `brand/*` first, then `-solid`, then `-line`.**
-    If nothing in `brand` fits the subject, that gap is worth filling in the
-    library rather than settling. The tier never overrides meaning — the glyph
-    must reflect what the section is actually about, and matching on the
-    component's *name* is not the same as matching the subject.
+  - **Choose by tier, and the tier never overrides meaning** — the glyph must
+    reflect what the section is actually about, and matching on the
+    component's *name* is not the same as matching the subject. Two picks broke
+    exactly this way during the migration and were caught only by looking at
+    the drawings: the library's `Dialog` is a speech bubble (it means a
+    conversation, not a modal), and of the two entries both named `List`, one
+    draws a sort control. `Record Circle` is the standing example — it is
+    pixel-for-pixel a radio button and it means "start recording".
   - **Decide the tier for a whole set, not per icon.** One solid mark among
-    outline neighbours reads visibly heavier and breaks the row.
+    outline neighbours reads visibly heavier and breaks the row. The component
+    library is **Bold** throughout (Ahmad's call, 2026-09-04).
+  - **It is a general-purpose set, so it has no UI-component glyphs.** Searched
+    all 2482 entries: no button, toggle/switch, segmented control, popover,
+    tooltip, or checkbox-family radio. Those eight entries in
+    `components/micons.js` keep their previous glyphs and are listed there;
+    the honest fix is to draw them into the library, not to settle for a glyph
+    whose subject is something else.
   - Paths are re-coloured to `currentColor` on export, so icons inherit the
     surrounding text colour and the existing colour rules keep working.
     Strokes are 1.5 on a 24-unit grid — never rescale the stroke.
