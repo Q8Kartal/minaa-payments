@@ -238,6 +238,8 @@ top bar and icon rail.
   - A separate English LTR build will come later; do **not** make this page adaptive to reach it.
 - **iOS autofill:** Safari paints autofilled fields yellow. Masked via `jelly-input::part(input):-webkit-autofill`
 - **Never register a face at one weight when rules ask for another.** The browser then synthesises bold by smearing each glyph; Latin survives it, Arabic does not — joined strokes merge and counters fill. This shipped once and mangled the headings and button labels on phones. Fixed by declaring `font-weight: 100 900` on every `@font-face`.
+- **A single-line native `<input>` on iOS cuts the bowls off ج ح خ ع, and nothing set on the input changes that.** Two bugs that look identical: on desktop the cut was the font's short declared descent, fixed with `descent-override: 54%` on two `…Field` faces used only by `::part(input)` / `::part(textarea)`; on iOS the override is not applied at all and a bare input in the same box cuts at any metric, while a `<textarea>` or any `<div>` renders whole. So `field-mirror.js` (loaded by the library and the app) paints every `jelly-input`'s visible text in a div beneath its native input — same copied font and metrics so caret and glyphs share a baseline, colour re-read every paint so the theme follows, clipped at the content box and scrolled with the input, selection band drawn itself, placeholder in the input's own `::placeholder` colour, `type=password` left native. The input keeps everything Jelly binds to: focus, blur, input, change, `selectionStart`, `scrollLeft`, keyboard, autofill, forms. It loses only its ink, via `-webkit-text-fill-color` — **never `color`**, which the caret draws in and the mirror copies. It also reflects `maxlength`, which Jelly does not pass through. Falsified on the way and not worth re-chasing: glyph mis-mapping, descent headroom, `direction`, focus, `text-size-adjust`, the root clip. The lesson that cost a day: every harness had silently reset the cause — bisect *inside* the reproducing page, and read the cut off Ahmad's screen, not a downscaled screenshot.
+- **No `letter-spacing` on Arabic.** The eyebrow and entry numbers track the Latin small caps at `.14em`; Arabic is a connected script and tracking breaks every join. Blink refuses to apply letter-spacing to cursive scripts, so the desktop never shows it; WebKit applies what it is given, and the RTL eyebrow rendered as isolated forms on iPhone. `html[dir="rtl"]` zeroes it on `.eyebrow`, `.entry-num` and the masthead h1.
 
 ---
 
@@ -272,6 +274,13 @@ buttons.js            ← Behaviour, shared by both builds. **Bump the `?v=` on 
                          either shared file changes** — Pages serves them with
                          `max-age=600`, so without it a deploy hands visitors
                          new markup against stale styling for ten minutes.
+field-mirror.js       ← The field mirror: a jelly-input's visible text painted by a div
+                         beneath its native input, because a single-line native input
+                         on iOS cuts Arabic descenders. Loaded by the library AND the
+                         app — the one script both share. See Known Quirks.
+font-ios-check.html   ← Launcher for the iOS field bisect (`components/index.html?bisect`);
+font-ios-bisect.js       loads only behind that flag via a hook in showcase.js. Diagnostic,
+                         kept until the mirror has settled; remove both together.
 fonts/                ← 29LT Idris Round, self-hosted WOFF2 (Regular / Medium / ExtraBold)
 CLAUDE.md             ← This file — project context for Claude Code
 DESIGN.md             ← Design system: colour, type, spacing, components
