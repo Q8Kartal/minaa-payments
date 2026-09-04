@@ -3,179 +3,160 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Descender check — headroom</title>
+<title>Descender check — component</title>
 
 <!-- ══════════════════════════════════════════════════════════════════════
-     WHAT THIS PAGE NOW KNOWS, AND WHAT IT STILL CANNOT KNOW FROM HERE.
+     THE COMPONENT ITSELF, BISECTED ON THE DEVICE THAT REPORTS THE BUG.
 
-     Bisected on desktop Chrome (DPR 1.75), 2026-09-04, with the live field's
-     exact geometry — 18px type, 28px line box, 56px box, no padding, input
-     absolute at inset 0 — and a full computed-style diff between the native
-     jelly-input and a bare <input> in the same shadow root.
+     The phone has now cleared everything but the component:
+       - a bare input in the field's exact box renders whole at ANY declared
+         descent, 30% through 90%, idle or focused, typed into or not;
+       - the cached and network stylesheets agree, both 54%;
+       - the live <jelly-input>, on the same phone, cuts.
 
-     CLEARED, each by a direct test at real size: the Field faces (a div
-     renders every one whole), the line box (56px changed nothing), padding,
-     unicode-bidi, appearance, font-weight, overflow (the UA forces `clip`
-     back), the membrane canvas (below the content, and hidden it changed
-     nothing), Jelly's input handler (no inline style, scrollTop 0, and the
-     input renders the same with or without the event), and the shadow
-     environment (a bare input transplanted into it renders whole).
+     And the desktop this is written on does not reproduce the component cut
+     at all, so every comparison made here was uninformative. This page puts
+     real <jelly-input> elements on YOUR screen, one variable changed in each,
+     next to a bare input. The first variant that comes out whole names the
+     cause. The page loads exactly what the library loads for a field: Jelly,
+     the Minaã bridge, the same @font-face declarations, the shadow patcher.
 
-     ONE THEORY WAS A CONFOUND AND IS RECORDED SO IT IS NOT CHASED AGAIN.
-     "direction: ltr cuts, rtl is whole" held at 44px type in a 56px box, where
-     the BOX was clipping and direction only moved the line inside it. At a
-     proportional 3x — box scaled with the type — ltr and rtl are both whole,
-     and at real size the component is whole in every direction state here.
-
-     WHAT IS LEFT is the descent metric, which is the only lever that moved the
-     cut line at all — and the machine the report came from. On this machine
-     43% does not cut at 18px and neither does 54%. On Ahmad's PC and iPhone
-     the field cuts. Two explanations remain and this page tells them apart:
-
-       1. the browser held a cached index.html (Pages sends max-age=600) that
-          points at the OLD stylesheet — 43%, which has 0.013px of headroom.
-       2. 54% is still not enough headroom at that device-pixel ratio.
-
-     So: rows of the SAME field at rising override values, so whichever row is
-     the first whole one names the headroom the phone actually needs; and a
-     report that fetches the live components stylesheet twice — once from the
-     browser's cache, once from the network — and prints the override each one
-     carries. If those two numbers differ, it was the cache.
+       V0  stock                       — must be cut on your phone, or this
+                                          page is not reproducing the field
+       V1  membrane canvas hidden
+       V2  .jelly-content without its stacking context
+       V3  input on its own compositing layer (translateZ)
+       V4  input font-weight 400 instead of the inherited 500
+       V5  input line-height = the control height
+       V6  input -webkit-text-size-adjust: 100%
+       V7  input on a face THIS page declares (70%), bypassing ::part
+       ref a bare input in the same box, the way the last page drew it
      ══════════════════════════════════════════════════════════════════════ -->
 
+<!-- what the library loads, in the library's order -->
+<script type="module" src="components/vendor/jelly.js?v=20260909t"></script>
+<link rel="stylesheet" href="components/minaa-jelly.css?v=20260909t">
+
 <style>
-@font-face { font-family:"D30"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
-@font-face { font-family:"D43"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:43%;  font-weight:100 900; font-display:block; }
-@font-face { font-family:"D54"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:54%;  font-weight:100 900; font-display:block; }
-@font-face { font-family:"D70"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:70%;  font-weight:100 900; font-display:block; }
-@font-face { font-family:"D90"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:90%;  font-weight:100 900; font-display:block; }
+/* the faces as showcase.css declares them, paths from the repo root */
+@font-face { font-family:"29LT Idris Round Regular";   src:url("fonts/29LTIdrisRound-Regular.woff2")   format("woff2"); font-weight:100 900; font-display:block; }
+@font-face { font-family:"29LT Idris Round Medium";    src:url("fonts/29LTIdrisRound-Medium.woff2")    format("woff2"); font-weight:100 900; font-display:block; }
+@font-face { font-family:"29LT Idris Round ExtraBold"; src:url("fonts/29LTIdrisRound-ExtraBold.woff2") format("woff2"); font-weight:100 900; font-display:block; }
+@font-face { font-family:"29LT Idris Round Regular Field"; src:url("fonts/29LTIdrisRound-Regular.woff2") format("woff2"); descent-override:54%; font-weight:100 900; font-display:block; }
+@font-face { font-family:"29LT Idris Round Medium Field";  src:url("fonts/29LTIdrisRound-Medium.woff2")  format("woff2"); descent-override:54%; font-weight:100 900; font-display:block; }
+/* this page's own face, for the variant that bypasses ::part */
+@font-face { font-family:"Probe70"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:70%; font-weight:100 900; font-display:block; }
 
-:root { color-scheme: light; }
-html { font-synthesis: none; -webkit-text-size-adjust: 100%; }
-body { margin:0; padding:16px 12px 60px; background:#FDF9F0; color:#0062AD;
-       font:15px/1.45 system-ui, -apple-system, sans-serif; }
-h1 { font-size:18px; margin:0 0 4px; }
-.sub { font-size:12.5px; opacity:.75; margin:0 0 6px; }
-.row { border-top:1px solid rgba(0,98,173,.22); padding:11px 0 4px; }
-.tag { font:700 11px/1.35 ui-monospace, monospace; margin-bottom:7px; }
-.tag b { color:#E8411D; }
-.tag span { font-weight:400; opacity:.72; }
-
-/* the live field's box, copied off the component */
-.field { position:relative; height:56px; border:1px solid rgba(0,98,173,.32);
-         border-radius:9999px; background:#fff; }
-.field > * { position:absolute; inset:0; width:100%; height:56px; margin:0; padding:0 20px;
-             border:0; background:transparent; color:#0062AD; box-sizing:border-box;
-             font-size:18px; line-height:28px; direction:ltr; }
-.asdiv { display:flex; align-items:center; }
-
-.note { font-size:12.5px; margin:22px 0 0; padding:11px; background:#FFF3E8;
-        border:1px solid rgba(232,65,29,.32); border-radius:10px; }
-#report { margin-top:14px; font:11.5px/1.6 ui-monospace, monospace; white-space:pre-wrap;
-          background:#F2F8FF; padding:11px; border-radius:10px; }
-#report b { color:#E8411D; }
+body { margin:0; padding:16px 12px 60px; background:var(--m-page, #0062AD); color:var(--m-ink, #FBF0DC);
+       font-family:var(--font-regular, system-ui); }
+h1 { font-size:18px; margin:0 0 4px; font-family:var(--font-bold, inherit); }
+.sub { font-size:12.5px; opacity:.8; margin:0 0 6px; line-height:1.45; }
+.row { border-top:1px solid rgba(251,240,220,.25); padding:11px 0 6px; }
+.tag { font:700 11px/1.35 ui-monospace, monospace; margin-bottom:8px; opacity:.9; }
+.tag b { color:#FA937D; }
+.tag span { font-weight:400; opacity:.75; }
+.stage { display:flex; }
+/* the bare reference, drawn the way the previous page drew it */
+.field { position:relative; height:56px; width:280px; border:1px solid rgba(251,240,220,.4);
+         border-radius:9999px; }
+.field > input { position:absolute; inset:0; width:100%; height:56px; margin:0; padding:0 20px;
+                 border:0; background:transparent; color:#FBF0DC; box-sizing:border-box;
+                 font-family:"29LT Idris Round Medium Field", sans-serif; font-size:18px; line-height:28px; }
+.note { font-size:12.5px; line-height:1.45; margin:20px 0 0; padding:11px; background:rgba(251,240,220,.12);
+        border:1px solid rgba(251,240,220,.35); border-radius:10px; }
+#report { margin-top:14px; font:11px/1.6 ui-monospace, monospace; white-space:pre-wrap;
+          background:rgba(0,0,0,.25); padding:11px; border-radius:10px; }
 </style>
 </head>
 <body>
+<jelly-theme mode="auto">
 
-<h1>Descender check — headroom</h1>
-<p class="sub">The live field's exact box, at its real size, LTR like the English build.
-   Same font file in every row; only the declared descent changes.
-   Nothing can be typed into.</p>
+<h1>Descender check — the component</h1>
+<p class="sub">Real <code>&lt;jelly-input&gt;</code> fields, one thing changed in each.
+   Tap into one so it is focused, then screenshot. <b>V0 must be cut</b> — if it is not,
+   this page is not reproducing the field and I need to know that too.</p>
 
 <div id="rows"></div>
 
-<!-- SECOND SECTION, ADDED AFTER THE PHONE ANSWERED THE FIRST.
-     On the iPhone every readonly row above rendered whole — even 30%, no
-     override — while the live component, focused with the keyboard up, cut.
-     Every screenshot that ever showed the cut had a caret in the field. So
-     focus is the untested variable, and on iOS a focused field goes down a
-     different rendering path from an idle one. These rows are editable: tap
-     into each, type nothing, and screenshot with the keyboard up. If a bare
-     input clips only when focused, no metric fixes it on iOS and the visible
-     glyphs cannot live in the focused native input at all. -->
-<h2 style="font-size:13px;margin:22px 0 6px;opacity:.8;letter-spacing:.04em;text-transform:uppercase">
-  Tap into these — screenshot while the keyboard is up</h2>
-<div id="rows-live"></div>
+<p class="note">The first variant that is <b>whole while V0 is cut</b> is the cause.
+   If V7 is whole and V0 is cut, the bridge's field face is not reaching the input on this device.
+   If nothing is whole but <b>ref</b>, the cause is still inside the component and I bisect again.</p>
 
-<p class="note">
-  <b>Top section</b>, read top to bottom: the first row that is whole is the headroom
-  your screen needs.<br>
-  <b>Bottom section</b>: tap into a field and screenshot it focused. If it is cut only
-  while focused, the cause is iOS's focused-field rendering, not the font.<br>
-  Then the grey box — if <b>cached</b> and <b>network</b> disagree, earlier screenshots
-  were of the old stylesheet.
-</p>
+<div id="report">loading…</div>
 
-<div id="report">checking…</div>
+</jelly-theme>
 
+<script src="components/minaa-jelly.js?v=20260909t" defer></script>
 <script>
 const AR = 'ج ح خ ع';
-const ROWS = [
-  ['30', 'D30', 'the font as shipped — no override'],
-  ['43', 'D43', 'what shipped first: 0.013px spare at 18px'],
-  ['54', 'D54', 'what is live now: 1.99px spare'],
-  ['70', 'D70', '4.9px spare'],
-  ['90', 'D90', '8.5px spare'],
-  ['ref', 'D54', 'a div — cannot clip ink'],
+const VARIANTS = [
+  ['V0', 'stock — the live field', ''],
+  ['V1', 'membrane canvas hidden', 'canvas { visibility: hidden !important; }'],
+  ['V2', '.jelly-content without its stacking context', '.jelly-content { z-index: auto !important; }'],
+  ['V3', 'input on its own compositing layer', 'input { transform: translateZ(0) !important; }'],
+  ['V4', 'input font-weight 400', 'input { font-weight: 400 !important; }'],
+  ['V5', 'input line-height = control height', 'input { line-height: 56px !important; }'],
+  ['V6', 'input text-size-adjust 100%', 'input { -webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }'],
+  ['V7', 'face declared by THIS page, 70%, bypassing ::part', 'input { font-family: "Probe70", sans-serif !important; }'],
 ];
-const host = document.getElementById('rows');
-ROWS.forEach(([id, fam, detail]) => {
+
+const rows = document.getElementById('rows');
+const made = [];
+VARIANTS.forEach(([id, title, css]) => {
   const d = document.createElement('div');
   d.className = 'row';
-  const el = id === 'ref'
-    ? '<div class="asdiv" style="font-family:\'' + fam + '\',sans-serif">' + AR + '</div>'
-    : '<input readonly value="' + AR + '" style="font-family:\'' + fam + '\',sans-serif">';
-  d.innerHTML = '<div class="tag"><b>' + (id === 'ref' ? 'ref' : id + '%') + '</b> ' +
-                '<span>&mdash; ' + detail + '</span></div>' +
-                '<div class="field">' + el + '</div>';
-  host.appendChild(d);
+  d.innerHTML = '<div class="tag"><b>' + id + '</b> <span>&mdash; ' + title + '</span></div><div class="stage"></div>';
+  const el = document.createElement('jelly-input');
+  el.setAttribute('size', 'medium');
+  el.setAttribute('value', AR);
+  el.setAttribute('aria-label', id);
+  d.querySelector('.stage').appendChild(el);
+  rows.appendChild(d);
+  made.push({ id, el, css });
 });
-
-/* The editable set. Not readonly, so the phone can focus them; the value is
-   preset so nothing needs typing. inputmode="none" keeps the keyboard from
-   covering the field on the smallest phones while still focusing it. */
-const live = document.getElementById('rows-live');
-[['30', 'D30', 'no override'], ['54', 'D54', 'what is live'], ['90', 'D90', '8.5px spare']]
-  .forEach(([id, fam, detail]) => {
-    const d = document.createElement('div');
-    d.className = 'row';
-    d.innerHTML = '<div class="tag"><b>' + id + '% focused</b> <span>&mdash; ' + detail +
-                  ' &mdash; tap in</span></div>' +
-                  '<div class="field"><input value="' + AR + '" autocomplete="off" ' +
-                  'autocorrect="off" spellcheck="false" style="font-family:\'' + fam + '\',sans-serif"></div>';
-    live.appendChild(d);
-  });
+{
+  const d = document.createElement('div');
+  d.className = 'row';
+  d.innerHTML = '<div class="tag"><b>ref</b> <span>&mdash; a bare input in the same box</span></div>' +
+                '<div class="stage"><div class="field"><input value="' + AR + '" autocomplete="off" spellcheck="false"></div></div>';
+  rows.appendChild(d);
+}
 
 (async () => {
   const out = [];
-  out.push('device pixel ratio     : ' + devicePixelRatio);
-  out.push('viewport               : ' + innerWidth + ' x ' + innerHeight);
+  try { await customElements.whenDefined('jelly-input'); } catch (e) { out.push('jelly-input never defined: ' + e); }
   try { await document.fonts.ready; } catch (e) {}
+  await new Promise(r => setTimeout(r, 600));
 
-  /* Read the override straight out of the stylesheet the components page
-     uses — once from whatever the browser has cached, once from the network. */
-  const url = 'components/showcase.css';
-  const pick = t => { const m = t.match(/descent-override:\s*(\d+)%/); return m ? m[1] + '%' : '(none found)'; };
-  const get = async (mode) => {
-    try {
-      const r = await fetch(url + '?v=20260909t', { cache: mode });
-      return pick(await r.text());
-    } catch (e) { return 'fetch failed: ' + e.message; }
-  };
-  const cached = await get('force-cache');
-  const network = await get('reload');
+  /* Inject each variant's rule into its own shadow root, then read back what
+     the native input actually computed, so a rule that did not take is
+     visible in the report rather than silently making a row meaningless. */
+  made.forEach(({ id, el, css }) => {
+    const sr = el.shadowRoot;
+    if (!sr) { out.push(id + '  NO SHADOW ROOT'); return; }
+    if (css) { const st = document.createElement('style'); st.textContent = css; sr.appendChild(st); }
+    const n = sr.querySelector('input');
+    if (n && !n.value) n.value = AR;
+    const c = n ? getComputedStyle(n) : null;
+    out.push(id + '  ' + (c ? [
+      c.fontFamily.split(',')[0].replace(/"/g, ''),
+      c.fontSize, 'lh ' + c.lineHeight, 'w' + c.fontWeight,
+      Math.round(n.getBoundingClientRect().height) + 'px box'
+    ].join(' · ') : 'no input'));
+  });
+
+  const p = document.createElement('div');
+  p.style.cssText = 'position:fixed;left:-9999px;font-family:"29LT Idris Round Medium Field",sans-serif;font-size:18px;line-height:normal';
+  p.textContent = 'ح'; document.body.appendChild(p);
+  const h = p.getBoundingClientRect().height; p.remove();
+
   out.push('');
-  out.push('components/showcase.css descent-override');
-  out.push('  cached copy  : ' + cached);
-  out.push('  network copy : ' + network);
-  out.push('  verdict      : ' + (cached === network
-      ? 'same — the page you saw was on ' + network
-      : 'DIFFERENT — the browser was showing the old stylesheet'));
+  out.push('DPR ' + devicePixelRatio + ' · viewport ' + innerWidth + 'x' + innerHeight);
+  out.push('Field face natural height @18px: ' + (Math.round(h * 10) / 10) + 'px  (23.x means 54% is live here)');
+  out.push('patcher loaded: ' + (typeof window.minaaSquirclePath === 'function'));
   out.push('');
   out.push(navigator.userAgent);
-  document.getElementById('report').innerHTML = out.join('\n')
-    .replace(/DIFFERENT/, '<b>DIFFERENT</b>').replace(/same —/, '<b>same</b> —');
+  document.getElementById('report').textContent = out.join('\n');
 })();
 </script>
 </body>
