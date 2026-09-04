@@ -1,146 +1,128 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>iOS font check — Minaã</title>
+<title>iOS descender check — Minaã</title>
 
 <!-- ══════════════════════════════════════════════════════════════════════
-     WHY THIS PAGE EXISTS
+     WHAT THE FIRST VERSION OF THIS PAGE GOT WRONG
 
-     On iOS the value of a jelly-input renders as Arabic ح where the markup
-     says "Your name". Desktop is correct. The value uses the Medium FIELD
-     face and the placeholder, which renders correctly, uses the Regular
-     FIELD face — so the suspect is the Field faces themselves.
+     It asked whether iOS was drawing the wrong GLYPHS, and it answered that
+     question by accident: every <div> rendered "Your name" correctly in all
+     six faces. A face that mis-maps glyphs cannot draw a div correctly, so no
+     face is mis-mapping anything. The duplicate src and the descent-override
+     are both cleared.
 
-     Those faces exist for the 29LT descender fix: the same WOFF2 files
-     registered a SECOND time under their own family names, carrying
-     descent-override so a native <input> stops clipping ج ح خ ع. Two
-     @font-face rules therefore point at one URL, which is the thing WebKit
-     is being asked to keep straight.
+     It also had a hole: the inputs were editable, so they got typed into, and
+     six rows of different typed strings cannot be compared with each other.
+     Every input here is now readonly. Nothing on this page can be edited.
 
-     Each row below changes exactly one variable, so whichever rows are wrong
-     name the cause:
+     WHAT IT ASKS NOW is the question that was actually being tested by hand:
+     does a native <input> on iOS still cut the bowl off ج ح خ ع, and does
+     descent-override fix it there the way it does on desktop?
 
-       A  real faces, same file, NO override, no duplicate registration
-       B  field faces, same file registered twice, override ON
-       C  field faces from a COPY of the file at its own URL, override ON
-          (if B is broken and C is fine, the duplicate src is the cause)
-       D  field faces, duplicate src, override OFF
-          (if B is broken and D is fine, the override is the cause)
+     The pairing is the whole design. Each block shows one string three times:
 
-     Row C's URLs 404 until the copies exist — that is deliberate. A 404 row
-     falls back to the system font and reads as obviously plain, which is
-     itself a clear answer rather than a silent one.
+       div        cannot clip glyph ink at all — this is the reference
+       input OFF  the face as it ships to headings and buttons, no override
+       input ON   the same file with descent-override: 43%
+
+     Read the two inputs against the div directly above them. If ON matches the
+     div and OFF is cut, the override works on iOS and the app is already
+     correct. If BOTH are cut, the override does nothing on iOS and 29LT's
+     recommendation does not survive WebKit.
      ══════════════════════════════════════════════════════════════════════ -->
 
 <style>
-/* ── A · the real faces, exactly as the app ships them ─────────────────── */
-@font-face { font-family:"Idris Regular";  src:url("fonts/29LTIdrisRound-Regular.woff2") format("woff2"); font-weight:100 900; font-display:block; }
-@font-face { font-family:"Idris Medium";   src:url("fonts/29LTIdrisRound-Medium.woff2")  format("woff2"); font-weight:100 900; font-display:block; }
-
-/* ── B · the field faces as they ship: same URL, second family, override ── */
-@font-face { font-family:"Idris Regular Field"; src:url("fonts/29LTIdrisRound-Regular.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
-@font-face { font-family:"Idris Medium Field";  src:url("fonts/29LTIdrisRound-Medium.woff2")  format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
-
-/* ── C · same override, but its own file, so no src is shared ──────────── */
-@font-face { font-family:"Idris Medium CopyURL"; src:url("fonts/29LTIdrisRound-Medium-Field.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
-
-/* ── D · duplicate src again, but WITHOUT the override ─────────────────── */
-@font-face { font-family:"Idris Medium NoOverride"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
+/* No override — the face as headings and buttons get it. */
+@font-face { font-family:"Idris OFF"; src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); font-weight:100 900; font-display:block; }
+/* descent-override, as jelly-input gets it today. 0.4293 em of real ink at
+   3000 upem, rounded up; the font declares 0.300. */
+@font-face { font-family:"Idris ON";  src:url("fonts/29LTIdrisRound-Medium.woff2") format("woff2"); descent-override:43%; font-weight:100 900; font-display:block; }
 
 :root { color-scheme: light; }
-html { font-synthesis: none; }
+html { font-synthesis: none; -webkit-text-size-adjust: 100%; }
 body {
-  margin:0; padding:20px 16px 64px;
+  margin:0; padding:18px 14px 60px;
   background:#FDF9F0; color:#0062AD;
-  font:15px/1.4 system-ui, -apple-system, sans-serif;
+  font:15px/1.45 system-ui, -apple-system, sans-serif;
 }
 h1 { font-size:19px; margin:0 0 4px; }
-.sub { font-size:13px; opacity:.72; margin:0 0 20px; }
-.row { border-top:1px solid rgba(0,98,173,.22); padding:14px 0; }
-.tag { font:600 11px/1.3 ui-monospace, monospace; letter-spacing:.04em; opacity:.72; margin-bottom:8px; }
-.tag b { color:#E8411D; }
-.pair { display:grid; grid-template-columns:1fr; gap:8px; }
-.cell { display:flex; align-items:center; gap:10px; }
-.what { font:600 10px/1 ui-monospace, monospace; opacity:.55; min-width:52px; }
-input, .div {
+.sub { font-size:13px; opacity:.75; margin:0 0 18px; }
+.block { border-top:1px solid rgba(0,98,173,.22); padding:16px 0 4px; }
+.blocktag { font:600 11px/1.3 ui-monospace, monospace; letter-spacing:.03em; opacity:.7; margin-bottom:10px; }
+.line { display:flex; align-items:center; gap:9px; margin-bottom:9px; }
+.what { font:700 9px/1.1 ui-monospace, monospace; opacity:.6; min-width:64px; text-align:start; }
+.spec {
   flex:1; min-width:0; box-sizing:border-box;
-  font-size:20px; line-height:1.5;
-  padding:8px 12px; border:1px solid rgba(0,98,173,.35); border-radius:10px;
+  font-size:34px; line-height:1.5;
+  padding:6px 12px;
+  border:1px solid rgba(0,98,173,.3); border-radius:12px;
   background:#fff; color:#0062AD;
+  /* the input must not be nudged by anything but its own metrics */
+  margin:0; -webkit-appearance:none; appearance:none;
 }
-.div { background:#F2F8FF; }
-#report { margin-top:24px; font:12px/1.6 ui-monospace, monospace; white-space:pre-wrap;
-          background:#F2F8FF; padding:12px; border-radius:10px; }
-.verdict { margin-top:18px; font-size:14px; padding:12px; border-radius:10px;
-           background:#FFF3E8; border:1px solid rgba(232,65,29,.35); }
+.ref { background:#F2F8FF; }
+.note { font-size:12.5px; opacity:.8; margin:22px 0 0; padding:12px;
+        background:#FFF3E8; border:1px solid rgba(232,65,29,.3); border-radius:10px; }
+#report { margin-top:16px; font:11.5px/1.55 ui-monospace, monospace; white-space:pre-wrap;
+          background:#F2F8FF; padding:11px; border-radius:10px; direction:ltr; text-align:left; }
 </style>
 </head>
 <body>
 
-<h1>iOS font check</h1>
-<p class="sub">Every row shows the same two strings. Latin must read <b>Your name</b>.
-   If a row shows Arabic instead, that row&rsquo;s face is the broken one.</p>
+<h1>iOS descender check</h1>
+<p class="sub">Nothing here can be typed into &mdash; every field is <code>readonly</code>.
+   In each block, compare the two inputs against the <b>div</b> above them.
+   The div cannot clip glyph ink, so it shows the letters whole.</p>
 
-<div id="rows"></div>
+<div id="blocks"></div>
 
-<div class="verdict">
-  <b>How to read it:</b> if <b>B</b> is wrong and <b>C</b> is right, the shared
-  <code>src</code> is the cause. If <b>B</b> is wrong and <b>D</b> is right, the
-  <code>descent-override</code> is the cause. If <b>A</b> is also wrong, it is
-  neither — the file itself is the problem on iOS.
-</div>
+<p class="note">
+  <b>ON matches the div, OFF is cut</b> &rarr; <code>descent-override</code> works on iOS
+  and the app is already right.<br>
+  <b>Both cut the same</b> &rarr; the override does nothing on iOS, and the fix has to come
+  from somewhere else.<br>
+  <b>Nothing is cut anywhere</b> &rarr; there is no clipping left on your phone.
+</p>
 
-<div id="report">loading…</div>
+<div id="report">…</div>
 
 <script>
-/* One row per face, each drawn twice — once in a native <input>, which is what
-   is broken in the app, and once in a <div>, which cannot clip glyph ink and so
-   separates "wrong glyphs" from "clipped glyphs". */
-const LATIN = 'Your name';
-const ARABIC = 'حجخع';   /* ح ج خ ع — the deep descenders */
-
-const ROWS = [
-  ['A', 'Idris Regular',            'real face, no override'],
-  ['A', 'Idris Medium',             'real face, no override'],
-  ['B', 'Idris Regular Field',      'duplicate src + override  ← shipping'],
-  ['B', 'Idris Medium Field',       'duplicate src + override  ← shipping, THE SUSPECT'],
-  ['C', 'Idris Medium CopyURL',     'own file + override (404 until the copy exists)'],
-  ['D', 'Idris Medium NoOverride',  'duplicate src, no override'],
+/* Deep descenders only. uni062D.fina.PostLow — ح in a final position — is the
+   glyph measured at 0.4293 em, the deepest ink in the Medium face, against the
+   0.300 the font declares. The words are real so the shaper produces the final
+   forms rather than isolated ones. */
+const BLOCKS = [
+  ['نجح  صحيح', 'final ج and medial ح'],
+  ['ج ح خ ع', 'the four bowls, isolated'],
+  ['مج  مح  مخ  مع', 'each bowl in final position'],
 ];
 
-const host = document.getElementById('rows');
-ROWS.forEach(([group, family, note]) => {
-  const row = document.createElement('div');
-  row.className = 'row';
-  const text = LATIN + '  ' + ARABIC;
-  row.innerHTML =
-    '<div class="tag"><b>' + group + '</b> &nbsp;' + family + ' &mdash; ' + note + '</div>' +
-    '<div class="pair">' +
-      '<div class="cell"><span class="what">input</span>' +
-        '<input value="' + text + '" style="font-family:\'' + family + '\',system-ui" spellcheck="false"></div>' +
-      '<div class="cell"><span class="what">div</span>' +
-        '<div class="div" style="font-family:\'' + family + '\',system-ui">' + text + '</div></div>' +
-    '</div>';
-  host.appendChild(row);
+const host = document.getElementById('blocks');
+BLOCKS.forEach(([text, label]) => {
+  const b = document.createElement('div');
+  b.className = 'block';
+  b.innerHTML =
+    '<div class="blocktag">' + label + '</div>' +
+    '<div class="line"><span class="what">div (ref)</span>' +
+      '<div class="spec ref" style="font-family:\'Idris OFF\',sans-serif">' + text + '</div></div>' +
+    '<div class="line"><span class="what">input OFF</span>' +
+      '<input class="spec" readonly value="' + text + '" style="font-family:\'Idris OFF\',sans-serif"></div>' +
+    '<div class="line"><span class="what">input ON</span>' +
+      '<input class="spec" readonly value="' + text + '" style="font-family:\'Idris ON\',sans-serif"></div>';
+  host.appendChild(b);
 });
 
-/* Which faces the browser believes it loaded. A face that failed outright says
-   so here, which separates "did not load" from "loaded and drew nonsense". */
 (async () => {
   try { await document.fonts.ready; } catch (e) {}
-  const seen = [];
-  document.fonts.forEach(f => seen.push(f.family + '  ' + f.status));
-  const checks = ROWS.map(([, fam]) => {
-    let ok = false;
-    try { ok = document.fonts.check('20px "' + fam + '"'); } catch (e) {}
-    return '  ' + (ok ? 'OK  ' : 'MISS') + '  ' + fam;
-  });
+  let off = false, on = false;
+  try { off = document.fonts.check('34px "Idris OFF"'); } catch (e) {}
+  try { on  = document.fonts.check('34px "Idris ON"');  } catch (e) {}
   document.getElementById('report').textContent =
-    'document.fonts.check()\n' + checks.join('\n') +
-    '\n\nregistered faces (' + seen.length + ')\n  ' + seen.sort().join('\n  ') +
-    '\n\nUA\n  ' + navigator.userAgent;
+    'Idris OFF  ' + (off ? 'loaded' : 'MISSING') + '\n' +
+    'Idris ON   ' + (on  ? 'loaded' : 'MISSING') + '\n\n' + navigator.userAgent;
 })();
 </script>
 </body>
